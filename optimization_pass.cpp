@@ -119,6 +119,50 @@ namespace {
 
 		}
 
+		//LLVMValueRef llvmGenLocalStringVar(const char* data, int len){
+			//LLVMValueRef glob = LLVMAddGlobal(mod, LLVMArrayType(LLVMInt8Type(), len), "string");
+
+			//LLVMSetLinkage(glob, LLVMInternalLinkage);
+			//LLVMSetGlobalConstant(glob, TRUE);
+
+			//LLVMSetInitializer(glob, LLVMConstString(data, len, TRUE));
+
+			//return glob;
+		//}
+
+		GlobalVariable* make_global_str(Module& M, string name){
+
+			uint64_t length = (uint64_t) name.length()+1;
+			//cerr << "---------------------" << name << "---------" << length << endl;
+			ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
+
+			GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M, 
+					/*Type=*/ArrayTy_0,
+					/*isConstant=*/false,
+					/*Linkage=*/GlobalValue::ExternalLinkage,
+					/*Initializer=*/0, // has initializer, specified below
+					/*Name=*/"a");
+
+			Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
+
+			// Global Variable Definitions
+			gvar_array_a->setInitializer(const_array_2);
+
+			return gvar_array_a;
+
+		}
+
+
+Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
+	ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+	std::vector<Constant*> const_ptr_9_indices;
+	const_ptr_9_indices.push_back(const_int64_10);
+	const_ptr_9_indices.push_back(const_int64_10); 
+
+	Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
+	return const_ptr_9;
+}
+
 		virtual bool runOnModule(Module &M) {
 
 			mod_iterator(M, fn){
@@ -132,22 +176,43 @@ namespace {
 							string nameop1 = operandname( in->getOperand(0) );
 							string nameop2 = operandname( in->getOperand(1) );
 
-							cerr << "\033[31m " << nameres << "\033[0m" << endl;
-							cerr << "\033[31m " << nameop1 << "\033[0m" << endl;
-							cerr << "\033[31m " << nameop2 << "\033[0m" << endl;
+
+							GlobalVariable* c1 = make_global_str(M, nameres);
+							GlobalVariable* c2 = make_global_str(M, nameop1);
+							GlobalVariable* c3 = make_global_str(M, nameop2);
+
 
 
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "binary_op" ,
 										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
 										(Type *)0
 										));
 
 							BasicBlock::iterator insertpos = in; insertpos++;
-							CallInst* ci = CallInst::Create(InitFn, "", insertpos );
 
 
 
 
+std::vector<Value*> params;
+params.push_back(pointerToArray(M,c1));
+params.push_back(pointerToArray(M,c2));
+params.push_back(pointerToArray(M,c3));
+CallInst* void_13 = CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
+
+
+
+
+
+
+
+
+
+							//CallInst* ci = CallInst::Create(InitFn, "", insertpos );
 
 						}
 					}
