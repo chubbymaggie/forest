@@ -18,3 +18,8 @@
  * =====================================================================================
  */
 
+#include <stdio.h>
+
+void binary_op(char* a, char* b, char* c){
+	printf("operación binaria %s %s %s\n", a, b, c);
+}

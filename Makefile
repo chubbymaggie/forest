@@ -10,6 +10,12 @@ llvm-bc:
 	llvm-dis < get-sign-3.bc > salida2.txt # generar salida2 
 	meld salida1.txt salida2.txt # comparar salida1 y salida2
 
+final:
+	llc get-sign-3.bc -o get-sign-3.s
+	gcc -c get-sign-3.s -o get-sign-3.o
+	gcc -c operators.c  -o operators.o
+	gcc get-sign-3.o operators.o -o final
+
 
 all:
 	g++ -D TEST get-sign.cpp
