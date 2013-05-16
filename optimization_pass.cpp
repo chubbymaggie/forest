@@ -30,6 +30,8 @@
 #include "llvm/DerivedTypes.h"
 #include "llvm/Support/IRBuilder.h"
 #include <sstream>
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
 
 
@@ -39,16 +41,14 @@
 
 
 using namespace llvm;
-
-
-
+using namespace std;
 
 
 
 
 namespace {
-	struct FillNames : public ModulePass {
 
+	struct FillNames : public ModulePass {
 
 		void put_operator_names( Module &M ){
 
@@ -100,29 +100,56 @@ namespace {
 	};
 
 
-	struct Hello2 : public ModulePass {
+	struct BinaryOp: public ModulePass {
 		static char ID; // Pass identification, replacement for typeid
-		Hello2() : ModulePass(ID) {}
+		BinaryOp() : ModulePass(ID) {}
+
+		string operandname( Value* operand ){
+
+			if( ConstantInt::classof(operand) ){
+
+				ConstantInt* CI = dyn_cast<ConstantInt>(operand);
+				int64_t val = CI->getSExtValue();
+				stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+				return nameop1_ss.str();
+
+			} else {
+				return operand->getName().str();
+			}
+
+		}
+
 		virtual bool runOnModule(Module &M) {
 
-			//M.dump();
 			mod_iterator(M, fn){
 				fun_iterator(fn, bb){
 					blk_iterator(bb, in){
-						if(isa<BranchInst>(in)){
-							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "call_fn" ,
-										Type::getInt1Ty( M.getContext() ),
+						if( BinaryOperator::classof(in) ){
+
+
+
+							string nameres = in->getName().str();
+							string nameop1 = operandname( in->getOperand(0) );
+							string nameop2 = operandname( in->getOperand(1) );
+
+							cerr << "\033[31m " << nameres << "\033[0m" << endl;
+							cerr << "\033[31m " << nameop1 << "\033[0m" << endl;
+							cerr << "\033[31m " << nameop2 << "\033[0m" << endl;
+
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "binary_op" ,
+										Type::getVoidTy( M.getContext() ),
 										(Type *)0
 										));
 
-							BasicBlock::iterator insertpos = in;
+							BasicBlock::iterator insertpos = in; insertpos++;
 							CallInst* ci = CallInst::Create(InitFn, "", insertpos );
-							BranchInst* in_b = cast<BranchInst>(in);
-							if( in_b->isConditional() )
-								in_b->setCondition(ci);
+
+
+
+
 
 						}
-
 					}
 				}
 			}
@@ -134,8 +161,9 @@ namespace {
 }
 
 char FillNames::ID = 0;
-static RegisterPass<FillNames> X("v_instrument", "Fills operands and Block Names");
+static RegisterPass<FillNames> X("fill_names", "Fills operands and Block Names");
 
 
-char Hello2::ID = 0;
-static RegisterPass<Hello2> Y("v_instrument2", "Hello2 World Pass");
+char BinaryOp::ID = 0;
+static RegisterPass<BinaryOp> Y("binary_op", "Instrument binary operations");
+
