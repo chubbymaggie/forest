@@ -3,7 +3,7 @@
  * /
  * |     Filename:  optimization_pass.cpp
  * |
- * |  Description:  
+ * |  Description:
  * |
  * |      Version:  1.0
  * |      Created:  05/15/2013 05:27:39 PM
@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 
-#define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn ) 
+#define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
 #define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
 
@@ -145,7 +145,7 @@ namespace {
 			//cerr << "---------------------" << name << "---------" << length << endl;
 			ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
 
-			GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M, 
+			GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
 					/*Type=*/ArrayTy_0,
 					/*isConstant=*/false,
 					/*Linkage=*/GlobalValue::ExternalLinkage,
@@ -166,7 +166,7 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 	ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 	std::vector<Constant*> const_ptr_9_indices;
 	const_ptr_9_indices.push_back(const_int64_10);
-	const_ptr_9_indices.push_back(const_int64_10); 
+	const_ptr_9_indices.push_back(const_int64_10);
 
 	Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
 	return const_ptr_9;
@@ -258,7 +258,7 @@ struct LoadStore: public ModulePass {
 		//cerr << "---------------------" << name << "---------" << length << endl;
 		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
 
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M, 
+		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
 				/*Type=*/ArrayTy_0,
 				/*isConstant=*/false,
 				/*Linkage=*/GlobalValue::ExternalLinkage,
@@ -279,7 +279,7 @@ struct LoadStore: public ModulePass {
 		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 		std::vector<Constant*> const_ptr_9_indices;
 		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10); 
+		const_ptr_9_indices.push_back(const_int64_10);
 
 		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
 		return const_ptr_9;
@@ -377,7 +377,7 @@ struct IcmpInstr: public ModulePass {
 		//cerr << "---------------------" << name << "---------" << length << endl;
 		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
 
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M, 
+		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
 				/*Type=*/ArrayTy_0,
 				/*isConstant=*/false,
 				/*Linkage=*/GlobalValue::ExternalLinkage,
@@ -398,10 +398,45 @@ struct IcmpInstr: public ModulePass {
 		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 		std::vector<Constant*> const_ptr_9_indices;
 		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10); 
+		const_ptr_9_indices.push_back(const_int64_10);
 
 		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
 		return const_ptr_9;
+	}
+
+	string get_predicate( CmpInst* instr ){
+		switch( instr->getPredicate() ){
+
+			case CmpInst::FCMP_FALSE           : return "";
+			case CmpInst::FCMP_OEQ             : return "";
+			case CmpInst::FCMP_OGT             : return "";
+			case CmpInst::FCMP_OGE             : return "";
+			case CmpInst::FCMP_OLT             : return "";
+			case CmpInst::FCMP_OLE             : return "";
+			case CmpInst::FCMP_ONE             : return "";
+			case CmpInst::FCMP_ORD             : return "";
+			case CmpInst::FCMP_UNO             : return "";
+			case CmpInst::FCMP_UEQ             : return "";
+			case CmpInst::FCMP_UGT             : return "";
+			case CmpInst::FCMP_UGE             : return "";
+			case CmpInst::FCMP_ULT             : return "";
+			case CmpInst::FCMP_ULE             : return "";
+			case CmpInst::FCMP_UNE             : return "";
+			case CmpInst::FCMP_TRUE            : return "";
+			case CmpInst::BAD_FCMP_PREDICATE   : return "";
+			case CmpInst::ICMP_EQ              : return "=";
+			case CmpInst::ICMP_NE              : return "!=";
+			case CmpInst::ICMP_UGT             : return ">";
+			case CmpInst::ICMP_UGE             : return ">=";
+			case CmpInst::ICMP_ULT             : return "<";
+			case CmpInst::ICMP_ULE             : return "<=";
+			case CmpInst::ICMP_SGT             : return ">";
+			case CmpInst::ICMP_SGE             : return ">=";
+			case CmpInst::ICMP_SLT             : return "<";
+			case CmpInst::ICMP_SLE             : return "<=";
+			case CmpInst::BAD_ICMP_PREDICATE   : return "";
+
+		}
 	}
 
 	virtual bool runOnModule(Module &M) {
@@ -412,11 +447,11 @@ struct IcmpInstr: public ModulePass {
 				blk_iterator(bb, in){
 					if( CmpInst::classof(in) ){
 
-						
+
 						string nameres = "register_" + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );
-						string cmptype = "sle";
+						string cmptype = get_predicate( cast<CmpInst>(in) );
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
