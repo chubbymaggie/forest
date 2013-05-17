@@ -58,18 +58,27 @@ namespace {
 
 						if( UnaryInstruction::classof(in) ){
 							if( !in->getOperand(0)->hasName() )
-								in->getOperand(0)->setName("0");
+								in->getOperand(0)->setName("r");
 							if( !in->hasName() )
-								in->setName("0");
+								in->setName("r");
 						}
 
 						if( BinaryOperator::classof(in) ){
 							if( !in->getOperand(0)->hasName() )
-								in->getOperand(0)->setName("0");
+								in->getOperand(0)->setName("r");
 							if( !in->getOperand(1)->hasName() )
-								in->getOperand(1)->setName("0");
+								in->getOperand(1)->setName("r");
 							if( !in->hasName() )
-								in->setName("0");
+								in->setName("r");
+						}
+
+						if( CmpInst::classof(in) ){
+							if( !in->getOperand(0)->hasName() )
+								in->getOperand(0)->setName("r");
+							if( !in->getOperand(1)->hasName() )
+								in->getOperand(1)->setName("r");
+							if( !in->hasName() )
+								in->setName("r");
 						}
 
 					}}}
@@ -82,7 +91,7 @@ namespace {
 			mod_iterator(M, fun){
 				fun_iterator(fun,bb){
 					if( !bb->hasName() )
-						bb->setName("0");
+						bb->setName("b");
 				} }
 
 
@@ -343,17 +352,118 @@ struct LoadStore: public ModulePass {
 };
 
 
+struct IcmpInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	IcmpInstr() : ModulePass(ID) {}
+
+	string operandname( Value* operand ){
+
+		if( ConstantInt::classof(operand) ){
+
+			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
+			int64_t val = CI->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+			return nameop1_ss.str();
+
+		} else {
+			return "register_" + operand->getName().str();
+		}
+
+	}
+
+	GlobalVariable* make_global_str(Module& M, string name){
+
+		uint64_t length = (uint64_t) name.length()+1;
+		//cerr << "---------------------" << name << "---------" << length << endl;
+		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
+
+		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M, 
+				/*Type=*/ArrayTy_0,
+				/*isConstant=*/false,
+				/*Linkage=*/GlobalValue::ExternalLinkage,
+				/*Initializer=*/0, // has initializer, specified below
+				/*Name=*/"a");
+
+		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
+
+		// Global Variable Definitions
+		gvar_array_a->setInitializer(const_array_2);
+
+		return gvar_array_a;
+
+	}
+
+
+	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
+		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+		std::vector<Constant*> const_ptr_9_indices;
+		const_ptr_9_indices.push_back(const_int64_10);
+		const_ptr_9_indices.push_back(const_int64_10); 
+
+		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
+		return const_ptr_9;
+	}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( CmpInst::classof(in) ){
+
+						
+						string nameres = "register_" + in->getName().str();
+						string nameop1 = operandname( in->getOperand(0) );
+						string nameop2 = operandname( in->getOperand(1) );
+						string cmptype = "sle";
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, nameop1);
+						GlobalVariable* c3 = make_global_str(M, nameop2);
+						GlobalVariable* c4 = make_global_str(M, cmptype);
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "cmp_instr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
+						params.push_back(pointerToArray(M,c4));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+
+
+				}
+			}
+		}
+
+		return false;
+	}
+};
 
 }
 
 char FillNames::ID = 0;
-static RegisterPass<FillNames> X("fill_names", "Fills operands and Block Names");
+static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block Names");
 
 
 char BinaryOp::ID = 0;
-static RegisterPass<BinaryOp> Y("binary_op", "Instrument binary operations");
+static RegisterPass<BinaryOp> BinaryOp("binaryop", "Instrument binary operations");
 
 char LoadStore::ID = 0;
-static RegisterPass<LoadStore> Z("loadstore", "Instrument binary operations");
+static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument binary operations");
 
 
+char IcmpInstr::ID = 0;
+static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument binary operations");
