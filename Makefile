@@ -1,3 +1,4 @@
+.PHONY: final 
 
 llvm-bc:
 	sudo cp optimization_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp # copiar el paso a la carpeta
@@ -6,7 +7,7 @@ llvm-bc:
 	llvm-gcc -O0 --emit-llvm -c get-sign.cpp -o get-sign.bc # compilación del código a bc
 	opt -load /llvm-2.9/Release+Asserts/lib/LLVMHello.so -fill_names < get-sign.bc > get-sign-2.bc # primer paso de optimización 
 	llvm-dis < get-sign-2.bc > salida1.txt # generar salida1 
-	opt -load /llvm-2.9/Release+Asserts/lib/LLVMHello.so -binary_op < get-sign-2.bc > get-sign-3.bc # segundo paso de optimización --------
+	opt -load /llvm-2.9/Release+Asserts/lib/LLVMHello.so -loadstore < get-sign-2.bc > get-sign-3.bc # segundo paso de optimización --------
 	llvm-dis < get-sign-3.bc > salida2.txt # generar salida2 
 	meld salida1.txt salida2.txt # comparar salida1 y salida2
 
