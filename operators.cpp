@@ -20,6 +20,8 @@
 
 #include <stdio.h>
 
+extern "C" void binary_op(char*, char*, char*);
+
 void binary_op(char* a, char* b, char* c){
 	printf("operación binaria %s %s %s\n", a, b, c);
 }

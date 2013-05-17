@@ -13,7 +13,7 @@ llvm-bc:
 final:
 	llc get-sign-3.bc -o get-sign-3.s
 	gcc -c get-sign-3.s -o get-sign-3.o
-	gcc -c operators.c  -o operators.o
+	g++ -c operators.cpp  -o operators.o
 	gcc get-sign-3.o operators.o -o final
 
 
@@ -21,7 +21,7 @@ all:
 	g++ -D TEST get-sign.cpp
 
 clean:
-	rm -rf forest *.out *.bc salida*
+	rm -rf forest *.out *.bc salida* *.o *.s final test.cpp
 
 
 llvm-dfg:
