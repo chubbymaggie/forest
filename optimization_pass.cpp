@@ -18,8 +18,6 @@
  * =====================================================================================
  */
 
-
-
 #include "llvm/Pass.h"
 #include "llvm/Module.h"
 #include "llvm/Support/raw_ostream.h"
@@ -34,17 +32,12 @@
 #include <fstream>
 #include <stdio.h>
 
-
 #define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
 #define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
 
-
 using namespace llvm;
 using namespace std;
-
-
-
 
 namespace {
 
@@ -107,7 +100,6 @@ namespace {
 			return false;
 		}
 	};
-
 
 	struct BinaryOp: public ModulePass {
 		static char ID; // Pass identification, replacement for typeid
@@ -232,7 +224,6 @@ CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 		}
 	};
 
-
 struct LoadStore: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	LoadStore() : ModulePass(ID) {}
@@ -350,7 +341,6 @@ struct LoadStore: public ModulePass {
 		return false;
 	}
 };
-
 
 struct IcmpInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -492,13 +482,14 @@ struct IcmpInstr: public ModulePass {
 char FillNames::ID = 0;
 static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block Names");
 
-
 char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp("binaryop", "Instrument binary operations");
 
 char LoadStore::ID = 0;
 static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument binary operations");
 
-
 char IcmpInstr::ID = 0;
 static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument binary operations");
+
+
+
