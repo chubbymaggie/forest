@@ -41,6 +41,56 @@ using namespace std;
 
 namespace {
 
+	string operandname( Value* operand ){
+
+		if( ConstantInt::classof(operand) ){
+
+			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
+			int64_t val = CI->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+			return nameop1_ss.str();
+
+		} else {
+			return "register_" + operand->getName().str();
+		}
+
+	}
+
+	GlobalVariable* make_global_str(Module& M, string name){
+
+		uint64_t length = (uint64_t) name.length()+1;
+		//cerr << "---------------------" << name << "---------" << length << endl;
+		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
+
+		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
+				/*Type=*/ArrayTy_0,
+				/*isConstant=*/false,
+				/*Linkage=*/GlobalValue::ExternalLinkage,
+				/*Initializer=*/0, // has initializer, specified below
+				/*Name=*/"a");
+
+		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
+
+		// Global Variable Definitions
+		gvar_array_a->setInitializer(const_array_2);
+
+		return gvar_array_a;
+
+	}
+
+
+	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
+		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+		std::vector<Constant*> const_ptr_9_indices;
+		const_ptr_9_indices.push_back(const_int64_10);
+		const_ptr_9_indices.push_back(const_int64_10);
+
+		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
+		return const_ptr_9;
+	}
+
+
+
 	struct FillNames : public ModulePass {
 
 		void put_operator_names( Module &M ){
@@ -105,32 +155,6 @@ namespace {
 		static char ID; // Pass identification, replacement for typeid
 		BinaryOp() : ModulePass(ID) {}
 
-		string operandname( Value* operand ){
-
-			if( ConstantInt::classof(operand) ){
-
-				ConstantInt* CI = dyn_cast<ConstantInt>(operand);
-				int64_t val = CI->getSExtValue();
-				stringstream nameop1_ss; nameop1_ss << "constant_" << val;
-				return nameop1_ss.str();
-
-			} else {
-				return "register_" + operand->getName().str();
-			}
-
-		}
-
-		//LLVMValueRef llvmGenLocalStringVar(const char* data, int len){
-			//LLVMValueRef glob = LLVMAddGlobal(mod, LLVMArrayType(LLVMInt8Type(), len), "string");
-
-			//LLVMSetLinkage(glob, LLVMInternalLinkage);
-			//LLVMSetGlobalConstant(glob, TRUE);
-
-			//LLVMSetInitializer(glob, LLVMConstString(data, len, TRUE));
-
-			//return glob;
-		//}
-
 		GlobalVariable* make_global_str(Module& M, string name){
 
 			uint64_t length = (uint64_t) name.length()+1;
@@ -154,16 +178,6 @@ namespace {
 		}
 
 
-Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
-	ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
-	std::vector<Constant*> const_ptr_9_indices;
-	const_ptr_9_indices.push_back(const_int64_10);
-	const_ptr_9_indices.push_back(const_int64_10);
-
-	Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
-	return const_ptr_9;
-}
-
 		virtual bool runOnModule(Module &M) {
 
 			mod_iterator(M, fn){
@@ -171,18 +185,13 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 					blk_iterator(bb, in){
 						if( BinaryOperator::classof(in) ){
 
-
-
 							string nameres = "register_" + in->getName().str();
 							string nameop1 = operandname( in->getOperand(0) );
 							string nameop2 = operandname( in->getOperand(1) );
 
-
 							GlobalVariable* c1 = make_global_str(M, nameres);
 							GlobalVariable* c2 = make_global_str(M, nameop1);
 							GlobalVariable* c3 = make_global_str(M, nameop2);
-
-
 
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "binary_op" ,
 										Type::getVoidTy( M.getContext() ),
@@ -194,24 +203,11 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 
 							BasicBlock::iterator insertpos = in; insertpos++;
 
-
-
-
-std::vector<Value*> params;
-params.push_back(pointerToArray(M,c1));
-params.push_back(pointerToArray(M,c2));
-params.push_back(pointerToArray(M,c3));
-CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-
-
-
-
-
-
-
-
-
-
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
+							params.push_back(pointerToArray(M,c2));
+							params.push_back(pointerToArray(M,c3));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 							//CallInst* ci = CallInst::Create(InitFn, "", insertpos );
 
@@ -224,60 +220,13 @@ CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 		}
 	};
 
+
 struct LoadStore: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	LoadStore() : ModulePass(ID) {}
 
-	string operandname( Value* operand ){
-
-		if( ConstantInt::classof(operand) ){
-
-			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
-			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
-			return nameop1_ss.str();
-
-		} else {
-			return "register_" + operand->getName().str();
-		}
-
-	}
-
-	GlobalVariable* make_global_str(Module& M, string name){
-
-		uint64_t length = (uint64_t) name.length()+1;
-		//cerr << "---------------------" << name << "---------" << length << endl;
-		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
-
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
-				/*Type=*/ArrayTy_0,
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::ExternalLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/"a");
-
-		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
-
-		// Global Variable Definitions
-		gvar_array_a->setInitializer(const_array_2);
-
-		return gvar_array_a;
-
-	}
-
-
-	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
-		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
-		std::vector<Constant*> const_ptr_9_indices;
-		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10);
-
-		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
-		return const_ptr_9;
-	}
 
 	virtual bool runOnModule(Module &M) {
-
 
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
@@ -329,11 +278,6 @@ struct LoadStore: public ModulePass {
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}
-
-
-
-
-
 				}
 			}
 		}
@@ -345,54 +289,6 @@ struct LoadStore: public ModulePass {
 struct IcmpInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	IcmpInstr() : ModulePass(ID) {}
-
-	string operandname( Value* operand ){
-
-		if( ConstantInt::classof(operand) ){
-
-			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
-			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
-			return nameop1_ss.str();
-
-		} else {
-			return "register_" + operand->getName().str();
-		}
-
-	}
-
-	GlobalVariable* make_global_str(Module& M, string name){
-
-		uint64_t length = (uint64_t) name.length()+1;
-		//cerr << "---------------------" << name << "---------" << length << endl;
-		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
-
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
-				/*Type=*/ArrayTy_0,
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::ExternalLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/"a");
-
-		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
-
-		// Global Variable Definitions
-		gvar_array_a->setInitializer(const_array_2);
-
-		return gvar_array_a;
-
-	}
-
-
-	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
-		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
-		std::vector<Constant*> const_ptr_9_indices;
-		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10);
-
-		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
-		return const_ptr_9;
-	}
 
 	string get_predicate( CmpInst* instr ){
 		switch( instr->getPredicate() ){
@@ -437,7 +333,6 @@ struct IcmpInstr: public ModulePass {
 				blk_iterator(bb, in){
 					if( CmpInst::classof(in) ){
 
-
 						string nameres = "register_" + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );
@@ -467,8 +362,6 @@ struct IcmpInstr: public ModulePass {
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}
-
-
 				}
 			}
 		}
@@ -481,56 +374,7 @@ struct BrInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BrInstr() : ModulePass(ID) {}
 
-	string operandname( Value* operand ){
-
-		if( ConstantInt::classof(operand) ){
-
-			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
-			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
-			return nameop1_ss.str();
-
-		} else {
-			return "register_" + operand->getName().str();
-		}
-
-	}
-
-	GlobalVariable* make_global_str(Module& M, string name){
-
-		uint64_t length = (uint64_t) name.length()+1;
-		//cerr << "---------------------" << name << "---------" << length << endl;
-		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
-
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
-				/*Type=*/ArrayTy_0,
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::ExternalLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/"a");
-
-		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
-
-		// Global Variable Definitions
-		gvar_array_a->setInitializer(const_array_2);
-
-		return gvar_array_a;
-
-	}
-
-
-	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
-		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
-		std::vector<Constant*> const_ptr_9_indices;
-		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10);
-
-		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
-		return const_ptr_9;
-	}
-
 	virtual bool runOnModule(Module &M) {
-
 
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
@@ -540,6 +384,7 @@ struct BrInstr: public ModulePass {
 						BranchInst* in_b = cast<BranchInst>(in);
 
 						if( in_b->isConditional() ){
+
 							string nameop1 = operandname( in->getOperand(0) );
 
 							GlobalVariable* c2 = make_global_str(M, nameop1);
@@ -572,10 +417,7 @@ struct BrInstr: public ModulePass {
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 						}
-
 					}
-
-
 				}
 			}
 		}
@@ -588,54 +430,6 @@ struct BbMarks: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BbMarks() : ModulePass(ID) {}
 
-	string operandname( Value* operand ){
-
-		if( ConstantInt::classof(operand) ){
-
-			ConstantInt* CI = dyn_cast<ConstantInt>(operand);
-			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
-			return nameop1_ss.str();
-
-		} else {
-			return "register_" + operand->getName().str();
-		}
-
-	}
-
-	GlobalVariable* make_global_str(Module& M, string name){
-
-		uint64_t length = (uint64_t) name.length()+1;
-		//cerr << "---------------------" << name << "---------" << length << endl;
-		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
-
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
-				/*Type=*/ArrayTy_0,
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::ExternalLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/"a");
-
-		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
-
-		// Global Variable Definitions
-		gvar_array_a->setInitializer(const_array_2);
-
-		return gvar_array_a;
-
-	}
-
-
-	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
-		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
-		std::vector<Constant*> const_ptr_9_indices;
-		const_ptr_9_indices.push_back(const_int64_10);
-		const_ptr_9_indices.push_back(const_int64_10);
-
-		Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
-		return const_ptr_9;
-	}
-
 	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fn){
@@ -644,12 +438,12 @@ struct BbMarks: public ModulePass {
 				string namebb = bb->getName();
 				GlobalVariable* c1 = make_global_str(M,namebb);
 
-
 				Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_bb" ,
 							Type::getVoidTy( M.getContext() ),
 							Type::getInt8PtrTy( M.getContext() ),
 							(Type *)0
 							));
+
 				Value* EndFn = cast<Value> ( M.getOrInsertFunction( "end_bb" ,
 							Type::getVoidTy( M.getContext() ),
 							Type::getInt8PtrTy( M.getContext() ),
@@ -669,14 +463,14 @@ struct BbMarks: public ModulePass {
 					params.push_back(pointerToArray(M,c1));
 					CallInst::Create(EndFn, params.begin(), params.end(), "", insertpos);
 				}
-
-
 			}
 		}
 
 		return false;
+
 	}
 };
+
 }
 
 char FillNames::ID = 0;
