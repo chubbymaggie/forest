@@ -24,7 +24,7 @@ extern "C" void binary_op(char*, char*, char*);
 extern "C" void load_instr(char*, char*);
 extern "C" void store_instr(char*, char*);
 extern "C" void cmp_instr(char*, char*, char*, char*);
-extern "C" void br_instr_cond(char*);
+extern "C" bool br_instr_cond(char*);
 extern "C" void br_instr_incond();
 
 void binary_op(char* a, char* b, char* c){
@@ -46,9 +46,10 @@ void cmp_instr(char* a, char*b, char* c, char* d){
 }
 
 
-void br_instr_cond(char* a){
+bool br_instr_cond(char* a){
 
 	printf("branch_instr %s\n", a );
+	return true;
 
 }
 

@@ -546,7 +546,7 @@ struct BrInstr: public ModulePass {
 							GlobalVariable* c2 = make_global_str(M, nameop1);
 
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_instr_cond" ,
-										Type::getVoidTy( M.getContext() ),
+										Type::getInt1Ty( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										(Type *)0
 										));
@@ -555,7 +555,10 @@ struct BrInstr: public ModulePass {
 
 							std::vector<Value*> params;
 							params.push_back(pointerToArray(M,c2));
-							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+							CallInst* ci = CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+							if( in_b->isConditional() )
+								in_b->setCondition(ci);
 
 						} else {
 
