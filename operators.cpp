@@ -24,6 +24,8 @@ extern "C" void binary_op(char*, char*, char*);
 extern "C" void load_instr(char*, char*);
 extern "C" void store_instr(char*, char*);
 extern "C" void cmp_instr(char*, char*, char*, char*);
+extern "C" void br_instr_cond(char*);
+extern "C" void br_instr_incond();
 
 void binary_op(char* a, char* b, char* c){
 	printf("operación binaria %s %s %s\n", a, b, c);
@@ -42,3 +44,17 @@ void cmp_instr(char* a, char*b, char* c, char* d){
 	printf("cmp_instr %s %s %s %s\n", a, b, c, d);
 
 }
+
+
+void br_instr_cond(char* a){
+
+	printf("branch_instr %s\n", a );
+
+}
+
+void br_instr_incond(){
+
+	printf("branch_instr\n" );
+
+}
+
