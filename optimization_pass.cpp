@@ -41,6 +41,8 @@ using namespace std;
 
 namespace {
 
+// Helper Functions
+
 	string operandname( Value* operand ){
 
 		if( ConstantInt::classof(operand) ){
@@ -78,7 +80,6 @@ namespace {
 
 	}
 
-
 	Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 		ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 		std::vector<Constant*> const_ptr_9_indices;
@@ -89,7 +90,7 @@ namespace {
 		return const_ptr_9;
 	}
 
-
+// Optimization passes
 
 	struct FillNames : public ModulePass {
 
@@ -219,7 +220,6 @@ namespace {
 			return false;
 		}
 	};
-
 
 struct LoadStore: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
