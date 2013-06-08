@@ -90,6 +90,33 @@ namespace {
 		return const_ptr_9;
 	}
 
+string get_type_str_from_id(int typId){
+
+	switch(typId){
+
+		case  0: return "VoidTyID";
+		case  1: return "HalfTyID";
+		case  2: return "FloatTyID";
+		case  3: return "DoubleTyID";
+		case  4: return "X86_FP80TyID";
+		case  5: return "FP128TyID";
+		case  6: return "PPC_FP128TyID";
+		case  7: return "LabelTyID";
+		case  8: return "MetadataTyID";
+		//case  9: return "X86_MMXTyID";
+		case 9: return "IntegerTyID";
+		case 11: return "FunctionTyID";
+		case 12: return "StructTyID";
+		case 13: return "ArrayTyID";
+		case 14: return "PointerTyID";
+		case 15: return "VectorTyID";
+
+	}
+
+}
+
+
+
 // Optimization passes
 
 	struct FillNames : public ModulePass {
@@ -471,6 +498,51 @@ struct BbMarks: public ModulePass {
 	}
 };
 
+struct AllocaInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	AllocaInstr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( AllocaInst::classof(in) ){
+
+						AllocaInst* in_a = cast<AllocaInst>(in);
+
+						string nameres = "register_" + in->getName().str();
+
+						int TypId = in_a->getAllocatedType()->getTypeID();
+						string type = get_type_str_from_id(TypId);
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, type);
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "alloca_instr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
 }
 
 char FillNames::ID = 0;
@@ -490,4 +562,7 @@ static RegisterPass<BrInstr> BrInstr("brinstr", "Instrument branch operations");
 
 char BbMarks::ID = 0;
 static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument branch operations");
+
+char AllocaInstr::ID = 0;
+static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument branch operations");
 

@@ -28,6 +28,7 @@ extern "C" bool br_instr_cond(char*);
 extern "C" void br_instr_incond();
 extern "C" void begin_bb(char* a);
 extern "C" void end_bb(char* a);
+extern "C" void alloca_instr(char* a, char* b);
 
 
 void binary_op(char* a, char* b, char* c){
@@ -67,6 +68,9 @@ void begin_bb(char* a){
 	printf("begin_bb %s\n", a );
 }
 
+void alloca_instr(char* a, char* b){
+	printf("alloca_instr %s %s\n", a, b );
+}
 
 void end_bb(char* a){
 	printf("end_bb %s\n", a );
