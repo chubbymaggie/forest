@@ -115,8 +115,6 @@ string get_type_str_from_id(int typId){
 
 }
 
-
-
 // Optimization passes
 
 	struct FillNames : public ModulePass {
@@ -552,17 +550,17 @@ char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp("binaryop", "Instrument binary operations");
 
 char LoadStore::ID = 0;
-static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument binary operations");
+static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument load/store operations");
 
 char IcmpInstr::ID = 0;
-static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument binary operations");
+static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument comparison operations");
 
 char BrInstr::ID = 0;
 static RegisterPass<BrInstr> BrInstr("brinstr", "Instrument branch operations");
 
 char BbMarks::ID = 0;
-static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument branch operations");
+static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");
 
 char AllocaInstr::ID = 0;
-static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument branch operations");
+static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operations");
 
