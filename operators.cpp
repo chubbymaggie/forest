@@ -19,6 +19,8 @@
  */
 
 #include <stdio.h>
+#include <string>
+#include <map>
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -30,9 +32,23 @@ extern "C" void begin_bb(char* a);
 extern "C" void end_bb(char* a);
 extern "C" void alloca_instr(char* a, char* b);
 
+using namespace std;
+
+
+typedef struct Variable {
+	int type;
+	string content;
+} Variable;
+
+
+
+map<string, Variable> variables;
+
+
 
 void binary_op(char* a, char* b, char* c, char* d){
 	printf("operación binaria %s %s %s %s\n", a, b, c, d);
+	variables[string(a)].content = string(b) + "+" + string(d);
 }
 
 void load_instr(char* a, char*b){

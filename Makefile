@@ -15,7 +15,7 @@ final:
 	llc get-sign-3.bc -o get-sign-3.s
 	gcc -c get-sign-3.s -o get-sign-3.o
 	g++ -c operators.cpp  -o operators.o
-	gcc get-sign-3.o operators.o -o final
+	g++ get-sign-3.o operators.o -o final
 
 run:
 	./final

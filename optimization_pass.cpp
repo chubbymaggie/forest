@@ -557,7 +557,6 @@ struct AllocaInstr: public ModulePass {
 	}
 };
 
-
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -574,7 +573,6 @@ struct All: public ModulePass {
 		return false;
 	}
 };
-
 
 }
 
@@ -601,3 +599,4 @@ static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operat
 
 char All::ID = 0;
 static RegisterPass<All> All("all", "Instrument all operations");
+
