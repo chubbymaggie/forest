@@ -541,6 +541,25 @@ struct AllocaInstr: public ModulePass {
 	}
 };
 
+
+struct All: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	All() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		{BinaryOp      pass;   pass.runOnModule(M);}
+		{LoadStore     pass;   pass.runOnModule(M);}
+		{IcmpInstr     pass;   pass.runOnModule(M);}
+		{BrInstr       pass;   pass.runOnModule(M);}
+		{BbMarks       pass;   pass.runOnModule(M);}
+		{AllocaInstr   pass;   pass.runOnModule(M);}
+
+		return false;
+	}
+};
+
+
 }
 
 char FillNames::ID = 0;
@@ -564,3 +583,5 @@ static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");
 char AllocaInstr::ID = 0;
 static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operations");
 
+char All::ID = 0;
+static RegisterPass<All> All("all", "Instrument all operations");
