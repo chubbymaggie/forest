@@ -20,7 +20,7 @@
 
 #include <stdio.h>
 
-extern "C" void binary_op(char*, char*, char*);
+extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
 extern "C" void store_instr(char*, char*);
 extern "C" void cmp_instr(char*, char*, char*, char*);
@@ -31,8 +31,8 @@ extern "C" void end_bb(char* a);
 extern "C" void alloca_instr(char* a, char* b);
 
 
-void binary_op(char* a, char* b, char* c){
-	printf("operación binaria %s %s %s\n", a, b, c);
+void binary_op(char* a, char* b, char* c, char* d){
+	printf("operación binaria %s %s %s %s\n", a, b, c, d);
 }
 
 void load_instr(char* a, char*b){

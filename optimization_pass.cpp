@@ -115,6 +115,16 @@ string get_type_str_from_id(int typId){
 
 }
 
+string get_op_name_from_id(int opId){
+
+	switch(opId){
+
+		case  8: return "add";
+
+	}
+
+}
+
 // Optimization passes
 
 	struct FillNames : public ModulePass {
@@ -214,18 +224,23 @@ string get_type_str_from_id(int typId){
 							string nameres = "register_" + in->getName().str();
 							string nameop1 = operandname( in->getOperand(0) );
 							string nameop2 = operandname( in->getOperand(1) );
+							int nameop     = in->getOpcode();
 
 							GlobalVariable* c1 = make_global_str(M, nameres);
 							GlobalVariable* c2 = make_global_str(M, nameop1);
 							GlobalVariable* c3 = make_global_str(M, nameop2);
+							GlobalVariable* c4 = make_global_str(M, get_op_name_from_id(nameop));
+
 
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "binary_op" ,
 										Type::getVoidTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
 										(Type *)0
 										));
+
 
 							BasicBlock::iterator insertpos = in; insertpos++;
 
@@ -233,6 +248,7 @@ string get_type_str_from_id(int typId){
 							params.push_back(pointerToArray(M,c1));
 							params.push_back(pointerToArray(M,c2));
 							params.push_back(pointerToArray(M,c3));
+							params.push_back(pointerToArray(M,c4));
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 							//CallInst* ci = CallInst::Create(InitFn, "", insertpos );
