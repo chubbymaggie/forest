@@ -557,6 +557,45 @@ struct AllocaInstr: public ModulePass {
 	}
 };
 
+struct BeginEnd: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	BeginEnd() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		{
+			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_sim" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+		}
+
+		{
+			Function::iterator insertpos_f = M.getFunction("main")->end();
+			insertpos_f--;
+			BasicBlock::iterator insertpos_b = insertpos_f->end();
+			insertpos_b--;
+
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "end_sim" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos_b);
+		}
+
+		return false;
+	}
+};
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -596,6 +635,9 @@ static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");
 
 char AllocaInstr::ID = 0;
 static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operations");
+
+char BeginEnd::ID = 0;
+static RegisterPass<BeginEnd> BeginEnd("beginend", "Instrument begin and end of program");
 
 char All::ID = 0;
 static RegisterPass<All> All("all", "Instrument all operations");

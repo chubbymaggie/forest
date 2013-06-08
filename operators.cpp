@@ -31,6 +31,8 @@ extern "C" void br_instr_incond();
 extern "C" void begin_bb(char* a);
 extern "C" void end_bb(char* a);
 extern "C" void alloca_instr(char* a, char* b);
+extern "C" void begin_sim();
+extern "C" void end_sim();
 
 using namespace std;
 
@@ -90,5 +92,13 @@ void alloca_instr(char* a, char* b){
 
 void end_bb(char* a){
 	printf("end_bb %s\n", a );
+}
+
+void begin_sim(){
+	printf("Begin Simulation\n" );
+}
+
+void end_sim(){
+	printf("End Simulation\n" );
 }
 
