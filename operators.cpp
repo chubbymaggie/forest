@@ -48,29 +48,29 @@ map<string, Variable> variables;
 
 
 
-void binary_op(char* a, char* b, char* c, char* d){
-	printf("operación binaria %s %s %s %s\n", a, b, c, d);
-	variables[string(a)].content = string(b) + "+" + string(d);
+void binary_op(char* dst, char* op1, char* op2, char* operation){
+	printf("operación binaria %s %s %s %s\n", dst, op1, op2, operation);
+	variables[string(dst)].content = string(op1) + "+" + string(op2);
 }
 
-void load_instr(char* a, char*b){
-	printf("load instruction %s %s\n", a, b);
+void load_instr(char* dst, char* addr){
+	printf("load instruction %s %s\n", dst, addr);
 }
 
-void store_instr(char* a, char*b){
-	printf("store instruction %s %s\n", a, b);
+void store_instr(char* src, char* addr){
+	printf("store instruction %s %s\n", src, addr);
 }
 
-void cmp_instr(char* a, char*b, char* c, char* d){
+void cmp_instr(char* dst, char* cmp1, char* cmp2, char* type){
 
-	printf("cmp_instr %s %s %s %s\n", a, b, c, d);
+	printf("cmp_instr %s %s %s %s\n", dst, cmp1, cmp2, type);
 
 }
 
 
-bool br_instr_cond(char* a){
+bool br_instr_cond(char* cmp){
 
-	printf("branch_instr %s\n", a );
+	printf("branch_instr %s\n", cmp );
 	return true;
 
 }
@@ -82,16 +82,16 @@ void br_instr_incond(){
 }
 
 
-void begin_bb(char* a){
-	printf("begin_bb %s\n", a );
+void begin_bb(char* name){
+	printf("begin_bb %s\n", name );
 }
 
-void alloca_instr(char* a, char* b){
-	printf("alloca_instr %s %s\n", a, b );
+void alloca_instr(char* reg, char* type){
+	printf("alloca_instr %s %s\n", reg, type );
 }
 
-void end_bb(char* a){
-	printf("end_bb %s\n", a );
+void end_bb(char* name){
+	printf("end_bb %s\n", name );
 }
 
 void begin_sim(){
@@ -100,5 +100,9 @@ void begin_sim(){
 
 void end_sim(){
 	printf("End Simulation\n" );
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		printf("%s\n", it->second.content.c_str() );
+	}
+	
 }
 

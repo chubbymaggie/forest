@@ -595,7 +595,6 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
-
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -608,6 +607,7 @@ struct All: public ModulePass {
 		{BrInstr       pass;   pass.runOnModule(M);}
 		{BbMarks       pass;   pass.runOnModule(M);}
 		{AllocaInstr   pass;   pass.runOnModule(M);}
+		{BeginEnd      pass;   pass.runOnModule(M);}
 
 		return false;
 	}
