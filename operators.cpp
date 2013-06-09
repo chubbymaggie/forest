@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include <sstream>
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -36,8 +37,10 @@ extern "C" void end_sim();
 
 using namespace std;
 
+int alloca_pointer = 0;
 
 typedef struct Variable {
+	string real_value;
 	int type;
 	string content;
 } Variable;
@@ -47,24 +50,23 @@ typedef struct Variable {
 map<string, Variable> variables;
 
 
-
 void binary_op(char* dst, char* op1, char* op2, char* operation){
 	printf("operación binaria %s %s %s %s\n", dst, op1, op2, operation);
-	variables[string(dst)].content = string(op1) + "+" + string(op2);
+	variables[string(dst)].content = string(dst) + " = " + string(op1) + " + " + string(op2);
 }
 
 void load_instr(char* dst, char* addr){
 	printf("load instruction %s %s\n", dst, addr);
+	variables[string(dst)].content = string(dst) + " = mem_" + variables[string(addr)].real_value;
 }
 
 void store_instr(char* src, char* addr){
 	printf("store instruction %s %s\n", src, addr);
+	variables[string(addr)].content = "mem_" + variables[string(addr)].real_value + " = " + string(src);
 }
 
 void cmp_instr(char* dst, char* cmp1, char* cmp2, char* type){
-
 	printf("cmp_instr %s %s %s %s\n", dst, cmp1, cmp2, type);
-
 }
 
 
@@ -88,6 +90,10 @@ void begin_bb(char* name){
 
 void alloca_instr(char* reg, char* type){
 	printf("alloca_instr %s %s\n", reg, type );
+
+	stringstream realvalue; realvalue << alloca_pointer; 
+	variables[string(reg)].real_value = realvalue.str();
+	alloca_pointer++;
 }
 
 void end_bb(char* name){
@@ -101,7 +107,7 @@ void begin_sim(){
 void end_sim(){
 	printf("End Simulation\n" );
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		printf("%s\n", it->second.content.c_str() );
+		printf("\e[31m %s \e[0m\n", it->second.content.c_str() );
 	}
 	
 }
