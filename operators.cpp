@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <vector>
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -42,7 +43,7 @@ int alloca_pointer = 0;
 typedef struct Variable {
 	string real_value;
 	int type;
-	string content;
+	vector<string> contents;
 } Variable;
 
 
@@ -50,19 +51,58 @@ typedef struct Variable {
 map<string, Variable> variables;
 
 
-void binary_op(char* dst, char* op1, char* op2, char* operation){
-	printf("operación binaria %s %s %s %s\n", dst, op1, op2, operation);
-	variables[string(dst)].content = string(dst) + " = " + string(op1) + " + " + string(op2);
+string actual(string name){
+	stringstream ret; ret << name << "_" << variables[name].contents.size();
+	return ret.str();
 }
 
-void load_instr(char* dst, char* addr){
-	printf("load instruction %s %s\n", dst, addr);
-	variables[string(dst)].content = string(dst) + " = mem_" + variables[string(addr)].real_value;
+string past(string name){
+
+	stringstream ret;
+	if(variables[name].contents.size() == 0)
+		ret << name << "_" << "initial";
+	else 
+		ret << name << "_" << variables[name].contents.size()-1;
+	return ret.str();
 }
 
-void store_instr(char* src, char* addr){
-	printf("store instruction %s %s\n", src, addr);
-	variables[string(addr)].content = "mem_" + variables[string(addr)].real_value + " = " + string(src);
+void assign_instruction(string src, string dst){
+
+	stringstream content;
+
+	content << actual(dst) << " = " << past(src);
+	variables[string(dst)].contents.push_back( content.str() );
+
+}
+
+void binary_instruction(string dst, string op1, string op2, string operation){
+
+	stringstream content;
+	content << actual(dst) << " = " << past(op1) << " " << "+" << " " << past(op2);
+	variables[dst].contents.push_back( content.str() );
+}
+
+void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
+	printf("operación binaria %s %s %s %s\n", _dst, _op1, _op2, _operation);
+	string dst = string(_dst);
+	string op1 = string(_op1);
+	string op2 = string(_op2);
+	string operation = string(_operation);
+	binary_instruction(dst, op1, op2, operation);
+}
+
+void load_instr(char* _dst, char* _addr){
+	printf("load instruction %s %s\n", _dst, _addr);
+	string dst = string(_dst);
+	string src = "mem_" + variables[string(_addr)].real_value;
+	assign_instruction(src, dst);
+}
+
+void store_instr(char* _src, char* _addr){
+	printf("store instruction %s %s\n", _src, _addr);
+	string src = string(_src);
+	string dst = "mem_" + variables[string(_addr)].real_value;
+	assign_instruction(src, dst);
 }
 
 void cmp_instr(char* dst, char* cmp1, char* cmp2, char* type){
@@ -107,7 +147,10 @@ void begin_sim(){
 void end_sim(){
 	printf("End Simulation\n" );
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		printf("\e[31m %s \e[0m\n", it->second.content.c_str() );
+		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
+			printf("\e[31m %s \e[0m\n", it2->c_str() );
+		}
+		
 	}
 	
 }
