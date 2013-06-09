@@ -23,6 +23,7 @@
 #include <map>
 #include <sstream>
 #include <vector>
+#include <set>
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -46,10 +47,8 @@ typedef struct Variable {
 	vector<string> contents;
 } Variable;
 
-
-
 map<string, Variable> variables;
-
+set<string> variable_names;
 
 string actual(string name){
 	stringstream ret; ret << name << "_" << variables[name].contents.size();
@@ -73,6 +72,9 @@ void assign_instruction(string src, string dst){
 	content << actual(dst) << " = " << past(src);
 	variables[string(dst)].contents.push_back( content.str() );
 
+	variable_names.insert(actual(dst));
+	variable_names.insert(past(src));
+
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
@@ -80,6 +82,11 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	stringstream content;
 	content << actual(dst) << " = " << past(op1) << " " << "+" << " " << past(op2);
 	variables[dst].contents.push_back( content.str() );
+
+	variable_names.insert(actual(dst));
+	variable_names.insert(past(op1));
+	variable_names.insert(past(op2));
+
 }
 
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
@@ -109,7 +116,6 @@ void cmp_instr(char* dst, char* cmp1, char* cmp2, char* type){
 	printf("cmp_instr %s %s %s %s\n", dst, cmp1, cmp2, type);
 }
 
-
 bool br_instr_cond(char* cmp){
 
 	printf("branch_instr %s\n", cmp );
@@ -122,7 +128,6 @@ void br_instr_incond(){
 	printf("branch_instr\n" );
 
 }
-
 
 void begin_bb(char* name){
 	printf("begin_bb %s\n", name );
@@ -144,14 +149,28 @@ void begin_sim(){
 	printf("Begin Simulation\n" );
 }
 
-void end_sim(){
-	printf("End Simulation\n" );
+void dump_assigns(){
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
 			printf("\e[31m %s \e[0m\n", it2->c_str() );
 		}
 		
 	}
+}
+
+void dump_variables(){
+
+	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+		printf("\e[32m %s \e[0m\n", it->c_str());
+	}
+	
+
+}
+
+void end_sim(){
+	printf("End Simulation\n" );
+	dump_variables();
+	dump_assigns();
 	
 }
 
