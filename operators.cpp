@@ -24,6 +24,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#include <boost/regex.hpp>
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -51,7 +52,6 @@ map<string, Variable> variables;
 set<string> variable_names;
 vector<string> conditions;
 
-
 string realvalue(string name){
 
 	if( name.find("constant") != string::npos )
@@ -62,8 +62,6 @@ string realvalue(string name){
 		return variables[name].real_value;
 
 }
-
-
 
 string actual(string name){
 	stringstream ret; ret << name << "_" << variables[name].contents.size();
@@ -148,8 +146,8 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if( variables[dst].type == "" )
 		variables[dst].type = variables[op1].type;
-	if( variables[src].type == "" )
-		variables[src].type = variables[op1].type;
+	if( variables[op1].type == "" )
+		variables[op1].type = variables[dst].type;
 
 
 	if(operation == "<="){
@@ -319,7 +317,10 @@ void dump_assigns(){
 }
 
 string type(string name){
-	return variables[name].type;
+	if (variables[name].type == "IntegerTyID")
+		return "Int";
+	else
+		return "";
 }
 
 string get_type(string name){
@@ -333,10 +334,43 @@ string get_type(string name){
 
 }
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
 void dump_variables(){
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+
+		vector<string> tokens = tokenize(*it, " ");
+
+		string name = tokens[1];
+		string type = get_type(*it);
+
+		printf("(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
+		//printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+		
 	}
 	
 
@@ -352,11 +386,23 @@ void dump_conditions(){
 
 }
 
+void dump_header(){
+	printf("(set-option :produce-models true)\n");
+	printf("(set-logic QF_NIA)\n");
+
+}
+
+void dump_tail(){
+	printf("(check-sat)\n");
+}
+
 void end_sim(){
 	printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
+	dump_header();
 	dump_variables();
 	dump_assigns();
 	dump_conditions();
+	dump_tail();
 	
 }
 
