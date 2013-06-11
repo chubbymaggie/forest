@@ -63,6 +63,33 @@ string realvalue(string name){
 
 }
 
+
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
+
 string actual(string name){
 	stringstream ret; ret << name << "_" << variables[name].contents.size();
 	return ret.str();
@@ -310,7 +337,22 @@ void begin_sim(){
 void dump_assigns(){
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
-			printf("\e[31m %s \e[0m\n", it2->c_str() );
+
+
+			vector<string> tokens = tokenize(*it2, " ");
+		
+			//printf("\e[31m %s \e[0m\n", it2->c_str() );
+			if(tokens.size() == 5){
+				if( tokens[3] == "<=" ){
+					continue;
+				}
+				printf("(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
+			} else {
+				printf("(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
+			}
+
+
+
 		}
 		
 	}
@@ -334,29 +376,6 @@ string get_type(string name){
 
 }
 
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
 
 
 void dump_variables(){
