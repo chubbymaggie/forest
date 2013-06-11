@@ -116,9 +116,11 @@ string get_type_str_from_id(int typId){
 
 string get_op_name_from_id(int opId){
 
+
 	switch(opId){
 
 		case  8: return "add";
+		case 10: return "sub";
 
 	}
 

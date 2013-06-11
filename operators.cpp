@@ -115,10 +115,14 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	}
 
 	if(operation == "add"){
-		stringstream result; result << stoi(realvalue(op1))+ stoi(realvalue(op2));
+		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
 		variables[dst].real_value = result.str();
 	}
 
+	if(operation == "sub"){
+		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
+		variables[dst].real_value = result.str();
+	}
 
 
 }
@@ -197,9 +201,9 @@ bool br_instr_cond(char* _cmp){
 
 	printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
 
-	//for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
-		//printf("content %s\n", it->c_str());
-	//}
+	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
+		printf("\e[32m content \e[0m %s\n", it->c_str());
+	}
 
 	//if( satisfiable(variables, cmp,  ) )
 
