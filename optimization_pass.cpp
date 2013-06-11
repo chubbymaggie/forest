@@ -119,8 +119,8 @@ string get_op_name_from_id(int opId){
 
 	switch(opId){
 
-		case  8: return "add";
-		case 10: return "sub";
+		case  8: return "+";
+		case 10: return "-";
 
 	}
 

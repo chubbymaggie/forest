@@ -49,6 +49,7 @@ typedef struct Variable {
 
 map<string, Variable> variables;
 set<string> variable_names;
+vector<string> conditions;
 
 
 string realvalue(string name){
@@ -89,7 +90,7 @@ void assign_instruction(string src, string dst){
 	variable_names.insert(actual(dst));
 	variable_names.insert(past(src));
 
-	variables[dst].real_value = variables[src].real_value;
+	variables[dst].real_value = realvalue(src);
 
 }
 
@@ -111,15 +112,15 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 	if(operation == "<="){
-		variables[dst].real_value = ( stoi(variables[op1].real_value) <= stoi(variables[op2].real_value) )?"true":"false";
+		variables[dst].real_value = ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false";
 	}
 
-	if(operation == "add"){
+	if(operation == "+"){
 		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
 		variables[dst].real_value = result.str();
 	}
 
-	if(operation == "sub"){
+	if(operation == "-"){
 		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
 		variables[dst].real_value = result.str();
 	}
@@ -143,9 +144,9 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 void load_instr(char* _dst, char* _addr){
 	string dst = string(_dst);
-	string src = "mem_" + variables[string(_addr)].real_value;
-
 	string addr = string(_addr);
+	string src = "mem_" + realvalue(addr);
+
 	assign_instruction(src, dst);
 
 	printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
@@ -193,6 +194,23 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 									 dst.c_str(), realvalue(dst).c_str() );
 }
 
+string extract_condition(string content){
+	int n = (int)content.find("=") + 2;
+	return content.substr(n);
+}
+
+void push_condition(string name){
+
+
+	string content = variables[name].contents[variables[name].contents.size()-1];
+	string condition = extract_condition(content);
+
+	conditions.push_back( condition );
+}
+
+
+
+
 bool br_instr_cond(char* _cmp){
 
 
@@ -204,6 +222,8 @@ bool br_instr_cond(char* _cmp){
 	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
 		printf("\e[32m content \e[0m %s\n", it->c_str());
 	}
+
+	push_condition(cmp);
 
 	//if( satisfiable(variables, cmp,  ) )
 
@@ -221,18 +241,21 @@ void begin_bb(char* name){
 	printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
-void alloca_instr(char* reg, char* type){
+void alloca_instr(char* _reg, char* _type){
 
-	stringstream realvalue; realvalue << alloca_pointer; 
-	variables[string(reg)].real_value = realvalue.str();
+	string reg = string(_reg);
+	string type = string(_type);
 
-	stringstream mem_var; mem_var << "mem_" << realvalue.str().c_str();
+	stringstream rvalue; rvalue << alloca_pointer; 
+	variables[reg].real_value = rvalue.str();
+
+	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
 
 	variables[mem_var.str()].real_value = "0";
 
 	alloca_pointer++;
 
-	printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg, type, reg, variables[reg].real_value.c_str(), mem_var.str().c_str(), variables[mem_var.str()].real_value.c_str() );
+	printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
 void end_bb(char* name){
@@ -261,10 +284,21 @@ void dump_variables(){
 
 }
 
+void dump_conditions(){
+
+	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		printf("\e[33m %s \e[0m\n", it->c_str() );
+	}
+	
+
+
+}
+
 void end_sim(){
 	printf("\e[31m End Simulation\e[0m\n" );
 	dump_variables();
 	dump_assigns();
+	dump_conditions();
 	
 }
 
