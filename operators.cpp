@@ -50,6 +50,20 @@ typedef struct Variable {
 map<string, Variable> variables;
 set<string> variable_names;
 
+
+string realvalue(string name){
+
+	if( name.find("constant") != string::npos )
+		return name.substr(9);
+	else if( variables[name].real_value == "" )
+		return "0";
+	else
+		return variables[name].real_value;
+
+}
+
+
+
 string actual(string name){
 	stringstream ret; ret << name << "_" << variables[name].contents.size();
 	return ret.str();
@@ -75,6 +89,14 @@ void assign_instruction(string src, string dst){
 	variable_names.insert(actual(dst));
 	variable_names.insert(past(src));
 
+	variables[dst].real_value = variables[src].real_value;
+
+}
+
+int stoi(string str){
+	int ret;
+	sscanf(str.c_str(), "%d", &ret);
+	return ret;
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
@@ -87,51 +109,67 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	variable_names.insert(past(op1));
 	variable_names.insert(past(op2));
 
+
+	if(operation == "<="){
+		variables[dst].real_value = ( stoi(variables[op1].real_value) <= stoi(variables[op2].real_value) )?"true":"false";
+	}
+
+	if(operation == "add"){
+		stringstream result; result << stoi(realvalue(op1))+ stoi(realvalue(op2));
+		variables[dst].real_value = result.str();
+	}
+
+
+
 }
 
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
-	printf("operación binaria %s %s %s %s\n", _dst, _op1, _op2, _operation);
 	string dst = string(_dst);
 	string op1 = string(_op1);
 	string op2 = string(_op2);
 	string operation = string(_operation);
+
 	binary_instruction(dst, op1, op2, operation);
+
+	printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
+			                                                        op1.c_str(), realvalue(op1).c_str(),
+									        op2.c_str(), realvalue(op2).c_str(),
+										_dst, realvalue(dst).c_str() );
 }
 
 void load_instr(char* _dst, char* _addr){
-	printf("load instruction %s %s\n", _dst, _addr);
 	string dst = string(_dst);
 	string src = "mem_" + variables[string(_addr)].real_value;
+
+	string addr = string(_addr);
 	assign_instruction(src, dst);
 
-	variables[dst].real_value = variables[src].real_value;
-	printf("variables[%s].real_value = variables[%s].real_value;\n", dst.c_str(), src.c_str() );
+	printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
+							            dst.c_str(), realvalue(dst).c_str(),
+								    addr.c_str(), realvalue(addr).c_str(),
+								    src.c_str(), realvalue(src).c_str()
+								    );
 }
+
+
 
 void store_instr(char* _src, char* _addr){
-	printf("store instruction %s %s\n", _src, _addr);
 	string src = string(_src);
-	string dst = "mem_" + variables[string(_addr)].real_value;
+	string addr = string(_addr);
+	string dst = "mem_" + realvalue(string(_addr)) ;
 	assign_instruction(src, dst);
-}
 
-int stoi(string str){
-	int ret;
-	sscanf(str.c_str(), "%d", &ret);
-	return ret;
-}
+	printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",_src, _addr,
+			                                           src.c_str(), realvalue(src).c_str(),
+								   addr.c_str(), realvalue(addr).c_str(),
+								   dst.c_str(), realvalue(dst).c_str() );
 
-string realvalue(string name){
-
-	if( name.find("constant") != string::npos )
-		return name.substr(9);
-	else
-		return variables[name].real_value;
 
 }
+
+
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
-	printf("cmp_instr %s %s %s %s\n", _dst, _cmp1, _cmp2, _type);
 
 
 	string dst  = string(_dst);
@@ -139,28 +177,29 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	string cmp2 = string(_cmp2);
 	string type = string(_type);
 
-	printf("real_value cmp1 %s\n", realvalue(cmp1).c_str() );
-	printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
+	//printf("real_value cmp1 %s\n", realvalue(cmp1).c_str() );
+	//printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
+	
 
 	binary_instruction(dst, cmp1, cmp2, type);
 
-	if(type == "<="){
-		variables[dst].real_value = ( stoi(variables[cmp1].real_value) <= stoi(variables[cmp2].real_value) )?"true":"false";
-	}
+	printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _cmp1, _cmp2, _type, 
+			                                                 cmp1.c_str(), realvalue(cmp1).c_str(),
+									 cmp2.c_str(), realvalue(cmp2).c_str(),
+									 dst.c_str(), realvalue(dst).c_str() );
 }
 
 bool br_instr_cond(char* _cmp){
 
-	printf("conditional_branch_instr %s\n", _cmp );
+
 
 	string cmp = string(_cmp);
 
-	printf("real_value %s\n", variables[cmp].real_value.c_str() );
+	printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
 
-	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
-		printf("content %s\n", it->c_str());
-	}
-	
+	//for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
+		//printf("content %s\n", it->c_str());
+	//}
 
 	//if( satisfiable(variables, cmp,  ) )
 
@@ -170,16 +209,15 @@ bool br_instr_cond(char* _cmp){
 
 void br_instr_incond(){
 
-	printf("inconditional_branch_instr\n" );
+	printf("\e[31m inconditional_branch_instr\e[0m\n" );
 
 }
 
 void begin_bb(char* name){
-	printf("begin_bb %s\n", name );
+	printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
 void alloca_instr(char* reg, char* type){
-	printf("alloca_instr %s %s\n", reg, type );
 
 	stringstream realvalue; realvalue << alloca_pointer; 
 	variables[string(reg)].real_value = realvalue.str();
@@ -189,14 +227,16 @@ void alloca_instr(char* reg, char* type){
 	variables[mem_var.str()].real_value = "0";
 
 	alloca_pointer++;
+
+	printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg, type, reg, variables[reg].real_value.c_str(), mem_var.str().c_str(), variables[mem_var.str()].real_value.c_str() );
 }
 
 void end_bb(char* name){
-	printf("end_bb %s\n", name );
+	printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
 void begin_sim(){
-	printf("Begin Simulation\n" );
+	printf("\e[31m Begin Simulation\e[0m\n" );
 }
 
 void dump_assigns(){
@@ -218,7 +258,7 @@ void dump_variables(){
 }
 
 void end_sim(){
-	printf("End Simulation\n" );
+	printf("\e[31m End Simulation\e[0m\n" );
 	dump_variables();
 	dump_assigns();
 	
