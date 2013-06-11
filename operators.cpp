@@ -43,7 +43,7 @@ int alloca_pointer = 0;
 
 typedef struct Variable {
 	string real_value;
-	int type;
+	string type;
 	vector<string> contents;
 } Variable;
 
@@ -80,19 +80,33 @@ string past(string name){
 	return ret.str();
 }
 
-void assign_instruction(string src, string dst){
+string name( string input ){
 
-	stringstream content;
+	if(input.find("constant") != string::npos ){
+		int ini = 9;
+		string interm = input.substr(ini);
+		int len = interm.find("_");
+		string final = interm.substr(0, len);
 
-	content << actual(dst) << " = " << past(src);
-	variables[string(dst)].contents.push_back( content.str() );
-
-	variable_names.insert(actual(dst));
-	variable_names.insert(past(src));
-
-	variables[dst].real_value = realvalue(src);
+		return final;
+	} else {
+		return input;
+	}
 
 }
+
+void insert_variable(string name){
+
+	if( name.find("constant") != string::npos )
+		return;
+
+	//if(variables[name].contents.size() == 0)
+		//return;
+
+	variable_names.insert(name);
+
+}
+
 
 int stoi(string str){
 	int ret;
@@ -100,15 +114,32 @@ int stoi(string str){
 	return ret;
 }
 
+
+
+void assign_instruction(string src, string dst){
+
+	stringstream content;
+
+	content << name(actual(dst)) << " = " << name(past(src));
+	variables[string(dst)].contents.push_back( content.str() );
+
+	//insert_variable(actual(dst));
+	insert_variable(past(src));
+
+	variables[dst].real_value = realvalue(src);
+
+}
+
+
 void binary_instruction(string dst, string op1, string op2, string operation){
 
 	stringstream content;
-	content << actual(dst) << " = " << past(op1) << " " << operation << " " << past(op2);
+	content << name( actual(dst) ) << " = " << name(past(op1)) << " " << operation << " " << name(past(op2));
 	variables[dst].contents.push_back( content.str() );
 
-	variable_names.insert(actual(dst));
-	variable_names.insert(past(op1));
-	variable_names.insert(past(op2));
+	//insert_variable(actual(dst));
+	insert_variable(past(op1));
+	insert_variable(past(op2));
 
 
 	if(operation == "<="){
@@ -150,9 +181,9 @@ void load_instr(char* _dst, char* _addr){
 	assign_instruction(src, dst);
 
 	printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
-							            dst.c_str(), realvalue(dst).c_str(),
 								    addr.c_str(), realvalue(addr).c_str(),
-								    src.c_str(), realvalue(src).c_str()
+								    src.c_str(), realvalue(src).c_str(),
+							            dst.c_str(), realvalue(dst).c_str()
 								    );
 }
 
@@ -253,6 +284,8 @@ void alloca_instr(char* _reg, char* _type){
 
 	variables[mem_var.str()].real_value = "0";
 
+	variables[mem_var.str()].type = type;
+
 	alloca_pointer++;
 
 	printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
@@ -275,10 +308,25 @@ void dump_assigns(){
 	}
 }
 
+string type(string name){
+	return variables[name].type;
+}
+
+string get_type(string name){
+
+	int s1 = name.find("_");
+	int s2 = name.find("_", s1+1);
+	string name_without_suffix = name.substr(0,s2);
+
+	return type(name_without_suffix);
+
+
+}
+
 void dump_variables(){
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		printf("\e[32m %s \e[0m\n", it->c_str());
+		printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
 	}
 	
 
@@ -295,7 +343,7 @@ void dump_conditions(){
 }
 
 void end_sim(){
-	printf("\e[31m End Simulation\e[0m\n" );
+	printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	dump_variables();
 	dump_assigns();
 	dump_conditions();
