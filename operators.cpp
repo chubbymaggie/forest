@@ -80,7 +80,7 @@ void assign_instruction(string src, string dst){
 void binary_instruction(string dst, string op1, string op2, string operation){
 
 	stringstream content;
-	content << actual(dst) << " = " << past(op1) << " " << "+" << " " << past(op2);
+	content << actual(dst) << " = " << past(op1) << " " << operation << " " << past(op2);
 	variables[dst].contents.push_back( content.str() );
 
 	variable_names.insert(actual(dst));
@@ -103,6 +103,9 @@ void load_instr(char* _dst, char* _addr){
 	string dst = string(_dst);
 	string src = "mem_" + variables[string(_addr)].real_value;
 	assign_instruction(src, dst);
+
+	variables[dst].real_value = variables[src].real_value;
+	printf("variables[%s].real_value = variables[%s].real_value;\n", dst.c_str(), src.c_str() );
 }
 
 void store_instr(char* _src, char* _addr){
@@ -112,20 +115,62 @@ void store_instr(char* _src, char* _addr){
 	assign_instruction(src, dst);
 }
 
-void cmp_instr(char* dst, char* cmp1, char* cmp2, char* type){
-	printf("cmp_instr %s %s %s %s\n", dst, cmp1, cmp2, type);
+int stoi(string str){
+	int ret;
+	sscanf(str.c_str(), "%d", &ret);
+	return ret;
 }
 
-bool br_instr_cond(char* cmp){
+string realvalue(string name){
 
-	printf("branch_instr %s\n", cmp );
-	return true;
+	if( name.find("constant") != string::npos )
+		return name.substr(9);
+	else
+		return variables[name].real_value;
+
+}
+
+void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
+	printf("cmp_instr %s %s %s %s\n", _dst, _cmp1, _cmp2, _type);
+
+
+	string dst  = string(_dst);
+	string cmp1 = string(_cmp1);
+	string cmp2 = string(_cmp2);
+	string type = string(_type);
+
+	printf("real_value cmp1 %s\n", realvalue(cmp1).c_str() );
+	printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
+
+	binary_instruction(dst, cmp1, cmp2, type);
+
+	if(type == "<="){
+		variables[dst].real_value = ( stoi(variables[cmp1].real_value) <= stoi(variables[cmp2].real_value) )?"true":"false";
+	}
+}
+
+bool br_instr_cond(char* _cmp){
+
+	printf("conditional_branch_instr %s\n", _cmp );
+
+	string cmp = string(_cmp);
+
+	printf("real_value %s\n", variables[cmp].real_value.c_str() );
+
+	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
+		printf("content %s\n", it->c_str());
+	}
+	
+
+	//if( satisfiable(variables, cmp,  ) )
+
+	return variables[cmp].real_value == "true";
 
 }
 
 void br_instr_incond(){
 
-	printf("branch_instr\n" );
+	printf("inconditional_branch_instr\n" );
 
 }
 
@@ -138,6 +183,11 @@ void alloca_instr(char* reg, char* type){
 
 	stringstream realvalue; realvalue << alloca_pointer; 
 	variables[string(reg)].real_value = realvalue.str();
+
+	stringstream mem_var; mem_var << "mem_" << realvalue.str().c_str();
+
+	variables[mem_var.str()].real_value = "0";
+
 	alloca_pointer++;
 }
 
