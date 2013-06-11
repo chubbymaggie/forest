@@ -128,6 +128,11 @@ void assign_instruction(string src, string dst){
 
 	variables[dst].real_value = realvalue(src);
 
+	if( variables[dst].type == "" )
+		variables[dst].type = variables[src].type;
+	if( variables[src].type == "" )
+		variables[src].type = variables[dst].type;
+
 }
 
 
@@ -140,6 +145,11 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	//insert_variable(actual(dst));
 	insert_variable(past(op1));
 	insert_variable(past(op2));
+
+	if( variables[dst].type == "" )
+		variables[dst].type = variables[op1].type;
+	if( variables[src].type == "" )
+		variables[src].type = variables[op1].type;
 
 
 	if(operation == "<="){
