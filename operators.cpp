@@ -373,7 +373,6 @@ string get_type(string name){
 
 	return type(name_without_suffix);
 
-
 }
 
 
@@ -398,7 +397,17 @@ void dump_variables(){
 void dump_conditions(){
 
 	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		printf("\e[33m %s \e[0m\n", it->c_str() );
+
+
+		vector<string> tokens = tokenize(*it, " ");
+
+
+
+		printf("(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
+		//printf("\e[33m %s \e[0m\n", it->c_str() );
+
+
+
 	}
 	
 
