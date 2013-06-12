@@ -94,20 +94,22 @@ void dump_get(FILE* file = stdout){
 }
 
 void dump_assigns(FILE* file = stdout){
+
+	debug && printf("dump_assigns\n");
+
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
 
 
 			vector<string> tokens = tokenize(*it2, " ");
 		
-			//printf("\e[31m %s \e[0m\n", it2->c_str() );
 			if(tokens.size() == 5){
 				if( tokens[3] == "<=" ){
 					continue;
 				}
-				debug && fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
+				fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
 			} else {
-				debug && fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
+				fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
 			}
 
 

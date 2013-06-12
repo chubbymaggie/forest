@@ -267,7 +267,7 @@ void end_sim(){
 	//dump_conditions();
 	//dump_tail();
 	
-	printf("solvable_problem %d\n", solvable_problem() );
-	get_values();
+	//printf("solvable_problem %d\n", solvable_problem() );
+	//get_values();
 }
 
