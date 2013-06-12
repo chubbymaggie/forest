@@ -27,7 +27,8 @@ final:
 	llc get-sign-3.bc -o get-sign-3.s
 	gcc -c get-sign-3.s -o get-sign-3.o
 	g++ -g -c operators.cpp  -o operators.o
-	g++ get-sign-3.o operators.o -lboost_regex -o final
+	g++ -g -c solver.cpp -o solver.o
+	g++ get-sign-3.o operators.o solver.o -lboost_regex -o final
 
 run:
 	rm -rf /tmp/z3_*
