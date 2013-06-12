@@ -430,6 +430,7 @@ void dump_conditions(FILE* file = stdout){
 
 	}
 	
+	fprintf(file,"(check-sat)\n");
 
 
 }
@@ -441,7 +442,6 @@ void dump_header(FILE* file = stdout){
 }
 
 void dump_tail(FILE* file = stdout){
-	fprintf(file,"(check-sat)\n");
 	fprintf(file,"(exit)\n");
 }
 
@@ -485,6 +485,68 @@ bool solvable_problem(){
 	
 }
 
+void dump_get(FILE* file = stdout){
+
+
+	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+
+		vector<string> tokens = tokenize(*it, " ");
+
+		string name = tokens[0];
+		string type = get_type(*it);
+
+		fprintf(file,"(get-value (%s))\n", tokens[0].c_str() );
+		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+		
+	}
+
+}
+
+void get_values(){
+
+	stringstream filename;
+	filename << "/tmp/z3_" << rand() << ".smt2";
+	FILE* file = fopen(filename.str().c_str(), "w");
+	vector<string> ret_vector;
+
+	dump_header(file);
+	dump_variables(file);
+	dump_assigns(file);
+	dump_conditions(file);
+	dump_get(file);
+	dump_tail(file);
+
+	fclose(file);
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	
+	command << "z3 " << filename.str();
+
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+
+	bool sat = 0;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		if( it->find("((") == string::npos ) continue;
+		vector<string> tokens = tokenize(*it, "() ");
+		variables[ tokens[0] ].real_value = tokens[1];
+		debug && printf("%s %s\n", tokens[0].c_str(), tokens[1].c_str() );
+	}
+	
+
+	//for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		//if( it->substr(0,3) == "sat" ) break;
+	//}
+	
+}
+
 void end_sim(){
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	//dump_header();
@@ -492,8 +554,9 @@ void end_sim(){
 	//dump_assigns();
 	//dump_conditions();
 	//dump_tail();
-
+	
 	printf("solvable_problem %d\n", solvable_problem() );
+	get_values();
 	
 }
 
