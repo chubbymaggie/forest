@@ -232,6 +232,10 @@ void begin_bb(char* name){
 	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
+void end_bb(char* name){
+	debug && printf("\e[31m end_bb %s\e[0m\n", name );
+}
+
 void alloca_instr(char* _reg, char* _type){
 
 	string reg = string(_reg);
@@ -251,10 +255,6 @@ void alloca_instr(char* _reg, char* _type){
 	debug && printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
-void end_bb(char* name){
-	debug && printf("\e[31m end_bb %s\e[0m\n", name );
-}
-
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 }
@@ -269,6 +269,5 @@ void end_sim(){
 	
 	printf("solvable_problem %d\n", solvable_problem() );
 	get_values();
-	
 }
 

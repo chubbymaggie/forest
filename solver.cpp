@@ -24,12 +24,9 @@
 #define SIZE_STR 512
 #define debug false
 
-
 extern map<string, Variable> variables;
 extern set<string> variable_names;
 extern vector<string> conditions;
-
-
 
 void dump_variables(FILE* file = stdout){
 
@@ -295,6 +292,7 @@ string name( string input ){
 	} else {
 		return input;
 	}
+
 
 }
 

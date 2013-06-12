@@ -30,24 +30,153 @@
 
 using namespace std;
 
+/**
+ * @brief dumps smtlib variable declarations
+ *
+ * @param FILE file to dump
+ */
 void dump_variables(FILE*);
+
+/**
+ * @brief Dumps smtlib constraints to file
+ *
+ * @param FILE: file to dump
+ */
 void dump_conditions(FILE*);
+
+/**
+ * @brief Dumps smtlib header
+ *
+ * @param file
+ */
 void dump_header(FILE* file);
+
+/**
+ * @brief Dumps smtlib tail
+ *
+ * @param file
+ */
 void dump_tail(FILE* file);
+
+/**
+ * @brief Dumps smtlib instructions to get variable values
+ *
+ * @param file
+ */
 void dump_get(FILE* file);
+
+/**
+ * @brief Dumps smtlib assigns
+ *
+ * @param file
+ */
 void dump_assigns(FILE* file);
+
+/**
+ * @brief Assigns variables real-values according to smt solution
+ */
 void get_values();
+
+/**
+ * @brief Returs true if the current problem is solvable (SAT)
+ *
+ * @return 
+ */
 bool solvable_problem();
+
+/**
+ * @brief Inserts variable name in the list of variables
+ *
+ * @param name
+ */
 void insert_variable(string name);
+
+/**
+ * @brief String to integer
+ *
+ * @param str
+ *
+ * @return 
+ */
 int stoi(string str);
+
+/**
+ * @brief Extracts the condition from a boolean assign ( extract_condition(bool a = (b>2)) gives b>2 )
+ *
+ * @param content assign sentence to analyse
+ *
+ * @return 
+ */
 string extract_condition(string content);
+
+/**
+ * @brief push a condition in the stack of conditions
+ *
+ * @param condition
+ */
 void push_condition(string condition);
+
+/**
+ * @brief Negates a condition
+ *
+ * @param condition
+ *
+ * @return 
+ */
 string negation(string condition);
+
+/**
+ * @brief Return the last condition assigned to a variable
+ *
+ * @param name
+ *
+ * @return 
+ */
 string get_last_condition(string name);
+
+/**
+ * @brief Actual name of a variable
+ *
+ * @param name
+ *
+ * @return 
+ */
 string actual(string name);
+
+/**
+ * @brief Past name of a variable 
+ *
+ * @param name
+ *
+ * @return 
+ */
 string past(string name);
+
+/**
+ * @brief Type of a variable
+ *
+ * @param name
+ *
+ * @return 
+ */
 string type(string name);
+
+/**
+ * @brief Type of a variable
+ *
+ * @param name
+ *
+ * @return 
+ */
 string get_type(string name);
+
+/**
+ * @brief Name of a variable
+ *
+ * @param input
+ *
+ * @return 
+ */
 string name( string input );
 
 #endif /* end of include guard: _SOLVER_H_ */

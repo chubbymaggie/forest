@@ -38,33 +38,124 @@ typedef struct Variable {
 	vector<string> contents;
 } Variable;
 
+/**
+ * @brief Called when a binary operation is performed among two variables
+ *
+ * @param dst: Destination name
+ * @param op1: First operand name
+ * @param op2: Second operand name
+ * @param operation: Operation kind
+ */
 extern "C" void binary_op(char*, char*, char*, char*);
+
+/**
+ * @brief Called when a load instruction assigns the value of a memory position (pointed by the register named addr) to a register
+ *
+ * @param _dst: name of the destination register
+ * @param _addr: name of the register that contains the address
+ */
 extern "C" void load_instr(char*, char*);
+
+/**
+ * @brief Called when a store instruction assigns the value of a register to a memory position
+ *
+ * @param _src: register name
+ * @param _addr: name of the register that contains the address of the store
+ */
 extern "C" void store_instr(char*, char*);
+
+/**
+ * @brief Comparison instruction
+ *
+ * @param _dst: name of the destination
+ * @param _cmp1: Name of the first register
+ * @param _cmp2: Name of the second register
+ * @param _type: Type of comparison
+ */
 extern "C" void cmp_instr(char*, char*, char*, char*);
+
+/**
+ * @brief Conditional branch instruction
+ *
+ * @param _cmp: Name of the register that contains the branch condition
+ *
+ * @return 
+ */
 extern "C" bool br_instr_cond(char*);
+
+/**
+ * @brief Inconditional branch instruction
+ */
 extern "C" void br_instr_incond();
+
+/**
+ * @brief  Begin basic Block
+ *
+ * @param name: Name of the basic block
+ */
 extern "C" void begin_bb(char* a);
+
+/**
+ * @brief End basic block
+ *
+ * @param name
+ */
 extern "C" void end_bb(char* a);
+
+/**
+ * @brief Function that is called when a new variable is allocated
+ *
+ * @param _reg: name of the register that holds the position of new variable in memory
+ * @param _type: Data type of allocated value
+ */
 extern "C" void alloca_instr(char* a, char* b);
+
+/**
+ * @brief Function that is called at the begining of simulation
+ */
 extern "C" void begin_sim();
+
+/**
+ * @brief Function that is called at the end of simulation
+ */
 extern "C" void end_sim();
 
+/**
+ * @brief Returns actual value of a variable
+ *
+ * @param name name of the variable
+ *
+ * @return 
+ */
+string realvalue(string name);
+
+/**
+ * @brief Tokenizes a string
+ *
+ * @param str: string to cut
+ * @param delimiters: Delimiters
+ *
+ * @return 
+ */
 vector<string> tokenize(const string& str,const string& delimiters);
 
-bool br_instr_cond(char* _cmp);
-void br_instr_incond();
-void begin_bb(char* name);
-void alloca_instr(char* _reg, char* _type);
-void end_bb(char* name);
-void begin_sim();
-void end_sim();
+/**
+ * @brief Called when a variable is assigned to another
+ *
+ * @param src: Origin variable name
+ * @param dst: Destination variable name
+ */
 void assign_instruction(string src, string dst);
+
+/**
+ * @brief Called when a binary operation is performed among two variables
+ *
+ * @param dst: Destination name
+ * @param op1: First operand name
+ * @param op2: Second operand name
+ * @param operation: Operation kind
+ */
 void binary_instruction(string dst, string op1, string op2, string operation);
-void binary_op(char* _dst, char* _op1, char* _op2, char* _operation);
-void load_instr(char* _dst, char* _addr);
-void store_instr(char* _src, char* _addr);
-void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type);
 
 #endif /* end of include guard: _OPERATORS_H_ */
 
