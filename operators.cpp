@@ -113,6 +113,17 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		variables[dst].real_value = result.str();
 	}
 
+	if(operation == "*"){
+		stringstream result; result << stoi(realvalue(op1)) * stoi(realvalue(op2));
+		variables[dst].real_value = result.str();
+	}
+
+
+	if(operation == "/"){
+		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
+		variables[dst].real_value = result.str();
+	}
+
 
 }
 
