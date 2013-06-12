@@ -55,6 +55,13 @@ map<string, Variable> variables;
 set<string> variable_names;
 vector<string> conditions;
 
+string type(string name){
+	if (variables[name].type == "IntegerTyID")
+		return "Int";
+	else
+		return "";
+}
+
 string realvalue(string name){
 
 	if( name.find("constant") != string::npos )
@@ -65,7 +72,6 @@ string realvalue(string name){
 		return variables[name].real_value;
 
 }
-
 
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
@@ -91,8 +97,6 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-
-
 string actual(string name){
 	stringstream ret; ret << name << "_" << variables[name].contents.size();
 	return ret.str();
@@ -106,6 +110,16 @@ string past(string name){
 	else 
 		ret << name << "_" << variables[name].contents.size()-1;
 	return ret.str();
+}
+
+string get_type(string name){
+
+	int s1 = name.find("_");
+	int s2 = name.find("_", s1+1);
+	string name_without_suffix = name.substr(0,s2);
+
+	return type(name_without_suffix);
+
 }
 
 string name( string input ){
@@ -135,14 +149,11 @@ void insert_variable(string name){
 
 }
 
-
 int stoi(string str){
 	int ret;
 	sscanf(str.c_str(), "%d", &ret);
 	return ret;
 }
-
-
 
 void assign_instruction(string src, string dst){
 
@@ -162,7 +173,6 @@ void assign_instruction(string src, string dst){
 		variables[src].type = variables[dst].type;
 
 }
-
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
@@ -225,8 +235,6 @@ void load_instr(char* _dst, char* _addr){
 								    );
 }
 
-
-
 void store_instr(char* _src, char* _addr){
 	string src = string(_src);
 	string addr = string(_addr);
@@ -240,8 +248,6 @@ void store_instr(char* _src, char* _addr){
 
 
 }
-
-
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 
@@ -273,7 +279,6 @@ void push_condition(string condition){
 	conditions.push_back( condition );
 }
 
-
 string negation(string condition){
 
 	vector<string> tokens = tokenize(condition, " ");
@@ -291,111 +296,6 @@ string get_last_condition(string name){
 	return condition;
 
 }
-
-bool br_instr_cond(char* _cmp){
-
-	string cmp = string(_cmp);
-
-	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
-
-	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
-		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
-	}
-
-	string condition = get_last_condition(cmp);
-
-	if(realvalue(cmp) == "true"){
-		push_condition(negation(condition));
-
-	} else {
-		push_condition(condition);
-
-	}
-
-
-	return variables[cmp].real_value == "true";
-
-}
-
-void br_instr_incond(){
-
-	debug && printf("\e[31m inconditional_branch_instr\e[0m\n" );
-
-}
-
-void begin_bb(char* name){
-	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
-}
-
-void alloca_instr(char* _reg, char* _type){
-
-	string reg = string(_reg);
-	string type = string(_type);
-
-	stringstream rvalue; rvalue << alloca_pointer; 
-	variables[reg].real_value = rvalue.str();
-
-	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
-
-	variables[mem_var.str()].real_value = "0";
-
-	variables[mem_var.str()].type = type;
-
-	alloca_pointer++;
-
-	debug && printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
-}
-
-void end_bb(char* name){
-	debug && printf("\e[31m end_bb %s\e[0m\n", name );
-}
-
-void begin_sim(){
-	debug && printf("\e[31m Begin Simulation\e[0m\n" );
-}
-
-void dump_assigns(FILE* file = stdout){
-	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
-
-
-			vector<string> tokens = tokenize(*it2, " ");
-		
-			//printf("\e[31m %s \e[0m\n", it2->c_str() );
-			if(tokens.size() == 5){
-				if( tokens[3] == "<=" ){
-					continue;
-				}
-				debug && fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
-			} else {
-				debug && fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
-			}
-
-
-
-		}
-		
-	}
-}
-
-string type(string name){
-	if (variables[name].type == "IntegerTyID")
-		return "Int";
-	else
-		return "";
-}
-
-string get_type(string name){
-
-	int s1 = name.find("_");
-	int s2 = name.find("_", s1+1);
-	string name_without_suffix = name.substr(0,s2);
-
-	return type(name_without_suffix);
-
-}
-
-
 
 void dump_variables(FILE* file = stdout){
 
@@ -445,46 +345,6 @@ void dump_tail(FILE* file = stdout){
 	fprintf(file,"(exit)\n");
 }
 
-bool solvable_problem(){
-
-
-	stringstream filename;
-	filename << "/tmp/z3_" << rand() << ".smt2";
-	FILE* file = fopen(filename.str().c_str(), "w");
-	vector<string> ret_vector;
-
-	dump_header(file);
-	dump_variables(file);
-	dump_assigns(file);
-	dump_conditions(file);
-	dump_tail(file);
-
-	fclose(file);
-
-	FILE *fp;
-	stringstream command;
-	char ret[SIZE_STR];
-	
-	command << "z3 " << filename.str();
-
-	fp = popen(command.str().c_str(), "r");
-	
-	while (fgets(ret,SIZE_STR, fp) != NULL)
-		ret_vector.push_back(ret);
-	
-	pclose(fp);
-
-	bool sat = 0;
-
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		if( it->substr(0,3) == "sat" ) sat = 1;
-	}
-	
-	return sat;
-	
-	
-}
-
 void dump_get(FILE* file = stdout){
 
 
@@ -500,6 +360,30 @@ void dump_get(FILE* file = stdout){
 		
 	}
 
+}
+
+void dump_assigns(FILE* file = stdout){
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
+
+
+			vector<string> tokens = tokenize(*it2, " ");
+		
+			//printf("\e[31m %s \e[0m\n", it2->c_str() );
+			if(tokens.size() == 5){
+				if( tokens[3] == "<=" ){
+					continue;
+				}
+				debug && fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
+			} else {
+				debug && fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
+			}
+
+
+
+		}
+		
+	}
 }
 
 void get_values(){
@@ -545,6 +429,118 @@ void get_values(){
 		//if( it->substr(0,3) == "sat" ) break;
 	//}
 	
+}
+
+bool solvable_problem(){
+
+
+	stringstream filename;
+	filename << "/tmp/z3_" << rand() << ".smt2";
+	FILE* file = fopen(filename.str().c_str(), "w");
+	vector<string> ret_vector;
+
+	dump_header(file);
+	dump_variables(file);
+	dump_assigns(file);
+	dump_conditions(file);
+	dump_tail(file);
+
+	fclose(file);
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	
+	command << "z3 " << filename.str();
+
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+
+	bool sat = 0;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		if( it->substr(0,3) == "sat" ) sat = 1;
+	}
+	
+	return sat;
+	
+	
+}
+
+bool br_instr_cond(char* _cmp){
+
+	string cmp = string(_cmp);
+
+	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
+
+	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
+		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
+	}
+
+	string condition = get_last_condition(cmp);
+
+	if(realvalue(cmp) == "true"){
+		push_condition(negation(condition));
+
+	} else {
+		push_condition(condition);
+
+	}
+
+	if( fork() ){
+		return variables[cmp].real_value == "true";
+	} else {
+		if( solvable_problem() ){
+			get_values();
+			return variables[cmp].real_value != "true";
+		} else {
+			exit(0);
+		}
+	}
+
+
+
+}
+
+void br_instr_incond(){
+
+	debug && printf("\e[31m inconditional_branch_instr\e[0m\n" );
+
+}
+
+void begin_bb(char* name){
+	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
+}
+
+void alloca_instr(char* _reg, char* _type){
+
+	string reg = string(_reg);
+	string type = string(_type);
+
+	stringstream rvalue; rvalue << alloca_pointer; 
+	variables[reg].real_value = rvalue.str();
+
+	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
+
+	variables[mem_var.str()].real_value = "0";
+
+	variables[mem_var.str()].type = type;
+
+	alloca_pointer++;
+
+	debug && printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+}
+
+void end_bb(char* name){
+	debug && printf("\e[31m end_bb %s\e[0m\n", name );
+}
+
+void begin_sim(){
+	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 }
 
 void end_sim(){

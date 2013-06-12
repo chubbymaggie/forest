@@ -30,6 +30,7 @@ final:
 	g++ get-sign-3.o operators.o -lboost_regex -o final
 
 run:
+	rm -rf /tmp/z3_*
 	./final
 
 
