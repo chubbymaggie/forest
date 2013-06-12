@@ -27,6 +27,7 @@
 #include <boost/regex.hpp>
 
 #define debug false
+#define SIZE_STR 512
 
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
@@ -385,7 +386,7 @@ void dump_variables(FILE* file = stdout){
 
 		vector<string> tokens = tokenize(*it, " ");
 
-		string name = tokens[1];
+		string name = tokens[0];
 		string type = get_type(*it);
 
 		fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
@@ -424,15 +425,58 @@ void dump_header(FILE* file = stdout){
 
 void dump_tail(FILE* file = stdout){
 	fprintf(file,"(check-sat)\n");
+	fprintf(file,"(exit)\n");
+}
+
+bool solvable_problem(){
+
+
+	stringstream filename;
+	filename << "/tmp/z3_" << rand() << ".smt2";
+	FILE* file = fopen(filename.str().c_str(), "w");
+	vector<string> ret_vector;
+
+	dump_header(file);
+	dump_variables(file);
+	dump_assigns(file);
+	dump_conditions(file);
+	dump_tail(file);
+
+	fclose(file);
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	
+	command << "z3 " << filename.str();
+
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+
+	bool sat = 0;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		if( it->substr(0,3) == "sat" ) sat = 1;
+	}
+	
+	return sat;
+	
+	
 }
 
 void end_sim(){
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
-	dump_header();
-	dump_variables();
-	dump_assigns();
-	dump_conditions();
-	dump_tail();
+	//dump_header();
+	//dump_variables();
+	//dump_assigns();
+	//dump_conditions();
+	//dump_tail();
+
+	printf("solvable_problem %d\n", solvable_problem() );
 	
 }
 

@@ -26,7 +26,7 @@ compare:
 final:
 	llc get-sign-3.bc -o get-sign-3.s
 	gcc -c get-sign-3.s -o get-sign-3.o
-	g++ -c operators.cpp  -o operators.o
+	g++ -g -c operators.cpp  -o operators.o
 	g++ get-sign-3.o operators.o -lboost_regex -o final
 
 run:
