@@ -26,6 +26,8 @@
 #include <set>
 #include <boost/regex.hpp>
 
+#define debug false
+
 extern "C" void binary_op(char*, char*, char*, char*);
 extern "C" void load_instr(char*, char*);
 extern "C" void store_instr(char*, char*);
@@ -202,7 +204,7 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 	binary_instruction(dst, op1, op2, operation);
 
-	printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
+	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
 			                                                        op1.c_str(), realvalue(op1).c_str(),
 									        op2.c_str(), realvalue(op2).c_str(),
 										_dst, realvalue(dst).c_str() );
@@ -215,7 +217,7 @@ void load_instr(char* _dst, char* _addr){
 
 	assign_instruction(src, dst);
 
-	printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
+	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
 								    addr.c_str(), realvalue(addr).c_str(),
 								    src.c_str(), realvalue(src).c_str(),
 							            dst.c_str(), realvalue(dst).c_str()
@@ -230,7 +232,7 @@ void store_instr(char* _src, char* _addr){
 	string dst = "mem_" + realvalue(string(_addr)) ;
 	assign_instruction(src, dst);
 
-	printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",_src, _addr,
+	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",_src, _addr,
 			                                           src.c_str(), realvalue(src).c_str(),
 								   addr.c_str(), realvalue(addr).c_str(),
 								   dst.c_str(), realvalue(dst).c_str() );
@@ -254,7 +256,7 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 
 	binary_instruction(dst, cmp1, cmp2, type);
 
-	printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _cmp1, _cmp2, _type, 
+	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _cmp1, _cmp2, _type, 
 			                                                 cmp1.c_str(), realvalue(cmp1).c_str(),
 									 cmp2.c_str(), realvalue(cmp2).c_str(),
 									 dst.c_str(), realvalue(dst).c_str() );
@@ -283,10 +285,10 @@ bool br_instr_cond(char* _cmp){
 
 	string cmp = string(_cmp);
 
-	printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
+	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
 
 	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
-		printf("\e[32m content \e[0m %s\n", it->c_str());
+		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
 	}
 
 	push_condition(cmp);
@@ -299,12 +301,12 @@ bool br_instr_cond(char* _cmp){
 
 void br_instr_incond(){
 
-	printf("\e[31m inconditional_branch_instr\e[0m\n" );
+	debug && printf("\e[31m inconditional_branch_instr\e[0m\n" );
 
 }
 
 void begin_bb(char* name){
-	printf("\e[31m begin_bb %s \e[0m\n", name );
+	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
 void alloca_instr(char* _reg, char* _type){
@@ -323,15 +325,15 @@ void alloca_instr(char* _reg, char* _type){
 
 	alloca_pointer++;
 
-	printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+	debug && printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
 void end_bb(char* name){
-	printf("\e[31m end_bb %s\e[0m\n", name );
+	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
 void begin_sim(){
-	printf("\e[31m Begin Simulation\e[0m\n" );
+	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 }
 
 void dump_assigns(){
@@ -346,9 +348,9 @@ void dump_assigns(){
 				if( tokens[3] == "<=" ){
 					continue;
 				}
-				printf("(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
+				debug && printf("(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
 			} else {
-				printf("(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
+				debug && printf("(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
 			}
 
 
@@ -386,7 +388,7 @@ void dump_variables(){
 		string name = tokens[1];
 		string type = get_type(*it);
 
-		printf("(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
+		debug && printf("(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
 		//printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
 		
 	}
@@ -403,7 +405,7 @@ void dump_conditions(){
 
 
 
-		printf("(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
+		debug && printf("(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
 		//printf("\e[33m %s \e[0m\n", it->c_str() );
 
 
@@ -415,17 +417,17 @@ void dump_conditions(){
 }
 
 void dump_header(){
-	printf("(set-option :produce-models true)\n");
-	printf("(set-logic QF_NIA)\n");
+	debug && printf("(set-option :produce-models true)\n");
+	debug && printf("(set-logic QF_NIA)\n");
 
 }
 
 void dump_tail(){
-	printf("(check-sat)\n");
+	debug && printf("(check-sat)\n");
 }
 
 void end_sim(){
-	printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
+	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	dump_header();
 	dump_variables();
 	dump_assigns();
