@@ -336,7 +336,7 @@ void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 }
 
-void dump_assigns(){
+void dump_assigns(FILE* file = stdout){
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
 
@@ -348,9 +348,9 @@ void dump_assigns(){
 				if( tokens[3] == "<=" ){
 					continue;
 				}
-				debug && printf("(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
+				debug && fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
 			} else {
-				debug && printf("(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
+				debug && fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
 			}
 
 
@@ -379,7 +379,7 @@ string get_type(string name){
 
 
 
-void dump_variables(){
+void dump_variables(FILE* file = stdout){
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
@@ -388,15 +388,15 @@ void dump_variables(){
 		string name = tokens[1];
 		string type = get_type(*it);
 
-		debug && printf("(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
-		//printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+		fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
+		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
 		
 	}
 	
 
 }
 
-void dump_conditions(){
+void dump_conditions(FILE* file = stdout){
 
 	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 
@@ -405,8 +405,8 @@ void dump_conditions(){
 
 
 
-		debug && printf("(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
-		//printf("\e[33m %s \e[0m\n", it->c_str() );
+		fprintf(file,"(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
+		//debug && printf("\e[33m %s \e[0m\n", it->c_str() );
 
 
 
@@ -416,14 +416,14 @@ void dump_conditions(){
 
 }
 
-void dump_header(){
-	debug && printf("(set-option :produce-models true)\n");
-	debug && printf("(set-logic QF_NIA)\n");
+void dump_header(FILE* file = stdout){
+	fprintf(file,"(set-option :produce-models true)\n");
+	fprintf(file,"(set-logic QF_NIA)\n");
 
 }
 
-void dump_tail(){
-	debug && printf("(check-sat)\n");
+void dump_tail(FILE* file = stdout){
+	fprintf(file,"(check-sat)\n");
 }
 
 void end_sim(){
