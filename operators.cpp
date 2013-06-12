@@ -268,21 +268,31 @@ string extract_condition(string content){
 	return content.substr(n);
 }
 
-void push_condition(string name){
-
-
-	string content = variables[name].contents[variables[name].contents.size()-1];
-	string condition = extract_condition(content);
+void push_condition(string condition){
 
 	conditions.push_back( condition );
 }
 
 
+string negation(string condition){
 
+	vector<string> tokens = tokenize(condition, " ");
+
+	if( tokens[1] == "<=" ) return tokens[0] + " > " + tokens[2];
+
+	return condition;
+}
+
+string get_last_condition(string name){
+
+	string content = variables[name].contents[variables[name].contents.size()-1];
+	string condition = extract_condition(content);
+
+	return condition;
+
+}
 
 bool br_instr_cond(char* _cmp){
-
-
 
 	string cmp = string(_cmp);
 
@@ -292,9 +302,16 @@ bool br_instr_cond(char* _cmp){
 		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
 	}
 
-	push_condition(cmp);
+	string condition = get_last_condition(cmp);
 
-	//if( satisfiable(variables, cmp,  ) )
+	if(realvalue(cmp) == "true"){
+		push_condition(negation(condition));
+
+	} else {
+		push_condition(condition);
+
+	}
+
 
 	return variables[cmp].real_value == "true";
 
