@@ -18,30 +18,11 @@
  * =====================================================================================
  */
 
-#include <stdio.h>
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <set>
-#include <boost/regex.hpp>
+#include "operators.h"
 
 #define debug false
 #define SIZE_STR 512
 
-extern "C" void binary_op(char*, char*, char*, char*);
-extern "C" void load_instr(char*, char*);
-extern "C" void store_instr(char*, char*);
-extern "C" void cmp_instr(char*, char*, char*, char*);
-extern "C" bool br_instr_cond(char*);
-extern "C" void br_instr_incond();
-extern "C" void begin_bb(char* a);
-extern "C" void end_bb(char* a);
-extern "C" void alloca_instr(char* a, char* b);
-extern "C" void begin_sim();
-extern "C" void end_sim();
-
-using namespace std;
 
 int alloca_pointer = 0;
 
@@ -501,8 +482,6 @@ bool br_instr_cond(char* _cmp){
 			exit(0);
 		}
 	}
-
-
 
 }
 
