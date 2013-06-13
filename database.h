@@ -22,5 +22,10 @@
 #include "sqlite3.h"
 #include <string>
 #include <sstream>
+#include <map>
+#include <set>
+#include <vector>
+#include "operators.h"
+#include "solver.h"
 
 using namespace std;
