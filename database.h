@@ -18,6 +18,8 @@
  * =====================================================================================
  */
 
+#ifndef _DATABASE_H_
+#define _DATABASE_H_
 
 #include "sqlite3.h"
 #include <string>
@@ -29,3 +31,17 @@
 #include "solver.h"
 
 using namespace std;
+
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+
+void start_database();
+
+void end_database();
+
+void create_tables();
+
+void insert_problem();
+
+
+#endif /* end of include guard: _DATABASE_H_ */

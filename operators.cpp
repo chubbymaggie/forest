@@ -209,6 +209,8 @@ bool br_instr_cond(char* _cmp){
 
 	}
 
+	insert_problem();
+
 	if( fork() ){
 		return variables[cmp].real_value == "true";
 	} else {
@@ -257,9 +259,13 @@ void alloca_instr(char* _reg, char* _type){
 
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
+	start_database();
+	create_tables();
 }
 
 void end_sim(){
+
+	end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	//dump_header();
 	//dump_variables();

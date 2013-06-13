@@ -20,6 +20,8 @@
 
 #include "database.h"
 
+#define debug false
+
 sqlite3 *db;
 
 
@@ -33,22 +35,40 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 	return 0;
 }
 
-
 void start_database(){
+	debug && printf("start_database\n"); fflush(stdout);
 	sqlite3_open("database.db", &db);
 }
 
 void end_database(){
+	debug && printf("end_database\n"); fflush(stdout);
 	sqlite3_close(db);
 }
 
+void drop_tables(){
+
+	stringstream action;
+	action << "drop table problems;";
+	action << "drop table variables;";
+	action << "drop table assigns;";
+	action << "drop table operations;";
+	action << "drop table results;";
+
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+}
 
 void create_tables(){
+
+	drop_tables();
+
+	debug && printf("create_tables\n"); fflush(stdout);
 
 	stringstream action;
 	action << "create table problems(";
 	action << "problem_id INTEGER PRIMARY KEY AUTOINCREMENT,";
-	action << "sat bool,";
+	action << "sat bool";
 	action << ");";
 
 
@@ -81,6 +101,8 @@ void create_tables(){
 
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	debug && printf("end_tables\n"); fflush(stdout);
 }
 
 void insert_problem(){
@@ -94,7 +116,7 @@ void insert_problem(){
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = *it;
 		string type = get_type(name);
-		action << "insert into variables values (" << name << "," << type << "," << id << ");";
+		action << "insert into variables values ('" << name << "','" << type << "'," << id << ");";
 	}
 	
 	
@@ -109,11 +131,11 @@ void insert_problem(){
 				string op1 = tokens[2];
 				string op2 = tokens[4];
 				string operation = tokens[3];
-				action << "insert into operations values (" << dst << "," << op1 << "," << op2 << "," << operation << "," << id << ");";
+				action << "insert into operations values ('" << dst << "','" << op1 << "','" << op2 << "','" << operation << "'," << id << ");";
 			} else {
 				string dst = tokens[0];
 				string src = tokens[2];
-				action << "insert into assigns values (" << dst << "," << src << "," << id << ");";
+				action << "insert into assigns values ('" << dst << "','" << src << "'," << id << ");";
 			}
 
 
@@ -123,9 +145,25 @@ void insert_problem(){
 	}
 
 
-	//action << "insert into results values (" << name << "," << value << "," << id << ");";
+	if( solvable_problem() ){
+		get_values();
+
+
+		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+			string name = it->first;
+			string value = realvalue(name);
+			action << "insert into results values ('" << name << "','" << value << "'," << id << ");";
+			
+		}
+		
+		
+
+		
+	}
 
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
+
+

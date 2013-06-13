@@ -18,6 +18,9 @@
  * =====================================================================================
  */
 
+#ifndef _OPERATORS_H_
+#define _OPERATORS_H_
+
 #include <stdio.h>
 #include <string>
 #include <map>
@@ -26,9 +29,8 @@
 #include <set>
 #include <unistd.h>
 #include <stdlib.h>
+#include "database.h"
 
-#ifndef _OPERATORS_H_
-#define _OPERATORS_H_
 
 using namespace std;
 

@@ -18,6 +18,9 @@
  * =====================================================================================
  */
 
+#ifndef _SOLVER_H_
+#define _SOLVER_H_
+
 #include <stdio.h>
 #include <string>
 #include <set>
@@ -25,8 +28,6 @@
 #include <vector>
 #include "operators.h"
 
-#ifndef _SOLVER_H_
-#define _SOLVER_H_
 
 using namespace std;
 
