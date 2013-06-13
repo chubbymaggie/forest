@@ -28,7 +28,9 @@ final:
 	gcc -c get-sign-3.s -o get-sign-3.o
 	g++ -g -c operators.cpp  -o operators.o
 	g++ -g -c solver.cpp -o solver.o
-	g++ get-sign-3.o operators.o solver.o -lboost_regex -o final
+	gcc -c sqlite3.c -o sqlite3.o
+	g++ -c database.cpp -o database.o
+	g++ get-sign-3.o operators.o solver.o sqlite3.o database.o -lboost_regex -lpthread -ldl -o final
 
 run:
 	rm -rf /tmp/z3_*
@@ -68,3 +70,4 @@ testopt:
 untest:
 	llc -march=cpp test.bc
 	gedit test.cpp
+
