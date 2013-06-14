@@ -122,6 +122,8 @@ extern "C" void begin_sim();
  */
 extern "C" void end_sim();
 
+extern "C" void getelementptr(char*, char*, char*);
+
 /**
  * @brief Returns actual value of a variable
  *

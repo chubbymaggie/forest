@@ -128,6 +128,36 @@ string get_op_name_from_id(int opId){
 
 }
 
+vector<string> get_indexes(GetElementPtrInst* instr){
+
+	vector<string> ret;
+	User::op_iterator it_begin = instr->idx_begin();
+	User::op_iterator it_end   = instr->idx_end();
+
+	for( User::op_iterator it = it_begin; it != it_end; it++){
+
+		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
+		if(CI){
+			int64_t val = CI->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+			ret.push_back( nameop1_ss.str() );
+		} else {
+			Value* value = it->get();
+			string name = value->getName().str();
+			stringstream nameop1_ss; nameop1_ss << "register_" << name;
+			ret.push_back( nameop1_ss.str() );
+
+
+		}
+	}
+
+
+
+
+	return ret;
+
+}
+
 // Optimization passes
 
 struct FillNames : public ModulePass {
@@ -162,6 +192,15 @@ struct FillNames : public ModulePass {
 						if( !in->hasName() )
 							in->setName("r");
 					}
+
+					if( GetElementPtrInst::classof(in) ){
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+
+
+
 
 				}}}
 
@@ -560,6 +599,74 @@ struct AllocaInstr: public ModulePass {
 	}
 };
 
+struct GetelementPtr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	GetelementPtr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( GetElementPtrInst::classof(in) ){
+
+						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
+						Value* pointer = in_g->getPointerOperand();
+
+						string nameres = "register_" + in->getName().str();
+						string nameop1 = "register_" + pointer->getName().str();
+
+						//for( op_iterator it = in_g->idx_begin(); it != in_g->idx_end(); it++ ){
+							//it->dump();
+						//}
+						
+						vector<string> indexes = get_indexes(in_g);
+
+						//cerr << "result: " << nameres << endl;
+						//cerr << "operand1: " << nameop1 << endl;
+						//for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+							//cerr << "index: " << *it << endl;
+						//}
+						
+
+						string indexes_str;
+						for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+							indexes_str += *it + ",";
+						}
+
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, nameop1);
+						GlobalVariable* c3 = make_global_str(M, indexes_str);
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
+
 struct BeginEnd: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BeginEnd() : ModulePass(ID) {}
@@ -637,6 +744,9 @@ static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");
 
 char AllocaInstr::ID = 0;
 static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operations");
+
+char GetelementPtr::ID = 0;
+static RegisterPass<GetelementPtr> GetelementPtr("getelementptr", "Instrument getelementptr operations");
 
 char BeginEnd::ID = 0;
 static RegisterPass<BeginEnd> BeginEnd("beginend", "Instrument begin and end of program");
