@@ -36,42 +36,42 @@ using namespace std;
  *
  * @param FILE file to dump
  */
-void dump_variables(FILE*);
+void dump_variables(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib constraints to file
  *
  * @param FILE: file to dump
  */
-void dump_conditions(FILE*);
+void dump_conditions(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib header
  *
  * @param file
  */
-void dump_header(FILE* file);
+void dump_header(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib tail
  *
  * @param file
  */
-void dump_tail(FILE* file);
+void dump_tail(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib instructions to get variable values
  *
  * @param file
  */
-void dump_get(FILE* file);
+void dump_get(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib assigns
  *
  * @param file
  */
-void dump_assigns(FILE* file);
+void dump_assigns(FILE* file = stdout);
 
 /**
  * @brief Assigns variables real-values according to smt solution

@@ -28,7 +28,7 @@ extern map<string, Variable> variables;
 extern set<string> variable_names;
 extern vector<string> conditions;
 
-void dump_variables(FILE* file = stdout){
+void dump_variables(FILE* file){
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
@@ -45,7 +45,7 @@ void dump_variables(FILE* file = stdout){
 
 }
 
-void dump_conditions(FILE* file = stdout){
+void dump_conditions(FILE* file){
 
 	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 
@@ -66,17 +66,17 @@ void dump_conditions(FILE* file = stdout){
 
 }
 
-void dump_header(FILE* file = stdout){
+void dump_header(FILE* file){
 	fprintf(file,"(set-option :produce-models true)\n");
 	fprintf(file,"(set-logic QF_NIA)\n");
 
 }
 
-void dump_tail(FILE* file = stdout){
+void dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
 }
 
-void dump_get(FILE* file = stdout){
+void dump_get(FILE* file){
 
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -93,7 +93,17 @@ void dump_get(FILE* file = stdout){
 
 }
 
-void dump_assigns(FILE* file = stdout){
+
+bool is_comparison( string operation ){
+
+	if( operation == "<=" ) return true;
+	if( operation == ">=" ) return true;
+	if( operation == "<"  ) return true;
+	if( operation == ">"  ) return true;
+	return false;
+}
+
+void dump_assigns(FILE* file){
 
 	debug && printf("dump_assigns\n");
 
@@ -104,9 +114,8 @@ void dump_assigns(FILE* file = stdout){
 			vector<string> tokens = tokenize(*it2, " ");
 		
 			if(tokens.size() == 5){
-				if( tokens[3] == "<=" ){
-					continue;
-				}
+				if( is_comparison(tokens[3]) ) continue;
+
 				fprintf(file,"(assert (= %s (%s %s %s)))\n", tokens[0].c_str(), tokens[3].c_str(), tokens[2].c_str(), tokens[4].c_str() );
 			} else {
 				fprintf(file,"(assert (= %s %s))\n", tokens[0].c_str(), tokens[2].c_str() );
@@ -266,10 +275,12 @@ string past(string name){
 }
 
 string type(string name){
+
 	if (variables[name].type == "IntegerTyID")
 		return "Int";
-	else
-		return "";
+
+	//printf("Unknown type, defaulting to Int\n");
+	return "Int";
 }
 
 string get_type(string name){

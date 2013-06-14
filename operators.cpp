@@ -21,7 +21,7 @@
 #include "operators.h"
 #include "solver.h"
 
-#define debug false
+#define debug true
 #define SIZE_STR 512
 
 int alloca_pointer = 0;
@@ -71,7 +71,7 @@ void assign_instruction(string src, string dst){
 	content << name(actual(dst)) << " = " << name(past(src));
 	variables[string(dst)].contents.push_back( content.str() );
 
-	//insert_variable(actual(dst));
+	insert_variable(past(dst));
 	insert_variable(past(src));
 
 	variables[dst].real_value = realvalue(src);
@@ -189,11 +189,26 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 									 dst.c_str(), realvalue(dst).c_str() );
 }
 
+void show_problem(){
+
+	dump_header();
+	dump_variables();
+	dump_assigns();
+	dump_conditions();
+	dump_tail();
+
+	fflush(stdout);
+
+	getchar();
+}
+
+
 bool br_instr_cond(char* _cmp){
 
 	string cmp = string(_cmp);
 
 	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
+
 
 	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
 		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
@@ -209,6 +224,7 @@ bool br_instr_cond(char* _cmp){
 
 	}
 
+	show_problem();
 	insert_problem();
 
 	if( fork() ){

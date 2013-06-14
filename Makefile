@@ -49,7 +49,7 @@ all:
 	g++ -D TEST get-sign.cpp
 
 clean:
-	rm -rf forest *.out *.bc salida* *.o *.s final test.cpp
+	rm -rf forest *.out *.bc salida* *.o *.s final test.cpp database.db
 
 
 llvm-dfg:
