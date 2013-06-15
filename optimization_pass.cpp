@@ -89,28 +89,42 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 	return const_ptr_9;
 }
 
-string get_type_str_from_id(int typId){
+string get_type_str( const Type* t){
 
-	switch(typId){
+	int typId = t->getTypeID();
 
-		case  0: return "VoidTyID";
-		case  1: return "HalfTyID";
-		case  2: return "FloatTyID";
-		case  3: return "DoubleTyID";
-		case  4: return "X86_FP80TyID";
-		case  5: return "FP128TyID";
-		case  6: return "PPC_FP128TyID";
-		case  7: return "LabelTyID";
-		case  8: return "MetadataTyID";
-		//case  9: return "X86_MMXTyID";
-		case 9: return "IntegerTyID";
-		case 11: return "FunctionTyID";
-		case 12: return "StructTyID";
-		case 13: return "ArrayTyID";
-		case 14: return "PointerTyID";
-		case 15: return "VectorTyID";
-
+	if(typId == 9){
+		stringstream name;
+		name << "IntegerTyID" << t->getPrimitiveSizeInBits();
+		return name.str();
 	}
+
+	if(typId == 13){
+		return "PointerTyID";
+	}
+
+	return "";
+
+	//switch(typId){
+
+		//case  0: return "VoidTyID";
+		//case  1: return "HalfTyID";
+		//case  2: return "FloatTyID";
+		//case  3: return "DoubleTyID";
+		//case  4: return "X86_FP80TyID";
+		//case  5: return "FP128TyID";
+		//case  6: return "PPC_FP128TyID";
+		//case  7: return "LabelTyID";
+		//case  8: return "MetadataTyID";
+		////case  9: return "X86_MMXTyID";
+		//case 9: return "IntegerTyID";
+		//case 11: return "FunctionTyID";
+		//case 12: return "StructTyID";
+		////case 13: return "ArrayTyID";
+		//case 13: return "PointerTyID";
+		//case 15: return "VectorTyID";
+
+	//}
 
 }
 
@@ -157,6 +171,78 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 	return ret;
 
 }
+
+int primary_size( const Type* t ){
+
+	//cerr << "primary_size: " << endl;
+	//t->dump();
+	//cerr << t->getTypeID() << endl;
+	//cerr << t->getPrimitiveSizeInBits() << endl;
+	//cerr << "---------" << endl;
+
+	string type = get_type_str(t);
+
+	if( type == "IntegerTyID32" ) return 4;
+	if( type == "IntegerTyID8" ) return 1;
+	if( type == "PointerTyID" ) return 4;
+	else return 0;
+
+}
+
+vector<int> get_dimensions( const ArrayType* t ){
+
+		vector<int> dims;
+		while(true){
+			if( !t ) break;
+			dims.push_back(t->getNumElements());
+			t = dyn_cast<ArrayType>(t->getElementType());
+
+		};
+
+		return dims;
+}
+
+int element_size( const ArrayType* t ){
+
+	const Type* last_type;
+
+	while(true){
+		if( !t ) break;
+		last_type = t;
+		t = dyn_cast<ArrayType>(t->getElementType());
+	};
+
+	last_type = dyn_cast<ArrayType>(last_type)->getElementType();
+
+	return primary_size( last_type );
+
+}
+
+
+int product(vector<int> elem){
+	int prod = 1;
+	for( vector<int>::iterator it = elem.begin(); it != elem.end(); it++ ){
+		prod *= *it;
+	}
+	return prod;
+}
+
+
+
+
+int get_size( const Type* t ){
+
+	const ArrayType* t_a = dyn_cast<ArrayType>(t);
+
+
+	if( t_a ){
+		return product(get_dimensions(t_a))*element_size(t_a);
+	} else {
+		return primary_size(t);
+	}
+
+}
+
 
 // Optimization passes
 
@@ -570,8 +656,20 @@ struct AllocaInstr: public ModulePass {
 
 						string nameres = "register_" + in->getName().str();
 
-						int TypId = in_a->getAllocatedType()->getTypeID();
-						string type = get_type_str_from_id(TypId);
+						string type = get_type_str(in_a->getAllocatedType());
+
+						
+						int size = get_size( in_a->getAllocatedType() );
+						
+						in_a->getAllocatedType()->dump();
+						cerr << "size: " << size << endl; fflush(stderr);
+
+
+						//vector<int> sizes = get_dimensions(in_a->getType());
+						//for ( unsigned int i = 0; i < sizes.size(); i++) {
+							//cerr << "size: " << sizes[i] << endl;
+						//}
+
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, type);
