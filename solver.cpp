@@ -276,7 +276,10 @@ string past(string name){
 
 string type(string name){
 
-	if (variables[name].type == "IntegerTyID")
+	if (variables[name].type == "IntegerTyID32")
+		return "Int";
+
+	if (variables[name].type == "IntegerTyID8")
 		return "Int";
 
 	//printf("Unknown type, defaulting to Int\n");

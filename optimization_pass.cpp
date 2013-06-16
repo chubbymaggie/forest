@@ -93,6 +93,8 @@ string get_type_str( const Type* t){
 
 	int typId = t->getTypeID();
 
+	//cerr << typId << endl;
+
 	if(typId == 9){
 		stringstream name;
 		name << "IntegerTyID" << t->getPrimitiveSizeInBits();
@@ -101,6 +103,10 @@ string get_type_str( const Type* t){
 
 	if(typId == 13){
 		return "PointerTyID";
+	}
+
+	if(typId == 12){
+		return "ArrayTyID";
 	}
 
 	return "";
@@ -242,6 +248,40 @@ int get_size( const Type* t ){
 	}
 
 }
+
+
+
+vector<int> get_nested_sizes( const ArrayType* t ){
+
+	//const PointerType* t_p = dyn_cast<PointerType>(t);
+	//t = dyn_cast<ArrayType>(t_p->getElementType());
+
+	vector<int> ret;
+
+	const ArrayType* t_ini = t;
+
+	//const ArrayType* t_a = dyn_cast<ArrayType>(t);
+	//if( !t_a ){ ret.push_back(1); return ret; }
+
+	t->dump(); fflush(stderr);
+
+	//ret.push_back( t->getNumElements() * get_size(t) );
+
+	while(true){
+		t = dyn_cast<ArrayType>(t->getElementType());
+		if( !t ) break;
+		ret.push_back( t->getNumElements() * get_size(t->getElementType()) );
+	};
+
+	ret.push_back( element_size(t_ini) );
+
+
+	return ret;
+
+
+}
+
+
 
 
 // Optimization passes
@@ -658,11 +698,16 @@ struct AllocaInstr: public ModulePass {
 
 						string type = get_type_str(in_a->getAllocatedType());
 
+						//cerr << type << endl;
+
 						
 						int size = get_size( in_a->getAllocatedType() );
+						stringstream size_ss; size_ss << size;
+
 						
-						in_a->getAllocatedType()->dump();
-						cerr << "size: " << size << endl; fflush(stderr);
+						
+						//in_a->getAllocatedType()->dump();
+						//cerr << "size: " << size << endl; fflush(stderr);
 
 
 						//vector<int> sizes = get_dimensions(in_a->getType());
@@ -673,9 +718,11 @@ struct AllocaInstr: public ModulePass {
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, type);
+						GlobalVariable* c3 = make_global_str(M, size_ss.str());
 
 						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "alloca_instr" ,
 									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
@@ -686,6 +733,7 @@ struct AllocaInstr: public ModulePass {
 						std::vector<Value*> params;
 						params.push_back(pointerToArray(M,c1));
 						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}
@@ -720,6 +768,22 @@ struct GetelementPtr: public ModulePass {
 						//}
 						
 						vector<string> indexes = get_indexes(in_g);
+
+
+						const PointerType* t_p = dyn_cast<PointerType>(in_g->getPointerOperandType());
+						const ArrayType*   t_a = dyn_cast<ArrayType>(t_p->getElementType());
+
+						//cerr << t_p << " " << t_a << endl;
+
+						//in_g->getPointerOperandType()->dump(); fflush(stderr);
+						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
+						vector<int> sizes = get_nested_sizes( t_a );
+						for( vector<int>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
+							cerr << *it << ",";
+						} cerr << endl;
+
+
+
 
 						//cerr << "result: " << nameres << endl;
 						//cerr << "operand1: " << nameop1 << endl;
@@ -816,6 +880,7 @@ struct All: public ModulePass {
 		{BbMarks       pass;   pass.runOnModule(M);}
 		{AllocaInstr   pass;   pass.runOnModule(M);}
 		{BeginEnd      pass;   pass.runOnModule(M);}
+		{GetelementPtr pass;   pass.runOnModule(M);}
 
 		return false;
 	}

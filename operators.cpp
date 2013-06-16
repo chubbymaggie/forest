@@ -254,7 +254,7 @@ void end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
-void alloca_instr(char* _reg, char* _type){
+void alloca_instr(char* _reg, char* _type, char* _size){
 
 	string reg = string(_reg);
 	string type = string(_type);
@@ -268,9 +268,12 @@ void alloca_instr(char* _reg, char* _type){
 
 	variables[mem_var.str()].type = type;
 
-	alloca_pointer++;
+	int size;
+	sscanf(_size, "%d", &size);
 
-	debug && printf("\e[31m alloca_instr %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+	alloca_pointer += size;
+
+	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), _size, reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
 void getelementptr(char* dst, char* pointer, char* indexes){
