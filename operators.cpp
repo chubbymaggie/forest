@@ -276,9 +276,9 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), _size, reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
-void getelementptr(char* dst, char* pointer, char* indexes){
+void getelementptr(char* dst, char* pointer, char* indexes, char* sizes){
 
-	debug && printf("\e[31m getelementptr %s %s %s\e[0m\n", dst, pointer, indexes );
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m\n", dst, pointer, indexes, sizes );
 
 }
 

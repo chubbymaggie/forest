@@ -251,7 +251,7 @@ int get_size( const Type* t ){
 
 
 
-vector<int> get_nested_sizes( const ArrayType* t ){
+vector<string> get_nested_sizes( const ArrayType* t ){
 
 	//const PointerType* t_p = dyn_cast<PointerType>(t);
 	//t = dyn_cast<ArrayType>(t_p->getElementType());
@@ -263,9 +263,9 @@ vector<int> get_nested_sizes( const ArrayType* t ){
 	//const ArrayType* t_a = dyn_cast<ArrayType>(t);
 	//if( !t_a ){ ret.push_back(1); return ret; }
 
-	t->dump(); fflush(stderr);
+	//t->dump(); fflush(stderr);
 
-	//ret.push_back( t->getNumElements() * get_size(t) );
+	ret.push_back( t->getNumElements() * get_size(t->getElementType()) );
 
 	while(true){
 		t = dyn_cast<ArrayType>(t->getElementType());
@@ -276,7 +276,16 @@ vector<int> get_nested_sizes( const ArrayType* t ){
 	ret.push_back( element_size(t_ini) );
 
 
-	return ret;
+	vector<string> ret2;// ret2.push_back("0");
+	for( vector<int>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		stringstream ss;
+		ss << *it;
+		ret2.push_back(ss.str());
+	}
+	
+
+
+	return ret2;
 
 
 }
@@ -777,10 +786,10 @@ struct GetelementPtr: public ModulePass {
 
 						//in_g->getPointerOperandType()->dump(); fflush(stderr);
 						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
-						vector<int> sizes = get_nested_sizes( t_a );
-						for( vector<int>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
-							cerr << *it << ",";
-						} cerr << endl;
+						vector<string> sizes = get_nested_sizes( t_a );
+						//for( vector<int>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
+							//cerr << *it << ",";
+						//} cerr << endl;
 
 
 
@@ -797,13 +806,20 @@ struct GetelementPtr: public ModulePass {
 							indexes_str += *it + ",";
 						}
 
+						string nst_sizes;
+						for( vector<string>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
+							nst_sizes += *it + ",";
+						}
+
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
 						GlobalVariable* c3 = make_global_str(M, indexes_str);
+						GlobalVariable* c4 = make_global_str(M, nst_sizes);
 
 						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
 									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -816,6 +832,7 @@ struct GetelementPtr: public ModulePass {
 						params.push_back(pointerToArray(M,c1));
 						params.push_back(pointerToArray(M,c2));
 						params.push_back(pointerToArray(M,c3));
+						params.push_back(pointerToArray(M,c4));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}
