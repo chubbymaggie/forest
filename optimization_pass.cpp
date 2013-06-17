@@ -765,9 +765,6 @@ struct GetelementPtr: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		cerr << "GetElementPtrInst" << endl; fflush(stderr);
-
-
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
@@ -786,18 +783,25 @@ struct GetelementPtr: public ModulePass {
 						vector<string> indexes = get_indexes(in_g);
 
 
-						const PointerType* t_p = dyn_cast<PointerType>(in_g->getPointerOperandType());
-						const ArrayType*   t_a = dyn_cast<ArrayType>(t_p->getElementType());
+						const PointerType* t_p  = dyn_cast<PointerType>(in_g->getPointerOperandType());
+						const ArrayType*   t_a  = dyn_cast<ArrayType>(t_p->getElementType());
+						const Type* t_pp        = t_p->getElementType();
 
 						//cerr << t_p << " " << t_a << endl;
 
 						//cerr << "GetElementPtrInst2" << endl; fflush(stderr);
 						//in_g->getPointerOperandType()->dump(); fflush(stderr);
 						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
-						vector<string> sizes = get_nested_sizes( t_a );
-						//for( vector<int>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
-							//cerr << *it << ",";
-						//} cerr << endl;
+
+						vector<string> sizes;
+						if( t_a )
+							sizes = get_nested_sizes( t_a );
+
+						if( t_pp ){
+							const Type* tp = t_p->getElementType();
+							stringstream size; size << get_size(t_pp);
+							sizes.push_back( size.str() );
+						}
 
 						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);
 
