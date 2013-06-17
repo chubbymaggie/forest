@@ -295,9 +295,6 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 
 }
 
-
-
-
 // Optimization passes
 
 struct FillNames : public ModulePass {
@@ -373,29 +370,6 @@ struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BinaryOp() : ModulePass(ID) {}
 
-	GlobalVariable* make_global_str(Module& M, string name){
-
-		uint64_t length = (uint64_t) name.length()+1;
-		//cerr << "---------------------" << name << "---------" << length << endl;
-		ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
-
-		GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
-				/*Type=*/ArrayTy_0,
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::ExternalLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/"a");
-
-		Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
-
-		// Global Variable Definitions
-		gvar_array_a->setInitializer(const_array_2);
-
-		return gvar_array_a;
-
-	}
-
-
 	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fn){
@@ -434,6 +408,53 @@ struct BinaryOp: public ModulePass {
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 						//CallInst* ci = CallInst::Create(InitFn, "", insertpos );
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+struct CastInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	CastInstr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( CastInst::classof(in) ){
+
+						if( in->getName() == "alloca point" ) continue;
+
+						string nameres = "register_" + in->getName().str();
+						string nameop1 = operandname( in->getOperand(0) );
+
+						//cerr << nameres << " " << nameop1 << endl;
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, nameop1);
+
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "cast_instruction" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
 
 					}
 				}
@@ -922,6 +943,9 @@ static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block
 
 char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp("binaryop", "Instrument binary operations");
+
+char CastInstr::ID = 0;
+static RegisterPass<CastInstr> CastInstr("castinstr", "Instrument cast operations");
 
 char LoadStore::ID = 0;
 static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument load/store operations");

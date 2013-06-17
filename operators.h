@@ -50,6 +50,8 @@ typedef struct Variable {
  */
 extern "C" void binary_op(char*, char*, char*, char*);
 
+extern "C" void cast_instruction(char*, char*);
+
 /**
  * @brief Called when a load instruction assigns the value of a memory position (pointed by the register named addr) to a register
  *

@@ -1,11 +1,8 @@
 int main(int argc, char** argv) {
 
-	int a,b;
+	float b = argc;
+	int c = b;
 
-	if( a*b+a < b )
-		return 5;
-	else
-		return 3;
 
 } 
 

@@ -127,6 +127,16 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 }
 
+void cast_instruction(char* _dst, char* _src){
+
+	string dst = string(_dst);
+	string src = string(_src);
+
+	assign_instruction(dst, src);
+
+	printf("\e[31m Cast_instruction %s %s \e[0m.\n", dst.c_str(), src.c_str() );
+}
+
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	string dst = string(_dst);
 	string op1 = string(_op1);
@@ -201,7 +211,6 @@ void show_problem(){
 
 	getchar();
 }
-
 
 bool br_instr_cond(char* _cmp){
 
