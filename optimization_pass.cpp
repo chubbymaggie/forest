@@ -800,7 +800,7 @@ struct GetelementPtr: public ModulePass {
 						if( t_pp ){
 							const Type* tp = t_p->getElementType();
 							stringstream size; size << get_size(t_pp);
-							sizes.push_back( size.str() );
+							sizes.push_back( "constant_" + size.str() );
 						}
 
 						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);
