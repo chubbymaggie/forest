@@ -85,6 +85,8 @@ void get_values();
  */
 bool solvable_problem();
 
+void flat_problem();
+
 /**
  * @brief Inserts variable name in the list of variables
  *

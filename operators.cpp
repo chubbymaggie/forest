@@ -224,6 +224,7 @@ bool br_instr_cond(char* _cmp){
 
 	}
 
+	flat_problem();
 	show_problem();
 	insert_problem();
 

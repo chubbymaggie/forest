@@ -100,6 +100,7 @@ bool is_comparison( string operation ){
 	if( operation == ">=" ) return true;
 	if( operation == "<"  ) return true;
 	if( operation == ">"  ) return true;
+	if( operation == "="  ) return true;
 	return false;
 }
 
@@ -311,4 +312,114 @@ string name( string input ){
 
 
 }
+
+bool is_number(const std::string& s) {
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+string first_var(string expr){
+
+	vector<string> tokens = tokenize(expr, "<>()+*= ");
+
+	vector<string>::iterator it;
+
+	for( it = tokens.begin(); it != tokens.end(); it++ ){
+		if( it->find("assert") != string::npos ) continue;
+		if( it->find("initial") != string::npos ) continue;
+		if( is_number(*it) ) continue;
+		break;
+	}
+
+	if( it == tokens.end() ) return "";
+	else return *it;
+
+	
+}
+
+void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
+	size_t pos = 0;
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
+string find_constraint( string name ){
+	
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
+
+
+			vector<string> tokens = tokenize(*it2, " ");
+
+			if( tokens[0] == name ) return *it2;
+		
+
+		}
+		
+	}
+}
+
+string substitute( string var, string expr ){
+
+	string ret = expr;
+	string constr_target = find_constraint(var);
+
+	printf("\e[31m assign_target: \e[0m %s\n", constr_target.c_str() );
+
+	vector<string> tokens = tokenize( constr_target, "= ");
+	string target;
+
+	if( tokens.size() == 2 )
+		target = tokens[1];
+	else
+		target = "(" + tokens[2] + " " + tokens[1] + " " + tokens[3] + ")";
+
+
+
+	myReplace(ret, var, target );
+
+	return ret;
+
+}
+
+void flat_constraint(string constraint){
+	
+	vector<string> tokens = tokenize(constraint, " ");
+	string expr = "(assert (" + tokens[1] + " " + tokens[0] + " " + tokens[2] + "))";
+
+	printf("\e[31m assertion: \e[0m %s\n", expr.c_str());
+
+
+	while(true) {
+		string var = first_var(expr);
+		if(var == "") break;
+		printf("\e[31m var: \e[0m %s\n", var.c_str());
+		string subs = substitute(var, expr);
+		printf("\e[31m subs: \e[0m %s\n", subs.c_str());
+		expr = subs;
+	}
+
+
+}
+
+void flat_problem(){
+
+	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+
+		flat_constraint(*it);
+		
+	}
+	
+
+}
+
+
+
+
+
+
+
 

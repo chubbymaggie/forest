@@ -31,12 +31,14 @@ viewbc:
 	llvm-dis < get-sign-2.bc > salida1.txt # generar salida1 
 	gedit salida1.txt
 
-final:
+sqlite3.o: sqlite3.c
+	gcc -c sqlite3.c -o sqlite3.o
+
+final: sqlite3.o
 	llc get-sign-3.bc -o get-sign-3.s
 	gcc -c get-sign-3.s -o get-sign-3.o
 	g++ -g -c operators.cpp  -o operators.o
 	g++ -g -c solver.cpp -o solver.o
-	gcc -c sqlite3.c -o sqlite3.o
 	g++ -c database.cpp -o database.o
 	g++ get-sign-3.o operators.o solver.o sqlite3.o database.o -lboost_regex -lpthread -ldl -o final
 

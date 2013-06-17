@@ -1,10 +1,11 @@
 int main(int argc, char** argv) {
 
-	int a[3][1];
-	if(argv[5][2] == 3)
+	int a,b;
+
+	if( a*b+a < b )
 		return 5;
 	else
-		return 2;
+		return 3;
 
 } 
 
