@@ -925,6 +925,7 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		{BinaryOp      pass;   pass.runOnModule(M);}
+		{CastInstr     pass;   pass.runOnModule(M);}
 		{LoadStore     pass;   pass.runOnModule(M);}
 		{IcmpInstr     pass;   pass.runOnModule(M);}
 		{BrInstr       pass;   pass.runOnModule(M);}

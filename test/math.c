@@ -9,15 +9,8 @@
  * for details.
  */
 
-#include <crest.h>
-
 int main(void) {
   int a, b, c, d, e;
-  CREST_int(a);
-  CREST_int(b);
-  CREST_int(c);
-  CREST_int(d);
-  CREST_int(e);
   if (3*a + 3*(b - 5*c) + (b+c) - a == d - 17*e) {
     return 1;
   } else {

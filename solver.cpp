@@ -247,6 +247,8 @@ string negation(string condition){
 	vector<string> tokens = tokenize(condition, " ");
 
 	if( tokens[1] == "<=" ) return tokens[0] + " > " + tokens[2];
+	if( tokens[1] == ">=" ) return tokens[0] + " < " + tokens[2];
+	if( tokens[1] == "="  ) return tokens[0] + " # " + tokens[2];
 
 	return condition;
 }
@@ -321,7 +323,7 @@ bool is_number(const std::string& s) {
 
 string first_var(string expr){
 
-	vector<string> tokens = tokenize(expr, "<>()+*= ");
+	vector<string> tokens = tokenize(expr, "<>()+-*= ");
 
 	vector<string>::iterator it;
 

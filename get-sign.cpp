@@ -1,8 +1,19 @@
-int main(int argc, char** argv) {
+/* Copyright (c) 2008, Jacob Burnim (jburnim@cs.berkeley.edu)
+ *
+ * This file is part of CREST, which is distributed under the revised
+ * BSD license.  A copy of this license can be found in the file LICENSE.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See LICENSE
+ * for details.
+ */
 
-	float b = argc;
-	int c = b;
-
-
-} 
-
+int main(void) {
+  int a, b, c, d, e;
+  if (3*a + 3*(b - 5*c) + (b+c) - a == d - 17*e) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
