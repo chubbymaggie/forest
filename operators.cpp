@@ -276,14 +276,42 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), _size, reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
-void getelementptr(char* dst, char* pointer, char* indexes, char* sizes){
+void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m\n", dst, pointer, indexes, sizes );
+	string dst     = string(_dst);
+	string pointer = string(_pointer);
+	//string indexes = string(_indexes);
+	//string sizes   = string(_sizes);
+
+	vector<string> indexes = tokenize(string(_indexes), ",");
+	vector<string> sizes   = tokenize(string(_sizes), ",");
+
+	for ( unsigned int i = 0; i < indexes.size(); i++) {
+		stringstream namedst; namedst << dst << "_offset_" << i;
+		//printf("%s = %s · %s\n", namedst.str().c_str(), indexes[i].c_str(), sizes[i].c_str());
+		binary_instruction(namedst.str(), indexes[i], sizes[i], "*");
+	}
+
+
+	for ( unsigned int i = 0; i < indexes.size(); i++) {
+		if( i == 0 ){
+			stringstream namedst; namedst << dst;
+			stringstream nameop1; nameop1 << pointer;
+			stringstream nameop2; nameop2 << dst << "_offset_" << i;
+			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
+			binary_instruction(namedst.str(),nameop1.str(), nameop2.str(), "+");
+		} else {
+			stringstream namedst; namedst << dst;
+			stringstream nameop1; nameop1 << dst;
+			stringstream nameop2; nameop2 << dst << "_offset_" << i;
+			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
+			binary_instruction(namedst.str(), nameop1.str(), nameop2.str(), "+");
+		}
+	}
+
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m\n", dst.c_str(), pointer.c_str(), _indexes, _sizes );
 
 }
-
-
-
 
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
@@ -303,5 +331,6 @@ void end_sim(){
 	
 	//printf("solvable_problem %d\n", solvable_problem() );
 	//get_values();
+	
 }
 

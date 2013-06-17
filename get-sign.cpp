@@ -1,8 +1,10 @@
 int main(int argc, char** argv) {
 
-	int c[5][3];
-	int a = 4;
-	int b = c[a][2];
+	int a[3][1];
+	if(a[5][2] == 3)
+		return 5;
+	else
+		return 2;
 
 } 
 

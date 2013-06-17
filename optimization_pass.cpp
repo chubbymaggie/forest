@@ -264,8 +264,12 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 	//if( !t_a ){ ret.push_back(1); return ret; }
 
 	//t->dump(); fflush(stderr);
+	//cerr << "nestedsizes" << t << endl; fflush(stderr);
 
 	ret.push_back( t->getNumElements() * get_size(t->getElementType()) );
+
+	//cerr << "nestedsizes2" << endl; fflush(stderr);
+
 
 	while(true){
 		t = dyn_cast<ArrayType>(t->getElementType());
@@ -279,6 +283,7 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 	vector<string> ret2;// ret2.push_back("0");
 	for( vector<int>::iterator it = ret.begin(); it != ret.end(); it++ ){
 		stringstream ss;
+		ss << "constant_";
 		ss << *it;
 		ret2.push_back(ss.str());
 	}
@@ -760,6 +765,8 @@ struct GetelementPtr: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		cerr << "GetElementPtrInst" << endl; fflush(stderr);
+
 
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
@@ -784,6 +791,7 @@ struct GetelementPtr: public ModulePass {
 
 						//cerr << t_p << " " << t_a << endl;
 
+						//cerr << "GetElementPtrInst2" << endl; fflush(stderr);
 						//in_g->getPointerOperandType()->dump(); fflush(stderr);
 						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
 						vector<string> sizes = get_nested_sizes( t_a );
@@ -791,6 +799,7 @@ struct GetelementPtr: public ModulePass {
 							//cerr << *it << ",";
 						//} cerr << endl;
 
+						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);
 
 
 
