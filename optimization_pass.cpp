@@ -549,7 +549,7 @@ struct IcmpInstr: public ModulePass {
 			case CmpInst::FCMP_TRUE            : return "";
 			case CmpInst::BAD_FCMP_PREDICATE   : return "";
 			case CmpInst::ICMP_EQ              : return "=";
-			case CmpInst::ICMP_NE              : return "!=";
+			case CmpInst::ICMP_NE              : return "#";
 			case CmpInst::ICMP_UGT             : return ">";
 			case CmpInst::ICMP_UGE             : return ">=";
 			case CmpInst::ICMP_ULT             : return "<";
