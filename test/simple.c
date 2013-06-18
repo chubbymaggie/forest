@@ -9,17 +9,13 @@
  * for details.
  */
 
-#include <crest.h>
-#include <stdio.h>
 
 int main(void) {
   int a, b;
-  CREST_int(a);
   b = 3 * a + 2;
   if (b == 8) {
-    printf("8\n");
+    return 8;
   } else {
-    printf("not 8\n");
+    return 0;
   }
-  return 0;
 }

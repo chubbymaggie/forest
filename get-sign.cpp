@@ -9,10 +9,12 @@
  * for details.
  */
 
+
 int main(void) {
-  int a, b, c, d, e;
-  if (3*a + 3*(b - 5*c) + (b+c) - a == d - 17*e) {
-    return 1;
+  int a, b;
+  b = 3 * a + 2;
+  if (b == 8) {
+    return 8;
   } else {
     return 0;
   }
