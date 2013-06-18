@@ -304,22 +304,6 @@ string get_type(string name){
 
 }
 
-string name( string input ){
-
-	if(input.find("constant") != string::npos ){
-		int ini = 9;
-		string interm = input.substr(ini);
-		int len = interm.find("_");
-		string final = interm.substr(0, len);
-
-		return final;
-	} else {
-		return input;
-	}
-
-
-}
-
 bool is_number(const std::string& s) {
     std::string::const_iterator it = s.begin();
     while (it != s.end() && std::isdigit(*it)) ++it;

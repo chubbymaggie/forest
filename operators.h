@@ -164,5 +164,16 @@ void assign_instruction(string src, string dst);
  */
 void binary_instruction(string dst, string op1, string op2, string operation);
 
+/**
+ * @brief Name of a variable
+ *
+ * @param input
+ *
+ * @return 
+ */
+string name( string input );
+
+
+
 #endif /* end of include guard: _OPERATORS_H_ */
 

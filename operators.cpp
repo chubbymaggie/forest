@@ -31,6 +31,9 @@ map<string, Variable> variables;
 set<string> variable_names;
 vector<string> conditions;
 
+string actual_function;
+string actual_bb;
+
 string realvalue(string name){
 
 	if( name.find("constant") != string::npos )
@@ -73,8 +76,8 @@ void assign_instruction(string src, string dst){
 	content << name(actual(dst)) << " = " << name(past(src));
 	variables[string(dst)].contents.push_back( content.str() );
 
-	insert_variable(past(dst));
-	insert_variable(past(src));
+	insert_variable( name(past(dst)) );
+	insert_variable( name(past(src)) );
 
 	variables[dst].real_value = realvalue(src);
 
@@ -92,8 +95,8 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	variables[dst].contents.push_back( content.str() );
 
 	//insert_variable(actual(dst));
-	insert_variable(past(op1));
-	insert_variable(past(op2));
+	insert_variable( name( past(op1) ) );
+	insert_variable( name( past(op2) ) );
 
 	if( variables[dst].type == "" )
 		variables[dst].type = variables[op1].type;
@@ -274,6 +277,7 @@ void br_instr_incond(){
 }
 
 void begin_bb(char* name){
+	actual_bb = string(name);
 	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
@@ -361,4 +365,24 @@ void end_sim(){
 	//get_values();
 	
 }
+
+
+string name( string input ){
+
+	if(input.find("constant") != string::npos ){
+		int ini = 9;
+		string interm = input.substr(ini);
+		int len = interm.find("_");
+		string final = interm.substr(0, len);
+
+		return final;
+	} else if (input.substr(0,4) == "mem_" ){
+		return input;
+	} else {
+		return actual_bb + input;
+	}
+
+
+}
+
 
