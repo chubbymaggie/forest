@@ -9,13 +9,18 @@
  * for details.
  */
 
-
 int main(void) {
-  int a, b;
-  b = 3 * a + 2;
-  if (b == 8) {
-    return 8;
-  } else {
-    return 0;
+  int a, b, c, d;
+
+  if (a == 5) {
+    if (b == 19) {
+      if (c == 7) {
+        if (d == 4) {
+          return 1;
+	}
+      }
+    }
   }
+
+  return 0;
 }

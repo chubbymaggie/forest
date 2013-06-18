@@ -9,21 +9,14 @@
  * for details.
  */
 
-#include <crest.h>
-#include <stdio.h>
-
 int main(void) {
   int a, b, c, d;
-  CREST_int(a);
-  CREST_int(b);
-  CREST_int(c);
-  CREST_int(d);
 
   if (a == 5) {
     if (b == 19) {
       if (c == 7) {
         if (d == 4) {
-          fprintf(stderr, "GOAL!\n");
+          return 1;
 	}
       }
     }
