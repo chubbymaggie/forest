@@ -37,6 +37,7 @@ using namespace std;
 typedef struct Variable {
 	string real_value;
 	string type;
+	string name_hint;
 	vector<string> contents;
 } Variable;
 

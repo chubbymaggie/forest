@@ -55,8 +55,8 @@ void dump_conditions(FILE* file){
 		vector<string> tokens = tokenize(*it, " ");
 
 
-
-		fprintf(file,"(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
+		if( tokens[1] == "#" ) fprintf(file,"(assert (not (= %s %s)))\n", tokens[0].c_str(), tokens[2].c_str() );
+		else                   fprintf(file,"(assert (%s %s %s))\n", tokens[1].c_str(), tokens[0].c_str(), tokens[2].c_str() );
 		//debug && printf("\e[33m %s \e[0m\n", it->c_str() );
 
 
@@ -94,7 +94,6 @@ void dump_get(FILE* file){
 	}
 
 }
-
 
 bool is_comparison( string operation ){
 
@@ -371,7 +370,7 @@ string substitute( string var, string expr ){
 	string ret = expr;
 	string constr_target = find_constraint(var);
 
-	printf("\e[31m assign_target: \e[0m %s\n", constr_target.c_str() );
+	debug && printf("\e[31m assign_target: \e[0m %s\n", constr_target.c_str() );
 
 	vector<string> tokens = tokenize( constr_target, "= ");
 	string target;
@@ -394,15 +393,15 @@ void flat_constraint(string constraint){
 	vector<string> tokens = tokenize(constraint, " ");
 	string expr = "(assert (" + tokens[1] + " " + tokens[0] + " " + tokens[2] + "))";
 
-	printf("\e[31m assertion: \e[0m %s\n", expr.c_str());
+	debug && printf("\e[31m assertion: \e[0m %s\n", expr.c_str());
 
 
 	while(true) {
 		string var = first_var(expr);
 		if(var == "") break;
-		printf("\e[31m var: \e[0m %s\n", var.c_str());
+		debug && printf("\e[31m var: \e[0m %s\n", var.c_str());
 		string subs = substitute(var, expr);
-		printf("\e[31m subs: \e[0m %s\n", subs.c_str());
+		debug && printf("\e[31m subs: \e[0m %s\n", subs.c_str());
 		expr = subs;
 	}
 
@@ -425,13 +424,12 @@ void flat_variables(){
 	}
 
 	for( set<string>::iterator it = flatened_variables.begin(); it != flatened_variables.end(); it++ ){
-		printf("\e[31m flattened_variable \e[0m %s \n", it->c_str() );
+		debug && printf("\e[31m flattened_variable \e[0m %s \n", it->c_str() );
 	}
 	
 	
 
 }
-
 
 void dump_get_flat(FILE* file = stdout ){
 
@@ -449,7 +447,7 @@ void dump_get_flat(FILE* file = stdout ){
 
 }
 
-void dump_flatened_variables(FILE* file = stdout ){
+void dump_flatened_variables(FILE* file ){
 
 	for( set<string>::iterator it = flatened_variables.begin(); it != flatened_variables.end(); it++ ){
 
@@ -466,7 +464,7 @@ void dump_flatened_variables(FILE* file = stdout ){
 
 }
 
-void dump_flatened_conditions(FILE* file = stdout ){
+void dump_flatened_conditions(FILE* file ){
 
 	for( vector<string>::iterator it = flatened_conditions.begin(); it != flatened_conditions.end(); it++ ){
 
@@ -478,7 +476,6 @@ void dump_flatened_conditions(FILE* file = stdout ){
 	fprintf(file, "(check-sat)\n");
 
 }
-
 
 bool allavailable(string expr, set<string> available){
 
@@ -534,9 +531,9 @@ void real_execution( string expr ){
 
 		if( tokens[1] == "=" ) variables[ tokens[0] ].real_value = variables[ tokens[2] ].real_value;
 
-		printf("\e[31m expr \e[0m %s\n", expr.c_str());
-		printf("\e[31m tokens[2].real_value \e[0m %s\n", variables[ tokens[2] ].real_value.c_str() );
-		printf("\e[31m tokens[0].real_value \e[0m %s\n", variables[ tokens[0] ].real_value.c_str() );
+		debug && printf("\e[31m expr \e[0m %s\n", expr.c_str());
+		debug && printf("\e[31m tokens[2].real_value \e[0m %s\n", variables[ tokens[2] ].real_value.c_str() );
+		debug && printf("\e[31m tokens[0].real_value \e[0m %s\n", variables[ tokens[0] ].real_value.c_str() );
 
 	}
 
@@ -547,10 +544,10 @@ void real_execution( string expr ){
 			variables[tokens[0]].real_value = result.str();
 		}
 
-		printf("\e[31m expr \e[0m %s\n", expr.c_str());
-		printf("\e[31m tokens[2].real_value \e[0m %s\n", variables[ tokens[2] ].real_value.c_str() );
-		printf("\e[31m tokens[4].real_value \e[0m %s\n", variables[ tokens[4] ].real_value.c_str() );
-		printf("\e[31m tokens[0].real_value \e[0m %s\n", variables[ tokens[0] ].real_value.c_str() );
+		debug && printf("\e[31m expr \e[0m %s\n", expr.c_str());
+		debug && printf("\e[31m tokens[2].real_value \e[0m %s\n", variables[ tokens[2] ].real_value.c_str() );
+		debug && printf("\e[31m tokens[4].real_value \e[0m %s\n", variables[ tokens[4] ].real_value.c_str() );
+		debug && printf("\e[31m tokens[0].real_value \e[0m %s\n", variables[ tokens[0] ].real_value.c_str() );
 
 	}
 
@@ -558,11 +555,10 @@ void real_execution( string expr ){
 
 }
 
-
 void print_available(set<string> in){
 
 	for( set<string>::iterator it = in.begin(); it != in.end(); it++ ){
-		printf("%s\n", it->c_str() );
+		debug && printf("%s\n", it->c_str() );
 	}
 	
 }
@@ -598,7 +594,7 @@ void get_values_flat(){
 
 	set<string> available_vars;
 
-	printf("\e[31m get_values_flat \e[0m %s %d\n", filename.str().c_str(), ret_vector.size() );
+	debug && printf("\e[31m get_values_flat \e[0m %s %d\n", filename.str().c_str(), ret_vector.size() );
 
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		//printf("it %s\n", it->c_str());
@@ -612,7 +608,7 @@ void get_values_flat(){
 
 
 	for( set<string>::iterator it = available_vars.begin(); it != available_vars.end(); it++ ){
-		printf("available_var %s\n", it->c_str());
+		debug && printf("available_var %s\n", it->c_str());
 	}
 
 	
@@ -627,7 +623,7 @@ void get_values_flat(){
 
 		string expr_with_all_available = next_with_all_available(available_vars, processed);
 		if( expr_with_all_available == "" ) break;
-		printf("\e[31m next_with_all_available \e[0m %s\n", expr_with_all_available.c_str());
+		debug && printf("\e[31m next_with_all_available \e[0m %s\n", expr_with_all_available.c_str());
 		processed.insert( expr_with_all_available );
 
 		
@@ -638,7 +634,6 @@ void get_values_flat(){
 	}
 	
 }
-
 
 void flat_problem(){
 
@@ -656,8 +651,4 @@ void flat_problem(){
 
 
 }
-
-
-
-
 

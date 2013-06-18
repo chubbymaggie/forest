@@ -96,6 +96,7 @@ void create_tables(){
 	action << "create table results(";
 	action << "name varchar(50),";
 	action << "value varchar(50),";
+	action << "name_hint varchar(50),";
 	action << "problem_id INTEGER";
 	action << ");";
 
@@ -112,13 +113,11 @@ void insert_problem(){
 
 	action << "insert into problems (sat) values (" << (solvable_problem()?1:0) << ");";
 
-
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = *it;
 		string type = get_type(name);
 		action << "insert into variables values ('" << name << "','" << type << "'," << id << ");";
 	}
-	
 	
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
@@ -152,7 +151,8 @@ void insert_problem(){
 		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 			string name = it->first;
 			string value = realvalue(name);
-			action << "insert into results values ('" << name << "','" << value << "'," << id << ");";
+			string hint = variables[name].name_hint;
+			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << id << ");";
 			
 		}
 		
@@ -161,9 +161,7 @@ void insert_problem(){
 		
 	}
 
-
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
-
 

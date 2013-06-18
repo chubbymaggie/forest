@@ -22,6 +22,8 @@
 #include "solver.h"
 
 #define debug true
+#define see_each_problem true
+#define see_flat_problem false
 #define SIZE_STR 512
 
 int alloca_pointer = 0;
@@ -101,6 +103,10 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if(operation == "<="){
 		variables[dst].real_value = ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false";
+	}
+
+	if(operation == "="){
+		variables[dst].real_value = ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false";
 	}
 
 	if(operation == "+"){
@@ -199,7 +205,7 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 									 dst.c_str(), realvalue(dst).c_str() );
 }
 
-void show_problem(){
+int show_problem(){
 
 	dump_header();
 	dump_variables();
@@ -209,6 +215,16 @@ void show_problem(){
 
 	fflush(stdout);
 
+	getchar();
+}
+
+int show_flat_problem(){
+	dump_header();
+	dump_flatened_variables();
+	dump_flatened_conditions();
+	dump_tail();
+
+	fflush(stdout);
 	getchar();
 }
 
@@ -233,8 +249,9 @@ bool br_instr_cond(char* _cmp){
 
 	}
 
-	flat_problem();
-	show_problem();
+	//flat_problem();
+	see_each_problem && show_problem();
+	//see_flat_problem && show_flat_problem();
 	insert_problem();
 
 	if( fork() ){
@@ -275,6 +292,7 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
 
 	variables[mem_var.str()].real_value = "0";
+	variables[mem_var.str()].name_hint = reg;
 
 	variables[mem_var.str()].type = type;
 

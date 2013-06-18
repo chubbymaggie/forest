@@ -224,7 +224,6 @@ int element_size( const ArrayType* t ){
 
 }
 
-
 int product(vector<int> elem){
 	int prod = 1;
 	for( vector<int>::iterator it = elem.begin(); it != elem.end(); it++ ){
@@ -232,9 +231,6 @@ int product(vector<int> elem){
 	}
 	return prod;
 }
-
-
-
 
 int get_size( const Type* t ){
 
@@ -248,8 +244,6 @@ int get_size( const Type* t ){
 	}
 
 }
-
-
 
 vector<string> get_nested_sizes( const ArrayType* t ){
 
@@ -878,8 +872,6 @@ struct GetelementPtr: public ModulePass {
 	}
 };
 
-
-
 struct BeginEnd: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BeginEnd() : ModulePass(ID) {}
@@ -937,7 +929,6 @@ struct All: public ModulePass {
 		return false;
 	}
 };
-
 
 char FillNames::ID = 0;
 static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block Names");

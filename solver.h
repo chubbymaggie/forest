@@ -182,5 +182,23 @@ string get_type(string name);
  */
 string name( string input );
 
+
+
+
+void dump_flatened_variables(FILE* file = stdout );
+
+void dump_flatened_conditions(FILE* file = stdout );
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /* end of include guard: _SOLVER_H_ */
 
