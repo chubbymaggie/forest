@@ -102,6 +102,7 @@ bool is_comparison( string operation ){
 	if( operation == "<"  ) return true;
 	if( operation == ">"  ) return true;
 	if( operation == "="  ) return true;
+	if( operation == "#"  ) return true;
 	return false;
 }
 
