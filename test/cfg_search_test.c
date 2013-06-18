@@ -9,14 +9,12 @@
  * for details.
  */
 
-#include <crest.h>
-#include <stdio.h>
 
 int data[200];
 
 int main(void) {
+  bool goal = 0;
   unsigned char c;
-  CREST_unsigned_char(c);
 
   for (int i = 0; i < 200; i++) {
     data[i] = 400;
@@ -26,12 +24,11 @@ int main(void) {
   for (int i = 0; i < 200; i++) {
     // Data match?
     if (c == data[i]) {
-      fprintf(stderr, "GOAL!\n");
+      goal = 1;
     }
 
     // Useless zero check.
     int a;
-    CREST_int(a);
     if (a == 0) { }
   }
 

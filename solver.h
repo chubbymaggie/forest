@@ -173,6 +173,8 @@ string type(string name);
  */
 string get_type(string name);
 
+string name_without_suffix(string name);
+
 /**
  * @brief Name of a variable
  *

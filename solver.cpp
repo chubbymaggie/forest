@@ -164,7 +164,7 @@ void get_values(){
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		if( it->find("((") == string::npos ) continue;
 		vector<string> tokens = tokenize(*it, "() ");
-		variables[ tokens[0] ].real_value = tokens[1];
+		variables[ name_without_suffix(tokens[0]) ].real_value = tokens[1];
 		debug && printf("%s %s\n", tokens[0].c_str(), tokens[1].c_str() );
 	}
 	
@@ -290,13 +290,16 @@ string type(string name){
 	return "Int";
 }
 
-string get_type(string name){
+string name_without_suffix( string name ){
 
 	int s1 = name.find("_");
 	int s2 = name.find("_", s1+1);
-	string name_without_suffix = name.substr(0,s2);
+	return name.substr(0,s2);
+}
 
-	return type(name_without_suffix);
+string get_type(string name){
+
+	return type(name_without_suffix(name));
 
 }
 
