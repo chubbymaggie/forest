@@ -792,37 +792,6 @@ struct CallInstr: public ModulePass {
 
 
 
-		mod_iterator(M, fn){
-
-			string fn_name = fn->getName().str();
-
-			GlobalVariable* c1 = make_global_str(M, fn_name );
-
-			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "BeginFn" ,
-						Type::getVoidTy( M.getContext() ),
-						Type::getInt8PtrTy( M.getContext() ),
-						(Type *)0
-						));
-
-			Function::iterator begin = fn->begin();
-			Function::iterator end   = fn->end();
-
-			//cerr << "\e[31m" << fn_name << "\e[0m" << endl;
-			if( begin != end ){
-				//begin->dump();
-
-				BasicBlock::iterator insertpos = fn->begin()->begin();
-				//insertpos++;
-
-				std::vector<Value*> params;
-				params.push_back(pointerToArray(M,c1));
-				CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-				
-			}
-
-
-
-		}
 
 
 		return false;
@@ -867,6 +836,38 @@ struct BbMarks: public ModulePass {
 					CallInst::Create(EndFn, params.begin(), params.end(), "", insertpos);
 				}
 			}
+		}
+
+		mod_iterator(M, fn){
+
+			string fn_name = fn->getName().str();
+
+			GlobalVariable* c1 = make_global_str(M, fn_name );
+
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "BeginFn" ,
+						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						(Type *)0
+						));
+
+			Function::iterator begin = fn->begin();
+			Function::iterator end   = fn->end();
+
+			//cerr << "\e[31m" << fn_name << "\e[0m" << endl;
+			if( begin != end ){
+				//begin->dump();
+
+				BasicBlock::iterator insertpos = fn->begin()->begin();
+				//insertpos++;
+
+				std::vector<Value*> params;
+				params.push_back(pointerToArray(M,c1));
+				CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+				
+			}
+
+
+
 		}
 
 		return false;

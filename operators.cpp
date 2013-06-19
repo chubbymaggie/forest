@@ -30,7 +30,7 @@ int alloca_pointer = 0;
 map<string, Variable> variables;
 set<string> variable_names;
 vector<string> conditions;
-vector<string> callstack;
+vector<pair<string, string> > callstack;
 
 string actual_function;
 string actual_bb;
@@ -70,16 +70,16 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-void assign_instruction(string src, string dst){
+void assign_instruction(string src, string dst, string fn_name){
 
-	printf("\e[32m Assign_instruction %s = %s \e[0m\n", name(dst).c_str(), name(src).c_str() );
+	//printf("\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
 	stringstream content;
 
-	content << name(actual(dst)) << " = " << name(past(src));
+	content << name(actual(dst), fn_name) << " = " << name(past(src));
 	variables[string(dst)].contents.push_back( content.str() );
 
-	insert_variable( name(past(dst)) );
+	insert_variable( name(past(dst),fn_name) );
 	insert_variable( name(past(src)) );
 
 	variables[dst].real_value = realvalue(src);
@@ -93,7 +93,7 @@ void assign_instruction(string src, string dst){
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
-	printf("\e[32m Binary_instruction %s = %s %s %s\e[0m\n", dst.c_str(), op1.c_str(), operation.c_str(), op2.c_str() );
+	//printf("\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 
 	stringstream content;
 	content << name( actual(dst) ) << " = " << name(past(op1)) << " " << operation << " " << name(past(op2));
@@ -151,15 +151,17 @@ void cast_instruction(char* _dst, char* _src){
 	string dst = string(_dst);
 	string src = string(_src);
 
-	debug && printf("\e[31m Cast_instruction %s %s \e[0m.\n", name(dst).c_str(), name(src).c_str() );
-
 	assign_instruction(src,dst);
+
+	debug && printf("\e[31m Cast_instruction %s %s \e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
+		                                                              name(src).c_str(), realvalue(src).c_str(),
+		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
+
 }
 
 
 void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
 
-	printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
 
 	string fn_name           = string(_fn_name);
 	vector<string> oplist    = tokenize( string(_oplist), ",");
@@ -169,11 +171,13 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
-		assign_instruction( oplist[i], fn_oplist[i] );
+		assign_instruction( oplist[i], fn_oplist[i], fn_name );
 
 	}
 
-	callstack.push_back( ret_to );
+	printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
+
+	callstack.push_back( pair<string, string>(ret_to, actual_function) );
 
 
 }
@@ -188,11 +192,12 @@ void ReturnInstr(char* _retname ){
 
 	if( callstack.size() == 0 ) return;
 
-	string last_in_callstack = callstack[ callstack.size() - 1];
+	string last_rg_callstack = callstack[ callstack.size() - 1].first;
+	string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
 	callstack.erase( callstack.end() - 1 );
 
-	assign_instruction( retname, last_in_callstack );
+	assign_instruction( retname, last_rg_callstack, last_fn_callstack );
 
 }
 
@@ -202,13 +207,13 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	string op2 = string(_op2);
 	string operation = string(_operation);
 
+	binary_instruction(dst, op1, op2, operation);
 
 	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
 			                                                        op1.c_str(), realvalue(op1).c_str(),
 									        op2.c_str(), realvalue(op2).c_str(),
 										_dst, realvalue(dst).c_str() );
 
-	binary_instruction(dst, op1, op2, operation);
 
 }
 
@@ -217,6 +222,7 @@ void load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem_" + realvalue(addr);
 
+	assign_instruction(src, dst);
 
 	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
 								    name(addr).c_str(), realvalue(addr).c_str(),
@@ -224,7 +230,6 @@ void load_instr(char* _dst, char* _addr){
 							            name(dst).c_str(), realvalue(dst).c_str()
 								    );
 
-	assign_instruction(src, dst);
 
 }
 
@@ -233,12 +238,13 @@ void store_instr(char* _src, char* _addr){
 	string addr = string(_addr);
 	string dst = "mem_" + realvalue(string(_addr)) ;
 
+	assign_instruction(src, dst);
+
 	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
 			                                           name(src).c_str(), realvalue(src).c_str(),
 								   name(addr).c_str(), realvalue(addr).c_str(),
 								   name(dst).c_str(), realvalue(dst).c_str() );
 
-	assign_instruction(src, dst);
 
 }
 
@@ -254,12 +260,12 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	//printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
 	
 
-
-	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _cmp1, _cmp2, _type, 
-			                                                 cmp1.c_str(), realvalue(cmp1).c_str(),
-									 cmp2.c_str(), realvalue(cmp2).c_str(),
-									 dst.c_str(), realvalue(dst).c_str() );
 	binary_instruction(dst, cmp1, cmp2, type);
+
+	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
+			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
+									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
+									 name(dst).c_str(), realvalue(dst).c_str() );
 }
 
 int show_problem(){
@@ -436,7 +442,7 @@ void end_sim(){
 }
 
 
-string name( string input ){
+string name( string input, string fn_name ){
 
 	if(input.find("constant") != string::npos ){
 		int ini = 9;
@@ -448,7 +454,7 @@ string name( string input ){
 	} else if (input.substr(0,4) == "mem_" ){
 		return input;
 	} else {
-		return actual_function + input;
+		return ((fn_name == "")?actual_function:fn_name) + input;
 		//return input;
 	}
 

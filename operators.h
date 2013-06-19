@@ -156,7 +156,7 @@ vector<string> tokenize(const string& str,const string& delimiters);
  * @param src: Origin variable name
  * @param dst: Destination variable name
  */
-void assign_instruction(string src, string dst);
+void assign_instruction(string src, string dst, string fn_name = "");
 
 /**
  * @brief Called when a binary operation is performed among two variables
@@ -175,7 +175,7 @@ void binary_instruction(string dst, string op1, string op2, string operation);
  *
  * @return 
  */
-string name( string input );
+string name( string input, string fn_name = "" );
 
 
 

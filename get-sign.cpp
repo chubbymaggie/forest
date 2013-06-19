@@ -9,10 +9,13 @@
  * for details.
  */
 
+int dbl(int a){
+	return a;
+}
 
 int main(void) {
   short a;
-  if ( a == 9) {
+  if ( dbl(a) == 9) {
     return 0;
   } else {
     return 1;
