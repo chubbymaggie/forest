@@ -221,6 +221,9 @@ void insert_variable(string name){
 	if( name.find("constant") != string::npos )
 		return;
 
+	if( is_number(name) )
+		return;
+
 	//if(variables[name].contents.size() == 0)
 		//return;
 

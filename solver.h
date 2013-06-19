@@ -183,6 +183,7 @@ void dump_flatened_variables(FILE* file = stdout );
 
 void dump_flatened_conditions(FILE* file = stdout );
 
+bool is_number(const std::string& s) ;
 
 
 

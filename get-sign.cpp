@@ -9,13 +9,10 @@
  * for details.
  */
 
-short dbl(short x) {
-  return 2*x;
-}
 
 int main(void) {
   short a;
-  if (dbl(a) + 3 == 9) {
+  if ( a == 9) {
     return 0;
   } else {
     return 1;
