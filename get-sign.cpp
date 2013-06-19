@@ -9,18 +9,15 @@
  * for details.
  */
 
+short dbl(short x, long a) {
+  return 2*x;
+}
+
 int main(void) {
-  int a, b, c, d;
-
-  if (a == 5) {
-    if (b == 19) {
-      if (c == 7) {
-        if (d == 4) {
-          return 1;
-	}
-      }
-    }
+  short a;
+  if (dbl(a,0) + 3 == 9) {
+    return 0;
+  } else {
+    return 1;
   }
-
-  return 0;
 }

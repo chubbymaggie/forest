@@ -31,6 +31,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
+#include <map>
 
 #define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
@@ -664,6 +665,138 @@ struct BrInstr: public ModulePass {
 	}
 };
 
+struct CallInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	CallInstr() : ModulePass(ID) {}
+
+	map<string, vector<string> > arguments;
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+
+			Function::arg_iterator arg_begin = fn->arg_begin();
+			Function::arg_iterator arg_end   = fn->arg_end();
+
+			for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
+
+				//cerr << fn->getName().str() << " " << it->getName().str() << endl;
+				//arguments[ fn->getName().str() ].push_back( it->getName().str() );
+				arguments[ fn->getName().str() ].push_back( operandname(it) );
+			}
+
+			//if( arg_begin != arg_end ){
+				//arg_begin->dump();
+				
+				//cerr << arg_begin->getName().str() << endl;
+				//cerr << fn->getName().str() << endl;
+
+			//}
+		}
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( CallInst::classof(in) ){
+
+						CallInst* in_c = cast<CallInst>(in);
+
+						string fn_name = in_c->getCalledFunction()->getName().str();
+
+						stringstream operand_list;
+						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
+							string name = operandname( in_c->getArgOperand(i) );
+							operand_list << name << ",";
+						}
+
+						stringstream function_operand_list;
+						vector<string> fn_operand_list = arguments[ fn_name ];
+
+						for( vector<string>::iterator it = fn_operand_list.begin(); it != fn_operand_list.end(); it++ ){
+							function_operand_list << *it << ",";
+						}
+
+						string oplist  = operand_list.str();
+						string fn_oplist = function_operand_list.str();
+						string ret_to = operandname( in_c );
+						
+						//cerr << fn_name << endl;
+						//cerr << oplist  << endl;
+						//cerr << fn_oplist << endl;
+
+						GlobalVariable* c1 = make_global_str(M, fn_name );
+						GlobalVariable* c2 = make_global_str(M, oplist );
+						GlobalVariable* c3 = make_global_str(M, fn_oplist );
+						GlobalVariable* c4 = make_global_str(M, ret_to );
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
+						params.push_back(pointerToArray(M,c4));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						//in++;
+
+
+					}
+				}
+			}
+		}
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( ReturnInst::classof(in) ){
+
+						ReturnInst* in_r = cast<ReturnInst>(in);
+
+						string returnoperand = operandname( in_r->getReturnValue() );
+
+						GlobalVariable* c1 = make_global_str(M, returnoperand );
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "ReturnInstr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
+
+
+					}
+
+				}
+			}
+		}
+
+
+
+
+
+		return false;
+	}
+};
+
 struct BbMarks: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BbMarks() : ModulePass(ID) {}
@@ -947,6 +1080,9 @@ static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument comparison ope
 
 char BrInstr::ID = 0;
 static RegisterPass<BrInstr> BrInstr("brinstr", "Instrument branch operations");
+
+char CallInstr::ID = 0;
+static RegisterPass<CallInstr> CallInstr("callinstr", "Instrument call operations");
 
 char BbMarks::ID = 0;
 static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");

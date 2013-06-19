@@ -30,6 +30,7 @@ int alloca_pointer = 0;
 map<string, Variable> variables;
 set<string> variable_names;
 vector<string> conditions;
+vector<string> callstack;
 
 string actual_function;
 string actual_bb;
@@ -71,6 +72,8 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst){
 
+	printf("\e[32m Assign_instruction %s = %s \e[0m\n", dst.c_str(), src.c_str() );
+
 	stringstream content;
 
 	content << name(actual(dst)) << " = " << name(past(src));
@@ -89,6 +92,8 @@ void assign_instruction(string src, string dst){
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
+
+	printf("\e[32m Binary_instruction %s = %s %s %s\e[0m\n", dst.c_str(), op1.c_str(), operation.c_str(), op2.c_str() );
 
 	stringstream content;
 	content << name( actual(dst) ) << " = " << name(past(op1)) << " " << operation << " " << name(past(op2));
@@ -111,6 +116,11 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	if(operation == "="){
 		variables[dst].real_value = ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false";
 	}
+
+	if(operation == "#"){
+		variables[dst].real_value = ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false";
+	}
+
 
 	if(operation == "+"){
 		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
@@ -144,6 +154,46 @@ void cast_instruction(char* _dst, char* _src){
 	assign_instruction(dst, src);
 
 	debug && printf("\e[31m Cast_instruction %s %s \e[0m.\n", dst.c_str(), src.c_str() );
+}
+
+
+void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
+
+	printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
+
+	string fn_name           = string(_fn_name);
+	vector<string> oplist    = tokenize( string(_oplist), ",");
+	vector<string> fn_oplist = tokenize( string(_fn_oplist), ",");
+	string ret_to            = string(_ret_to);
+
+
+	for ( unsigned int i = 0; i < oplist.size(); i++) {
+
+		assign_instruction( oplist[i], fn_oplist[i] );
+
+	}
+
+	callstack.push_back( ret_to );
+
+
+}
+
+void ReturnInstr(char* _retname ){
+
+	fflush(stdout);
+
+	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
+
+	string retname = string(_retname);
+
+	if( callstack.size() == 0 ) return;
+
+	string last_in_callstack = callstack[ callstack.size() - 1];
+
+	callstack.erase( callstack.end() - 1 );
+
+	assign_instruction( retname, last_in_callstack );
+
 }
 
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){

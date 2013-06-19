@@ -582,7 +582,7 @@ void get_values_flat(){
 
 	set<string> available_vars;
 
-	debug && printf("\e[31m get_values_flat \e[0m %s %d\n", filename.str().c_str(), ret_vector.size() );
+	debug && printf("\e[31m get_values_flat \e[0m %s %lu\n", filename.str().c_str(), ret_vector.size() );
 
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		//printf("it %s\n", it->c_str());
