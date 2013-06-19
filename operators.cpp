@@ -72,7 +72,7 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst){
 
-	printf("\e[32m Assign_instruction %s = %s \e[0m\n", dst.c_str(), src.c_str() );
+	printf("\e[32m Assign_instruction %s = %s \e[0m\n", name(dst).c_str(), name(src).c_str() );
 
 	stringstream content;
 
@@ -151,9 +151,9 @@ void cast_instruction(char* _dst, char* _src){
 	string dst = string(_dst);
 	string src = string(_src);
 
-	assign_instruction(dst, src);
+	debug && printf("\e[31m Cast_instruction %s %s \e[0m.\n", name(dst).c_str(), name(src).c_str() );
 
-	debug && printf("\e[31m Cast_instruction %s %s \e[0m.\n", dst.c_str(), src.c_str() );
+	assign_instruction(src,dst);
 }
 
 
@@ -202,12 +202,14 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	string op2 = string(_op2);
 	string operation = string(_operation);
 
-	binary_instruction(dst, op1, op2, operation);
 
 	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
 			                                                        op1.c_str(), realvalue(op1).c_str(),
 									        op2.c_str(), realvalue(op2).c_str(),
 										_dst, realvalue(dst).c_str() );
+
+	binary_instruction(dst, op1, op2, operation);
+
 }
 
 void load_instr(char* _dst, char* _addr){
@@ -215,26 +217,28 @@ void load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem_" + realvalue(addr);
 
+
+	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+								    name(addr).c_str(), realvalue(addr).c_str(),
+								    name(src).c_str(), realvalue(src).c_str(),
+							            name(dst).c_str(), realvalue(dst).c_str()
+								    );
+
 	assign_instruction(src, dst);
 
-	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _addr,
-								    addr.c_str(), realvalue(addr).c_str(),
-								    src.c_str(), realvalue(src).c_str(),
-							            dst.c_str(), realvalue(dst).c_str()
-								    );
 }
 
 void store_instr(char* _src, char* _addr){
 	string src = string(_src);
 	string addr = string(_addr);
 	string dst = "mem_" + realvalue(string(_addr)) ;
+
+	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
+			                                           name(src).c_str(), realvalue(src).c_str(),
+								   name(addr).c_str(), realvalue(addr).c_str(),
+								   name(dst).c_str(), realvalue(dst).c_str() );
+
 	assign_instruction(src, dst);
-
-	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",_src, _addr,
-			                                           src.c_str(), realvalue(src).c_str(),
-								   addr.c_str(), realvalue(addr).c_str(),
-								   dst.c_str(), realvalue(dst).c_str() );
-
 
 }
 
@@ -250,12 +254,12 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	//printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
 	
 
-	binary_instruction(dst, cmp1, cmp2, type);
 
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _cmp1, _cmp2, _type, 
 			                                                 cmp1.c_str(), realvalue(cmp1).c_str(),
 									 cmp2.c_str(), realvalue(cmp2).c_str(),
 									 dst.c_str(), realvalue(dst).c_str() );
+	binary_instruction(dst, cmp1, cmp2, type);
 }
 
 int show_problem(){
@@ -355,7 +359,7 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 
 	alloca_pointer += size;
 
-	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n",reg.c_str(), type.c_str(), _size, reg.c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n", name(reg).c_str(), type.c_str(), _size, name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
 }
 
 void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
@@ -401,6 +405,21 @@ void begin_sim(){
 	create_tables();
 }
 
+void BeginFn(char* _fn_name){
+
+	string fn_name = string(_fn_name);
+
+	if( fn_name.substr(0,1) == "_" )
+		actual_function = fn_name.substr(1);
+	else
+		actual_function = fn_name;
+
+
+	printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
+
+
+}
+
 void end_sim(){
 
 	end_database();
@@ -429,7 +448,8 @@ string name( string input ){
 	} else if (input.substr(0,4) == "mem_" ){
 		return input;
 	} else {
-		return actual_bb + input;
+		return actual_function + input;
+		//return input;
 	}
 
 

@@ -190,6 +190,7 @@ int primary_size( const Type* t ){
 	string type = get_type_str(t);
 
 	if( type == "IntegerTyID32" ) return 4;
+	if( type == "IntegerTyID16" ) return 2;
 	if( type == "IntegerTyID8" ) return 1;
 	if( type == "PointerTyID" ) return 4;
 	else return 0;
@@ -791,6 +792,37 @@ struct CallInstr: public ModulePass {
 
 
 
+		mod_iterator(M, fn){
+
+			string fn_name = fn->getName().str();
+
+			GlobalVariable* c1 = make_global_str(M, fn_name );
+
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "BeginFn" ,
+						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						(Type *)0
+						));
+
+			Function::iterator begin = fn->begin();
+			Function::iterator end   = fn->end();
+
+			//cerr << "\e[31m" << fn_name << "\e[0m" << endl;
+			if( begin != end ){
+				//begin->dump();
+
+				BasicBlock::iterator insertpos = fn->begin()->begin();
+				//insertpos++;
+
+				std::vector<Value*> params;
+				params.push_back(pointerToArray(M,c1));
+				CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+				
+			}
+
+
+
+		}
 
 
 		return false;
@@ -1049,6 +1081,7 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		{CallInstr     pass;   pass.runOnModule(M);}
 		{BinaryOp      pass;   pass.runOnModule(M);}
 		{CastInstr     pass;   pass.runOnModule(M);}
 		{LoadStore     pass;   pass.runOnModule(M);}
