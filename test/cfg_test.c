@@ -9,18 +9,18 @@
  * for details.
  */
 
-#include <crest.h>
-#include <stdio.h>
 
 void f(int);
 void g(int);
 void h(int);
+void i(int);
+int result;
 
 void f(int a) {
   if (a > 13) {
-    printf("greater than 13\n");
+    result = 14;
   } else {
-    printf("not greater than 13\n");
+    result = 12;
   }
 }
 
@@ -28,9 +28,9 @@ void g(int a) {
   h(a);
 
   if (a == 7) {
-    printf("7\n");
+    result = 7;
   } else {
-    printf("not 7\n");
+    result = 0;
   }
 
   i(a);
@@ -38,28 +38,27 @@ void g(int a) {
 
 void h(int a) {
   if (a == -4) {
-    printf("-4\n");
+    result = -4;
   } else {
-    printf("not -4\n");
+    result = -5;
   }
 }
 
 void i(int a) {
   if (a == 100) {
-    printf("100\n");
+    result = 100;
   } else {
-    printf("not 100\n");
+    result = 99;
   }
 }
 
 int main(void) {
   int a;
-  CREST_int(a);
 
   if (a == 19) {
-    printf("19\n");
+    result = 19;
   } else {
-    printf("not 19\n");
+    result = 18;
   }
 
   f(a);
@@ -67,9 +66,9 @@ int main(void) {
   g(a);
 
   if (a != 1) {
-    printf("not 1\n");
+    result = -1;
   } else {
-    printf("1\n");
+    result = 1;
   }
 
   return 0;

@@ -671,7 +671,7 @@ struct BrInstr: public ModulePass {
 };
 
 struct CallInstr: public ModulePass {
-	static char ID; // Pass identification, replacement for typeid
+	static char ID; // Pass identification, replacement for typed
 	CallInstr() : ModulePass(ID) {}
 
 	map<string, vector<string> > arguments;
@@ -769,7 +769,12 @@ struct CallInstr: public ModulePass {
 
 						ReturnInst* in_r = cast<ReturnInst>(in);
 
-						string returnoperand = operandname( in_r->getReturnValue() );
+
+						string returnoperand;
+						if( !in_r->getReturnValue() )
+							returnoperand = "register_";
+						else
+							string returnoperand = operandname( in_r->getReturnValue() );
 
 						GlobalVariable* c1 = make_global_str(M, returnoperand );
 

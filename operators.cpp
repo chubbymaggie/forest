@@ -205,7 +205,8 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
 
-	callstack.push_back( pair<string, string>(ret_to, actual_function) );
+	if( ret_to != "register_" )
+		callstack.push_back( pair<string, string>(ret_to, actual_function) );
 
 
 }
@@ -213,6 +214,8 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 void ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);
+
+	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 	if( callstack.size() == 0 ) return;
 
@@ -223,7 +226,6 @@ void ReturnInstr(char* _retname ){
 
 	assign_instruction( retname, last_rg_callstack, last_fn_callstack );
 
-	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 }
 
