@@ -187,6 +187,14 @@ bool is_number(const std::string& s) ;
 
 
 
+/**
+ * @brief Name of a variable
+ *
+ * @param input
+ *
+ * @return 
+ */
+string name( string input, string fn_name = "" );
 
 
 

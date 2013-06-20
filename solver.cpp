@@ -29,6 +29,7 @@ extern set<string> variable_names;
 extern vector<string> conditions;
 vector<string> flatened_conditions;
 set<string> flatened_variables;
+extern string actual_function;
 
 void dump_variables(FILE* file){
 
@@ -260,8 +261,15 @@ string negation(string condition){
 
 string get_last_condition(string name){
 
-	string content = variables[name].contents[variables[name].contents.size()-1];
+	//string content = variables[name].contents[variables[name].contents.size()-1];
+	
+
+	string content = variables[name].constraint;
 	string condition = extract_condition(content);
+
+	printf("name %s\n", name.c_str() );
+	printf("content %s\n", content.c_str() );
+	printf("condition %s\n", condition.c_str() );
 
 	return condition;
 
@@ -643,3 +651,21 @@ void flat_problem(){
 
 }
 
+string name( string input, string fn_name ){
+
+	if(input.find("constant") != string::npos ){
+		int ini = 9;
+		string interm = input.substr(ini);
+		int len = interm.find("_");
+		string final = interm.substr(0, len);
+
+		return final;
+	} else if (input.substr(0,4) == "mem_" ){
+		return input;
+	} else {
+		return ((fn_name == "")?actual_function:fn_name) + input;
+		//return input;
+	}
+
+
+}

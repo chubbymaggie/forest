@@ -39,6 +39,8 @@ typedef struct Variable {
 	string type;
 	string name_hint;
 	vector<string> contents;
+	bool is_constraint;
+	string constraint;
 } Variable;
 
 /**
@@ -168,14 +170,6 @@ void assign_instruction(string src, string dst, string fn_name = "");
  */
 void binary_instruction(string dst, string op1, string op2, string operation);
 
-/**
- * @brief Name of a variable
- *
- * @param input
- *
- * @return 
- */
-string name( string input, string fn_name = "" );
 
 
 

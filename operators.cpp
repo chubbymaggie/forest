@@ -72,77 +72,92 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst, string fn_name){
 
-	//printf("\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
+	printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(actual(dst), fn_name).c_str(), name(actual(src)).c_str() );
 
 	stringstream content;
 
-	content << name(actual(dst), fn_name) << " = " << name(past(src));
-	variables[string(dst)].contents.push_back( content.str() );
+	content << name(actual(dst), fn_name) << " = " << name(actual(src));
 
-	insert_variable( name(past(dst),fn_name) );
-	insert_variable( name(past(src)) );
+	insert_variable( name(actual(dst),fn_name) );
+	insert_variable( name(actual(src)) );
 
-	variables[dst].real_value = realvalue(src);
+	variables[ name(dst) ].contents.push_back( content.str() );
 
-	if( variables[dst].type == "" )
-		variables[dst].type = variables[src].type;
-	if( variables[src].type == "" )
-		variables[src].type = variables[dst].type;
+
+
+	variables[ name(dst) ].real_value = realvalue( name(src) );
+
+	if( variables[ name(dst) ].type == "" )
+		variables[name(dst)].type = variables[name(src)].type;
+	if( variables[ name(src) ].type == "" )
+		variables[ name(src) ].type = variables[name(dst)].type;
+
+	if( variables[ name(src) ].is_constraint ){
+		variables[ name(dst) ].is_constraint = true;
+		variables[ name(dst) ].constraint = variables[ name(src) ].constraint;
+		printf("constraint %s = [ %s ]\n", name(dst).c_str(), variables[ name(dst) ].constraint.c_str() );
+	}
 
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
-	//printf("\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
+	printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(actual(dst)).c_str(), name(past(op1)).c_str(), operation.c_str(), name(past(op2)).c_str() );
 
 	stringstream content;
 	content << name( actual(dst) ) << " = " << name(past(op1)) << " " << operation << " " << name(past(op2));
-	variables[dst].contents.push_back( content.str() );
 
-	//insert_variable(actual(dst));
+	//insert_variable(name(actual(dst)));
 	insert_variable( name( past(op1) ) );
 	insert_variable( name( past(op2) ) );
 
-	if( variables[dst].type == "" )
-		variables[dst].type = variables[op1].type;
+	variables[name(dst)].contents.push_back( content.str() );
+
+	if( variables[name(dst)].type == "" )
+		variables[name(dst)].type = variables[op1].type;
 	if( variables[op1].type == "" )
-		variables[op1].type = variables[dst].type;
+		variables[op1].type = variables[name(dst)].type;
 
 
 	if(operation == "<="){
-		variables[dst].real_value = ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false";
+		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false";
 	}
 
 	if(operation == "="){
-		variables[dst].real_value = ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false";
+		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false";
 	}
 
 	if(operation == "#"){
-		variables[dst].real_value = ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false";
+		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false";
 	}
 
 
 	if(operation == "+"){
 		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
-		variables[dst].real_value = result.str();
+		variables[name(dst)].real_value = result.str();
 	}
 
 	if(operation == "-"){
 		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
-		variables[dst].real_value = result.str();
+		variables[name(dst)].real_value = result.str();
 	}
 
 	if(operation == "*"){
 		stringstream result; result << stoi(realvalue(op1)) * stoi(realvalue(op2));
-		variables[dst].real_value = result.str();
+		variables[name(dst)].real_value = result.str();
 	}
 
 
 	if(operation == "/"){
 		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
-		variables[dst].real_value = result.str();
+		variables[name(dst)].real_value = result.str();
 	}
 
+	if( variables[ name(op1) ].is_constraint || variables[ name(op2) ].is_constraint ){
+		variables[ name(dst) ].is_constraint = true;
+		variables[ name(dst) ].constraint = variables[ name(op1) ].constraint;
+		printf("constraint %s = [ %s ]\n", name(dst).c_str(), variables[ name(dst) ].constraint.c_str() );
+	}
 
 }
 
@@ -167,6 +182,8 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 	vector<string> oplist    = tokenize( string(_oplist), ",");
 	vector<string> fn_oplist = tokenize( string(_fn_oplist), ",");
 	string ret_to            = string(_ret_to);
+
+	if( fn_name.substr(0,1) == "_" ) fn_name = fn_name.substr(1);
 
 
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
@@ -262,6 +279,17 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 
 	binary_instruction(dst, cmp1, cmp2, type);
 
+
+
+	if( variables[ name(cmp1) ].is_constraint ){
+		variables[ name(dst) ].is_constraint = true;
+		variables[ name(dst) ].constraint = variables[ name(cmp1) ].constraint;
+	} else {
+		int last_content_n = variables[ name(dst) ].contents.size() - 1;
+		variables[ name(dst) ].is_constraint = true;
+		variables[ name(dst) ].constraint = variables[ name(dst) ].contents[ last_content_n ];
+	}
+
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
 			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
 									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
@@ -302,7 +330,9 @@ bool br_instr_cond(char* _cmp){
 		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
 	}
 
-	string condition = get_last_condition(cmp);
+	string condition = get_last_condition(name(cmp));
+
+	printf("\e[32m last_condition \e[0m %s\n", condition.c_str() );
 
 	if(realvalue(cmp) == "true"){
 		push_condition(negation(condition));
@@ -442,23 +472,5 @@ void end_sim(){
 }
 
 
-string name( string input, string fn_name ){
-
-	if(input.find("constant") != string::npos ){
-		int ini = 9;
-		string interm = input.substr(ini);
-		int len = interm.find("_");
-		string final = interm.substr(0, len);
-
-		return final;
-	} else if (input.substr(0,4) == "mem_" ){
-		return input;
-	} else {
-		return ((fn_name == "")?actual_function:fn_name) + input;
-		//return input;
-	}
-
-
-}
 
 
