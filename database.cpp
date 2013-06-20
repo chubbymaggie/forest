@@ -82,7 +82,7 @@ void create_tables(){
 	action << "name varchar(50),";
 	action << "value varchar(50),";
 	action << "name_hint varchar(50),";
-	action << "is_memory bool,";
+	action << "is_free bool,";
 	action << "problem_id INTEGER";
 	action << ");";
 
@@ -113,10 +113,45 @@ void insert_problem(){
 			string name = *it;
 			string value = realvalue(name);
 			string hint = variables[name].name_hint;
-			bool is_memory = (name.substr(0,4) == "mem_");
-			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
+
+			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 
 		}
+
+		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+
+			if( it->second.content == "" ) continue;
+
+			string name = it->first;
+			string value = realvalue(name);
+			string hint = variables[name].name_hint;
+
+			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
+
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
