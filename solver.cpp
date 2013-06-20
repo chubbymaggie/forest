@@ -130,7 +130,7 @@ void get_values(){
 
 	vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
 
-	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
 
 		fprintf(file,"(get-value (%s))\n", it->c_str() );
 

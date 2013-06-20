@@ -9,15 +9,18 @@
  * for details.
  */
 
-//int dbl(int a){
-	//return a;
-//}
-
 int main(void) {
-  short a;
-  if ( a * 2 == 8) {
-    return 0;
-  } else {
-    return 1;
+  int a, b, c, d;
+
+  if (a == 5) {
+    if (b == 19) {
+      if (c == 7) {
+        if (d == 4) {
+          return 1;
+	}
+      }
+    }
   }
+
+  return 0;
 }
