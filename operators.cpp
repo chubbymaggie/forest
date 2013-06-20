@@ -85,11 +85,13 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
-	variables[ name(dst) ].content = content( name(src) );
+	variables[ name(dst, fn_name) ].content = content( name(src) );
 
-	variables[ name(dst) ].real_value = realvalue( name(src) );
+	variables[ name(dst, fn_name) ].real_value = realvalue( name(src) );
 
-	variables[name(dst)].type = variables[name(src)].type;
+	variables[ name(dst, fn_name) ].type = variables[name(src)].type;
+
+	printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 
 }
 
@@ -97,14 +99,25 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 
+
 	stringstream content_ss;
 
 
-	content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+	if( operation != "#" )
+		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+	else
+		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
+
 
 	variables[name(dst)].content = content_ss.str();
 
 	variables[name(dst)].type = variables[op1].type;
+
+
+	printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str() );
+
+
+
 
 
 	if(operation == "<="){
@@ -140,6 +153,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
 		variables[name(dst)].real_value = result.str();
 	}
+
+	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
+	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
 
 
 }
@@ -259,6 +275,8 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 			                                                 name(cmp1).c_str(), realvalue(name(cmp1)).c_str(),
 									 name(cmp2).c_str(), realvalue(name(cmp2)).c_str(),
 									 name(dst).c_str(), realvalue(name(dst)).c_str() );
+
+	variables[ name(dst) ].type = "bool";
 }
 
 int show_problem(){
