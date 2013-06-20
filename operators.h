@@ -38,9 +38,7 @@ typedef struct Variable {
 	string real_value;
 	string type;
 	string name_hint;
-	vector<string> contents;
-	bool is_constraint;
-	string constraint;
+	string content;
 } Variable;
 
 /**

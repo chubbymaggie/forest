@@ -35,6 +35,17 @@ vector<pair<string, string> > callstack;
 string actual_function;
 string actual_bb;
 
+string content( string name ){
+
+	if( variables[name].content == "" ){
+		insert_variable(name);
+		return name;
+
+	} else {
+		return variables[name].content;
+	}
+}
+
 string realvalue(string name){
 
 	if( name.find("constant") != string::npos )
@@ -72,51 +83,28 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst, string fn_name){
 
-	printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(actual(dst), fn_name).c_str(), name(actual(src)).c_str() );
+	printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
-	stringstream content;
-
-	content << name(actual(dst), fn_name) << " = " << name(actual(src));
-
-	insert_variable( name(actual(dst),fn_name) );
-	insert_variable( name(actual(src)) );
-
-	variables[ name(dst) ].contents.push_back( content.str() );
-
-
+	variables[ name(dst) ].content = content( name(src) );
 
 	variables[ name(dst) ].real_value = realvalue( name(src) );
 
-	if( variables[ name(dst) ].type == "" )
-		variables[name(dst)].type = variables[name(src)].type;
-	if( variables[ name(src) ].type == "" )
-		variables[ name(src) ].type = variables[name(dst)].type;
-
-	if( variables[ name(src) ].is_constraint ){
-		variables[ name(dst) ].is_constraint = true;
-		variables[ name(dst) ].constraint = variables[ name(src) ].constraint;
-		printf("constraint %s = [ %s ]\n", name(dst).c_str(), variables[ name(dst) ].constraint.c_str() );
-	}
+	variables[name(dst)].type = variables[name(src)].type;
 
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
-	printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(actual(dst)).c_str(), name(past(op1)).c_str(), operation.c_str(), name(past(op2)).c_str() );
+	printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 
-	stringstream content;
-	content << name( actual(dst) ) << " = " << name(past(op1)) << " " << operation << " " << name(past(op2));
+	stringstream content_ss;
 
-	//insert_variable(name(actual(dst)));
-	insert_variable( name( past(op1) ) );
-	insert_variable( name( past(op2) ) );
 
-	variables[name(dst)].contents.push_back( content.str() );
+	content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
 
-	if( variables[name(dst)].type == "" )
-		variables[name(dst)].type = variables[op1].type;
-	if( variables[op1].type == "" )
-		variables[op1].type = variables[name(dst)].type;
+	variables[name(dst)].content = content_ss.str();
+
+	variables[name(dst)].type = variables[op1].type;
 
 
 	if(operation == "<="){
@@ -153,11 +141,6 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		variables[name(dst)].real_value = result.str();
 	}
 
-	if( variables[ name(op1) ].is_constraint || variables[ name(op2) ].is_constraint ){
-		variables[ name(dst) ].is_constraint = true;
-		variables[ name(dst) ].constraint = variables[ name(op1) ].constraint;
-		printf("constraint %s = [ %s ]\n", name(dst).c_str(), variables[ name(dst) ].constraint.c_str() );
-	}
 
 }
 
@@ -201,10 +184,6 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 void ReturnInstr(char* _retname ){
 
-	fflush(stdout);
-
-	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
-
 	string retname = string(_retname);
 
 	if( callstack.size() == 0 ) return;
@@ -216,9 +195,12 @@ void ReturnInstr(char* _retname ){
 
 	assign_instruction( retname, last_rg_callstack, last_fn_callstack );
 
+	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
+
 }
 
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
+
 	string dst = string(_dst);
 	string op1 = string(_op1);
 	string op2 = string(_op2);
@@ -231,10 +213,10 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 									        op2.c_str(), realvalue(op2).c_str(),
 										_dst, realvalue(dst).c_str() );
 
-
 }
 
 void load_instr(char* _dst, char* _addr){
+
 	string dst = string(_dst);
 	string addr = string(_addr);
 	string src = "mem_" + realvalue(addr);
@@ -247,10 +229,10 @@ void load_instr(char* _dst, char* _addr){
 							            name(dst).c_str(), realvalue(dst).c_str()
 								    );
 
-
 }
 
 void store_instr(char* _src, char* _addr){
+
 	string src = string(_src);
 	string addr = string(_addr);
 	string dst = "mem_" + realvalue(string(_addr)) ;
@@ -262,102 +244,34 @@ void store_instr(char* _src, char* _addr){
 								   name(addr).c_str(), realvalue(addr).c_str(),
 								   name(dst).c_str(), realvalue(dst).c_str() );
 
-
 }
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
-
 
 	string dst  = string(_dst);
 	string cmp1 = string(_cmp1);
 	string cmp2 = string(_cmp2);
 	string type = string(_type);
 
-	//printf("real_value cmp1 %s\n", realvalue(cmp1).c_str() );
-	//printf("real_value cmp2 %s\n", realvalue(cmp2).c_str() );
-	
-
 	binary_instruction(dst, cmp1, cmp2, type);
 
-
-
-	if( variables[ name(cmp1) ].is_constraint ){
-		variables[ name(dst) ].is_constraint = true;
-		variables[ name(dst) ].constraint = variables[ name(cmp1) ].constraint;
-	} else {
-		int last_content_n = variables[ name(dst) ].contents.size() - 1;
-		variables[ name(dst) ].is_constraint = true;
-		variables[ name(dst) ].constraint = variables[ name(dst) ].contents[ last_content_n ];
-	}
-
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
-			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
-									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
-									 name(dst).c_str(), realvalue(dst).c_str() );
+			                                                 name(cmp1).c_str(), realvalue(name(cmp1)).c_str(),
+									 name(cmp2).c_str(), realvalue(name(cmp2)).c_str(),
+									 name(dst).c_str(), realvalue(name(dst)).c_str() );
 }
 
 int show_problem(){
 
 	dump_header();
 	dump_variables();
-	dump_assigns();
 	dump_conditions();
+	dump_get();
 	dump_tail();
 
 	fflush(stdout);
 
 	getchar();
-}
-
-int show_flat_problem(){
-	dump_header();
-	dump_flatened_variables();
-	dump_flatened_conditions();
-	dump_tail();
-
-	fflush(stdout);
-	getchar();
-}
-
-bool br_instr_cond(char* _cmp){
-
-	string cmp = string(_cmp);
-
-	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", _cmp, cmp.c_str(), realvalue(cmp).c_str() );
-
-
-	for( vector<string>::iterator it = variables[cmp].contents.begin(); it != variables[cmp].contents.end(); it++ ){
-		debug && printf("\e[32m content \e[0m %s\n", it->c_str());
-	}
-
-	string condition = get_last_condition(name(cmp));
-
-	printf("\e[32m last_condition \e[0m %s\n", condition.c_str() );
-
-	if(realvalue(cmp) == "true"){
-		push_condition(negation(condition));
-
-	} else {
-		push_condition(condition);
-
-	}
-
-	//flat_problem();
-	see_each_problem && show_problem();
-	//see_flat_problem && show_flat_problem();
-	insert_problem();
-
-	if( fork() ){
-		return variables[cmp].real_value == "true";
-	} else {
-		if( solvable_problem() ){
-			get_values();
-			return variables[cmp].real_value != "true";
-		} else {
-			exit(0);
-		}
-	}
-
 }
 
 void br_instr_incond(){
@@ -396,15 +310,13 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	alloca_pointer += size;
 
 	debug && printf("\e[31m alloca_instr %s %s %s\e[0m. %s %s %s %s\n", name(reg).c_str(), type.c_str(), _size, name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+
 }
 
 void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 
 	string dst     = string(_dst);
 	string pointer = string(_pointer);
-	//string indexes = string(_indexes);
-	//string sizes   = string(_sizes);
-
 	vector<string> indexes = tokenize(string(_indexes), ",");
 	vector<string> sizes   = tokenize(string(_sizes), ",");
 
@@ -471,6 +383,33 @@ void end_sim(){
 	
 }
 
+bool br_instr_cond(char* _cmp){
 
+	string cmp = string(_cmp);
 
+	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", name(cmp).c_str(), name(cmp).c_str(), realvalue(name(cmp)).c_str() );
+
+	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
+
+	if( realvalue(name(cmp)) == "true" )
+		push_condition( negation(content( name(cmp) )) );
+	else
+		push_condition( content( name(cmp) ) );
+
+	see_each_problem && show_problem();
+
+	insert_problem();
+
+	if( fork() ){
+		return variables[cmp].real_value == "true";
+	} else {
+		if( solvable_problem() ){
+			get_values();
+			return variables[cmp].real_value != "true";
+		} else {
+			exit(0);
+		}
+	}
+
+}
 

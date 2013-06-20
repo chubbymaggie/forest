@@ -20,7 +20,7 @@
 
 #include "database.h"
 
-#define debug false
+#define debug true
 
 sqlite3 *db;
 
@@ -47,11 +47,11 @@ void end_database(){
 
 void drop_tables(){
 
+	debug && printf("drop_tables\n"); fflush(stdout);
+
 	stringstream action;
 	action << "drop table problems;";
 	action << "drop table variables;";
-	action << "drop table assigns;";
-	action << "drop table operations;";
 	action << "drop table results;";
 
 
@@ -77,21 +77,6 @@ void create_tables(){
 	action << "type varchar(50),";
 	action << "problem_id INTEGER";
 	action << ");";
-
-	action << "create table assigns(";
-	action << "dst varchar(50),";
-	action << "src varchar(50),";
-	action << "problem_id INTEGER";
-	action << ");";
-
-	action << "create table operations(";
-	action << "dst varchar(50),";
-	action << "op1 varchar(50),";
-	action << "op2 varchar(50),";
-	action << "operation varchar(50),";
-	action << "problem_id INTEGER";
-	action << ");";
-
 
 	action << "create table results(";
 	action << "name varchar(50),";
@@ -120,43 +105,30 @@ void insert_problem(){
 		action << "insert into variables values ('" << name << "','" << type << "'," << id << ");";
 	}
 	
-	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		for( vector<string>::iterator it2 = it->second.contents.begin(); it2 != it->second.contents.end(); it2++ ){
-
-
-			vector<string> tokens = tokenize(*it2, " ");
-		
-			if(tokens.size() == 5){
-				string dst = tokens[0];
-				string op1 = tokens[2];
-				string op2 = tokens[4];
-				string operation = tokens[3];
-				action << "insert into operations values ('" << dst << "','" << op1 << "','" << op2 << "','" << operation << "'," << id << ");";
-			} else {
-				string dst = tokens[0];
-				string src = tokens[2];
-				action << "insert into assigns values ('" << dst << "','" << src << "'," << id << ");";
-			}
-
-
-
-		}
-		
-	}
-
-
 	if( solvable_problem() ){
 		get_values();
 
 
-		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-			string name = it->first;
+		for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+			string name = *it;
 			string value = realvalue(name);
 			string hint = variables[name].name_hint;
 			bool is_memory = (name.substr(0,4) == "mem_");
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
-			
+
+			printf("%s\n", action.str().c_str() );
 		}
+
+		//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+
+			//if( it->second.content == "") continue;
+			//string name = it->first;
+			//string value = realvalue(name);
+			//string hint = variables[name].name_hint;
+			//bool is_memory = (name.substr(0,4) == "mem_");
+			//action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
+			
+		//}
 		
 		
 

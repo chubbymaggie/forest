@@ -15,7 +15,7 @@
 
 int main(void) {
   short a;
-  if ( a == 9) {
+  if ( a * 2 == 8) {
     return 0;
   } else {
     return 1;
