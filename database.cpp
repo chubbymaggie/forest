@@ -36,18 +36,18 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 }
 
 void start_database(){
-	debug && printf("start_database\n"); fflush(stdout);
+	debug && printf("\e[31m start_database \e[0m\n"); fflush(stdout);
 	sqlite3_open("database.db", &db);
 }
 
 void end_database(){
-	debug && printf("end_database\n"); fflush(stdout);
+	debug && printf("\e[31m end_database \e[0m\n"); fflush(stdout);
 	sqlite3_close(db);
 }
 
 void drop_tables(){
 
-	debug && printf("drop_tables\n"); fflush(stdout);
+	debug && printf("\e[31m drop_tables \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "drop table problems;";
@@ -63,7 +63,7 @@ void create_tables(){
 
 	drop_tables();
 
-	debug && printf("create_tables\n"); fflush(stdout);
+	debug && printf("\e[31m create_tables \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "create table problems(";
@@ -89,7 +89,7 @@ void create_tables(){
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-	debug && printf("end_tables\n"); fflush(stdout);
+	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
 }
 
 void insert_problem(){
@@ -116,7 +116,6 @@ void insert_problem(){
 			bool is_memory = (name.substr(0,4) == "mem_");
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
 
-			printf("%s\n", action.str().c_str() );
 		}
 
 		//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){

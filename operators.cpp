@@ -400,12 +400,14 @@ bool br_instr_cond(char* _cmp){
 
 	insert_problem();
 
+	string real_value_prev = realvalue( name(cmp) );
+
 	if( fork() ){
-		return variables[cmp].real_value == "true";
+		return real_value_prev == "true";
 	} else {
 		if( solvable_problem() ){
 			get_values();
-			return variables[cmp].real_value != "true";
+			return real_value_prev != "true";
 		} else {
 			exit(0);
 		}

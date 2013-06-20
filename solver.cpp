@@ -22,7 +22,7 @@
 #include "solver.h"
 
 #define SIZE_STR 512
-#define debug false
+#define debug true
 
 extern map<string, Variable> variables;
 extern set<string> variable_names;
@@ -73,13 +73,13 @@ void dump_get(FILE* file){
 
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		fprintf(file,"(get-value (%s))\n", it->c_str() );
+		fprintf(file,"(get-value (%s)); %s\n", it->c_str(), it->c_str() );
 	}
 	
-	//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		//if( it->second.content == "" ) continue;
-		//fprintf(file,"(get-value (%s)) ; %s\n", it->second.content.c_str(), it->first.c_str() );
-	//}
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		if( it->second.content == "" ) continue;
+		fprintf(file,"(get-value (%s)); %s\n", it->second.content.c_str(), it->first.c_str() );
+	}
 	
 }
 
@@ -101,6 +101,8 @@ void get_values(){
 
 	stringstream filename;
 	filename << "/tmp/z3_" << rand() << ".smt2";
+
+	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;
 
@@ -132,8 +134,6 @@ void get_values(){
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
 
-		fprintf(file,"(get-value (%s))\n", it->c_str() );
-
 		string name = *it;
 		string value = result_get(*it_ret);
 
@@ -143,6 +143,23 @@ void get_values(){
 		variables[name].real_value = value;
 
 	}
+
+
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+
+		if( it->second.content == "" ) continue;
+
+		string name = it->first;
+		string value = result_get(*it_ret);
+
+
+		printf("\e[32m name \e[0m %s \e[32m value \e[0m %s \e[32m itret \e[0m %s\n", name.c_str(), value.c_str(), it_ret->c_str() ); fflush(stdout);
+
+		variables[name].real_value = value;
+
+		it_ret++;
+	}
+
 
 
 
@@ -170,8 +187,6 @@ void get_values(){
 }
 
 bool solvable_problem(){
-
-	printf("solvable_problem\n"); fflush(stdout);
 
 	stringstream filename;
 	filename << "/tmp/z3_" << rand() << ".smt2";
