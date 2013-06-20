@@ -160,16 +160,18 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 }
 
-void cast_instruction(char* _dst, char* _src){
+void cast_instruction(char* _dst, char* _src, char* _type){
 
 	string dst = string(_dst);
 	string src = string(_src);
+	string type = string(_type);
 
 	assign_instruction(src,dst);
 
 	debug && printf("\e[31m Cast_instruction %s %s \e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
 		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
+	variables[ name(dst) ].type = type;
 
 }
 

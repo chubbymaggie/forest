@@ -429,15 +429,18 @@ struct CastInstr: public ModulePass {
 
 						string nameres = "register_" + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
+						string type = get_type_str( in->getType() );
 
 						//cerr << nameres << " " << nameop1 << endl;
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
+						GlobalVariable* c3 = make_global_str(M, type);
 
 
 						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "cast_instruction" ,
 									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
@@ -449,6 +452,7 @@ struct CastInstr: public ModulePass {
 						std::vector<Value*> params;
 						params.push_back(pointerToArray(M,c1));
 						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 
