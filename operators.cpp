@@ -108,10 +108,16 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	else
 		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
 
+	printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
+	if( variables[name(op1)].type == "bool" && op2 == "constant_0" && operation == "#" ){
+		content_ss.str("");
+		content_ss << content(name(op1));
+	}
+
 
 	variables[name(dst)].content = content_ss.str();
 
-	variables[name(dst)].type = variables[op1].type;
+	variables[name(dst)].type = variables[name(op1)].type;
 
 
 	printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str() );
@@ -171,7 +177,11 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 	debug && printf("\e[31m Cast_instruction %s %s \e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
 		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
-	variables[ name(dst) ].type = type;
+
+	if( variables[name(src)].type != "bool" )
+		variables[ name(dst) ].type = type;
+	else
+		variables[ name(dst) ].type = "bool";
 
 }
 
