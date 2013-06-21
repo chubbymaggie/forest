@@ -20,7 +20,7 @@
 
 #include "database.h"
 
-#define debug true
+#define debug false
 
 sqlite3 *db;
 
@@ -106,7 +106,7 @@ void insert_problem(){
 	}
 	
 	if( solvable_problem() ){
-		get_values();
+		//get_values();
 
 
 		for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -128,30 +128,9 @@ void insert_problem(){
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
 
+			//printf("%s\n", action.str().c_str() );
+
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 

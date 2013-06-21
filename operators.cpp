@@ -20,9 +20,10 @@
 
 #include "operators.h"
 #include "solver.h"
+#include <sys/wait.h>
 
-#define debug true
-#define see_each_problem true
+#define debug false
+#define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -83,7 +84,7 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst, string fn_name){
 
-	printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
+	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
 
@@ -91,13 +92,13 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	variables[ name(dst, fn_name) ].type = variables[name(src)].type;
 
-	printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
-	printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
+	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 
 
 	stringstream content_ss;
@@ -108,7 +109,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	else
 		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
 
-	printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
+	debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
 	if( variables[name(op1)].type == "bool" && op2 == "constant_0" && operation == "#" ){
 		content_ss.str("");
 		content_ss << content(name(op1));
@@ -120,7 +121,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	variables[name(dst)].type = variables[name(op1)].type;
 
 
-	printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str() );
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str() );
 
 
 
@@ -215,7 +216,7 @@ void ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);
 
-	printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
+	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 	if( callstack.size() == 0 ) return;
 
@@ -395,7 +396,7 @@ void BeginFn(char* _fn_name){
 		actual_function = fn_name;
 
 
-	printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
+	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
 
 
 }
@@ -430,17 +431,38 @@ bool br_instr_cond(char* _cmp){
 
 	see_each_problem && show_problem();
 
-	insert_problem();
-
 	string real_value_prev = realvalue( name(cmp) );
 
-	if( fork() ){
+	//if(solvable_problem())
+		//get_values();
+	//insert_problem();
+	
+
+
+	if( int pid = fork() ){
+
+		printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
+
+		insert_problem();
+		
+		int status;
+		waitpid(pid, &status, 0);
+
+		printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
+
 		return real_value_prev == "true";
 	} else {
+
+
 		if( solvable_problem() ){
+			printf("hijo sat\n"); fflush(stdout);
 			get_values();
+			insert_problem();
+			printf("fin hijo sat\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {
+			printf("hijo unsat\n"); fflush(stdout);
+			//insert_problem();
 			exit(0);
 		}
 	}

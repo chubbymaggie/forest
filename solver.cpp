@@ -22,7 +22,7 @@
 #include "solver.h"
 
 #define SIZE_STR 512
-#define debug true
+#define debug false
 
 extern map<string, Variable> variables;
 extern set<string> variable_names;
@@ -100,9 +100,10 @@ string result_get(string get_str){
 void get_values(){
 
 	stringstream filename;
-	filename << "/tmp/z3_" << rand() << ".smt2";
+	filename << "/tmp/z3_" << getpid() << ".smt2";
 
-	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
+	debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
+
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;
 
@@ -137,7 +138,7 @@ void get_values(){
 		string name = *it;
 		string value = result_get(*it_ret);
 
-		printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
+		/*debug &&*/ printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
 
 		variables[name].real_value = value;
@@ -153,7 +154,7 @@ void get_values(){
 		string value = result_get(*it_ret);
 
 
-		printf("\e[32m name \e[0m %s \e[32m value \e[0m %s \e[32m itret \e[0m %s\n", name.c_str(), value.c_str(), it_ret->c_str() ); fflush(stdout);
+		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
 		variables[name].real_value = value;
 
@@ -189,7 +190,10 @@ void get_values(){
 bool solvable_problem(){
 
 	stringstream filename;
-	filename << "/tmp/z3_" << rand() << ".smt2";
+	filename << "/tmp/z3_" << getpid() << ".smt2";
+
+	debug && printf("\e[31m filename solvable_problem \e[0m %s\n", filename.str().c_str() );
+
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;
 
@@ -236,7 +240,7 @@ void insert_variable(string name){
 	//if(variables[name].contents.size() == 0)
 		//return;
 		
-	printf("\e[32m Insert_variable \e[0m %s\n", name.c_str() );
+	debug && printf("\e[32m Insert_variable \e[0m %s\n", name.c_str() );
 
 	variable_names.insert(name);
 
