@@ -30,7 +30,6 @@
 int alloca_pointer = 0;
 map<string, Variable> variables;
 set<string> variable_names;
-vector<string> conditions;
 vector<pair<string, string> > callstack;
 
 string actual_function;
@@ -315,6 +314,9 @@ void br_instr_incond(){
 
 void begin_bb(char* name){
 	actual_bb = string(name);
+
+	clean_conditions_stack(actual_bb);
+
 	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
 }
 
@@ -426,9 +428,9 @@ bool br_instr_cond(char* _cmp, char* _joints){
 	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
 
 	if( realvalue(name(cmp)) == "true" )
-		push_condition( negation(content( name(cmp) )) );
+		push_condition( negation(content( name(cmp) )), actual_function, joints );
 	else
-		push_condition( content( name(cmp) ) );
+		push_condition( content( name(cmp) ) , actual_function, joints );
 
 	see_each_problem && show_problem();
 

@@ -31,6 +31,20 @@
 
 using namespace std;
 
+
+
+typedef struct Condition {
+	string cond;
+	string function;
+	set<string> joints;
+} Condition;
+
+
+
+
+void clean_conditions_stack(string name);
+
+
 /**
  * @brief dumps smtlib variable declarations
  *
@@ -117,7 +131,7 @@ string extract_condition(string content);
  *
  * @param condition
  */
-void push_condition(string condition);
+void push_condition(string condition, string function, vector<string> joints);
 
 /**
  * @brief Negates a condition

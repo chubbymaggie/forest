@@ -26,10 +26,10 @@
 
 extern map<string, Variable> variables;
 extern set<string> variable_names;
-extern vector<string> conditions;
 vector<string> flatened_conditions;
 set<string> flatened_variables;
 extern string actual_function;
+vector<Condition> conditions;
 
 void dump_variables(FILE* file){
 
@@ -50,8 +50,8 @@ void dump_variables(FILE* file){
 
 void dump_conditions(FILE* file){
 
-	for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", it->c_str() );
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		fprintf(file,"(assert %s)\n", it->cond.c_str() );
 	}
 	
 	fprintf(file,"(check-sat)\n");
@@ -252,8 +252,11 @@ int stoi(string str){
 	return ret;
 }
 
-void push_condition(string condition){
+void push_condition(string cond, string fn, vector<string> joints ){
 
+	set<string> joints_set = set<string>(joints.begin(), joints.end());
+
+	Condition condition = { cond, fn, joints_set };
 	conditions.push_back( condition );
 }
 
@@ -322,3 +325,17 @@ string name( string input, string fn_name ){
 
 
 }
+
+void clean_conditions_stack(string name){
+	
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		if( it->joints.find(name) != it->joints.end() ){
+			conditions.erase(it);
+			it--;
+		}
+	}
+	
+}
+
+
+
