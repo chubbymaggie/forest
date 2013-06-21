@@ -796,7 +796,7 @@ struct BrInstr: public ModulePass {
 							}
 							
 
-							cerr << "\033[31m" << joints_s << "\033[0m" << endl;
+							//cerr << "\033[31m" << joints_s << "\033[0m" << endl;
 
 							string nameop1 = operandname( in->getOperand(0) );
 
