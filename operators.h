@@ -86,7 +86,7 @@ extern "C" void cmp_instr(char*, char*, char*, char*);
  *
  * @return 
  */
-extern "C" bool br_instr_cond(char*);
+extern "C" bool br_instr_cond(char*, char*);
 
 /**
  * @brief Inconditional branch instruction

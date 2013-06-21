@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug false
-#define see_each_problem false
+#define see_each_problem true
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -416,11 +416,12 @@ void end_sim(){
 	
 }
 
-bool br_instr_cond(char* _cmp){
+bool br_instr_cond(char* _cmp, char* _joints){
 
 	string cmp = string(_cmp);
+	vector<string> joints = tokenize(string(_joints), ",");
 
-	debug && printf("\e[31m conditional_branch_instr %s\e[0m. %s %s\n", name(cmp).c_str(), name(cmp).c_str(), realvalue(name(cmp)).c_str() );
+	/*debug &&*/ printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(name(cmp)).c_str() );
 
 	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
 

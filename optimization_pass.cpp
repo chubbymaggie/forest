@@ -615,13 +615,167 @@ struct IcmpInstr: public ModulePass {
 };
 
 struct BrInstr: public ModulePass {
-	static char ID; // Pass identification, replacement for typeid
+	static char ID; // Pass identification, replacement for typed
 	BrInstr() : ModulePass(ID) {}
+
+	vector<string> basic_blocks( Module::iterator fn ){
+
+		vector<string> ret;
+
+		fun_iterator(fn, bb){
+
+			ret.push_back( bb->getName().str() );
+
+		}
+
+		return ret;
+	}
+
+	map<string, map<string, bool> > conectivity_matrix( Module::iterator fn ){
+
+		map<string, map<string, bool> > ret;
+
+		vector<string> bbs = basic_blocks( fn );
+
+		for ( unsigned int x = 0; x < bbs.size(); x++) {
+			for ( unsigned int y = 0; y < bbs.size(); y++) {
+				string src = bbs[x];
+				string dst = bbs[y];
+				ret[src][dst] = 0;
+			}
+		}
+
+		fun_iterator(fn, bb){
+
+			BasicBlock::iterator in = bb->end(); in--;
+
+			BranchInst* in_b = dyn_cast<BranchInst>(in);
+			if(!in_b) continue;
+
+			for ( unsigned int i = 0; i < in_b->getNumSuccessors(); i++) {
+				string src = bb->getName().str();
+				string dst = in_b->getSuccessor(i)->getName().str();
+
+				ret[src][dst] = 1;
+
+			}
+
+		}
+
+		return ret;
+
+	}
+
+
+	set<string> one_pass_reachable(string bb, map<string, map<string, bool> > connectivity, set<string> reachable_set, Module::iterator fn ){
+
+
+		//cerr << "opr1" << endl; fflush(stderr);
+		
+		set<string> ret = reachable_set;
+		vector<string> bbs = basic_blocks( fn );
+
+		for( set<string>::iterator it = reachable_set.begin(); it != reachable_set.end(); it++ ){
+
+			string src = *it;
+
+			for ( unsigned int i = 0; i < connectivity.size(); i++) {
+				string dst = bbs[i];
+				if( connectivity[src][dst] ) ret.insert(dst);
+			}
+		}
+
+		return ret;
+
+	}
+
+	set<string> reachable(string bb, Module::iterator fn ){
+
+		map<string, map<string, bool> > connectivity = conectivity_matrix(fn);
+
+		set<string> reachable_set_last;
+		set<string> reachable_set;
+		//cerr << "reach1" << endl; fflush(stderr);
+		reachable_set.insert(bb);
+		//cerr << "reach2" << endl; fflush(stderr);
+
+		while( reachable_set_last != reachable_set ){
+			reachable_set_last = reachable_set;
+			reachable_set      = one_pass_reachable( bb, connectivity, reachable_set, fn);
+		}
+
+		return reachable_set;
+
+	}
+
+
+	set<string> intersection( set<string> s1, set<string> s2 ){
+
+		set<string> ret;
+		for( set<string>::iterator it = s1.begin(); it != s1.end(); it++ ){
+			if( s2.find(*it) != s2.end() ) ret.insert(*it);
+		}
+
+		return ret;
+
+	}
+
+
 
 	virtual bool runOnModule(Module &M) {
 
+
 		mod_iterator(M, fn){
+
+			map<string, map<string, bool> > conectivity = conectivity_matrix(fn);
+			vector<string> bbs = basic_blocks( fn );
+
+			//for( vector<string>::iterator it = bbs.begin(); it != bbs.end(); it++ ){
+				//cerr << *it << " ";
+			//} cerr << endl;
+			
+
+			//for ( unsigned int x = 0; x < bbs.size(); x++) {
+				//for ( unsigned int y = 0; y < bbs.size(); y++) {
+					//string src = bbs[x];
+					//string dst = bbs[y];
+					//cerr << conectivity[src][dst];
+				//}
+				//cerr << endl;
+			//}
+			//cerr << endl;
+			
+			//cerr << "\033[32m" << fn->getName().str() << "\033[0m" << endl;
+
+			for ( unsigned int i = 0; i < bbs.size(); i++) {
+
+				string src = bbs[i];
+
+				set<string> reachable_set = reachable( src, fn );
+
+				//cerr << "\033[31m" << src << "\033[0m" << endl;
+				//for( set<string>::iterator it = reachable_set.begin(); it != reachable_set.end(); it++ ){
+					//cerr << *it << " ";
+				//} cerr << endl;
+
+			}
+			
+
+			//for( map<string,map<string, bool> >::iterator it = conectivity.begin(); it != conectivity.end(); it++ ){
+				//for( map<string,bool>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++ ){
+
+					//cerr << " " << it2->second << " ";
+					
+				//}
+
+				//cerr << endl;
+				
+			//}
+			
+
+
 			fun_iterator(fn, bb){
+
 				blk_iterator(bb, in){
 					if( BranchInst::classof(in) ){
 
@@ -629,12 +783,29 @@ struct BrInstr: public ModulePass {
 
 						if( in_b->isConditional() ){
 
+							string name1 = in_b->getSuccessor(0)->getName().str();
+							string name2 = in_b->getSuccessor(1)->getName().str();
+							set<string> reachable_1 = reachable(name1, fn);
+							set<string> reachable_2 = reachable(name2, fn);
+							set<string> joints = intersection(reachable_1, reachable_2);
+
+
+							string joints_s;
+							for( set<string>::iterator it = joints.begin(); it != joints.end(); it++ ){
+								joints_s = joints_s + (*it) + ",";
+							}
+							
+
+							cerr << "\033[31m" << joints_s << "\033[0m" << endl;
+
 							string nameop1 = operandname( in->getOperand(0) );
 
-							GlobalVariable* c2 = make_global_str(M, nameop1);
+							GlobalVariable* c1 = make_global_str(M, nameop1);
+							GlobalVariable* c2 = make_global_str(M, joints_s);
 
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_instr_cond" ,
 										Type::getInt1Ty( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										(Type *)0
 										));
@@ -642,6 +813,7 @@ struct BrInstr: public ModulePass {
 							BasicBlock::iterator insertpos = in; //insertpos++;
 
 							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
 							params.push_back(pointerToArray(M,c2));
 
 							CallInst* ci = CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
@@ -1105,6 +1277,8 @@ struct All: public ModulePass {
 		return false;
 	}
 };
+
+// Identifiers
 
 char FillNames::ID = 0;
 static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block Names");
