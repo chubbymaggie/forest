@@ -443,10 +443,11 @@ bool br_instr_cond(char* _cmp){
 
 		printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
 
-		insert_problem();
 		
 		int status;
 		waitpid(pid, &status, 0);
+
+		insert_problem();
 
 		printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
 

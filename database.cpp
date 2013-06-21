@@ -115,6 +115,7 @@ void insert_problem(){
 			string hint = variables[name].name_hint;
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
+			printf("%s\n", value.c_str());
 
 		}
 
@@ -127,6 +128,7 @@ void insert_problem(){
 			string hint = variables[name].name_hint;
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
+			//printf("%s\n", value.c_str());
 
 			//printf("%s\n", action.str().c_str() );
 
