@@ -138,7 +138,7 @@ void get_values(){
 		string name = *it;
 		string value = result_get(*it_ret);
 
-		/*debug &&*/ printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
+		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
 
 		variables[name].real_value = value;

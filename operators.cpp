@@ -204,7 +204,7 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	}
 
-	printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
+	debug && printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
 
 	if( ret_to != "register_" )
 		callstack.push_back( pair<string, string>(ret_to, actual_function) );
@@ -441,7 +441,7 @@ bool br_instr_cond(char* _cmp){
 
 	if( int pid = fork() ){
 
-		printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
+		debug && printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
 
 		
 		int status;
@@ -449,20 +449,20 @@ bool br_instr_cond(char* _cmp){
 
 		insert_problem();
 
-		printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
+		debug && printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
 
 		return real_value_prev == "true";
 	} else {
 
 
 		if( solvable_problem() ){
-			printf("hijo sat\n"); fflush(stdout);
+			debug && printf("hijo sat\n"); fflush(stdout);
 			get_values();
 			insert_problem();
-			printf("fin hijo sat\n"); fflush(stdout);
+			debug && printf("fin hijo sat\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {
-			printf("hijo unsat\n"); fflush(stdout);
+			debug && printf("hijo unsat\n"); fflush(stdout);
 			//insert_problem();
 			exit(0);
 		}
