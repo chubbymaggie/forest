@@ -194,8 +194,17 @@ void cmd_option_set(string key, string value ){
 
 void systm( string cmd ){
 
-	printf("\e[31m %s \e[0m\n", cmd.c_str() );
-	system(cmd.c_str());
+	if( cmd_option_bool("verbose") )
+		printf("\e[31m %s \e[0m\n", cmd.c_str() );
+
+	stringstream command;
+	
+	if( cmd_option_bool("verbose") )
+		command << cmd;
+	else
+		command << "(" << cmd << ") >/dev/null 2>/dev/null";
+
+	system(command.str().c_str() );
 }
 
 void make_bc(){
@@ -314,6 +323,35 @@ void show_results(){
 	systm(cmd.str().c_str());
 }
 
+void test(){
+
+
+	string explanation = cmd_option_str("explanation") + " ";
+
+	while( explanation.length() < 50 )
+		explanation = explanation + ".";
+
+	printf("* Testing %s", explanation.c_str() );
+
+	stringstream cmd;
+
+	// Muestro los resultados de la base de datos
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
+	cmd << " | sqlite3 database.db ";
+	cmd << "> results";
+	systm(cmd.str().c_str());
+
+
+	int result = system("diff results gold_result > /dev/null");
+
+	if( result )
+		printf("\e[31m Failed :( \e[0m\n");
+	else
+		printf("\e[32m Passed :) \e[0m\n");
+
+}
+
 int main(int argc, const char *argv[]) {
 	load_default_options();
 	parse_cmd_line(argc, argv);
@@ -323,6 +361,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_bc")) compare_bc();
 	if(cmd_option_bool("view_bc")) view_bc();
 	if(cmd_option_bool("run")) run();
+	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
 
 	return 0;
