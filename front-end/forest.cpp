@@ -270,13 +270,72 @@ void make_bc(){
 
 void compare_bc(){
 
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Copiar el paso a la carpeta
+	cmd.str("");
+	cmd << "sudo cp " << base_path << "/optim-pass/optimization_pass.cpp " << llvm_path << "/lib/Transforms/Hello/Hello.cpp";
+	systm(cmd.str().c_str());
+
+	// make del paso de optimización
+	cmd.str("");
+	cmd << "sudo make -C " << llvm_path << "/lib/Transforms/Hello/";
+	systm(cmd.str().c_str());
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -fill_names < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	systm(cmd.str().c_str());
+
+
+	// Segundo paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -all < /tmp/file-2.bc > /tmp/file-3.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+
+	// Comparación
+	cmd.str("");
+	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+
+
 }
 
 void view_bc(){
 
 	stringstream cmd;
 
-	// Segundo paso de optimización
+	// Desensamblado
 	cmd.str("");
 	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
 	systm(cmd.str().c_str());
