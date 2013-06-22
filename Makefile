@@ -27,4 +27,5 @@ test:
 	@forest ./test/crest/simple/config.xml
 	@forest ./test/crest/uniform_test/config.xml
 	@forest ./test/crest/function/config.xml
+	@forest ./test/crest/concrete_return/config.xml
 
