@@ -2,6 +2,7 @@
 
 <options>
 	<option key="verbose" value="false"/> 
+	<option key="test" value="true"/> 
 	<option key="explanation" value="simple operations with a variable"/> 
 	<option key="file" value="simple.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 

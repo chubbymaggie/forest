@@ -34,6 +34,8 @@ bool done_run = false;
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
+string cd_path;
+
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
     	
@@ -63,6 +65,12 @@ void set_option( string key, string value ){
 }
 
 void parse_cmd_line(int argc, const char** argv ){
+
+
+	if( argc >= 2 && argv[1][0] != '-' ){
+		argc = argc - 1;
+		argv = argv + 1;
+	}
 	
 	vector<string> tokens; // palabras de la linea de comandos
 	
@@ -139,11 +147,11 @@ vector<float> cmd_option_float_vector(string option){
 	return vector_float;
 }
 
-void load_default_options(){
-	
+void load_default_options(string file){
+
 	options.clear();
 
-	TiXmlDocument doc("config.xml"); // documento xml
+	TiXmlDocument doc(file.c_str()); // documento xml
 	doc.LoadFile();
 	
 	std::string m_name; // nombre
@@ -185,6 +193,10 @@ void load_default_options(){
 	
 }
 
+void load_default_options(){
+	load_default_options(string("config.xml"));
+}
+
 void cmd_option_set(string key, string value ){
 
 	options[key] = value;
@@ -198,6 +210,10 @@ void systm( string cmd ){
 		printf("\e[31m %s \e[0m\n", cmd.c_str() );
 
 	stringstream command;
+
+	if( cd_path != "" ){
+		command << "cd " << cd_path << ";";
+	}
 	
 	if( cmd_option_bool("verbose") )
 		command << cmd;
@@ -257,6 +273,18 @@ void compare_bc(){
 }
 
 void view_bc(){
+
+	stringstream cmd;
+
+	// Segundo paso de optimización
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	systm(cmd.str().c_str());
+
+	// Visualizar
+	cmd.str("");
+	cmd << "gedit /tmp/salida1.txt &";
+	systm(cmd.str().c_str());
 
 }
 
@@ -365,7 +393,12 @@ void test(){
 	systm(cmd.str().c_str());
 
 
-	int result = system("diff results gold_result > /dev/null");
+	cmd.str("");
+	if( cd_path != "" ){
+		cmd << "cd " << cd_path << ";";
+	}
+	cmd << "diff results gold_result > /dev/null";
+	int result = system(cmd.str().c_str());
 
 	if( result )
 		printf("\e[31m Failed :( \e[0m\n");
@@ -374,8 +407,30 @@ void test(){
 
 }
 
+void set_path( string file ){
+
+	vector<string> tokens = tokenize(file, "/");
+
+	string path_aux;
+
+	for ( unsigned int i = 0; i < tokens.size() - 1; i++) {
+		path_aux += tokens[i] + "/";
+	}
+
+	cd_path = path_aux;
+	
+
+}
+
 int main(int argc, const char *argv[]) {
-	load_default_options();
+
+	if( argc >= 2 && argv[1][0] != '-' ){
+		load_default_options( string(argv[1]) );
+		set_path( string(argv[1]) );
+	} else {
+		load_default_options();
+	}
+
 	parse_cmd_line(argc, argv);
 	
 	if(cmd_option_bool("make_bc")) make_bc();

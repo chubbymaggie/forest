@@ -1,4 +1,4 @@
-.PHONY: final 
+.PHONY: final test
 
 
 backend:
@@ -9,7 +9,7 @@ backend:
 	ar rcs lib/forest.a build/database.o build/operators.o build/solver.o build/sqlite.o
 
 frontend:
-	g++ -c front-end/forest.cpp -o build/forest.o
+	g++ -c -g front-end/forest.cpp -o build/forest.o
 	g++ -c front-end/tinystr.cpp  -o build/tinystr.o
 	g++ -c front-end/tinyxml.cpp  -o build/tinyxml.o
 	g++ -c front-end/tinyxmlerror.cpp  -o build/tinyxmlerror.o
@@ -22,4 +22,8 @@ clean:
 distclean: clean
 	rm -rf bin/*
 
+test:
+	@forest ./test/crest/math/config.xml
+	@forest ./test/crest/simple/config.xml
+	@forest ./test/crest/uniform_test/config.xml
 
