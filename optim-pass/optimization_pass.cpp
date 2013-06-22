@@ -946,7 +946,7 @@ struct CallInstr: public ModulePass {
 						if( !in_r->getReturnValue() )
 							returnoperand = "register_";
 						else
-							string returnoperand = operandname( in_r->getReturnValue() );
+							returnoperand = operandname( in_r->getReturnValue() );
 
 						GlobalVariable* c1 = make_global_str(M, returnoperand );
 
@@ -1264,15 +1264,15 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		{CallInstr     pass;   pass.runOnModule(M);}
-		{BinaryOp      pass;   pass.runOnModule(M);}
-		{CastInstr     pass;   pass.runOnModule(M);}
-		{LoadStore     pass;   pass.runOnModule(M);}
-		{IcmpInstr     pass;   pass.runOnModule(M);}
-		{BrInstr       pass;   pass.runOnModule(M);}
-		{BbMarks       pass;   pass.runOnModule(M);}
-		{AllocaInstr   pass;   pass.runOnModule(M);}
-		{BeginEnd      pass;   pass.runOnModule(M);}
-		{GetelementPtr pass;   pass.runOnModule(M);}
+		//{BinaryOp      pass;   pass.runOnModule(M);}
+		//{CastInstr     pass;   pass.runOnModule(M);}
+		//{LoadStore     pass;   pass.runOnModule(M);}
+		//{IcmpInstr     pass;   pass.runOnModule(M);}
+		//{BrInstr       pass;   pass.runOnModule(M);}
+		//{BbMarks       pass;   pass.runOnModule(M);}
+		//{AllocaInstr   pass;   pass.runOnModule(M);}
+		//{BeginEnd      pass;   pass.runOnModule(M);}
+		//{GetelementPtr pass;   pass.runOnModule(M);}
 
 		return false;
 	}
