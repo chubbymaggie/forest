@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="verbose" value="false"/> 
+	<option key="test" value="true"/> 
+	<option key="explanation" value="Llamada a funciones no anotadas"/> 
+	<option key="file" value="concrete_return.c"/> 
+	<option key="base_path" value="/media/disk/release"/> 
+	<option key="llvm_path" value="/llvm-2.9"/> 
+	<option key="output_file" value="final"/> 
+</options>

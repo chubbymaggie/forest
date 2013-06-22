@@ -203,6 +203,8 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	}
 
+	variables[name(ret_to)].name_hint = "return of " + fn_name;
+
 	debug && printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
 
 	if( ret_to != "register_" )
