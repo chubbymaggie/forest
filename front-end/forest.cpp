@@ -313,14 +313,36 @@ void run(){
 
 void show_results(){
 
-	if( !done_run ) run();
+	//if( !done_run ) run();
 
 	stringstream cmd;
 
 	// Muestro los resultados de la base de datos
 	cmd.str("");
 	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;' | sqlite3 database.db";
-	systm(cmd.str().c_str());
+
+
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+	
+	fp = popen(cmd.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+	
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		printf("%s", it->c_str());
+	}
+	
+
+
+
 }
 
 void test(){
