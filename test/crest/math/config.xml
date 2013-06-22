@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="verbose" value="false"/> 
+	<option key="explanation" value="Simple math operations with integers"/> 
+	<option key="file" value="math.c"/> 
+	<option key="base_path" value="/media/disk/release"/> 
+	<option key="llvm_path" value="/llvm-2.9"/> 
+	<option key="output_file" value="final"/> 
+</options>
