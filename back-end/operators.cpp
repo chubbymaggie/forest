@@ -46,14 +46,14 @@ string content( string name ){
 	}
 }
 
-string realvalue(string name){
+string realvalue(string varname){
 
-	if( name.find("constant") != string::npos )
-		return name.substr(9);
-	else if( variables[name].real_value == "" )
+	if( varname.find("constant") != string::npos )
+		return varname.substr(9);
+	else if( variables[name(varname)].real_value == "" )
 		return "0";
 	else
-		return variables[name].real_value;
+		return variables[name(varname)].real_value;
 
 }
 
@@ -108,7 +108,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	else
 		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
 
-	debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
+	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
 	if( variables[name(op1)].type == "bool" && op2 == "constant_0" && operation == "#" ){
 		content_ss.str("");
 		content_ss << content(name(op1));
@@ -120,7 +120,6 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	variables[name(dst)].type = variables[name(op1)].type;
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str() );
 
 
 
@@ -162,6 +161,10 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
 	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
+
+
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
+                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str() );
 
 
 }
@@ -380,7 +383,8 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 		}
 	}
 
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m\n", dst.c_str(), pointer.c_str(), _indexes, _sizes );
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
+		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 }
 
