@@ -1156,10 +1156,9 @@ struct GetelementPtr: public ModulePass {
 						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
 
 						vector<string> sizes;
-						if( t_a )
+						if( t_a ){
 							sizes = get_nested_sizes( t_a );
-
-						if( t_pp ){
+						} else if( t_pp ){
 							const Type* tp = t_p->getElementType();
 							stringstream size; size << get_size(t_pp);
 							sizes.push_back( "constant_" + size.str() );
