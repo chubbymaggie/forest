@@ -491,6 +491,10 @@ int main(int argc, const char *argv[]) {
 	}
 
 	parse_cmd_line(argc, argv);
+
+	if( cmd_option_bool("test") ){
+		set_option("run", "true");
+	}
 	
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();

@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -46,14 +46,14 @@ string content( string name ){
 	}
 }
 
-string realvalue(string varname){
+string realvalue(string name){
 
-	if( varname.find("constant") != string::npos )
-		return varname.substr(9);
-	else if( variables[name(varname)].real_value == "" )
+	if( name.find("constant") != string::npos )
+		return name.substr(9);
+	else if( variables[name].real_value == "" )
 		return "0";
 	else
-		return variables[name(varname)].real_value;
+		return variables[name].real_value;
 
 }
 
