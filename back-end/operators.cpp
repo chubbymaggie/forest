@@ -202,9 +202,13 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 	if( fn_name.substr(0,1) == "_" ) fn_name = fn_name.substr(1);
 
 
+	if( oplist.size() && oplist[0] != "register_" ){
+
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
 		assign_instruction( oplist[i], fn_oplist[i], fn_name );
+
+	}
 
 	}
 
