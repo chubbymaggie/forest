@@ -15,6 +15,11 @@ frontend:
 	g++ -c front-end/tinyxmlerror.cpp  -o build/tinyxmlerror.o
 	g++ -c front-end/tinyxmlparser.cpp  -o build/tinyxmlparser.o
 	g++ build/forest.o build/tiny*.o -o bin/forest
+
+opt:
+	sudo cp optim-pass/optimization_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
+	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
+	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
 	
 clean:
 	rm -rf build/*
