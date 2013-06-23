@@ -111,11 +111,12 @@ void insert_problem(){
 
 		for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 			string name = *it;
-			string value = realvalue(name);
+			string value = (variables[name].real_value == "")?string("0"):variables[name].real_value;
+			//string value = variables[name].real_value;
 			string hint = variables[name].name_hint;
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
-			debug && printf("\e[31m insert_result \e[0m %s\n", value.c_str());
+			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
 
 		}
 

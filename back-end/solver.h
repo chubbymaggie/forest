@@ -210,12 +210,5 @@ bool is_number(const std::string& s) ;
  */
 string name( string input, string fn_name = "" );
 
-
-
-
-
-
-
-
 #endif /* end of include guard: _SOLVER_H_ */
 
