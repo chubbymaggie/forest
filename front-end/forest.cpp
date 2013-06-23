@@ -229,16 +229,6 @@ void make_bc(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Copiar el paso a la carpeta
-	cmd.str("");
-	cmd << "sudo cp " << base_path << "/optim-pass/optimization_pass.cpp " << llvm_path << "/lib/Transforms/Hello/Hello.cpp";
-	systm(cmd.str().c_str());
-
-	// make del paso de optimización
-	cmd.str("");
-	cmd << "sudo make -C " << llvm_path << "/lib/Transforms/Hello/";
-	systm(cmd.str().c_str());
-
 	// Junta todos los .c en uno
 	cmd.str("");
 	cmd << "cat ";
@@ -274,16 +264,6 @@ void compare_bc(){
 	string base_path = cmd_option_str("base_path");
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
-
-	// Copiar el paso a la carpeta
-	cmd.str("");
-	cmd << "sudo cp " << base_path << "/optim-pass/optimization_pass.cpp " << llvm_path << "/lib/Transforms/Hello/Hello.cpp";
-	systm(cmd.str().c_str());
-
-	// make del paso de optimización
-	cmd.str("");
-	cmd << "sudo make -C " << llvm_path << "/lib/Transforms/Hello/";
-	systm(cmd.str().c_str());
 
 	// Junta todos los .c en uno
 	cmd.str("");
@@ -367,13 +347,9 @@ void final(){
 	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
 	systm(cmd.str().c_str());
 
-	// Compila el back-end
+	// linka
 	cmd.str("");
-	cmd << "g++ -g -c "  << base_path << "/back-end/operators.cpp -o /tmp/operators.o;";
-	cmd << "g++ -g -c "  << base_path << "/back-end/solver.cpp -o /tmp/solver.o;";
-	cmd << "g++ -g -c "  << base_path << "/back-end/database.cpp -o /tmp/database.o;";
-	cmd << "gcc -c "     << base_path << "/back-end/sqlite3.c -o /tmp/sqlite3.o;";
-	cmd << "g++ /tmp/file-3.o /tmp/operators.o /tmp/solver.o /tmp/sqlite3.o /tmp/database.o -lpthread -ldl -o " << output_file;
+	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 	done_final = true;
