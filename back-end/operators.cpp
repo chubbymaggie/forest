@@ -46,14 +46,16 @@ string content( string name ){
 	}
 }
 
-string realvalue(string name){
+string realvalue(string varname){
 
-	if( name.find("constant") != string::npos )
-		return name.substr(9);
-	else if( variables[name].real_value == "" )
+	//printf("\e[33m realvalue \e[0m %s\n", name.c_str() );
+
+	if( varname.find("constant") != string::npos )
+		return varname.substr(9);
+	else if( variables[name(varname)].real_value == "" )
 		return "0";
 	else
-		return variables[name].real_value;
+		return variables[name(varname)].real_value;
 
 }
 
@@ -87,7 +89,7 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
 
-	variables[ name(dst, fn_name) ].real_value = realvalue( name(src) );
+	variables[ name(dst, fn_name) ].real_value = realvalue( src );
 
 	variables[ name(dst, fn_name) ].type = variables[name(src)].type;
 
@@ -291,9 +293,9 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	binary_instruction(dst, cmp1, cmp2, type);
 
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
-			                                                 name(cmp1).c_str(), realvalue(name(cmp1)).c_str(),
-									 name(cmp2).c_str(), realvalue(name(cmp2)).c_str(),
-									 name(dst).c_str(), realvalue(name(dst)).c_str() );
+			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
+									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
+									 name(dst).c_str(), realvalue(dst).c_str() );
 
 	variables[ name(dst) ].type = "bool";
 }
@@ -335,7 +337,7 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	string type = string(_type);
 
 	stringstream rvalue; rvalue << alloca_pointer; 
-	variables[reg].real_value = rvalue.str();
+	variables[name(reg)].real_value = rvalue.str();
 
 	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
 
@@ -440,18 +442,18 @@ bool br_instr_cond(char* _cmp, char* _joints){
 	string cmp = string(_cmp);
 	vector<string> joints = tokenize(string(_joints), ",");
 
-	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(name(cmp)).c_str() );
+	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 
 	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
 
-	if( realvalue(name(cmp)) == "true" )
+	if( realvalue(cmp) == "true" )
 		push_condition( negation(content( name(cmp) )), actual_function, joints );
 	else
 		push_condition( content( name(cmp) ) , actual_function, joints );
 
 	see_each_problem && show_problem();
 
-	string real_value_prev = realvalue( name(cmp) );
+	string real_value_prev = realvalue(cmp);
 
 	//if(solvable_problem())
 		//get_values();

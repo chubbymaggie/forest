@@ -319,7 +319,7 @@ string name( string input, string fn_name ){
 	} else if (input.substr(0,4) == "mem_" ){
 		return input;
 	} else {
-		return ((fn_name == "")?actual_function:fn_name) + input;
+		return ((fn_name == "")?actual_function:fn_name) + "_" + input;
 		//return input;
 	}
 
