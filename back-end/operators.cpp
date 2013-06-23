@@ -342,10 +342,19 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	variables[mem_var.str()].real_value = "0";
 	variables[mem_var.str()].name_hint = reg;
 
-	variables[mem_var.str()].type = type;
-
 	int size;
 	sscanf(_size, "%d", &size);
+
+	if( type == "ArrayTyID" ){
+		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
+			stringstream mem_name; mem_name << "mem_" << i;
+			stringstream mem_hint; mem_hint << reg << "+" << i;
+			variables[ mem_name.str() ].name_hint = mem_hint.str();
+		}
+	}
+
+	variables[mem_var.str()].type = type;
+
 
 	alloca_pointer += size;
 
