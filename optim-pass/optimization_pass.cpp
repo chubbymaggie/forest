@@ -331,6 +331,10 @@ struct FillNames : public ModulePass {
 							in->setName("r");
 					}
 
+					if( CallInst::classof(in) ){
+						if( !in->hasName() )
+							in->setName("r");
+					}
 
 
 

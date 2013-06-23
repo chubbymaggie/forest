@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
+#define see_each_problem true
 #define see_flat_problem false
 #define SIZE_STR 512
 
