@@ -351,6 +351,8 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 			stringstream mem_hint; mem_hint << reg << "+" << i;
 			variables[ mem_name.str() ].name_hint = mem_hint.str();
 		}
+
+		assign_instruction( "constant_0", reg );
 	}
 
 	variables[mem_var.str()].type = type;
