@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -59,6 +59,18 @@ string realvalue(string varname){
 
 }
 
+void set_real_value(string varname, string value, string fn_name ){
+
+	variables[ name(varname, fn_name) ].real_value = value;
+}
+
+
+void set_real_value(string varname, string value ){
+
+	variables[ name(varname) ].real_value = value;
+}
+
+
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
     	
@@ -89,7 +101,7 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
 
-	variables[ name(dst, fn_name) ].real_value = realvalue( src );
+	set_real_value( dst, realvalue(src), fn_name );
 
 	variables[ name(dst, fn_name) ].type = variables[name(src)].type;
 
@@ -128,37 +140,37 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 	if(operation == "<="){
-		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false";
+		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
 	}
 
 	if(operation == "="){
-		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false";
+		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
 	}
 
 	if(operation == "#"){
-		variables[name(dst)].real_value = ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false";
+		set_real_value(dst, ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false" );
 	}
 
 
 	if(operation == "+"){
 		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
-		variables[name(dst)].real_value = result.str();
+		set_real_value(dst, result.str());
 	}
 
 	if(operation == "-"){
 		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
-		variables[name(dst)].real_value = result.str();
+		set_real_value(dst, result.str());
 	}
 
 	if(operation == "*"){
 		stringstream result; result << stoi(realvalue(op1)) * stoi(realvalue(op2));
-		variables[name(dst)].real_value = result.str();
+		set_real_value(dst, result.str());
 	}
 
 
 	if(operation == "/"){
 		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
-		variables[name(dst)].real_value = result.str();
+		set_real_value(dst, result.str());
 	}
 
 	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
@@ -341,7 +353,7 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	string type = string(_type);
 
 	stringstream rvalue; rvalue << alloca_pointer; 
-	variables[name(reg)].real_value = rvalue.str();
+	set_real_value(reg,rvalue.str());
 
 	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
 
