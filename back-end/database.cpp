@@ -29,6 +29,7 @@ sqlite3 *db;
 extern map<string, Variable> variables;
 extern set<string> variable_names;
 extern vector<string> conditions;
+extern vector<bool> path_stack;
 
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -68,7 +69,8 @@ void create_tables(){
 	stringstream action;
 	action << "create table problems(";
 	action << "problem_id INTEGER PRIMARY KEY AUTOINCREMENT,";
-	action << "sat bool";
+	action << "sat bool,";
+	action << "path varchar(50)";
 	action << ");";
 
 
@@ -97,7 +99,12 @@ void insert_problem(){
 	stringstream action;
 	string id = "(select max(problem_id) from problems)";
 
-	action << "insert into problems (sat) values (" << (solvable_problem()?1:0) << ");";
+	string path;
+	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		path += (*it)?"T":"F";
+	}
+	
+	action << "insert into problems (sat, path) values (" << (solvable_problem()?1:0) << ",'" << path << "');";
 
 	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = *it;

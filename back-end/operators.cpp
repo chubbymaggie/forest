@@ -31,6 +31,7 @@ int alloca_pointer = 0;
 map<string, Variable> variables;
 set<string> variable_names;
 vector<pair<string, string> > callstack;
+vector<bool> path_stack;
 
 string actual_function;
 string actual_bb;
@@ -469,6 +470,18 @@ void end_sim(){
 	
 }
 
+void print_path_stack(){
+
+
+	printf("\e[33m Path_stack \e[0m");
+	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		printf("%s", (*it)?"T":"F" );
+	}
+	printf("\n");
+	
+
+}
+
 bool br_instr_cond(char* _cmp, char* _joints){
 
 	string cmp = string(_cmp);
@@ -496,6 +509,9 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		int status;
 		waitpid(pid, &status, 0);
 
+		path_stack.push_back( real_value_prev == "true");
+		print_path_stack();
+
 		insert_problem();
 
 		debug && printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
@@ -516,6 +532,10 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		if( solvable_problem() ){
 			debug && printf("hijo sat\n"); fflush(stdout);
 			get_values();
+
+			path_stack.push_back( real_value_prev != "true");
+			print_path_stack();
+
 			insert_problem();
 			debug && printf("fin hijo sat\n"); fflush(stdout);
 			return real_value_prev != "true";
