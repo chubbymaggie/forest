@@ -324,6 +324,22 @@ int show_problem(){
 	dump_get();
 	dump_tail();
 
+	stringstream filename; filename << "/tmp/z3-" << rand() << ".smt2";
+
+	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
+
+	FILE* file = fopen(filename.str().c_str(), "w");
+
+	dump_header(file);
+	dump_variables(file);
+	dump_conditions(file);
+	dump_get(file);
+	dump_tail(file);
+
+	fclose(file);
+
+
+
 	fflush(stdout);
 
 	getchar();
@@ -462,12 +478,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
 
-	if( realvalue(cmp) == "true" )
-		push_condition( negation(content( name(cmp) )), actual_function, joints );
-	else
-		push_condition( content( name(cmp) ) , actual_function, joints );
 
-	see_each_problem && show_problem();
 
 	string real_value_prev = realvalue(cmp);
 
@@ -491,6 +502,15 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		return real_value_prev == "true";
 	} else {
+
+
+		if( realvalue(cmp) == "true" )
+			push_condition( negation(content( name(cmp) )), actual_function, joints );
+		else
+			push_condition( content( name(cmp) ) , actual_function, joints );
+
+
+		see_each_problem && show_problem();
 
 
 		if( solvable_problem() ){
