@@ -1,0 +1,6 @@
+name_hint             value  probl
+--------------------  -----  -----
+register_c            97     1    
+register_c            123    2    
+register_c            97     3    
+register_c            0      4    

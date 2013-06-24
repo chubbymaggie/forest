@@ -26,4 +26,5 @@ test:
 	@forest ./test/crest/concrete_return/config.xml
 	@forest ./test/simple/array/config.xml
 	@forest ./test/klee-examples/get_sign/config.xml
+	@forest ./test/klee-examples/islower/config.xml
 

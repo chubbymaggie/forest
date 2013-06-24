@@ -457,6 +457,63 @@ void set_path( string file ){
 
 }
 
+void view_dfg(){
+
+
+	stringstream cmd;
+
+	// Crea el bc
+	cmd.str("");
+	cmd << "llvm-gcc --emit-llvm -c " << cmd_option_string_vector("file")[0] << "-o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// paso de optimización dot
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+	
+	command << "opt -dot-cfg < /tmp/file.bc 2>&1 | grep Writing";
+	
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+	
+	vector<string> gen_dfgs;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "'");
+		gen_dfgs.push_back(tokens[1]);
+	}
+	
+	
+
+	for( vector<string>::iterator it = gen_dfgs.begin(); it != gen_dfgs.end(); it++ ){
+
+		// pasa el dot a png
+		cmd.str("");
+		cmd << "dot -T png " << *it << " > " << *it << ".png";
+		systm(cmd.str().c_str());
+
+		// Visualiza el png
+		cmd.str("");
+		cmd << "eog " << *it << ".png &";
+		systm(cmd.str().c_str());
+		
+	}
+	
+
+
+
+
+
+
+
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -476,6 +533,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
 	if(cmd_option_bool("view_bc")) view_bc();
+	if(cmd_option_bool("dfg")) view_dfg();
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
