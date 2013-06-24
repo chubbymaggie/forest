@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <utility>
 #include <set>
 #include <vector>
 #include "operators.h"
@@ -42,6 +43,8 @@ void end_database();
 void create_tables();
 
 void insert_problem();
+
+bool yet_covered();
 
 
 #endif /* end of include guard: _DATABASE_H_ */

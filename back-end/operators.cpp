@@ -512,6 +512,8 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		path_stack.push_back( real_value_prev == "true");
 		print_path_stack();
 
+		if(yet_covered()) exit(0);
+
 		insert_problem();
 
 		debug && printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
@@ -535,6 +537,8 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 			path_stack.push_back( real_value_prev != "true");
 			print_path_stack();
+
+			if(yet_covered()) exit(0);
 
 			insert_problem();
 			debug && printf("fin hijo sat\n"); fflush(stdout);

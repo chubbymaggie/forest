@@ -31,8 +31,18 @@ extern set<string> variable_names;
 extern vector<string> conditions;
 extern vector<bool> path_stack;
 
+vector< pair<string, string> > retsqlite;
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
+
+
+
+	for(int i=0; i<argc; i++){
+		string name = string(azColName[i] );
+		string value = string(argv[i]);
+		retsqlite.push_back( pair<string, string>(name, value) );
+	}
+
 	return 0;
 }
 
@@ -161,4 +171,24 @@ void insert_problem(){
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
+
+bool yet_covered(){
+
+
+
+	string path;
+	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		path += (*it)?"T":"F";
+	}
+
+	stringstream action;
+	action << "select * from problems where path='" << path << "';";
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	return retsqlite.size();
+
+}
+
+
 
