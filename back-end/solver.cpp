@@ -93,7 +93,10 @@ string result_get(string get_str){
 	
 
 
-	return tokens[tokens.size() - 2];
+	if( tokens[tokens.size() - 3] == "-" )
+		return "-" + tokens[tokens.size() - 2];
+	else 
+		return tokens[tokens.size() - 2];
 
 }
 
