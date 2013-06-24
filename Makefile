@@ -1,20 +1,11 @@
-.PHONY: final test
+.PHONY: test
 
 
 backend:
-	g++ -c back-end/database.cpp -o build/database.o
-	g++ -c back-end/operators.cpp -o build/operators.o
-	g++ -c back-end/solver.cpp -o build/solver.o
-	gcc -c back-end/sqlite3.c -o build/sqlite.o
-	ar rcs lib/forest.a build/database.o build/operators.o build/solver.o build/sqlite.o
+	make -C back-end
 
 frontend:
-	g++ -c -g front-end/forest.cpp -o build/forest.o
-	g++ -c front-end/tinystr.cpp  -o build/tinystr.o
-	g++ -c front-end/tinyxml.cpp  -o build/tinyxml.o
-	g++ -c front-end/tinyxmlerror.cpp  -o build/tinyxmlerror.o
-	g++ -c front-end/tinyxmlparser.cpp  -o build/tinyxmlparser.o
-	g++ build/forest.o build/tiny*.o -o bin/forest
+	make -C front-end
 
 opt:
 	sudo cp optim-pass/optimization_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
