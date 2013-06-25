@@ -318,7 +318,7 @@ void make_bc(){
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
 	systm(cmd.str().c_str());
 
 	done_bc = true;
@@ -360,7 +360,7 @@ void compare_bc(){
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado

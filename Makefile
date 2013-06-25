@@ -8,7 +8,7 @@ frontend:
 	make -C front-end
 
 opt:
-	sudo cp optim-pass/optimization_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
+	sudo cp optim-pass/instrumentation_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
 	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
 	

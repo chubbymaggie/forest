@@ -1285,38 +1285,38 @@ struct All: public ModulePass {
 // Identifiers
 
 char FillNames::ID = 0;
-static RegisterPass<FillNames> FillNames("fill_names", "Fills operands and Block Names");
+static RegisterPass<FillNames> FillNames(         "instr_fill_names"    , "Fills operands and Block Names" );
 
 char BinaryOp::ID = 0;
-static RegisterPass<BinaryOp> BinaryOp("binaryop", "Instrument binary operations");
+static RegisterPass<BinaryOp> BinaryOp(           "instr_binaryop"      , "Instrument binary operations" );
 
 char CastInstr::ID = 0;
-static RegisterPass<CastInstr> CastInstr("castinstr", "Instrument cast operations");
+static RegisterPass<CastInstr> CastInstr(         "instr_castinstr"     , "Instrument cast operations" );
 
 char LoadStore::ID = 0;
-static RegisterPass<LoadStore> LoadStore("loadstore", "Instrument load/store operations");
+static RegisterPass<LoadStore> LoadStore(         "instr_loadstore"     , "Instrument load/store operations" );
 
 char IcmpInstr::ID = 0;
-static RegisterPass<IcmpInstr> IcmpInstr("icmpinstr", "Instrument comparison operations");
+static RegisterPass<IcmpInstr> IcmpInstr(         "instr_icmpinstr"     , "Instrument comparison operations" );
 
 char BrInstr::ID = 0;
-static RegisterPass<BrInstr> BrInstr("brinstr", "Instrument branch operations");
+static RegisterPass<BrInstr> BrInstr(             "instr_brinstr"       , "Instrument branch operations" );
 
 char CallInstr::ID = 0;
-static RegisterPass<CallInstr> CallInstr("callinstr", "Instrument call operations");
+static RegisterPass<CallInstr> CallInstr(         "instr_callinstr"     , "Instrument call operations" );
 
 char BbMarks::ID = 0;
-static RegisterPass<BbMarks> BbMarks("bbmarks", "Instrument Basic-Blocks");
+static RegisterPass<BbMarks> BbMarks(             "instr_bbmarks"       , "Instrument Basic-Blocks" );
 
 char AllocaInstr::ID = 0;
-static RegisterPass<AllocaInstr> AllocaInstr("alloca", "Instrument alloca operations");
+static RegisterPass<AllocaInstr> AllocaInstr(     "instr_alloca"        , "Instrument alloca operations" );
 
 char GetelementPtr::ID = 0;
-static RegisterPass<GetelementPtr> GetelementPtr("getelementptr", "Instrument getelementptr operations");
+static RegisterPass<GetelementPtr> GetelementPtr( "instr_getelementptr" , "Instrument getelementptr operations" );
 
 char BeginEnd::ID = 0;
-static RegisterPass<BeginEnd> BeginEnd("beginend", "Instrument begin and end of program");
+static RegisterPass<BeginEnd> BeginEnd(           "instr_beginend"      , "Instrument begin and end of program" );
 
 char All::ID = 0;
-static RegisterPass<All> All("all", "Instrument all operations");
+static RegisterPass<All> All(                     "instr_all"           , "Instrument all operations" );
 
