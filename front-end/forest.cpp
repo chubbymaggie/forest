@@ -33,7 +33,17 @@ bool done_bc = false;
 bool done_final = false;
 bool done_run = false;
 
+typedef struct VarLocation {
+	string name;
+	string type;
+	int line;
+} VarLocation;
+
+
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
+
+map<string, VarLocation > variable_locations;
+int main_line;
 
 string cd_path;
 
@@ -146,6 +156,62 @@ vector<float> cmd_option_float_vector(string option){
 		vector_float.push_back( atof( vector_str[i].c_str() ) );
 	}
 	return vector_float;
+}
+
+void load_variable_location(string file){
+
+	printf("load_variable_location\n"); fflush(stdout);
+
+	variable_locations.clear();
+
+	TiXmlDocument doc(file.c_str()); // documento xml
+	doc.LoadFile();
+	
+	std::string m_name; // nombre
+	
+	TiXmlHandle hDoc(&doc); // handler del xml
+	TiXmlElement* pElem; // cada elemento
+	TiXmlHandle hRoot(0); // raiz del xml
+	
+	pElem=hDoc.FirstChildElement("variables").Element();
+	m_name=pElem->Value();
+	
+	hRoot=TiXmlHandle(pElem);
+
+	pElem=hRoot.FirstChild().Element();
+	for( ; pElem; pElem=pElem->NextSiblingElement()){
+
+		printf("%s %s %s\n", pElem->Attribute("name"), pElem->Attribute("type"), pElem->Attribute("line"));
+
+		string name_hint = pElem->Attribute("name_hint");
+		string name      = pElem->Attribute("name");
+		string type      = pElem->Attribute("type");
+		string line_s    = pElem->Attribute("line"); int line; sscanf(line_s.c_str(), "%d", &line);
+
+		VarLocation vl = {name, type, line};
+
+ 		variable_locations[name_hint] = vl;
+
+
+	}
+
+
+	pElem=hDoc.FirstChildElement("main").Element();
+	m_name=pElem->Value();
+	
+	hRoot=TiXmlHandle(pElem);
+
+	pElem=hRoot.FirstChild().Element();
+	for( ; pElem; pElem=pElem->NextSiblingElement()){
+
+		//printf("%s\n", pElem->Attribute("line"));
+		sscanf(pElem->Attribute("line"), "%d", &main_line);
+
+	}
+
+
+
+	
 }
 
 void load_default_options(string file){
@@ -678,17 +744,17 @@ pair<set<string>,set<vector<string> > > minimal_vectors(){
 	}
 
 
-	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		//printf("%s ", it->c_str());
-	//}
-	//printf("\n");
-	//for( set<vector<string> >::iterator it = values_vect2.begin(); it != values_vect2.end(); it++ ){
-		//vector<string> row = *it;
-		//for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
-			//printf("%s  ", it2->c_str() );
-		//}
-		//printf("\n");
-	//}
+	for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		printf("%s ", it->c_str());
+	}
+	printf("\n");
+	for( set<vector<string> >::iterator it = values_vect2.begin(); it != values_vect2.end(); it++ ){
+		vector<string> row = *it;
+		for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
+			printf("%s  ", it2->c_str() );
+		}
+		printf("\n");
+	}
 	
 
 	return pair<set<string>,set<vector<string> > >(names, values_vect2);
@@ -697,7 +763,92 @@ pair<set<string>,set<vector<string> > > minimal_vectors(){
 
 void gen_test_prg(){
 
-	minimal_vectors();
+	pair<set<string>, set<vector<string> > > min_vects = minimal_vectors();
+
+	set<string> names = min_vects.first;
+	set<vector<string> > values = min_vects.second;
+
+
+
+	FILE *file = fopen ( cmd_option_str("file").c_str(), "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	vector<string> file_vector;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		file_vector.push_back( string(line) );
+	}
+	fclose ( file );
+	
+	
+	load_variable_location("config.xml");
+
+	for( map<string,VarLocation>::iterator it = variable_locations.begin(); it != variable_locations.end(); it++ ){
+
+		string name_hint = it->first;
+		string name      = it->second.name;
+		string type      = it->second.type;
+		int line         = it->second.line;
+
+		file_vector[line-1] = type + " " + name + " = " + "register_" + name + ";";
+
+	}
+
+	file_vector[main_line-1] = "void test(void){";
+	
+
+
+
+	vector<string> main_and_global;
+
+	for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		main_and_global.push_back("int " + *it + ";");
+	}
+	
+	main_and_global.push_back( "" );
+	main_and_global.push_back( "int main(){" );
+	main_and_global.push_back( "" );
+
+	for( set<vector<string> >::iterator it = values.begin(); it != values.end(); it++ ){
+		vector<string> vect = *it;
+
+		set<string>::iterator name = names.begin();
+		vector<string>::iterator value = vect.begin();
+
+		for( ; name != names.end(); name++,value++ ){
+			main_and_global.push_back( "\t" + *name + " = " + *value + ";" );
+		}
+
+		main_and_global.push_back( "\ttest();" );
+		main_and_global.push_back( "" );
+
+	}
+
+
+	main_and_global.push_back( "}" );
+	main_and_global.push_back( "" );
+	
+
+	int lineinsert = main_line - 1;	
+
+	for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++,lineinsert++ ){
+		//file_vector.insert(file_vector.begin() + main_line - 1, *it );
+		file_vector.insert(file_vector.begin() + lineinsert, *it );
+		
+	}
+	
+
+	//for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++ ){
+		//printf("%s\n", it->c_str());
+	//}
+	
+
+	for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
+		printf("%s\n", it->c_str());
+	}
+	
+
+
 
 }
 

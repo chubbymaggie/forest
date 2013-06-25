@@ -10,17 +10,21 @@
  */
 
 int main(void) {
-  int a, b, c, d;
 
-  if (a == 5) {
-    if (b == 19) {
-      if (c == 7) {
-        if (d == 4) {
-          return 1;
+	int a;
+	int b;
+	int c;
+	int d;
+
+	if (a == 5) {
+		if (b == 19) {
+			if (c == 7) {
+				if (d == 4) {
+					return 1;
+				}
+			}
+		}
 	}
-      }
-    }
-  }
 
-  return 0;
+	return 0;
 }

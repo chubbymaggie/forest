@@ -9,3 +9,16 @@
 	<option key="llvm_path" value="/llvm-2.9"/> 
 	<option key="output_file" value="final"/> 
 </options>
+<variables>
+
+	<variable name_hint="register_a" name="a" type="int" line="14"/> 
+	<variable name_hint="register_b" name="b" type="int" line="15"/> 
+	<variable name_hint="register_c" name="c" type="int" line="16"/> 
+	<variable name_hint="register_d" name="d" type="int" line="17"/> 
+
+
+</variables>
+
+<main>
+	<main_location line="12">
+</main>
