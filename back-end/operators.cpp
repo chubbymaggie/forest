@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -118,10 +118,12 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	stringstream content_ss;
 
 
-	if( operation != "#" )
-		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
-	else
+	if( operation == "#" )
 		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
+	else if (operation == "%")
+		content_ss << "(mod " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+	else 
+		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
 
 	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
 	if( variables[name(op1)].type == "bool" && op2 == "constant_0" && operation == "#" ){
@@ -171,6 +173,12 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if(operation == "/"){
 		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
+		set_real_value(dst, result.str());
+	}
+
+
+	if(operation == "%"){
+		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
 		set_real_value(dst, result.str());
 	}
 

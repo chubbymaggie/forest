@@ -21,7 +21,7 @@
 
 #include "solver.h"
 
-#define SIZE_STR 512
+#define SIZE_STR 32768
 #define debug true
 
 extern map<string, Variable> variables;

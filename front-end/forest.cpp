@@ -23,6 +23,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <set>
 
 #define SIZE_STR 512
 
@@ -504,13 +505,199 @@ void view_dfg(){
 		systm(cmd.str().c_str());
 		
 	}
+
+}
+
+bool covers_bool( vector<string> v1, vector<string> v2 ){
+
+	//for( vector<string>::iterator it = v1.begin(); it != v1.end(); it++ ){
+		//printf("%s ", it->c_str() );
+	//}
+	//printf(" -- ");
+	//for( vector<string>::iterator it = v2.begin(); it != v2.end(); it++ ){
+		//printf("%s ", it->c_str() );
+	//}
+	
+	
+	for ( unsigned int i = 0; i < v1.size(); i++) {
+		if( v1[i] != v2[i] && v1[i] != "X" && v2[i] != "X" ){
+			//printf("not cover\n"); //getchar();
+			return false;
+		}
+	}
+
+	//printf("cover\n"); //getchar();
+
+	return true;
+}
+
+vector<string> covers( vector<string> v1, vector<string> v2 ){
+
+	vector<string> ret;
+
+
+	//for( vector<string>::iterator it = v1.begin(); it != v1.end(); it++ ){
+		//printf("%s ", it->c_str() );
+	//}
+	//printf(" -- ");
+	//for( vector<string>::iterator it = v2.begin(); it != v2.end(); it++ ){
+		//printf("%s ", it->c_str() );
+	//}
+	
+	
+	for ( unsigned int i = 0; i < v1.size(); i++) {
+		if( v1[i] == "X" && v2[i] == "X" ){
+			ret.push_back( "0" );
+		} else if( v1[i] == "X" ){
+			ret.push_back( v2[i] );
+		} else if( v2[i] == "X" ){
+			ret.push_back( v1[i] );
+		} else {
+			ret.push_back( v1[i] );
+		}
+
+	}
+
+	//printf(" -- ");
+	//for( vector<string>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//printf("%s ", it->c_str() );
+	//}
+	//printf("\n"); //getchar();
+
+	return ret;
+
+}
+
+bool dontcares( vector<string> v ){
+
+	for( vector<string>::iterator it = v.begin(); it != v.end(); it++ ){
+		if( *it == "X" )
+			return true;
+	}
+
+	return false;
+
+}
+
+pair<set<string>,set<vector<string> > > minimal_vectors(){
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+	
+	command << "echo 'select name_hint,value,problem_id from results where is_free;' | sqlite3 database.db";
+	
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+
+
+	set<string> names;
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "|");
+		string name = tokens[0];
+		names.insert(name);
+	}
+
+	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		//printf("%s\n", it->c_str() );
+	//}
+	
+	map< int, map<string, string> > values;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "|");
+		string name = tokens[0];
+		string value = tokens[1];
+		int problem_id; sscanf(tokens[2].c_str(), "%d", &problem_id);
+
+		values[problem_id][name] = value;
+
+	}
+
+
+	for( map<int,map<string, string> >::iterator it = values.begin(); it != values.end(); it++ ){
+		for( set<string>::iterator name = names.begin(); name != names.end(); name++ ){
+			if( it->second[*name] == "" ) it->second[*name] = "X";
+			printf(" %s ", it->second[*name].c_str() );
+		}
+		printf("\n");
+		
+	}
+
+	vector<vector<string> > values_vect;
+
+
+	for( map<int,map<string, string> >::iterator it = values.begin(); it != values.end(); it++ ){
+		vector<string> insert_vec;
+		for( set<string>::iterator name = names.begin(); name != names.end(); name++ ){
+			insert_vec.push_back( it->second[*name].c_str() );
+		}
+		values_vect.push_back(insert_vec);
+	}
+
+
+	printf("-----------------\n");
+
+	for( vector<vector<string> >::iterator it = values_vect.begin(); it != values_vect.end(); it++ ){
+		for( vector<string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
+			printf("%s  ", it2->c_str());
+		}
+		printf("\n");
+		
+	}
 	
 
+	set<vector<string> > values_vect2;
+	
+	for( vector<vector<string> >::iterator v1 = values_vect.begin(); v1 != values_vect.end(); v1++ ){
+		for( vector<vector<string> >::iterator v2 = values_vect.begin(); v2 != values_vect.end(); v2++ ){
+
+			if( v1 == v2 ) continue;
+
+			if( !dontcares(*v1) ){
+				values_vect2.insert(*v1);
+			}
+
+			if( !dontcares(*v2) ){
+				values_vect2.insert(*v2);
+			}
+
+			if( dontcares(*v1) || dontcares(*v2) ){
+
+				if( covers_bool(*v1, *v2) ){
+					values_vect2.insert( covers(*v1, *v2) );
+				}
+			}
+
+		}
+	}
 
 
+	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		//printf("%s ", it->c_str());
+	//}
+	//printf("\n");
+	//for( set<vector<string> >::iterator it = values_vect2.begin(); it != values_vect2.end(); it++ ){
+		//vector<string> row = *it;
+		//for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
+			//printf("%s  ", it2->c_str() );
+		//}
+		//printf("\n");
+	//}
+	
 
+	return pair<set<string>,set<vector<string> > >(names, values_vect2);
+	
+}
 
+void gen_test_prg(){
 
+	minimal_vectors();
 
 }
 
@@ -537,6 +724,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
+	if(cmd_option_bool("gen_test")) gen_test_prg();
 
 	return 0;
 }

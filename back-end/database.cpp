@@ -107,7 +107,8 @@ void create_tables(){
 void insert_problem(){
 
 	stringstream action;
-	string id = "(select max(problem_id) from problems)";
+	//string id = "(select max(problem_id) from problems)";
+	string id = "(select count() from problems)";
 
 	string path;
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){

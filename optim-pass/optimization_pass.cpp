@@ -144,6 +144,7 @@ string get_op_name_from_id(int opId){
 		case 10: return "-";
 		case 12: return "*";
 		case 15: return "/";
+		case 18: return "%";
 
 	}
 
