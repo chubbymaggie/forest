@@ -183,16 +183,36 @@ struct BeginEnd: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		string functions;
+		string basic_blocks;
+
+		mod_iterator(M, fn){
+			functions += fn->getName().str() + ",";
+
+			fun_iterator(fn,bb){
+				basic_blocks += fn->getName().str() + "_" + bb->getName().str() + ",";
+			}
+		}
+
 		{
-			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
-	
+
+			GlobalVariable* c1 = make_global_str(M,functions);
+			GlobalVariable* c2 = make_global_str(M,basic_blocks);
+
 			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_sim" ,
 						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
 						(Type *)0
 						));
-	
+
+
+			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
 			std::vector<Value*> params;
+			params.push_back(pointerToArray(M,c1));
+			params.push_back(pointerToArray(M,c2));
 			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
 		}
 
 		{
@@ -221,8 +241,8 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		{BbMarks       pass;   pass.runOnModule(M);}
 		{BeginEnd      pass;   pass.runOnModule(M);}
+		{BbMarks       pass;   pass.runOnModule(M);}
 
 		return false;
 	}

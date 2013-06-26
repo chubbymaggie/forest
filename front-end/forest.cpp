@@ -313,12 +313,12 @@ void make_bc(){
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
 	systm(cmd.str().c_str());
 
 	done_bc = true;
@@ -349,7 +349,7 @@ void compare_bc(){
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
@@ -360,7 +360,7 @@ void compare_bc(){
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
@@ -876,12 +876,12 @@ void measure_coverage(){
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/LLVMHello.so -meas_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < /tmp/file-2.bc > /tmp/file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Pasa de .bc a .s

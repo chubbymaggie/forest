@@ -1,5 +1,6 @@
 .PHONY: test
 
+all: frontend backend opt test
 
 backend:
 	make -C back-end
@@ -8,13 +9,7 @@ frontend:
 	make -C front-end
 
 opt:
-	sudo cp optim-pass/instrumentation_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
-	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
-	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
-	sudo cp optim-pass/measurement_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
-	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
-	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
-	
+	make -C optim-pass
 clean:
 	rm -rf build/*
 
