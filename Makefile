@@ -11,6 +11,9 @@ opt:
 	sudo cp optim-pass/instrumentation_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
 	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
+	sudo cp optim-pass/measurement_pass.cpp /llvm-2.9/lib/Transforms/Hello/Hello.cpp
+	cd /llvm-2.9/lib/Transforms/Hello/; sudo make;
+	cd /llvm-2.9/lib/Transforms/Hello/; sudo make install;
 	
 clean:
 	rm -rf build/*
