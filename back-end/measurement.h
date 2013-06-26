@@ -22,6 +22,9 @@
 #define _MEASUREMENT_H_
 
 #include <stdio.h>
+#include <set>
+#include <string>
+#include <vector>
 
 /**
  * @brief  Begin basic Block
@@ -40,7 +43,7 @@ extern "C" void end_bb(char* a);
 /**
  * @brief Function that is called at the begining of simulation
  */
-extern "C" void begin_sim();
+extern "C" void begin_sim(char*, char*);
 
 /**
  * @brief Function that is called at the end of simulation

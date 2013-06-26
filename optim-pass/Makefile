@@ -12,7 +12,7 @@ all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
 	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_measure/
 	sudo touch /llvm-2.9/lib/Transforms/Forest_measure/Forest_measure.exports
 	sudo cp make_measure /llvm-2.9/lib/Transforms/Forest_measure/Makefile
-	sudo cp instrumentation_pass.cpp /llvm-2.9/lib/Transforms/Forest_measure/Forest_measure.cpp 
+	sudo cp measurement_pass.cpp /llvm-2.9/lib/Transforms/Forest_measure/Forest_measure.cpp 
 	cd /llvm-2.9/lib/Transforms/Forest_measure/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Forest_measure/; sudo make install;
 
