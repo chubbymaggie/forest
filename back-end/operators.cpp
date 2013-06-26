@@ -22,7 +22,7 @@
 #include "solver.h"
 #include <sys/wait.h>
 
-#define debug true
+#define debug false
 #define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
@@ -481,11 +481,11 @@ void end_sim(){
 void print_path_stack(){
 
 
-	printf("\e[33m Path_stack \e[0m");
+	debug && printf("\e[33m Path_stack \e[0m");
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
-		printf("%s", (*it)?"T":"F" );
+		debug && printf("%s", (*it)?"T":"F" );
 	}
-	printf("\n");
+	debug && printf("\n");
 	
 
 }

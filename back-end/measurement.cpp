@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define debug true
+#define debug false
 
 set<string> visited_bbs;
 set<string> visited_fns;
