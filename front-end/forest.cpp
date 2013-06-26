@@ -378,6 +378,59 @@ void compare_bc(){
 
 }
 
+void compare_measure_bc(){
+
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	systm(cmd.str().c_str());
+
+
+	// Segundo paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+
+	// Comparación
+	cmd.str("");
+	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+
+
+}
+
 void view_bc(){
 
 	stringstream cmd;
@@ -941,6 +994,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
+	if(cmd_option_bool("compare_measure_bc")) compare_measure_bc();
 	if(cmd_option_bool("view_bc")) view_bc();
 	if(cmd_option_bool("dfg")) view_dfg();
 	if(cmd_option_bool("run")) run();

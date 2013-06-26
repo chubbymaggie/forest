@@ -235,6 +235,139 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
+
+void insert_main_function_calling(Value* fn, Module& M){
+
+	Module* mod = &M;
+
+
+	// Type Definitions
+	std::vector<const Type*>FuncTy_0_args;
+	FuncTy_0_args.push_back(IntegerType::get(mod->getContext(), 32));
+	PointerType* PointerTy_2 = PointerType::get(IntegerType::get(mod->getContext(), 8), 0);
+
+	PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+
+	FuncTy_0_args.push_back(PointerTy_1);
+	FunctionType* FuncTy_0 = FunctionType::get(
+			/*Result=*/IntegerType::get(mod->getContext(), 32),
+			/*Params=*/FuncTy_0_args,
+			/*isVarArg=*/false);
+
+	PointerType* PointerTy_3 = PointerType::get(IntegerType::get(mod->getContext(), 32), 0);
+
+	PointerType* PointerTy_4 = PointerType::get(PointerTy_1, 0);
+
+	std::vector<const Type*>FuncTy_6_args;
+	FunctionType* FuncTy_6 = FunctionType::get(
+			/*Result=*/IntegerType::get(mod->getContext(), 32),
+			/*Params=*/FuncTy_6_args,
+			/*isVarArg=*/true);
+
+	PointerType* PointerTy_5 = PointerType::get(FuncTy_6, 0);
+
+
+	// Function Declarations
+
+	Function* func_main = Function::Create(
+			/*Type=*/FuncTy_0,
+			/*Linkage=*/GlobalValue::ExternalLinkage,
+			/*Name=*/"main", mod); 
+	func_main->setCallingConv(CallingConv::C);
+	AttrListPtr func_main_PAL;
+	{
+		SmallVector<AttributeWithIndex, 4> Attrs;
+		AttributeWithIndex PAWI;
+		PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
+		Attrs.push_back(PAWI);
+		func_main_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+
+	}
+	func_main->setAttributes(func_main_PAL);
+
+	Function* func_test = cast<Function>(fn);
+
+	func_test->setCallingConv(CallingConv::C);
+	AttrListPtr func_test_PAL;
+	func_test->setAttributes(func_test_PAL);
+
+	// Global Variable Declarations
+
+
+	// Constant Definitions
+	ConstantInt* const_int32_7 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10));
+	ConstantInt* const_int32_8 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+
+	// Global Variable Definitions
+
+	// Function Definitions
+
+	// Function: main (func_main)
+	{
+		Function::arg_iterator args = func_main->arg_begin();
+		Value* int32_argc = args++;
+		int32_argc->setName("argc");
+		Value* ptr_argv = args++;
+		ptr_argv->setName("argv");
+
+		BasicBlock* label_entry = BasicBlock::Create(mod->getContext(), "entry",func_main,0);
+		BasicBlock* label_return = BasicBlock::Create(mod->getContext(), "return",func_main,0);
+
+		// Block entry (label_entry)
+		AllocaInst* ptr_argc_addr = new AllocaInst(IntegerType::get(mod->getContext(), 32), "argc_addr", label_entry);
+		ptr_argc_addr->setAlignment(4);
+		AllocaInst* ptr_argv_addr = new AllocaInst(PointerTy_1, "argv_addr", label_entry);
+		ptr_argv_addr->setAlignment(8);
+		AllocaInst* ptr_retval = new AllocaInst(IntegerType::get(mod->getContext(), 32), "retval", label_entry);
+		AllocaInst* ptr_9 = new AllocaInst(IntegerType::get(mod->getContext(), 32), "", label_entry);
+		CastInst* int32_alloca_point = new BitCastInst(const_int32_8, IntegerType::get(mod->getContext(), 32), "alloca point", label_entry);
+		new StoreInst(int32_argc, ptr_argc_addr, false, label_entry);
+		new StoreInst(ptr_argv, ptr_argv_addr, false, label_entry);
+		CallInst* int32_12 = CallInst::Create(func_test, "", label_entry);
+		int32_12->setCallingConv(CallingConv::C);
+		int32_12->setTailCall(false);
+		AttrListPtr int32_12_PAL;
+		{
+			SmallVector<AttributeWithIndex, 4> Attrs;
+			AttributeWithIndex PAWI;
+			PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
+			Attrs.push_back(PAWI);
+			int32_12_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+
+		}
+		int32_12->setAttributes(int32_12_PAL);
+
+		new StoreInst(const_int32_8, ptr_9, false, label_entry);
+		LoadInst* int32_14 = new LoadInst(ptr_9, "", false, label_entry);
+		new StoreInst(int32_14, ptr_retval, false, label_entry);
+		BranchInst::Create(label_return, label_entry);
+
+		// Block return (label_return)
+		LoadInst* int32_retval1 = new LoadInst(ptr_retval, "retval1", false, label_return);
+		ReturnInst::Create(mod->getContext(), int32_retval1, label_return);
+
+	}
+}
+
+
+struct ChangeMain: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	ChangeMain() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		M.getFunction("main")->setName("test");
+
+		Value* InitFn = cast<Value> ( M.getFunction( "test" ));
+
+
+		insert_main_function_calling(InitFn, M);
+
+
+		return false;
+	}
+};
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -243,6 +376,7 @@ struct All: public ModulePass {
 
 		{BeginEnd      pass;   pass.runOnModule(M);}
 		{BbMarks       pass;   pass.runOnModule(M);}
+		{ChangeMain    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -262,3 +396,5 @@ static RegisterPass<BeginEnd> BeginEnd(           "meas_beginend"      , "Instru
 char All::ID = 0;
 static RegisterPass<All> All(                     "meas_all"           , "Instrument all operations" );
 
+char ChangeMain::ID = 0;
+static RegisterPass<ChangeMain> ChangeMain(       "changemain"           , "Instrument all operations" );

@@ -1,6 +1,6 @@
 .PHONY: test
 
-all: frontend backend opt test
+all: frontend backend opt
 
 backend:
 	make -C back-end
