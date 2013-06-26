@@ -908,6 +908,18 @@ void measure_coverage(){
 
 }
 
+void make_forest(){
+
+	string base_path = cmd_option_str("base_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cd " << base_path << "; make frontend backend opt;";
+	systm(cmd.str().c_str());
+
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -922,7 +934,10 @@ int main(int argc, const char *argv[]) {
 	if( cmd_option_bool("test") ){
 		set_option("run", "true");
 	}
-	
+
+	set_option("developer", "true");
+
+	if(cmd_option_bool("developer")) make_forest();
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
