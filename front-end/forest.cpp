@@ -698,14 +698,14 @@ bool dontcares( vector<string> v ){
 
 }
 
-pair<set<string>,set<vector<string> > > minimal_vectors(){
+set<vector<string> > minimal_vectors(){
 
 	FILE *fp;
 	stringstream command;
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
 	
-	command << "echo 'select name_hint,value,problem_id from results where is_free;' | sqlite3 database.db";
+	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 database.db";
 	
 	fp = popen(command.str().c_str(), "r");
 	
@@ -723,7 +723,7 @@ pair<set<string>,set<vector<string> > > minimal_vectors(){
 	}
 
 	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		//printf("%s\n", it->c_str() );
+		//printf("name %s\n", it->c_str() );
 	//}
 	
 	map< int, map<string, string> > values;
@@ -810,7 +810,7 @@ pair<set<string>,set<vector<string> > > minimal_vectors(){
 	}
 	
 
-	return pair<set<string>,set<vector<string> > >(names, values_vect2);
+	return values_vect2;
 	
 }
 
@@ -830,8 +830,11 @@ void gen_file_free_variables(){
 	
 	fp = popen(cmd.str().c_str(), "r");
 	
-	while (fgets(ret,SIZE_STR, fp) != NULL)
+	while (fgets(ret,SIZE_STR, fp) != NULL){
+		ret[strlen(ret) - 1 ] = 0;
 		ret_vector.push_back(ret);
+
+	}
 	
 	pclose(fp);
 
@@ -843,10 +846,7 @@ void gen_file_free_variables(){
 
 	FILE* file = fopen("free_variables", "w");
 	for( vector<string>::iterator it = outfile.begin(); it != outfile.end(); it++ ){
-		if( it == outfile.end() - 1 )
-			fprintf(file, "%s", it->c_str());
-		else
-			fprintf(file, "%s\n", it->c_str());
+		fprintf(file, "%s\n", it->c_str());
 	}
 	fclose(file);
 	
@@ -854,7 +854,35 @@ void gen_file_free_variables(){
 	
 
 }
-void gen_file_vectors(){}
+void gen_file_vectors(){
+
+	set<vector<string> > vectors = minimal_vectors();
+
+	vector<string> output_file;
+	for( set<vector<string> >::iterator it = vectors.begin(); it != vectors.end(); it++ ){
+		vector<string> vect = *it;
+
+		string line;
+		for( vector<string>::iterator it2 = vect.begin(); it2 != vect.end(); it2++ ){
+			line += *it2 + " ";
+		}
+		
+		output_file.push_back(line);
+	}
+
+
+
+	FILE* file = fopen("vectors", "w");
+	for( vector<string>::iterator it = output_file.begin(); it != output_file.end(); it++ ){
+		fprintf(file, "%s\n", it->c_str());
+	}
+	fclose(file);
+	
+	
+
+}
+
+
 void gen_final_for_measurement(){
 
 	string base_path = cmd_option_str("base_path");
