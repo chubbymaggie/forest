@@ -72,6 +72,8 @@ void end_bb(char* name){
 
 void begin_sim(char* functions, char* bbs){
 
+	start_database();
+
 	{
 		vector<string> tokens = tokenize(functions, ",");
 	
@@ -109,6 +111,18 @@ void end_sim(){
 
 	printf("visited fns %lu/%lu\n", visited_fns.size(), available_fns.size() );
 	printf("visited bbs %lu/%lu\n", visited_bbs.size(), available_bbs.size() );
+
+	stringstream value;
+
+	value.str("");
+	value << visited_fns.size() << "/" << available_fns.size();
+	insert_measurement("visited_fns", value.str());
+
+	value.str("");
+	value << visited_bbs.size() << "/" << available_bbs.size();
+	insert_measurement("visited_bbs", value.str());
+
+	end_database();
 
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	

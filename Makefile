@@ -14,7 +14,7 @@ clean:
 	rm -rf build/*
 
 distclean: clean
-	rm -rf bin/*
+	rm -rf bin/* lib/*
 
 test:
 	@forest ./test/crest/math/config.xml

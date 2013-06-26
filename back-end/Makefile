@@ -16,9 +16,13 @@ all: ../lib/forest.a ../lib/measurement.a
 ../build/sqlite.o: sqlite3.c
 	gcc -c sqlite3.c -o ../build/sqlite.o
 
-../lib/measurement.a: ../build/measurement.o
-	ar rcs ../lib/measurement.a ../build/measurement.o
+../lib/measurement.a: ../build/measurement.o ../build/database_measurement.o ../build/sqlite.o
+	ar rcs ../lib/measurement.a ../build/measurement.o ../build/database_measurement.o ../build/sqlite.o
 
-../build/measurement.o: measurement.cpp
+../build/measurement.o: measurement.cpp 
 	g++ -c measurement.cpp -o ../build/measurement.o
+
+../build/database_measurement.o: database_measurement.cpp
+	g++ -c database_measurement.cpp -o ../build/database_measurement.o
+
 

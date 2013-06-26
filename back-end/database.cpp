@@ -64,6 +64,7 @@ void drop_tables(){
 	action << "drop table problems;";
 	action << "drop table variables;";
 	action << "drop table results;";
+	action << "drop table measurements;";
 
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
@@ -98,6 +99,10 @@ void create_tables(){
 	action << "problem_id INTEGER";
 	action << ");";
 
+	action << "create table measurements(";
+	action << "key varchar(50),";
+	action << "value varchar(50)";
+	action << ");";
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
@@ -188,6 +193,18 @@ bool yet_covered(){
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	return retsqlite.size();
+
+}
+
+
+
+void insert_measurement(string name, string value){
+
+	stringstream action;
+
+	action << "insert into measurements values ('" << name << "','" << value << "');";
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
 

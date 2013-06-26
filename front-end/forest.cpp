@@ -896,7 +896,7 @@ void measure_coverage(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a" << " -o " << output_file;
+	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 	// Ejecuta

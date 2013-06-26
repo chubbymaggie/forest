@@ -21,10 +21,12 @@
 #ifndef _MEASUREMENT_H_
 #define _MEASUREMENT_H_
 
+#include "database_measurement.h"
 #include <stdio.h>
 #include <set>
 #include <string>
 #include <vector>
+#include <sstream>
 
 /**
  * @brief  Begin basic Block

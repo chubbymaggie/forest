@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  * /
- * |     Filename:  database.h
+ * |     Filename:  database_measurement.h
  * |
  * |  Description:  
  * |
  * |      Version:  1.0
- * |      Created:  06/13/2013 09:45:23 AM
+ * |      Created:  06/26/2013 11:54:38 AM
  * |     Revision:  none
  * |     Compiler:  gcc
  * `-. .--------------------
@@ -18,8 +18,8 @@
  * =====================================================================================
  */
 
-#ifndef _DATABASE_H_
-#define _DATABASE_H_
+#ifndef _DATABASE_MEASUREMENT_H_
+#define _DATABASE_MEASUREMENT_H_
 
 #include "sqlite3.h"
 #include <string>
@@ -28,25 +28,14 @@
 #include <utility>
 #include <set>
 #include <vector>
-#include "operators.h"
-#include "solver.h"
+#include <stdio.h>
 
 using namespace std;
 
-
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
-
-void start_database();
-
-void end_database();
-
-void create_tables();
-
-void insert_problem();
-
-bool yet_covered();
-
 void insert_measurement(string, string);
+void start_database();
+void end_database();
 
 
 #endif /* end of include guard: _DATABASE_H_ */
