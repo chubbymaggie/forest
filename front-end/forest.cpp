@@ -814,98 +814,48 @@ pair<set<string>,set<vector<string> > > minimal_vectors(){
 	
 }
 
-void gen_test_prg(){
 
-	pair<set<string>, set<vector<string> > > min_vects = minimal_vectors();
-
-	set<string> names = min_vects.first;
-	set<vector<string> > values = min_vects.second;
+void gen_file_free_variables(){
 
 
+	stringstream cmd;
 
-	FILE *file = fopen ( cmd_option_str("file").c_str(), "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
-	vector<string> file_vector;
+	cmd.str("");
+	cmd << "echo 'select name,type from variables group by name;' | sqlite3 database.db";
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
 	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		file_vector.push_back( string(line) );
-	}
-	fclose ( file );
+	fp = popen(cmd.str().c_str(), "r");
 	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
 	
-	load_variable_location("config.xml");
+	pclose(fp);
 
-	for( map<string,VarLocation>::iterator it = variable_locations.begin(); it != variable_locations.end(); it++ ){
-
-		string name_hint = it->first;
-		string name      = it->second.name;
-		string type      = it->second.type;
-		int line         = it->second.line;
-
-		file_vector[line-1] = type + " " + name + " = " + "register_" + name + ";";
-
+	vector<string> outfile;
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "|");
+		outfile.push_back( tokens[0] + " " + tokens[1]);
 	}
 
-	file_vector[main_line-1] = "void test(void){";
-	
-
-
-
-	vector<string> main_and_global;
-
-	for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		main_and_global.push_back("int " + *it + ";");
+	FILE* file = fopen("free_variables", "w");
+	for( vector<string>::iterator it = outfile.begin(); it != outfile.end(); it++ ){
+		if( it == outfile.end() - 1 )
+			fprintf(file, "%s", it->c_str());
+		else
+			fprintf(file, "%s\n", it->c_str());
 	}
+	fclose(file);
 	
-	main_and_global.push_back( "" );
-	main_and_global.push_back( "int main(){" );
-	main_and_global.push_back( "" );
-
-	for( set<vector<string> >::iterator it = values.begin(); it != values.end(); it++ ){
-		vector<string> vect = *it;
-
-		set<string>::iterator name = names.begin();
-		vector<string>::iterator value = vect.begin();
-
-		for( ; name != names.end(); name++,value++ ){
-			main_and_global.push_back( "\t" + *name + " = " + *value + ";" );
-		}
-
-		main_and_global.push_back( "\ttest();" );
-		main_and_global.push_back( "" );
-
-	}
-
-
-	main_and_global.push_back( "}" );
-	main_and_global.push_back( "" );
 	
-
-	int lineinsert = main_line - 1;	
-
-	for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++,lineinsert++ ){
-		//file_vector.insert(file_vector.begin() + main_line - 1, *it );
-		file_vector.insert(file_vector.begin() + lineinsert, *it );
-		
-	}
 	
-
-	//for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++ ){
-		//printf("%s\n", it->c_str());
-	//}
-	
-
-	for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
-		printf("%s\n", it->c_str());
-	}
-	
-
-
 
 }
-
-void measure_coverage(){
+void gen_file_vectors(){}
+void gen_final_for_measurement(){
 
 	string base_path = cmd_option_str("base_path");
 	string llvm_path = cmd_option_str("llvm_path");
@@ -952,8 +902,111 @@ void measure_coverage(){
 	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
+}
+
+
+//void gen_test_prg(){
+
+	//pair<set<string>, set<vector<string> > > min_vects = minimal_vectors();
+
+	//set<string> names = min_vects.first;
+	//set<vector<string> > values = min_vects.second;
+
+
+
+	//FILE *file = fopen ( cmd_option_str("file").c_str(), "r" );
+	//char line [ 128 ]; [> or other suitable maximum line size <]
+	//vector<string> file_vector;
+	
+	//while ( fgets ( line, sizeof(line), file ) != NULL ){
+		//line[strlen(line)-1] = 0;
+		//file_vector.push_back( string(line) );
+	//}
+	//fclose ( file );
+	
+	
+	//load_variable_location("config.xml");
+
+	//for( map<string,VarLocation>::iterator it = variable_locations.begin(); it != variable_locations.end(); it++ ){
+
+		//string name_hint = it->first;
+		//string name      = it->second.name;
+		//string type      = it->second.type;
+		//int line         = it->second.line;
+
+		//file_vector[line-1] = type + " " + name + " = " + "register_" + name + ";";
+
+	//}
+
+	//file_vector[main_line-1] = "void test(void){";
+	
+
+
+
+	//vector<string> main_and_global;
+
+	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		//main_and_global.push_back("int " + *it + ";");
+	//}
+	
+	//main_and_global.push_back( "" );
+	//main_and_global.push_back( "int main(){" );
+	//main_and_global.push_back( "" );
+
+	//for( set<vector<string> >::iterator it = values.begin(); it != values.end(); it++ ){
+		//vector<string> vect = *it;
+
+		//set<string>::iterator name = names.begin();
+		//vector<string>::iterator value = vect.begin();
+
+		//for( ; name != names.end(); name++,value++ ){
+			//main_and_global.push_back( "\t" + *name + " = " + *value + ";" );
+		//}
+
+		//main_and_global.push_back( "\ttest();" );
+		//main_and_global.push_back( "" );
+
+	//}
+
+
+	//main_and_global.push_back( "}" );
+	//main_and_global.push_back( "" );
+	
+
+	//int lineinsert = main_line - 1;	
+
+	//for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++,lineinsert++ ){
+		////file_vector.insert(file_vector.begin() + main_line - 1, *it );
+		//file_vector.insert(file_vector.begin() + lineinsert, *it );
+		
+	//}
+	
+
+	////for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++ ){
+		////printf("%s\n", it->c_str());
+	////}
+	
+
+	//for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
+		//printf("%s\n", it->c_str());
+	//}
+	
+
+
+
+//}
+
+void measure_coverage(){
+
+	gen_file_free_variables();
+	gen_file_vectors();
+	gen_final_for_measurement();
+
+
 	// Ejecuta
 	
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
 	cmd.str("");
 	cmd << "./" + output_file;
 	systm(cmd.str().c_str());
@@ -1000,7 +1053,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
-	if(cmd_option_bool("gen_test")) gen_test_prg();
+	//if(cmd_option_bool("gen_test")) gen_test_prg();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
 
 
