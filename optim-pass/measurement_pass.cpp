@@ -349,6 +349,92 @@ void insert_main_function_calling(Value* fn, Module& M){
 	}
 }
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+void insert_global_variables(Module& M){
+
+	FILE *file = fopen ( "free_variables", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	vector<string> file_vector;
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		file_vector.push_back(line);
+	}
+	fclose ( file );
+
+	Module* mod = &M;
+
+	for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
+
+		vector<string> tokens = tokenize(*it, " ");
+
+		if( tokens[1] == "Int" ){
+
+			GlobalVariable* gvar_int32_entero = new GlobalVariable(/*Module=*/*mod, 
+					/*Type=*/IntegerType::get(mod->getContext(), 32),
+					/*isConstant=*/false,
+					/*Linkage=*/GlobalValue::CommonLinkage,
+					/*Initializer=*/0, // has initializer, specified below
+					/*Name=*/"var_global_" + tokens[0]);
+			ConstantInt* const_int32_3 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+			gvar_int32_entero->setInitializer(const_int32_3);
+
+		}
+
+		if( tokens[1] == "Float" ){
+
+			GlobalVariable* gvar_float_real = new GlobalVariable(/*Module=*/*mod, 
+					/*Type=*/Type::getFloatTy(mod->getContext()),
+					/*isConstant=*/false,
+					/*Linkage=*/GlobalValue::CommonLinkage,
+					/*Initializer=*/0, // has initializer, specified below
+					/*Name=*/"var_global_" + tokens[0]);
+			ConstantFP* const_float_4 = ConstantFP::get(mod->getContext(), APFloat(0.000000e+00f));
+			gvar_float_real->setInitializer(const_float_4);
+		}
+
+		if(tokens[1] == "Char"){
+			GlobalVariable* gvar_int8_caracter = new GlobalVariable(/*Module=*/*mod, 
+					/*Type=*/IntegerType::get(mod->getContext(), 8),
+					/*isConstant=*/false,
+					/*Linkage=*/GlobalValue::CommonLinkage,
+					/*Initializer=*/0, // has initializer, specified below
+					/*Name=*/"var_global_" + tokens[0]);
+			ConstantInt* const_int8_5 = ConstantInt::get(mod->getContext(), APInt(8, StringRef("0"), 10));
+			gvar_int8_caracter->setInitializer(const_int8_5);
+
+		}
+
+
+	}
+
+
+}
+
+
+
 
 struct ChangeMain: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -362,6 +448,7 @@ struct ChangeMain: public ModulePass {
 
 
 		insert_main_function_calling(InitFn, M);
+		insert_global_variables(M);
 
 
 		return false;
