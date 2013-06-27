@@ -281,10 +281,6 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 	// Function: main (func_main)
 	{
 		Function::arg_iterator args = func_main->arg_begin();
-		Value* int32_argc = args++;
-		int32_argc->setName("argc");
-		Value* ptr_argv = args++;
-		ptr_argv->setName("argv");
 
 		BasicBlock* label_entry = BasicBlock::Create(mod->getContext(), "entry",func_main,0);
 		BasicBlock* label_bb = BasicBlock::Create(mod->getContext(), "bb",func_main,0);
@@ -331,10 +327,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 			new StoreInst(int32_17, gvar_int32_global_int_a, false, label_bb);
 
-			std::vector<Value*> int32_19_params;
-			int32_19_params.push_back(int32_argc);
-			int32_19_params.push_back(ptr_argv);
-			CallInst* int32_19 = CallInst::Create(func_test, int32_19_params.begin(), int32_19_params.end(), "", label_bb);
+			CallInst* int32_19 = CallInst::Create(func_test, "", label_bb);
 
 		}
 
