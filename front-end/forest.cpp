@@ -821,7 +821,7 @@ void gen_file_free_variables(){
 	stringstream cmd;
 
 	cmd.str("");
-	cmd << "echo 'select name,type from variables group by name;' | sqlite3 database.db";
+	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 database.db";
 
 	FILE *fp;
 	stringstream command;
@@ -841,7 +841,7 @@ void gen_file_free_variables(){
 	vector<string> outfile;
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		vector<string> tokens = tokenize(*it, "|");
-		outfile.push_back( tokens[0] + " " + tokens[1]);
+		outfile.push_back( tokens[0] + " " + tokens[1] + " " + tokens[2]);
 	}
 
 	FILE* file = fopen("free_variables", "w");
@@ -1042,18 +1042,6 @@ void measure_coverage(){
 
 }
 
-void make_forest(){
-
-	string base_path = cmd_option_str("base_path");
-	stringstream cmd;
-
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cd " << base_path << "; make frontend backend opt;";
-	systm(cmd.str().c_str());
-
-}
-
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1071,7 +1059,6 @@ int main(int argc, const char *argv[]) {
 
 	set_option("developer", "true");
 
-	if(cmd_option_bool("developer")) make_forest();
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
