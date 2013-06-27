@@ -25,9 +25,8 @@
 sqlite3 *db;
 
 
-
 extern map<string, Variable> variables;
-extern set<string> variable_names;
+extern set<NameAndPosition> variable_names;
 extern vector<string> conditions;
 extern vector<bool> path_stack;
 
@@ -88,6 +87,7 @@ void create_tables(){
 	action << "create table variables(";
 	action << "name varchar(50),";
 	action << "type varchar(50),";
+	action << "position varchar(50),";
 	action << "problem_id INTEGER";
 	action << ");";
 
@@ -122,18 +122,19 @@ void insert_problem(){
 	
 	action << "insert into problems (sat, path) values (" << (solvable_problem()?1:0) << ",'" << path << "');";
 
-	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		string name = *it;
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+		string name = it->name;
 		string type = get_type(name);
-		action << "insert into variables values ('" << name << "','" << type << "'," << id << ");";
+		string position = it->position;
+		action << "insert into variables values ('" << name << "','" << type << "','" << position << "'," << id << ");";
 	}
 	
 	if( solvable_problem() ){
 		//get_values();
 
 
-		for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-			string name = *it;
+		for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+			string name = it->name;
 			string value = (variables[name].real_value == "")?string("0"):variables[name].real_value;
 			//string value = variables[name].real_value;
 			string hint = variables[name].name_hint;

@@ -41,6 +41,20 @@ typedef struct Variable {
 	string content;
 } Variable;
 
+
+typedef struct NameAndPosition{
+	string name;
+	string position;
+} NameAndPosition;
+
+
+inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
+{
+  return lhs.name != rhs.name;
+}
+
+
+
 /**
  * @brief Called when a binary operation is performed among two variables
  *

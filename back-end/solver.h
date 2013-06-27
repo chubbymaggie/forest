@@ -106,7 +106,7 @@ void flat_problem();
  *
  * @param name
  */
-void insert_variable(string name);
+void insert_variable(string name, string position);
 
 /**
  * @brief String to integer

@@ -29,7 +29,7 @@
 
 int alloca_pointer = 0;
 map<string, Variable> variables;
-set<string> variable_names;
+set<NameAndPosition> variable_names;
 vector<pair<string, string> > callstack;
 vector<bool> path_stack;
 
@@ -39,7 +39,7 @@ string actual_bb;
 string content( string name ){
 
 	if( variables[name].content == "" ){
-		insert_variable(name);
+		insert_variable(name, actual_function + "_" + variables[name].name_hint );
 		return name;
 
 	} else {

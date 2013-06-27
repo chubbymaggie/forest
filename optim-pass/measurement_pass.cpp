@@ -460,6 +460,30 @@ struct ChangeMain: public ModulePass {
 	}
 };
 
+
+struct ChangeAssigns: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	ChangeAssigns() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+
+
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}

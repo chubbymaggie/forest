@@ -22,10 +22,10 @@
 #include "solver.h"
 
 #define SIZE_STR 32768
-#define debug false
+#define debug true
 
 extern map<string, Variable> variables;
-extern set<string> variable_names;
+extern set<NameAndPosition> variable_names;
 vector<string> flatened_conditions;
 set<string> flatened_variables;
 extern string actual_function;
@@ -33,12 +33,12 @@ vector<Condition> conditions;
 
 void dump_variables(FILE* file){
 
-	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
-		vector<string> tokens = tokenize(*it, " ");
+		vector<string> tokens = tokenize(it->name, " ");
 
 		string name = tokens[0];
-		string type = get_type(*it);
+		string type = get_type(it->name);
 
 		fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
 		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
@@ -72,8 +72,8 @@ void dump_tail(FILE* file){
 void dump_get(FILE* file){
 
 
-	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", it->c_str(), it->c_str() );
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+		fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
 	}
 	
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
@@ -136,9 +136,9 @@ void get_values(){
 
 	vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
 
-	for( set<string>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
 
-		string name = *it;
+		string name = it->name;
 		string value = result_get(*it_ret);
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
@@ -231,7 +231,7 @@ bool solvable_problem(){
 	
 }
 
-void insert_variable(string name){
+void insert_variable(string name, string position){
 
 
 	if( name.find("constant") != string::npos )
@@ -243,9 +243,10 @@ void insert_variable(string name){
 	//if(variables[name].contents.size() == 0)
 		//return;
 		
-	debug && printf("\e[32m Insert_variable \e[0m %s\n", name.c_str() );
+	debug && printf("\e[32m Insert_variable \e[0m %s %s\n", name.c_str(), position.c_str() );
 
-	variable_names.insert(name);
+	NameAndPosition nandp = {name, position};
+	variable_names.insert(nandp);
 
 }
 
