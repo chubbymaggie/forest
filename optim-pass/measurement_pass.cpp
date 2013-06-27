@@ -531,7 +531,10 @@ map<string, string> load_names_from_pos(){
 
 		string position;
 
-		position = tokens2[0] + "_" + tokens2[2];
+		if(tokens2[0] == "main")
+			position = "test_" + tokens2[2];
+		else
+			position = tokens2[0] + "_" + tokens2[2];
 
 
 		string name = tokens[0];
@@ -543,7 +546,7 @@ map<string, string> load_names_from_pos(){
 
 
 	for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
-		cerr << it->first << " " << it->second<< endl;
+		cerr << "load_names_from_pos " << it->first << " " << it->second<< endl;
 	}
 	
 
@@ -568,7 +571,7 @@ struct ChangeAssigns: public ModulePass {
 
 					string actual_reg_name = fn->getName().str() + "_" + in->getName().str();
 
-					cerr << actual_reg_name << endl;
+					cerr << "actual_reg_name " << actual_reg_name << endl;
 
 					if( names_from_position[actual_reg_name] != "" ){
 
@@ -581,7 +584,7 @@ struct ChangeAssigns: public ModulePass {
 								//"global_a");
 						//ConstantInt* const_int32_4 = ConstantInt::get(M.getContext(), APInt(32, StringRef("0"), 10));
 						//gvar_int32_global_a->setInitializer(const_int32_4);
-						string tgtfnname = fn->getName().str();
+						string tgtfnname = (fn->getName().str() == "test")?"main":fn->getName().str();
 						GlobalVariable* gvar_int32_global_a = M.getGlobalVariable( tgtfnname+ "_register_" + in->getName().str() );
 
 
@@ -613,8 +616,8 @@ struct All: public ModulePass {
 
 		//{BeginEnd      pass;   pass.runOnModule(M);}
 		//{BbMarks       pass;   pass.runOnModule(M);}
-		{ChangeAssigns  pass;   pass.runOnModule(M);}
 		{ChangeMain    pass;   pass.runOnModule(M);}
+		{ChangeAssigns  pass;   pass.runOnModule(M);}
 
 		return false;
 	}
