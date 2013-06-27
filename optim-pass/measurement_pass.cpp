@@ -79,6 +79,55 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 
 struct FillNames : public ModulePass {
 
+	void put_operator_names( Module &M ){
+
+		mod_iterator(M, fun){
+			fun_iterator(fun,bb){
+				blk_iterator(bb, in){
+
+					if( UnaryInstruction::classof(in) ){
+						if( !in->getOperand(0)->hasName() )
+							in->getOperand(0)->setName("r");
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+					if( BinaryOperator::classof(in) ){
+						if( !in->getOperand(0)->hasName() )
+							in->getOperand(0)->setName("r");
+						if( !in->getOperand(1)->hasName() )
+							in->getOperand(1)->setName("r");
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+					if( CmpInst::classof(in) ){
+						if( !in->getOperand(0)->hasName() )
+							in->getOperand(0)->setName("r");
+						if( !in->getOperand(1)->hasName() )
+							in->getOperand(1)->setName("r");
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+					if( GetElementPtrInst::classof(in) ){
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+					if( CallInst::classof(in) ){
+						if( !in->hasName() )
+							in->setName("r");
+					}
+
+
+
+
+				}}}
+
+	}
+
+
 	void put_block_names( Module &M ){
 
 		mod_iterator(M, fun){
@@ -94,6 +143,7 @@ struct FillNames : public ModulePass {
 	FillNames() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
+		put_operator_names(M);
 		put_block_names(M);
 
 		return false;
@@ -240,6 +290,7 @@ struct BeginEnd: public ModulePass {
 typedef struct FreeVariable{
 	string name;
 	string type;
+	string position;
 } FreeVariable;
 
 
@@ -308,7 +359,8 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 					false,
 					GlobalValue::CommonLinkage,
 					0, // has initializer, specified below
-					it->name);
+					//it->name);
+					it->position);
 			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
 			gvar_int32_global_int_a->setInitializer(const_int32_10);
 
@@ -399,7 +451,8 @@ vector<FreeVariable> load_variables(){
 		vector<string> tokens = tokenize(string(line), " ");
 		string name = tokens[0];
 		string type = tokens[1];
-		FreeVariable frv = {name,type};
+		string position = tokens[2];
+		FreeVariable frv = {name,type, position};
 		ret.push_back(frv);
 	}
 	fclose ( file );
@@ -460,6 +513,93 @@ struct ChangeMain: public ModulePass {
 	}
 };
 
+typedef struct NameAndPosition{
+	string name;
+	string position;
+} NameAndPosition;
+
+
+inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
+{
+  return lhs.name != rhs.name;
+}
+
+
+set<NameAndPosition> load_names_and_pos(){
+
+	set<NameAndPosition> ret;
+
+	FILE *file = fopen ( "free_variables", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		vector<string> tokens2 = tokenize(tokens[2], "_");
+		string position = tokens2[0] + "_" + tokens2[2];
+
+		NameAndPosition nandp = {tokens[0], position};
+		ret.insert(nandp);
+
+	}
+	fclose ( file );
+
+
+	for( set<NameAndPosition>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		cerr << it->name << " " << it->position << endl;
+	}
+	
+
+
+	return ret;
+	
+
+}
+
+map<string, string> load_names_from_pos(){
+
+	map<string, string> ret;
+
+	FILE *file = fopen ( "free_variables", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		vector<string> tokens2 = tokenize(tokens[2], "_");
+
+		string position;
+
+		if(tokens2[0] == "main")
+			position = "test_" + tokens2[2];
+		else
+			position = tokens2[0] + "_" + tokens2[2];
+
+
+		string name = tokens[0];
+
+		ret[position] = name;
+
+	}
+	fclose ( file );
+
+
+	for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		cerr << it->first << " " << it->second<< endl;
+	}
+	
+
+
+	return ret;
+
+}
+
 
 struct ChangeAssigns: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -467,11 +607,40 @@ struct ChangeAssigns: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+
+		map<string, string> names_from_position = load_names_from_pos();
 		
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
 
+					string actual_reg_name = fn->getName().str() + "_" + in->getName().str();
+
+					cerr << actual_reg_name << endl;
+
+					if( names_from_position[actual_reg_name] != "" ){
+
+
+						//GlobalVariable* gvar_int32_global_a = new GlobalVariable(M, 
+								//IntegerType::get(M.getContext(), 32),
+								//false,
+								//GlobalValue::CommonLinkage,
+								//0,
+								//"global_a");
+						//ConstantInt* const_int32_4 = ConstantInt::get(M.getContext(), APInt(32, StringRef("0"), 10));
+						//gvar_int32_global_a->setInitializer(const_int32_4);
+						string tgtfnname = (fn->getName().str() == "test")?"main":fn->getName().str();
+						GlobalVariable* gvar_int32_global_a = M.getGlobalVariable( tgtfnname+ "_register_" + in->getName().str() );
+
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						//in->dump();
+						new LoadInst(gvar_int32_global_a, "", false, insertpos);
+
+					}
+
+					//in->dump();
 
 				}
 			}
@@ -493,6 +662,7 @@ struct All: public ModulePass {
 		//{BeginEnd      pass;   pass.runOnModule(M);}
 		//{BbMarks       pass;   pass.runOnModule(M);}
 		{ChangeMain    pass;   pass.runOnModule(M);}
+		{ChangeAssigns  pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -514,3 +684,7 @@ static RegisterPass<All> All(                     "meas_all"           , "Instru
 
 char ChangeMain::ID = 0;
 static RegisterPass<ChangeMain> ChangeMain(       "changemain"           , "Instrument all operations" );
+
+char ChangeAssigns::ID = 0;
+static RegisterPass<ChangeAssigns> ChangeAssigns(       "changeassigns"           , "Instrument all operations" );
+
