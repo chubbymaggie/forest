@@ -513,51 +513,6 @@ struct ChangeMain: public ModulePass {
 	}
 };
 
-typedef struct NameAndPosition{
-	string name;
-	string position;
-} NameAndPosition;
-
-
-inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
-{
-  return lhs.name != rhs.name;
-}
-
-
-set<NameAndPosition> load_names_and_pos(){
-
-	set<NameAndPosition> ret;
-
-	FILE *file = fopen ( "free_variables", "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-
-
-		vector<string> tokens = tokenize(string(line), " ");
-
-		vector<string> tokens2 = tokenize(tokens[2], "_");
-		string position = tokens2[0] + "_" + tokens2[2];
-
-		NameAndPosition nandp = {tokens[0], position};
-		ret.insert(nandp);
-
-	}
-	fclose ( file );
-
-
-	for( set<NameAndPosition>::iterator it = ret.begin(); it != ret.end(); it++ ){
-		cerr << it->name << " " << it->position << endl;
-	}
-	
-
-
-	return ret;
-	
-
-}
 
 map<string, string> load_names_from_pos(){
 
@@ -576,10 +531,7 @@ map<string, string> load_names_from_pos(){
 
 		string position;
 
-		if(tokens2[0] == "main")
-			position = "test_" + tokens2[2];
-		else
-			position = tokens2[0] + "_" + tokens2[2];
+		position = tokens2[0] + "_" + tokens2[2];
 
 
 		string name = tokens[0];
@@ -629,7 +581,7 @@ struct ChangeAssigns: public ModulePass {
 								//"global_a");
 						//ConstantInt* const_int32_4 = ConstantInt::get(M.getContext(), APInt(32, StringRef("0"), 10));
 						//gvar_int32_global_a->setInitializer(const_int32_4);
-						string tgtfnname = (fn->getName().str() == "test")?"main":fn->getName().str();
+						string tgtfnname = fn->getName().str();
 						GlobalVariable* gvar_int32_global_a = M.getGlobalVariable( tgtfnname+ "_register_" + in->getName().str() );
 
 
@@ -661,8 +613,8 @@ struct All: public ModulePass {
 
 		//{BeginEnd      pass;   pass.runOnModule(M);}
 		//{BbMarks       pass;   pass.runOnModule(M);}
-		{ChangeMain    pass;   pass.runOnModule(M);}
 		{ChangeAssigns  pass;   pass.runOnModule(M);}
+		{ChangeMain    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
