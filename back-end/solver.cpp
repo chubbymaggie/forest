@@ -105,7 +105,7 @@ void get_values(){
 	stringstream filename;
 	filename << "/tmp/z3_" << getpid() << ".smt2";
 
-	debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
+	//debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
 
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;

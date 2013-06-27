@@ -50,7 +50,7 @@ typedef struct NameAndPosition{
 
 inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 {
-  return lhs.name != rhs.name;
+  return lhs.name > rhs.name;
 }
 
 
