@@ -236,41 +236,63 @@ struct BeginEnd: public ModulePass {
 };
 
 
-void insert_main_function_calling(Value* fn, Module& M){
 
-	Module* mod = &M;
+typedef struct FreeVariable{
+	string name;
+	string type;
+} FreeVariable;
+
+
+//int global_int_a;
+//int test(int argc, const char* argv[]);
+//int main(int argc, const char *argv[]) {
+	//int i;
+	//for ( i = 0; i < 5000; i++) {
+		//global_int_a = vector_int("a");
+		//test( argc, argv );
+	//}
+	//return 0;
+//}
+void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVariable> free_variables, set<vector<string> > values ){
+
+	stringstream number_of_times_ss; number_of_times_ss << values.size();
+	string number_of_times = number_of_times_ss.str();
 
 
 	// Type Definitions
-	std::vector<const Type*>FuncTy_0_args;
-	FuncTy_0_args.push_back(IntegerType::get(mod->getContext(), 32));
-	PointerType* PointerTy_2 = PointerType::get(IntegerType::get(mod->getContext(), 8), 0);
+	ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(mod->getContext(), 8), 2);
 
-	PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+	PointerType* PointerTy_1 = PointerType::get(ArrayTy_0, 0);
 
-	FuncTy_0_args.push_back(PointerTy_1);
-	FunctionType* FuncTy_0 = FunctionType::get(
+	PointerType* PointerTy_2 = PointerType::get(IntegerType::get(mod->getContext(), 32), 0);
+
+	std::vector<const Type*>FuncTy_3_args;
+	FuncTy_3_args.push_back(IntegerType::get(mod->getContext(), 32));
+	PointerType* PointerTy_5 = PointerType::get(IntegerType::get(mod->getContext(), 8), 0);
+
+	PointerType* PointerTy_4 = PointerType::get(PointerTy_5, 0);
+
+	FuncTy_3_args.push_back(PointerTy_4);
+	FunctionType* FuncTy_3 = FunctionType::get(
 			/*Result=*/IntegerType::get(mod->getContext(), 32),
-			/*Params=*/FuncTy_0_args,
+			/*Params=*/FuncTy_3_args,
 			/*isVarArg=*/false);
 
-	PointerType* PointerTy_3 = PointerType::get(IntegerType::get(mod->getContext(), 32), 0);
-
-	PointerType* PointerTy_4 = PointerType::get(PointerTy_1, 0);
-
-	std::vector<const Type*>FuncTy_6_args;
-	FunctionType* FuncTy_6 = FunctionType::get(
+	std::vector<const Type*>FuncTy_7_args;
+	FunctionType* FuncTy_7 = FunctionType::get(
 			/*Result=*/IntegerType::get(mod->getContext(), 32),
-			/*Params=*/FuncTy_6_args,
+			/*Params=*/FuncTy_7_args,
 			/*isVarArg=*/true);
 
-	PointerType* PointerTy_5 = PointerType::get(FuncTy_6, 0);
+	PointerType* PointerTy_6 = PointerType::get(FuncTy_7, 0);
+
+	PointerType* PointerTy_8 = PointerType::get(FuncTy_3, 0);
 
 
 	// Function Declarations
 
 	Function* func_main = Function::Create(
-			/*Type=*/FuncTy_0,
+			/*Type=*/FuncTy_3,
 			/*Linkage=*/GlobalValue::ExternalLinkage,
 			/*Name=*/"main", mod); 
 	func_main->setCallingConv(CallingConv::C);
@@ -285,20 +307,52 @@ void insert_main_function_calling(Value* fn, Module& M){
 	}
 	func_main->setAttributes(func_main_PAL);
 
-	Function* func_test = cast<Function>(fn);
+	Function* func_vector_int = Function::Create(
+			/*Type=*/FuncTy_7,
+			/*Linkage=*/GlobalValue::ExternalLinkage,
+			/*Name=*/"vector_int", mod); // (external, no body)
+	func_vector_int->setCallingConv(CallingConv::C);
+	AttrListPtr func_vector_int_PAL;
+	func_vector_int->setAttributes(func_vector_int_PAL);
 
-	func_test->setCallingConv(CallingConv::C);
-	AttrListPtr func_test_PAL;
-	func_test->setAttributes(func_test_PAL);
+	//Function* func_test = Function::Create(
+			//FuncTy_3,
+			//GlobalValue::ExternalLinkage,
+			//"test", mod); // (external, no body)
+	//func_test->setCallingConv(CallingConv::C);
+	//AttrListPtr func_test_PAL;
+	//func_test->setAttributes(func_test_PAL);
 
 	// Global Variable Declarations
 
 
+	GlobalVariable* gvar_array__str = new GlobalVariable(/*Module=*/*mod, 
+			/*Type=*/ArrayTy_0,
+			/*isConstant=*/true,
+			/*Linkage=*/GlobalValue::PrivateLinkage,
+			/*Initializer=*/0, // has initializer, specified below
+			/*Name=*/".str");
+	gvar_array__str->setAlignment(1);
+
+
+
+
+
+
+
 	// Constant Definitions
-	ConstantInt* const_int32_7 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10));
-	ConstantInt* const_int32_8 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+	Constant* const_array_9 = ConstantArray::get(mod->getContext(), "a", true);
+	std::vector<Constant*> const_ptr_11_indices;
+	ConstantInt* const_int64_12 = ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10));
+	ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+	const_ptr_11_indices.push_back(const_int64_12);
+	const_ptr_11_indices.push_back(const_int64_12);
+	Constant* const_ptr_11 = ConstantExpr::getGetElementPtr(gvar_array__str, &const_ptr_11_indices[0], const_ptr_11_indices.size());
+	ConstantInt* const_int32_13 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10));
+	ConstantInt* const_int32_14 = ConstantInt::get(mod->getContext(), APInt(32, StringRef(number_of_times), 10));
 
 	// Global Variable Definitions
+	gvar_array__str->setInitializer(const_array_9);
 
 	// Function Definitions
 
@@ -311,42 +365,101 @@ void insert_main_function_calling(Value* fn, Module& M){
 		ptr_argv->setName("argv");
 
 		BasicBlock* label_entry = BasicBlock::Create(mod->getContext(), "entry",func_main,0);
-		BasicBlock* label_return = BasicBlock::Create(mod->getContext(), "return",func_main,0);
+		BasicBlock* label_bb = BasicBlock::Create(mod->getContext(), "bb",func_main,0);
+		BasicBlock* label_bb2 = BasicBlock::Create(mod->getContext(), "bb2",func_main,0);
 
 		// Block entry (label_entry)
-		AllocaInst* ptr_argc_addr = new AllocaInst(IntegerType::get(mod->getContext(), 32), "argc_addr", label_entry);
-		ptr_argc_addr->setAlignment(4);
-		AllocaInst* ptr_argv_addr = new AllocaInst(PointerTy_1, "argv_addr", label_entry);
-		ptr_argv_addr->setAlignment(8);
-		AllocaInst* ptr_retval = new AllocaInst(IntegerType::get(mod->getContext(), 32), "retval", label_entry);
-		AllocaInst* ptr_9 = new AllocaInst(IntegerType::get(mod->getContext(), 32), "", label_entry);
-		CastInst* int32_alloca_point = new BitCastInst(const_int32_8, IntegerType::get(mod->getContext(), 32), "alloca point", label_entry);
-		new StoreInst(int32_argc, ptr_argc_addr, false, label_entry);
-		new StoreInst(ptr_argv, ptr_argv_addr, false, label_entry);
-		CallInst* int32_12 = CallInst::Create(func_test, "", label_entry);
-		int32_12->setCallingConv(CallingConv::C);
-		int32_12->setTailCall(false);
-		AttrListPtr int32_12_PAL;
+		BranchInst::Create(label_bb, label_entry);
+
+		// Block bb (label_bb)
+		Argument* fwdref_16 = new Argument(IntegerType::get(mod->getContext(), 32));
+		PHINode* int32_i_04 = PHINode::Create(IntegerType::get(mod->getContext(), 32), "i.04", label_bb);
+		int32_i_04->reserveOperandSpace(2);
+		int32_i_04->addIncoming(const_int32_10, label_entry);
+		int32_i_04->addIncoming(fwdref_16, label_bb);
+
+
+
+
+	for( vector<FreeVariable>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		
+	
+		GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
+				/*Type=*/IntegerType::get(mod->getContext(), 32),
+				/*isConstant=*/false,
+				/*Linkage=*/GlobalValue::CommonLinkage,
+				/*Initializer=*/0, // has initializer, specified below
+				/*Name=*/it->name);
+
+		ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+		gvar_int32_global_int_a->setInitializer(const_int32_10);
+
+		CallInst* int32_17 = CallInst::Create(func_vector_int, const_ptr_11, "", label_bb);
+		int32_17->setCallingConv(CallingConv::C);
+		int32_17->setTailCall(true);
+		AttrListPtr int32_17_PAL;
 		{
 			SmallVector<AttributeWithIndex, 4> Attrs;
 			AttributeWithIndex PAWI;
 			PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
 			Attrs.push_back(PAWI);
-			int32_12_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+			int32_17_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
 
 		}
-		int32_12->setAttributes(int32_12_PAL);
+		int32_17->setAttributes(int32_17_PAL);
 
-		new StoreInst(const_int32_8, ptr_9, false, label_entry);
-		LoadInst* int32_14 = new LoadInst(ptr_9, "", false, label_entry);
-		new StoreInst(int32_14, ptr_retval, false, label_entry);
-		BranchInst::Create(label_return, label_entry);
+		new StoreInst(int32_17, gvar_int32_global_int_a, false, label_bb);
 
-		// Block return (label_return)
-		LoadInst* int32_retval1 = new LoadInst(ptr_retval, "retval1", false, label_return);
-		ReturnInst::Create(mod->getContext(), int32_retval1, label_return);
+		std::vector<Value*> int32_19_params;
+		int32_19_params.push_back(int32_argc);
+		int32_19_params.push_back(ptr_argv);
+		CallInst* int32_19 = CallInst::Create(func_test, int32_19_params.begin(), int32_19_params.end(), "", label_bb);
+		int32_19->setCallingConv(CallingConv::C);
+		int32_19->setTailCall(true);
+		AttrListPtr int32_19_PAL;
+		{
+			SmallVector<AttributeWithIndex, 4> Attrs;
+			AttributeWithIndex PAWI;
+			PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
+			Attrs.push_back(PAWI);
+			int32_19_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+
+		}
+		int32_19->setAttributes(int32_19_PAL);
 
 	}
+
+
+
+
+
+
+
+
+		BinaryOperator* int32_20 = BinaryOperator::Create(Instruction::Add, int32_i_04, const_int32_13, "", label_bb);
+		ICmpInst* int1_exitcond = new ICmpInst(*label_bb, ICmpInst::ICMP_EQ, int32_20, const_int32_14, "exitcond");
+		BranchInst::Create(label_bb2, label_bb, int1_exitcond, label_bb);
+
+		// Block bb2 (label_bb2)
+		ReturnInst::Create(mod->getContext(), const_int32_10, label_bb2);
+
+		// Resolve Forward References
+		fwdref_16->replaceAllUsesWith(int32_20); delete fwdref_16;
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 vector<string> tokenize(const string& str,const string& delimiters) {
@@ -373,68 +486,60 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-void insert_global_variables(Module& M){
+
+vector<FreeVariable> load_variables(){
+
+	vector<FreeVariable> ret;
 
 	FILE *file = fopen ( "free_variables", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
-	vector<string> file_vector;
+	
+
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
 		line[strlen(line)-1] = 0;
-		file_vector.push_back(line);
+
+		vector<string> tokens = tokenize(string(line), " ");
+		string name = tokens[0];
+		string type = tokens[1];
+		FreeVariable frv = {name,type};
+		ret.push_back(frv);
 	}
 	fclose ( file );
 
-	Module* mod = &M;
 
-	for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
+	//for( vector<FreeVariable>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//cerr << it->name << " " << it->type << endl;
+	//}
+	
 
-		vector<string> tokens = tokenize(*it, " ");
-
-		if( tokens[1] == "Int" ){
-
-			GlobalVariable* gvar_int32_entero = new GlobalVariable(/*Module=*/*mod, 
-					/*Type=*/IntegerType::get(mod->getContext(), 32),
-					/*isConstant=*/false,
-					/*Linkage=*/GlobalValue::CommonLinkage,
-					/*Initializer=*/0, // has initializer, specified below
-					/*Name=*/"var_global_" + tokens[0]);
-			ConstantInt* const_int32_3 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
-			gvar_int32_entero->setInitializer(const_int32_3);
-
-		}
-
-		if( tokens[1] == "Float" ){
-
-			GlobalVariable* gvar_float_real = new GlobalVariable(/*Module=*/*mod, 
-					/*Type=*/Type::getFloatTy(mod->getContext()),
-					/*isConstant=*/false,
-					/*Linkage=*/GlobalValue::CommonLinkage,
-					/*Initializer=*/0, // has initializer, specified below
-					/*Name=*/"var_global_" + tokens[0]);
-			ConstantFP* const_float_4 = ConstantFP::get(mod->getContext(), APFloat(0.000000e+00f));
-			gvar_float_real->setInitializer(const_float_4);
-		}
-
-		if(tokens[1] == "Char"){
-			GlobalVariable* gvar_int8_caracter = new GlobalVariable(/*Module=*/*mod, 
-					/*Type=*/IntegerType::get(mod->getContext(), 8),
-					/*isConstant=*/false,
-					/*Linkage=*/GlobalValue::CommonLinkage,
-					/*Initializer=*/0, // has initializer, specified below
-					/*Name=*/"var_global_" + tokens[0]);
-			ConstantInt* const_int8_5 = ConstantInt::get(mod->getContext(), APInt(8, StringRef("0"), 10));
-			gvar_int8_caracter->setInitializer(const_int8_5);
-
-		}
-
-
-	}
-
+	return ret;
 
 }
 
+set<vector<string> > load_values(){
 
 
+	set<vector<string> > ret;
+
+	FILE *file = fopen ( "vectors", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		ret.insert(tokens);
+
+	}
+	fclose ( file );
+	
+
+	return ret;
+
+
+
+}
 
 struct ChangeMain: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -447,8 +552,10 @@ struct ChangeMain: public ModulePass {
 		Value* InitFn = cast<Value> ( M.getFunction( "test" ));
 
 
-		insert_main_function_calling(InitFn, M);
-		insert_global_variables(M);
+		vector<FreeVariable> free_variables = load_variables();
+		set<vector<string> > values = load_values();
+
+		insert_main_function_calling(InitFn, &M, free_variables, values);
 
 
 		return false;

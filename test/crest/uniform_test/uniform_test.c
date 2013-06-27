@@ -9,7 +9,7 @@
  * for details.
  */
 
-int main(void) {
+int main(int argc, char* argv[]) {
 
 	int a;
 	int b;
