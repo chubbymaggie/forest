@@ -327,10 +327,10 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 			new StoreInst(int32_17, gvar_int32_global_int_a, false, label_bb);
 
-			CallInst* int32_19 = CallInst::Create(func_test, "", label_bb);
 
 		}
 
+			CallInst* int32_19 = CallInst::Create(func_test, "", label_bb);
 
 
 		BinaryOperator* int32_20 = BinaryOperator::Create(Instruction::Add, int32_i_04, ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10)), "", label_bb);
