@@ -259,102 +259,24 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 	string number_of_times = number_of_times_ss.str();
 
 
-	// Type Definitions
-	ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(mod->getContext(), 8), 2);
-
-	PointerType* PointerTy_1 = PointerType::get(ArrayTy_0, 0);
-
-	PointerType* PointerTy_2 = PointerType::get(IntegerType::get(mod->getContext(), 32), 0);
-
 	std::vector<const Type*>FuncTy_3_args;
 	FuncTy_3_args.push_back(IntegerType::get(mod->getContext(), 32));
 	PointerType* PointerTy_5 = PointerType::get(IntegerType::get(mod->getContext(), 8), 0);
-
 	PointerType* PointerTy_4 = PointerType::get(PointerTy_5, 0);
-
 	FuncTy_3_args.push_back(PointerTy_4);
-	FunctionType* FuncTy_3 = FunctionType::get(
-			/*Result=*/IntegerType::get(mod->getContext(), 32),
-			/*Params=*/FuncTy_3_args,
-			/*isVarArg=*/false);
+	Function* func_main = Function::Create(
+			FunctionType::get( IntegerType::get(mod->getContext(), 32), FuncTy_3_args, false),
+			GlobalValue::ExternalLinkage,
+			"main", mod); 
 
 	std::vector<const Type*>FuncTy_7_args;
-	FunctionType* FuncTy_7 = FunctionType::get(
-			/*Result=*/IntegerType::get(mod->getContext(), 32),
-			/*Params=*/FuncTy_7_args,
-			/*isVarArg=*/true);
-
-	PointerType* PointerTy_6 = PointerType::get(FuncTy_7, 0);
-
-	PointerType* PointerTy_8 = PointerType::get(FuncTy_3, 0);
-
-
-	// Function Declarations
-
-	Function* func_main = Function::Create(
-			/*Type=*/FuncTy_3,
-			/*Linkage=*/GlobalValue::ExternalLinkage,
-			/*Name=*/"main", mod); 
-	func_main->setCallingConv(CallingConv::C);
-	AttrListPtr func_main_PAL;
-	{
-		SmallVector<AttributeWithIndex, 4> Attrs;
-		AttributeWithIndex PAWI;
-		PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
-		Attrs.push_back(PAWI);
-		func_main_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
-
-	}
-	func_main->setAttributes(func_main_PAL);
-
 	Function* func_vector_int = Function::Create(
-			/*Type=*/FuncTy_7,
-			/*Linkage=*/GlobalValue::ExternalLinkage,
-			/*Name=*/"vector_int", mod); // (external, no body)
-	func_vector_int->setCallingConv(CallingConv::C);
-	AttrListPtr func_vector_int_PAL;
-	func_vector_int->setAttributes(func_vector_int_PAL);
-
-	//Function* func_test = Function::Create(
-			//FuncTy_3,
-			//GlobalValue::ExternalLinkage,
-			//"test", mod); // (external, no body)
-	//func_test->setCallingConv(CallingConv::C);
-	//AttrListPtr func_test_PAL;
-	//func_test->setAttributes(func_test_PAL);
-
-	// Global Variable Declarations
-
-
-	GlobalVariable* gvar_array__str = new GlobalVariable(/*Module=*/*mod, 
-			/*Type=*/ArrayTy_0,
-			/*isConstant=*/true,
-			/*Linkage=*/GlobalValue::PrivateLinkage,
-			/*Initializer=*/0, // has initializer, specified below
-			/*Name=*/".str");
-	gvar_array__str->setAlignment(1);
+			FunctionType::get( IntegerType::get(mod->getContext(), 32), FuncTy_7_args, true),
+			GlobalValue::ExternalLinkage,
+			"vector_int", mod); // (external, no body)
 
 
 
-
-
-
-
-	// Constant Definitions
-	Constant* const_array_9 = ConstantArray::get(mod->getContext(), "a", true);
-	std::vector<Constant*> const_ptr_11_indices;
-	ConstantInt* const_int64_12 = ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10));
-	ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
-	const_ptr_11_indices.push_back(const_int64_12);
-	const_ptr_11_indices.push_back(const_int64_12);
-	Constant* const_ptr_11 = ConstantExpr::getGetElementPtr(gvar_array__str, &const_ptr_11_indices[0], const_ptr_11_indices.size());
-	ConstantInt* const_int32_13 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10));
-	ConstantInt* const_int32_14 = ConstantInt::get(mod->getContext(), APInt(32, StringRef(number_of_times), 10));
-
-	// Global Variable Definitions
-	gvar_array__str->setInitializer(const_array_9);
-
-	// Function Definitions
 
 	// Function: main (func_main)
 	{
@@ -373,70 +295,53 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 		// Block bb (label_bb)
 		Argument* fwdref_16 = new Argument(IntegerType::get(mod->getContext(), 32));
-		PHINode* int32_i_04 = PHINode::Create(IntegerType::get(mod->getContext(), 32), "i.04", label_bb);
+		PHINode* int32_i_04 = PHINode::Create(IntegerType::get(mod->getContext(), 32), "index", label_bb);
 		int32_i_04->reserveOperandSpace(2);
+		ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
 		int32_i_04->addIncoming(const_int32_10, label_entry);
 		int32_i_04->addIncoming(fwdref_16, label_bb);
 
 
 
 
-	for( vector<FreeVariable>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		
-	
-		GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
-				/*Type=*/IntegerType::get(mod->getContext(), 32),
-				/*isConstant=*/false,
-				/*Linkage=*/GlobalValue::CommonLinkage,
-				/*Initializer=*/0, // has initializer, specified below
-				/*Name=*/it->name);
+		for( vector<FreeVariable>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
-		ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
-		gvar_int32_global_int_a->setInitializer(const_int32_10);
 
-		CallInst* int32_17 = CallInst::Create(func_vector_int, const_ptr_11, "", label_bb);
-		int32_17->setCallingConv(CallingConv::C);
-		int32_17->setTailCall(true);
-		AttrListPtr int32_17_PAL;
-		{
-			SmallVector<AttributeWithIndex, 4> Attrs;
-			AttributeWithIndex PAWI;
-			PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
-			Attrs.push_back(PAWI);
-			int32_17_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+			GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
+					IntegerType::get(mod->getContext(), 32),
+					false,
+					GlobalValue::CommonLinkage,
+					0, // has initializer, specified below
+					it->name);
+			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+			gvar_int32_global_int_a->setInitializer(const_int32_10);
 
-		}
-		int32_17->setAttributes(int32_17_PAL);
+			Constant* const_array_9 = ConstantArray::get(mod->getContext(), it->name, true);
+			std::vector<Constant*> const_ptr_11_indices;
+			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10)));
+			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("1"), 10)));
+			GlobalVariable* gvar_array__str = new GlobalVariable(*mod,ArrayType::get(IntegerType::get(mod->getContext(), 8), it->name.length() + 1), true, GlobalValue::PrivateLinkage, 0, "global_" + it->name);
+			gvar_array__str->setInitializer(const_array_9);
+			CallInst* int32_17 = CallInst::Create(func_vector_int,ConstantExpr::getGetElementPtr(gvar_array__str, &const_ptr_11_indices[0], const_ptr_11_indices.size()), "", label_bb);
 
-		new StoreInst(int32_17, gvar_int32_global_int_a, false, label_bb);
 
-		std::vector<Value*> int32_19_params;
-		int32_19_params.push_back(int32_argc);
-		int32_19_params.push_back(ptr_argv);
-		CallInst* int32_19 = CallInst::Create(func_test, int32_19_params.begin(), int32_19_params.end(), "", label_bb);
-		int32_19->setCallingConv(CallingConv::C);
-		int32_19->setTailCall(true);
-		AttrListPtr int32_19_PAL;
-		{
-			SmallVector<AttributeWithIndex, 4> Attrs;
-			AttributeWithIndex PAWI;
-			PAWI.Index = 4294967295U; PAWI.Attrs = 0  | Attribute::NoUnwind;
-			Attrs.push_back(PAWI);
-			int32_19_PAL = AttrListPtr::get(Attrs.begin(), Attrs.end());
+
+
+
+
+			new StoreInst(int32_17, gvar_int32_global_int_a, false, label_bb);
+
+			std::vector<Value*> int32_19_params;
+			int32_19_params.push_back(int32_argc);
+			int32_19_params.push_back(ptr_argv);
+			CallInst* int32_19 = CallInst::Create(func_test, int32_19_params.begin(), int32_19_params.end(), "", label_bb);
 
 		}
-		int32_19->setAttributes(int32_19_PAL);
-
-	}
 
 
 
-
-
-
-
-
-		BinaryOperator* int32_20 = BinaryOperator::Create(Instruction::Add, int32_i_04, const_int32_13, "", label_bb);
+		BinaryOperator* int32_20 = BinaryOperator::Create(Instruction::Add, int32_i_04, ConstantInt::get(mod->getContext(), APInt(32, StringRef("1"), 10)), "", label_bb);
+		ConstantInt* const_int32_14 = ConstantInt::get(mod->getContext(), APInt(32, StringRef(number_of_times), 10));
 		ICmpInst* int1_exitcond = new ICmpInst(*label_bb, ICmpInst::ICMP_EQ, int32_20, const_int32_14, "exitcond");
 		BranchInst::Create(label_bb2, label_bb, int1_exitcond, label_bb);
 
@@ -568,8 +473,8 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		{BeginEnd      pass;   pass.runOnModule(M);}
-		{BbMarks       pass;   pass.runOnModule(M);}
+		//{BeginEnd      pass;   pass.runOnModule(M);}
+		//{BbMarks       pass;   pass.runOnModule(M);}
 		{ChangeMain    pass;   pass.runOnModule(M);}
 
 		return false;
