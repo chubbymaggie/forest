@@ -895,9 +895,25 @@ set<vector<string> > minimal_vectors(){
 	}
 
 
+
+	set<vector<string> > values_set2;
+	for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
+		vector<string> vect = *it;
+		vector<string> vect2;
+		for( vector<string>::iterator it2 = vect.begin(); it2 != vect.end(); it2++ ){
+			if(*it2 == "X")
+				vect2.push_back("0");
+			else
+				vect2.push_back(*it2);
+		}
+		values_set2.insert(vect2);
+		
+	}
 	
 
-	return values_set;
+	
+
+	return values_set2;
 	
 }
 
