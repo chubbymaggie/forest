@@ -27,6 +27,8 @@
 
 #define SIZE_STR 512
 
+#define debug true
+
 using namespace std;
 
 bool done_bc = false;
@@ -629,23 +631,25 @@ void view_dfg(){
 
 bool covers_bool( vector<string> v1, vector<string> v2 ){
 
-	//for( vector<string>::iterator it = v1.begin(); it != v1.end(); it++ ){
-		//printf("%s ", it->c_str() );
-	//}
-	//printf(" -- ");
-	//for( vector<string>::iterator it = v2.begin(); it != v2.end(); it++ ){
-		//printf("%s ", it->c_str() );
-	//}
+	printf("\e[31m coversbool \e[0m\n");
+	for( vector<string>::iterator it = v1.begin(); it != v1.end(); it++ ){
+		printf("%s ", it->c_str() );
+	}
+	printf(" -- ");
+	for( vector<string>::iterator it = v2.begin(); it != v2.end(); it++ ){
+		printf("%s ", it->c_str() );
+	}
 	
 	
 	for ( unsigned int i = 0; i < v1.size(); i++) {
+		//printf("%s %s ", v1[i].c_str(), v2[i].c_str() );
 		if( v1[i] != v2[i] && v1[i] != "X" && v2[i] != "X" ){
-			//printf("not cover\n"); //getchar();
+			printf("not cover\n"); //getchar();
 			return false;
 		}
 	}
 
-	//printf("cover\n"); //getchar();
+	printf("cover\n"); //getchar();
 
 	return true;
 }
@@ -665,13 +669,14 @@ vector<string> covers( vector<string> v1, vector<string> v2 ){
 	
 	
 	for ( unsigned int i = 0; i < v1.size(); i++) {
-		if( v1[i] == "X" && v2[i] == "X" ){
-			ret.push_back( "0" );
-		} else if( v1[i] == "X" ){
+		/*if( v1[i] == "X" && v2[i] == "X" ){*/
+			//ret.push_back( "0" );
+		/*} else*/ if( v1[i] == "X" ){
 			ret.push_back( v2[i] );
 		} else if( v2[i] == "X" ){
 			ret.push_back( v1[i] );
 		} else {
+			if( v1[i] != v2[i] ){printf("ERROR\n"); exit(0);}
 			ret.push_back( v1[i] );
 		}
 
@@ -698,23 +703,31 @@ bool dontcares( vector<string> v ){
 
 }
 
+void printvector( vector<string> v ){
+
+
+	for( vector<string>::iterator it = v.begin(); it != v.end(); it++ ){
+		printf("%s ", it->c_str() );
+	} printf("\n");
+	
+
+}
+
 set<vector<string> > minimal_vectors(){
 
+	// Obtenemos los resultados de la base de datos
 	FILE *fp;
 	stringstream command;
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
-	
 	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 database.db";
-	
 	fp = popen(command.str().c_str(), "r");
-	
 	while (fgets(ret,SIZE_STR, fp) != NULL)
 		ret_vector.push_back(ret);
-	
 	pclose(fp);
 
 
+	// Obtenemos los nombres
 	set<string> names;
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		vector<string> tokens = tokenize(*it, "|");
@@ -722,95 +735,169 @@ set<vector<string> > minimal_vectors(){
 		names.insert(name);
 	}
 
-	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		//printf("name %s\n", it->c_str() );
-	//}
 	
+	// por cada problema, una relación entre nombre de variable, y valor
 	map< int, map<string, string> > values;
-
 	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
 		vector<string> tokens = tokenize(*it, "|");
 		string name = tokens[0];
 		string value = tokens[1];
 		int problem_id; sscanf(tokens[2].c_str(), "%d", &problem_id);
-
 		values[problem_id][name] = value;
-
 	}
 
 
+	// Cambio los "" por X
+	debug && printf("\e[31m Map \e[0m\n");
 	for( map<int,map<string, string> >::iterator it = values.begin(); it != values.end(); it++ ){
 		for( set<string>::iterator name = names.begin(); name != names.end(); name++ ){
 			if( it->second[*name] == "" ) it->second[*name] = "X";
-			printf(" %s ", it->second[*name].c_str() );
+			debug && printf(" %s ", it->second[*name].c_str() );
 		}
-		printf("\n");
+		debug && printf("\n");
 		
 	}
 
-	vector<vector<string> > values_vect;
-
-
+	// Lo paso a un set de vectores
+	set<vector<string> > values_set;
 	for( map<int,map<string, string> >::iterator it = values.begin(); it != values.end(); it++ ){
 		vector<string> insert_vec;
 		for( set<string>::iterator name = names.begin(); name != names.end(); name++ ){
 			insert_vec.push_back( it->second[*name].c_str() );
 		}
-		values_vect.push_back(insert_vec);
+		values_set.insert(insert_vec);
 	}
 
-
-	printf("-----------------\n");
-
-	for( vector<vector<string> >::iterator it = values_vect.begin(); it != values_vect.end(); it++ ){
-		for( vector<string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
-			printf("%s  ", it2->c_str());
+	debug && printf("\e[31m Set \e[0m\n");
+	for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
+		vector<string> v = *it;
+		for( vector<string>::iterator it2 = v.begin(); it2 != v.end(); it2++ ){
+			debug && printf("%s  ", it2->c_str());
 		}
-		printf("\n");
+		debug && printf("\n");
+	}
+	
+
+
+
+	// Elimino los tests que son cubiertos por otro
+	
+	int prev_size, size;
+
+	for ( unsigned int i = 0; i < 4; i++) {
 		
-	}
-	
+	set<vector<string> > to_insert;
+	set<vector<string> > to_remove;
 
-	set<vector<string> > values_vect2;
-	
-	for( vector<vector<string> >::iterator v1 = values_vect.begin(); v1 != values_vect.end(); v1++ ){
-		for( vector<vector<string> >::iterator v2 = values_vect.begin(); v2 != values_vect.end(); v2++ ){
+		printf("\e[31m Prunning iteration \e[0m\n");
 
-			if( v1 == v2 ) continue;
 
-			if( !dontcares(*v1) ){
-				values_vect2.insert(*v1);
+
+
+
+
+
+
+		debug && printf("\e[32m names \e[0m\n");
+		for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+			debug && printf("%s ", it->c_str());
+		}
+		debug && printf("\n\e[32m values \e[0m\n");
+		for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
+			vector<string> row = *it;
+			for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
+				debug && printf("%s  ", it2->c_str() );
 			}
+			debug && printf("\n");
+		}
 
-			if( !dontcares(*v2) ){
-				values_vect2.insert(*v2);
-			}
 
-			if( dontcares(*v1) || dontcares(*v2) ){
 
-				if( covers_bool(*v1, *v2) ){
-					values_vect2.insert( covers(*v1, *v2) );
+
+
+
+
+
+
+
+
+
+
+
+		for( set<vector<string> >::iterator v1 = values_set.begin(); v1 != values_set.end(); v1++ ){
+			for( set<vector<string> >::iterator v2 = values_set.begin(); v2 != values_set.end(); v2++ ){
+
+
+				if( *v1 == *v2 ) continue;
+
+				if( !dontcares(*v1) ){
+					printf("\e[34m Insert nodc \e[0m"); printvector( *v1 );
+					to_insert.insert(*v1);
 				}
+
+				bool someonecovers = false;
+				if( dontcares(*v1) || dontcares(*v2) ){
+
+					printf("\e[31m v1 \e[0m "); printvector(*v1);
+					printf("\e[31m v2 \e[0m "); printvector(*v2);
+
+					if( covers_bool(*v1, *v2) ){
+						someonecovers = true;
+						to_remove.insert(*v1); printf("\e[34m remove \e[0m "); printvector(*v1);
+						to_remove.insert(*v2); printf("\e[34m remove \e[0m "); printvector(*v2);
+						printf("\e[34m Insert  \e[0m"); printvector( covers(*v1, *v2) );
+						to_insert.insert( covers(*v1, *v2) );
+					}
+
+					printf("someone covers %d\n", someonecovers);
+
+					//if( !someonecovers ){
+						//printf("\e[34m noone covers  \e[0m"); printvector(*v1);
+						//to_insert.insert(*v1);
+					//}
+
+				}
+
 			}
 
 		}
-	}
 
-
-	for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		printf("%s ", it->c_str());
-	}
-	printf("\n");
-	for( set<vector<string> >::iterator it = values_vect2.begin(); it != values_vect2.end(); it++ ){
-		vector<string> row = *it;
-		for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
-			printf("%s  ", it2->c_str() );
+		printf("values_set.size() %lu\n", values_set.size());
+		printf("toremove.size %lu\n", to_insert.size() );
+		for( set<vector<string> >::iterator it = to_remove.begin(); it != to_remove.end(); it++ ){
+			printf("remove "); printvector(*it);
+			values_set.erase( values_set.find(*it) );
 		}
-		printf("\n");
+
+		printf("toinsert.size %lu\n", to_insert.size() );
+		for( set<vector<string> >::iterator it = to_insert.begin(); it != to_insert.end(); it++ ){
+			printf("insert "); printvector(*it);
+			values_set.insert( *it );
+		}
+
+		
+
+
+
+
+
+
+
+		debug && printf("\n\e[32m values \e[0m\n");
+		for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
+			vector<string> row = *it;
+			for( vector<string>::iterator it2 = row.begin(); it2 != row.end(); it2++ ){
+				debug && printf("%s  ", it2->c_str() );
+			}
+			debug && printf("\n");
+		}
+
 	}
+
+
 	
 
-	return values_vect2;
+	return values_set;
 	
 }
 
