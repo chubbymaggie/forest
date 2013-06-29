@@ -917,9 +917,14 @@ set<vector<string> > minimal_vectors(){
 	
 }
 
+typedef struct FreeVariableInfo{
+	string name;
+	string type;
+	string position;
 
-void gen_file_free_variables(){
+} FreeVariableInfo;
 
+vector<FreeVariableInfo> get_free_variables(){
 
 	stringstream cmd;
 
@@ -929,22 +934,39 @@ void gen_file_free_variables(){
 	FILE *fp;
 	stringstream command;
 	char ret[SIZE_STR];
-	vector<string> ret_vector;
+	vector<FreeVariableInfo> ret_vector;
 	
 	fp = popen(cmd.str().c_str(), "r");
 	
 	while (fgets(ret,SIZE_STR, fp) != NULL){
 		ret[strlen(ret) - 1 ] = 0;
-		ret_vector.push_back(ret);
+
+		vector<string> tokens = tokenize(string(ret), "|");
+
+		string name = tokens[0];
+		string type = tokens[1];
+		string position = tokens[2];
+
+		FreeVariableInfo fvi = {name, type, position};
+
+		ret_vector.push_back(fvi);
 
 	}
 	
 	pclose(fp);
 
+	return ret_vector;
+
+}
+
+void gen_file_free_variables(){
+
+
+	vector<FreeVariableInfo> ret_vector = get_free_variables();
+
 	vector<string> outfile;
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		vector<string> tokens = tokenize(*it, "|");
-		outfile.push_back( tokens[0] + " " + tokens[1] + " " + tokens[2]);
+	for( vector<FreeVariableInfo>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		outfile.push_back( it->name + " " + it->type + " " + it->position );
 	}
 
 	FILE* file = fopen("free_variables", "w");
@@ -952,11 +974,31 @@ void gen_file_free_variables(){
 		fprintf(file, "%s\n", it->c_str());
 	}
 	fclose(file);
-	
-	
-	
 
 }
+
+vector< map<string, string> > vector_of_test_vectors(){
+
+	vector<map<string, string> > ret;
+
+	vector<FreeVariableInfo> free_variables = get_free_variables();
+	set<vector<string> > test_vectors = minimal_vectors();
+
+	for( set<vector<string> >::iterator it = test_vectors.begin(); it != test_vectors.end(); it++ ){
+		map<string, string> mapa;
+		for ( unsigned int i = 0; i < free_variables.size(); i++) {
+			string var_name = free_variables[i].name;
+			string value = (*it)[i];
+
+			mapa[var_name] = value;
+		}
+		ret.push_back(mapa);
+	}
+
+	return ret;
+
+}
+
 void gen_file_vectors(){
 
 	set<vector<string> > vectors = minimal_vectors();
@@ -1145,6 +1187,67 @@ void measure_coverage(){
 
 }
 
+void show_test_vectors(){
+
+	vector< map<string, string> > vectors = vector_of_test_vectors();
+
+	for( vector<map<string, string> >::iterator it = vectors.begin(); it != vectors.end(); it++ ){
+
+		for( map<string,string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
+			printf("%s -> %s\n", it2->first.c_str(), it2->second.c_str() );
+		}
+		
+		
+	}
+	
+
+}
+
+
+void create_table_minimal_test_vectors(){
+
+
+	stringstream cmd;
+	cmd << "echo drop table minimal_vectors; | sqlite3 database.db";
+	systm(cmd.str());
+
+	cmd.str("");
+	cmd << "echo 'create table minimal_vectors (vector_id Integer, variable varchar(50), value varchar(50));' | sqlite3 database.db";
+	systm(cmd.str());
+
+}
+
+void minimal_test_vectors_to_db(){
+
+	create_table_minimal_test_vectors();
+
+	vector< map<string, string> > vectors = vector_of_test_vectors();
+
+	int vect = 0;
+	for( vector<map<string, string> >::iterator it = vectors.begin(); it != vectors.end(); it++,vect++ ){
+		for( map<string,string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
+			//printf("%s -> %s\n", it2->first.c_str(), it2->second.c_str() );
+
+			int vectid = vect;
+			string name = it2->first;
+			string value = it2->second;
+
+			stringstream cmd;
+			cmd << "echo \"insert into minimal_vectors values (" << vect << ",'" << name << "','" << value << "');\"";
+			cmd << " | sqlite3 database.db";
+
+			systm( cmd.str() );
+
+			//printf("%s\n", cmd.str().c_str() );
+
+
+
+		}
+		
+		
+	}
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1173,6 +1276,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("show_results")) show_results();
 	//if(cmd_option_bool("gen_test")) gen_test_prg();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
+	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
 
 
 	return 0;
