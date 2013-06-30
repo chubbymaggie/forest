@@ -67,7 +67,7 @@ void begin_bb(char* _name){
 }
 
 void end_bb(char* name){
-	debug && printf("\e[31m end_bb %s\e[0m\n", name );
+	//debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
 map<string, vector<string> > load_test_vectors(){
@@ -134,10 +134,11 @@ int vector_int(char* _name){
 	
 	string name = string(_name);
 
-	printf("vector_int %s\n", _name);
 
 	string ret = test_vectors[string(name)][0];
 	test_vectors[string(name)].erase(test_vectors[string(name)].begin());
+
+	printf("vector_int %s %s\n", _name, ret.c_str());
 
 	return stoi(ret);
 }
@@ -196,6 +197,16 @@ void end_sim(){
 
 	printf("visited fns %lu/%lu\n", visited_fns.size(), available_fns.size() );
 	printf("visited bbs %lu/%lu\n", visited_bbs.size(), available_bbs.size() );
+
+	printf("visited_fns\n");
+	for( set<string>::iterator it = visited_fns.begin(); it != visited_fns.end(); it++ ){
+		printf("%s,", it->c_str() );
+	} printf("\n");
+	
+	printf("visited_bbs\n");
+	for( set<string>::iterator it = visited_bbs.begin(); it != visited_bbs.end(); it++ ){
+		printf("%s,", it->c_str() );
+	} printf("\n");
 
 	stringstream value;
 

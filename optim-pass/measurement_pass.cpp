@@ -575,6 +575,7 @@ struct ChangeAssigns: public ModulePass {
 
 					if( names_from_position[actual_reg_name] != "" ){
 
+						//AllocaInst* in_a = cast<AllocaInst>(in);
 
 						//GlobalVariable* gvar_int32_global_a = new GlobalVariable(M, 
 								//IntegerType::get(M.getContext(), 32),
@@ -591,7 +592,8 @@ struct ChangeAssigns: public ModulePass {
 						BasicBlock::iterator insertpos = in; insertpos++;
 
 						//in->dump();
-						new LoadInst(gvar_int32_global_a, "", false, insertpos);
+						LoadInst* li = new LoadInst(gvar_int32_global_a, "", false, insertpos);
+						new StoreInst(li,in, false, insertpos);
 
 					}
 
