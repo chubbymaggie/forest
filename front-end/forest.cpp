@@ -41,7 +41,6 @@ typedef struct VarLocation {
 	int line;
 } VarLocation;
 
-
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
 map<string, VarLocation > variable_locations;
@@ -1027,7 +1026,6 @@ void gen_file_vectors(){
 
 }
 
-
 void gen_final_for_measurement(){
 
 	string base_path = cmd_option_str("base_path");
@@ -1077,98 +1075,6 @@ void gen_final_for_measurement(){
 
 }
 
-
-//void gen_test_prg(){
-
-	//pair<set<string>, set<vector<string> > > min_vects = minimal_vectors();
-
-	//set<string> names = min_vects.first;
-	//set<vector<string> > values = min_vects.second;
-
-
-
-	//FILE *file = fopen ( cmd_option_str("file").c_str(), "r" );
-	//char line [ 128 ]; [> or other suitable maximum line size <]
-	//vector<string> file_vector;
-	
-	//while ( fgets ( line, sizeof(line), file ) != NULL ){
-		//line[strlen(line)-1] = 0;
-		//file_vector.push_back( string(line) );
-	//}
-	//fclose ( file );
-	
-	
-	//load_variable_location("config.xml");
-
-	//for( map<string,VarLocation>::iterator it = variable_locations.begin(); it != variable_locations.end(); it++ ){
-
-		//string name_hint = it->first;
-		//string name      = it->second.name;
-		//string type      = it->second.type;
-		//int line         = it->second.line;
-
-		//file_vector[line-1] = type + " " + name + " = " + "register_" + name + ";";
-
-	//}
-
-	//file_vector[main_line-1] = "void test(void){";
-	
-
-
-
-	//vector<string> main_and_global;
-
-	//for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		//main_and_global.push_back("int " + *it + ";");
-	//}
-	
-	//main_and_global.push_back( "" );
-	//main_and_global.push_back( "int main(){" );
-	//main_and_global.push_back( "" );
-
-	//for( set<vector<string> >::iterator it = values.begin(); it != values.end(); it++ ){
-		//vector<string> vect = *it;
-
-		//set<string>::iterator name = names.begin();
-		//vector<string>::iterator value = vect.begin();
-
-		//for( ; name != names.end(); name++,value++ ){
-			//main_and_global.push_back( "\t" + *name + " = " + *value + ";" );
-		//}
-
-		//main_and_global.push_back( "\ttest();" );
-		//main_and_global.push_back( "" );
-
-	//}
-
-
-	//main_and_global.push_back( "}" );
-	//main_and_global.push_back( "" );
-	
-
-	//int lineinsert = main_line - 1;	
-
-	//for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++,lineinsert++ ){
-		////file_vector.insert(file_vector.begin() + main_line - 1, *it );
-		//file_vector.insert(file_vector.begin() + lineinsert, *it );
-		
-	//}
-	
-
-	////for( vector<string>::iterator it = main_and_global.begin(); it != main_and_global.end(); it++ ){
-		////printf("%s\n", it->c_str());
-	////}
-	
-
-	//for( vector<string>::iterator it = file_vector.begin(); it != file_vector.end(); it++ ){
-		//printf("%s\n", it->c_str());
-	//}
-	
-
-
-
-//}
-
 void measure_coverage(){
 
 	gen_file_free_variables();
@@ -1202,7 +1108,6 @@ void show_test_vectors(){
 	
 
 }
-
 
 void create_table_minimal_test_vectors(){
 
@@ -1274,11 +1179,11 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
-	//if(cmd_option_bool("gen_test")) gen_test_prg();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
 
 
 	return 0;
+
 }
 

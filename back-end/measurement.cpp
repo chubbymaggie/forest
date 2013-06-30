@@ -56,7 +56,6 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-
 void begin_bb(char* _name){
 
 	string name = string(_name);
@@ -120,7 +119,6 @@ map<string, vector<string> > load_test_vectors(){
 }
 
 map<string, vector<string> > test_vectors;
-
 
 int stoi(string str){
 	int ret;
@@ -222,5 +220,6 @@ void end_sim(){
 
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	
+
 }
 

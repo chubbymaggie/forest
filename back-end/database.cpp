@@ -197,8 +197,6 @@ bool yet_covered(){
 
 }
 
-
-
 void insert_measurement(string name, string value){
 
 	stringstream action;
@@ -207,7 +205,6 @@ void insert_measurement(string name, string value){
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
+
 }
-
-
 

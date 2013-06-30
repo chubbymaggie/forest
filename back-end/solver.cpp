@@ -339,7 +339,6 @@ void clean_conditions_stack(string name){
 		}
 	}
 	
+
 }
-
-
 

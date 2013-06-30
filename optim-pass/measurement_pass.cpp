@@ -285,25 +285,12 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
-
-
 typedef struct FreeVariable{
 	string name;
 	string type;
 	string position;
 } FreeVariable;
 
-
-//int global_int_a;
-//int test(int argc, const char* argv[]);
-//int main(int argc, const char *argv[]) {
-	//int i;
-	//for ( i = 0; i < 5000; i++) {
-		//global_int_a = vector_int("a");
-		//test( argc, argv );
-	//}
-	//return 0;
-//}
 void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVariable> free_variables, set<vector<string> > values ){
 
 	stringstream number_of_times_ss; number_of_times_ss << values.size();
@@ -436,7 +423,6 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-
 vector<FreeVariable> load_variables(){
 
 	vector<FreeVariable> ret;
@@ -513,7 +499,6 @@ struct ChangeMain: public ModulePass {
 	}
 };
 
-
 map<string, string> load_names_from_pos(){
 
 	map<string, string> ret;
@@ -554,7 +539,6 @@ map<string, string> load_names_from_pos(){
 	return ret;
 
 }
-
 
 struct ChangeAssigns: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -606,9 +590,6 @@ struct ChangeAssigns: public ModulePass {
 		return false;
 	}
 };
-
-
-
 
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid

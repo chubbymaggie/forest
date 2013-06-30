@@ -65,12 +65,10 @@ void set_real_value(string varname, string value, string fn_name ){
 	variables[ name(varname, fn_name) ].real_value = value;
 }
 
-
 void set_real_value(string varname, string value ){
 
 	variables[ name(varname) ].real_value = value;
 }
-
 
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
@@ -210,7 +208,6 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 		variables[ name(dst) ].type = "bool";
 
 }
-
 
 void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
 
@@ -557,6 +554,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 			exit(0);
 		}
 	}
+
 
 }
 
