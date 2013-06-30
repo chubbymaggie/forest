@@ -38,6 +38,8 @@ string actual_bb;
 
 string content( string name ){
 
+	if(!check_name(name)) assert(0 && "Wrong name for content");
+
 	if( variables[name].content == "" ){
 		insert_variable(name, actual_function + "_" + variables[name].name_hint );
 		return name;
@@ -49,7 +51,10 @@ string content( string name ){
 
 string realvalue(string varname){
 
-	//printf("\e[33m realvalue \e[0m %s\n", name.c_str() );
+	if(!check_name(varname)) assert(0 && "Wrong name for realvalue");
+
+
+	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
 
 	if( varname.find("constant") != string::npos )
 		return varname.substr(9);
@@ -62,10 +67,14 @@ string realvalue(string varname){
 
 void set_real_value(string varname, string value, string fn_name ){
 
+	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
+
 	variables[ name(varname, fn_name) ].real_value = value;
 }
 
 void set_real_value(string varname, string value ){
+
+	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
 
 	variables[ name(varname) ].real_value = value;
 }
@@ -96,6 +105,10 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 void assign_instruction(string src, string dst, string fn_name){
 
+	if(!check_name(src)) assert(0 && "Wrong src for assign");
+	if(!check_name(dst)) assert(0 && "Wrong dst for assign");
+
+
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
@@ -109,6 +122,10 @@ void assign_instruction(string src, string dst, string fn_name){
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for binary_instruction");
+	if(!check_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
+	if(!check_name(op2)) assert(0 && "Wrong op2 for binary_instruction");
 
 	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 
@@ -196,6 +213,11 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 	string src = string(_src);
 	string type = string(_type);
 
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for cast_instruction");
+	if(!check_name(src)) assert(0 && "Wrong src for cast_instruction");
+
+
 	assign_instruction(src,dst);
 
 	debug && printf("\e[31m Cast_instruction %s %s \e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
@@ -244,6 +266,9 @@ void ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);
 
+	if(!check_name(retname)) assert(0 && "Wrong return name for ReturnInstr");
+
+
 	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 	if( callstack.size() == 0 ) return;
@@ -265,6 +290,12 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	string op2 = string(_op2);
 	string operation = string(_operation);
 
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for binary_op");
+	if(!check_name(op1)) assert(0 && "Wrong op1 for binary_op");
+	if(!check_name(op2)) assert(0 && "Wrong op2 for binary_op");
+
+
 	binary_instruction(dst, op1, op2, operation);
 
 	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
@@ -279,6 +310,11 @@ void load_instr(char* _dst, char* _addr){
 	string dst = string(_dst);
 	string addr = string(_addr);
 	string src = "mem_" + realvalue(addr);
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for load");
+	if(!check_name(addr)) assert(0 && "Wrong addr for load");
+
+
 
 	assign_instruction(src, dst);
 
@@ -296,6 +332,12 @@ void store_instr(char* _src, char* _addr){
 	string addr = string(_addr);
 	string dst = "mem_" + realvalue(string(_addr)) ;
 
+
+	if(!check_name(src)) assert(0 && "Wrong src for store");
+	if(!check_name(addr)) assert(0 && "Wrong addr for store");
+	if(!check_name(dst)) assert(0 && "Wrong dst for store");
+
+
 	assign_instruction(src, dst);
 
 	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
@@ -311,6 +353,11 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	string cmp1 = string(_cmp1);
 	string cmp2 = string(_cmp2);
 	string type = string(_type);
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for compare");
+	if(!check_name(cmp1)) assert(0 && "Wrong cmp1 for compare");
+	if(!check_name(cmp2)) assert(0 && "Wrong cmp2 for compare");
+
 
 	binary_instruction(dst, cmp1, cmp2, type);
 
@@ -374,6 +421,8 @@ void alloca_instr(char* _reg, char* _type, char* _size){
 	string reg = string(_reg);
 	string type = string(_type);
 
+	if(!check_name(reg)) assert(0 && "Wrong dst for alloca");
+
 	stringstream rvalue; rvalue << alloca_pointer; 
 	set_real_value(reg,rvalue.str());
 
@@ -410,6 +459,19 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 	string pointer = string(_pointer);
 	vector<string> indexes = tokenize(string(_indexes), ",");
 	vector<string> sizes   = tokenize(string(_sizes), ",");
+
+
+	if(!check_name(dst)) assert(0 && "Wrong dst for getelementptr");
+	if(!check_name(pointer)) assert(0 && "Wrong dst for getelementptr");
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		if(!check_name(*it)) assert(0 && "Wrong index for getelementptr");
+	}
+	for( vector<string>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
+		if(!check_name(*it)) assert(0 && "Wrong size for getelementptr");
+	}
+	
+
+
 
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
 		stringstream namedst; namedst << dst << "_offset_" << i;
@@ -491,6 +553,8 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 	string cmp = string(_cmp);
 	vector<string> joints = tokenize(string(_joints), ",");
+
+	if(!check_name(cmp)) assert(0 && "Wrong comparison for break");
 
 	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 

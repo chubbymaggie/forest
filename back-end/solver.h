@@ -200,6 +200,7 @@ void dump_flatened_conditions(FILE* file = stdout );
 bool is_number(const std::string& s) ;
 
 
+bool check_name(string name);
 
 /**
  * @brief Name of a variable

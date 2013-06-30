@@ -29,6 +29,7 @@
 #include <set>
 #include <unistd.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "database.h"
 
 

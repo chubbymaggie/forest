@@ -31,6 +31,58 @@ set<string> flatened_variables;
 extern string actual_function;
 vector<Condition> conditions;
 
+
+int count(string name, string character){
+
+    int n = 0;
+    string::size_type sz = 0;
+
+    while ( (sz = name.find (character,sz) ) != string::npos  ){
+        sz++; /*otherwise you start searching at your previous match*/
+        n++;
+    }
+    return n;
+
+}
+
+bool check_name(string name){
+
+	int number_of_underscore = count(name, "_");
+	if(
+			number_of_underscore != 0 &&
+			number_of_underscore != 3 &&
+			number_of_underscore != 2 &&
+			number_of_underscore != 1 &&
+			number_of_underscore != 4
+	)
+		return false;
+
+	if(number_of_underscore == 4){
+		vector<string> tokens = tokenize(name, "_");
+		if(tokens[3] != "offset")
+			return false;
+	}
+
+	if(number_of_underscore == 3){
+		vector<string> tokens = tokenize(name, "_");
+		if(tokens[2] != "offset")
+			return false;
+	}
+
+	if( name.substr(0,4) == "mem_" )
+		if(!is_number(name.substr(4))) return false;
+
+	if( name.substr(0,9) == "constant_" )
+		if(!is_number(name.substr(9))) return false;
+
+	if( name.find("_") == string::npos ){
+		if(!is_number(name)) return false;
+	}
+
+	return true;
+
+}
+
 void dump_variables(FILE* file){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -234,6 +286,9 @@ bool solvable_problem(){
 void insert_variable(string name, string position){
 
 
+	if(!check_name(name)) assert(0 && "Wrong name for insert_variable");
+
+
 	if( name.find("constant") != string::npos )
 		return;
 
@@ -280,11 +335,17 @@ string type(string name){
 	if (variables[name].type == "IntegerTyID8")
 		return "Int";
 
-	//printf("Unknown type, defaulting to Int\n");
+	if (variables[name].type == "IntegerTyID16")
+		return "Int";
+
+	assert(0 && "Unknown Type");
+
 	return "Int";
 }
 
 string name_without_suffix( string name ){
+
+	if(!check_name(name)) assert(0 && "Wrong name for name_without_suffix");
 
 	int s1 = name.find("_");
 	int s2 = name.find("_", s1+1);
