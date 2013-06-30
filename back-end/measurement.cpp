@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define debug false
+#define debug true
 
 set<string> visited_bbs;
 set<string> visited_fns;
@@ -70,23 +70,108 @@ void end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
+map<string, vector<string> > load_test_vectors(){
+
+	printf("load_test_vectors\n");
+
+	vector<string> free_variables;
+	map<string, vector<string> > ret;
+
+	FILE* file;
+	char line[128];
+
+	printf("loading free_variables\n"); fflush(stdout);
+
+	file = fopen ( "free_variables", "r" );
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		vector<string> tokens = tokenize(string(line), " ");
+		string name = tokens[0];
+
+		free_variables.push_back(name);
+	}
+	fclose ( file );
+
+
+	printf("loading test_vectors\n"); fflush(stdout);
+
+	file = fopen ( "vectors", "r" );
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		for ( unsigned int i = 0; i < tokens.size(); i++) {
+			printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
+			ret[ free_variables[i] ].push_back(tokens[i]);
+		}
+		
+
+
+	}
+	fclose ( file );
+
+	printf("End_loading\n"); fflush(stdout);
+
+	return ret;
+	
+}
+
+map<string, vector<string> > test_vectors;
+
+
+int stoi(string str){
+	int ret;
+	sscanf(str.c_str(), "%d", &ret);
+	return ret;
+}
+
+extern "C" int vector_int(char*);
+
+int vector_int(char* _name){
+	
+	string name = string(_name);
+
+	printf("vector_int %s\n", _name);
+
+	string ret = test_vectors[string(name)][0];
+	test_vectors[string(name)].erase(test_vectors[string(name)].begin());
+
+	return stoi(ret);
+}
+
 void begin_sim(char* functions, char* bbs){
 
 	start_database();
+	test_vectors = load_test_vectors();
 
 	{
+		printf("Inserging functions %s\n", functions);
 		vector<string> tokens = tokenize(functions, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+			if( *it == "test"       ) continue;
+			if( *it == "begin_bb"   ) continue;
+			if( *it == "end_bb"     ) continue;
+			if( *it == "BeginFn"    ) continue;
+			if( *it == "vector_int" ) continue;
+			printf("Insert_fn %s\n", it->c_str());
 			available_fns.insert(*it);
 		}
 	}
 	
 
 	{
+		printf("Inserging bbs %s\n", bbs);
 		vector<string> tokens = tokenize(bbs, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+			if( *it == "main_entry" ) continue;
+			if( *it == "main_bb" ) continue;
+			if( *it == "main_bb2" ) continue;
+			printf("Insert_bb %s\n", it->c_str());
 			available_bbs.insert(*it);
 		}
 	}

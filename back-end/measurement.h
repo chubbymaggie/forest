@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <string.h>
 
 /**
  * @brief  Begin basic Block

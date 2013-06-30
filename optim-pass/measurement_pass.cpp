@@ -367,7 +367,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 			Constant* const_array_9 = ConstantArray::get(mod->getContext(), it->name, true);
 			std::vector<Constant*> const_ptr_11_indices;
 			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10)));
-			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("1"), 10)));
+			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10)));
 			GlobalVariable* gvar_array__str = new GlobalVariable(*mod,ArrayType::get(IntegerType::get(mod->getContext(), 8), it->name.length() + 1), true, GlobalValue::PrivateLinkage, 0, "global_" + it->name);
 			gvar_array__str->setInitializer(const_array_9);
 			CallInst* int32_17 = CallInst::Create(func_vector_int,ConstantExpr::getGetElementPtr(gvar_array__str, &const_ptr_11_indices[0], const_ptr_11_indices.size()), "", label_bb);
@@ -614,10 +614,10 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		//{BeginEnd      pass;   pass.runOnModule(M);}
-		//{BbMarks       pass;   pass.runOnModule(M);}
-		{ChangeMain    pass;   pass.runOnModule(M);}
+		{BbMarks        pass;   pass.runOnModule(M);}
+		{ChangeMain     pass;   pass.runOnModule(M);}
 		{ChangeAssigns  pass;   pass.runOnModule(M);}
+		{BeginEnd       pass;   pass.runOnModule(M);}
 
 		return false;
 	}
