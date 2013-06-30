@@ -227,6 +227,22 @@ int element_size( const ArrayType* t ){
 
 }
 
+const Type* element_type( const ArrayType* t ){
+
+	const Type* last_type;
+
+	while(true){
+		if( !t ) break;
+		last_type = t;
+		t = dyn_cast<ArrayType>(t->getElementType());
+	};
+
+	last_type = dyn_cast<ArrayType>(last_type)->getElementType();
+
+	return last_type;
+
+}
+
 int product(vector<int> elem){
 	int prod = 1;
 	for( vector<int>::iterator it = elem.begin(); it != elem.end(); it++ ){
@@ -1078,6 +1094,15 @@ struct AllocaInstr: public ModulePass {
 						string nameres = "register_" + in->getName().str();
 
 						string type = get_type_str(in_a->getAllocatedType());
+						string subtype;
+
+						if(type == "ArrayTyID"){
+							const ArrayType* typ = cast<ArrayType>(in_a->getAllocatedType());
+							const Type* typ2 = cast<Type>( element_type(typ) );
+							subtype = get_type_str( typ2 );
+						} else {
+							subtype = type;
+						}
 
 						//cerr << type << endl;
 
@@ -1100,9 +1125,11 @@ struct AllocaInstr: public ModulePass {
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, type);
 						GlobalVariable* c3 = make_global_str(M, size_ss.str());
+						GlobalVariable* c4 = make_global_str(M, subtype);
 
 						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "alloca_instr" ,
 									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -1115,6 +1142,7 @@ struct AllocaInstr: public ModulePass {
 						params.push_back(pointerToArray(M,c1));
 						params.push_back(pointerToArray(M,c2));
 						params.push_back(pointerToArray(M,c3));
+						params.push_back(pointerToArray(M,c4));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}

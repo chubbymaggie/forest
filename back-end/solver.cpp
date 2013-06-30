@@ -22,7 +22,7 @@
 #include "solver.h"
 
 #define SIZE_STR 32768
-#define debug false
+#define debug true
 
 extern map<string, Variable> variables;
 extern set<NameAndPosition> variable_names;

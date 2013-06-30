@@ -21,7 +21,7 @@
 
 #include "database_measurement.h"
 
-#define debug false
+#define debug true
 
 sqlite3 *db;
 
