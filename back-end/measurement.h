@@ -56,6 +56,7 @@ extern "C" void end_sim();
 extern "C" void BeginFn(char* _fn_name);
 
 
+extern "C" int vector_int(char*);
 
 #endif /* end of include guard: _OPERATORS_H_ */
 

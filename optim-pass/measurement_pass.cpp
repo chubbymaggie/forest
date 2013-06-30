@@ -530,9 +530,9 @@ map<string, string> load_names_from_pos(){
 	fclose ( file );
 
 
-	for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
-		cerr << "load_names_from_pos " << it->first << " " << it->second<< endl;
-	}
+	//for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//cerr << "load_names_from_pos " << it->first << " " << it->second<< endl;
+	//}
 	
 
 
@@ -555,7 +555,7 @@ struct ChangeAssigns: public ModulePass {
 
 					string actual_reg_name = fn->getName().str() + "_" + in->getName().str();
 
-					cerr << "actual_reg_name " << actual_reg_name << endl;
+					//cerr << "actual_reg_name " << actual_reg_name << endl;
 
 					if( names_from_position[actual_reg_name] != "" ){
 

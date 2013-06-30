@@ -27,7 +27,7 @@
 
 #define SIZE_STR 512
 
-#define debug true
+#define debug false
 
 using namespace std;
 
@@ -35,16 +35,15 @@ bool done_bc = false;
 bool done_final = false;
 bool done_run = false;
 
-typedef struct VarLocation {
+typedef struct FreeVariableInfo{
 	string name;
 	string type;
-	int line;
-} VarLocation;
+	string position;
+
+} FreeVariableInfo;
+
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
-
-map<string, VarLocation > variable_locations;
-int main_line;
 
 string cd_path;
 
@@ -157,62 +156,6 @@ vector<float> cmd_option_float_vector(string option){
 		vector_float.push_back( atof( vector_str[i].c_str() ) );
 	}
 	return vector_float;
-}
-
-void load_variable_location(string file){
-
-	printf("load_variable_location\n"); fflush(stdout);
-
-	variable_locations.clear();
-
-	TiXmlDocument doc(file.c_str()); // documento xml
-	doc.LoadFile();
-	
-	std::string m_name; // nombre
-	
-	TiXmlHandle hDoc(&doc); // handler del xml
-	TiXmlElement* pElem; // cada elemento
-	TiXmlHandle hRoot(0); // raiz del xml
-	
-	pElem=hDoc.FirstChildElement("variables").Element();
-	m_name=pElem->Value();
-	
-	hRoot=TiXmlHandle(pElem);
-
-	pElem=hRoot.FirstChild().Element();
-	for( ; pElem; pElem=pElem->NextSiblingElement()){
-
-		printf("%s %s %s\n", pElem->Attribute("name"), pElem->Attribute("type"), pElem->Attribute("line"));
-
-		string name_hint = pElem->Attribute("name_hint");
-		string name      = pElem->Attribute("name");
-		string type      = pElem->Attribute("type");
-		string line_s    = pElem->Attribute("line"); int line; sscanf(line_s.c_str(), "%d", &line);
-
-		VarLocation vl = {name, type, line};
-
- 		variable_locations[name_hint] = vl;
-
-
-	}
-
-
-	pElem=hDoc.FirstChildElement("main").Element();
-	m_name=pElem->Value();
-	
-	hRoot=TiXmlHandle(pElem);
-
-	pElem=hRoot.FirstChild().Element();
-	for( ; pElem; pElem=pElem->NextSiblingElement()){
-
-		//printf("%s\n", pElem->Attribute("line"));
-		sscanf(pElem->Attribute("line"), "%d", &main_line);
-
-	}
-
-
-
-	
 }
 
 void load_default_options(string file){
@@ -630,25 +573,25 @@ void view_dfg(){
 
 bool covers_bool( vector<string> v1, vector<string> v2 ){
 
-	printf("\e[31m coversbool \e[0m\n");
+	debug && printf("\e[31m coversbool \e[0m\n");
 	for( vector<string>::iterator it = v1.begin(); it != v1.end(); it++ ){
-		printf("%s ", it->c_str() );
+		debug && printf("%s ", it->c_str() );
 	}
-	printf(" -- ");
+	debug && printf(" -- ");
 	for( vector<string>::iterator it = v2.begin(); it != v2.end(); it++ ){
-		printf("%s ", it->c_str() );
+		debug && printf("%s ", it->c_str() );
 	}
 	
 	
 	for ( unsigned int i = 0; i < v1.size(); i++) {
 		//printf("%s %s ", v1[i].c_str(), v2[i].c_str() );
 		if( v1[i] != v2[i] && v1[i] != "X" && v2[i] != "X" ){
-			printf("not cover\n"); //getchar();
+			debug && printf("not cover\n"); //getchar();
 			return false;
 		}
 	}
 
-	printf("cover\n"); //getchar();
+	debug && printf("cover\n"); //getchar();
 
 	return true;
 }
@@ -783,12 +726,14 @@ set<vector<string> > minimal_vectors(){
 	
 	int prev_size, size;
 
-	for ( unsigned int i = 0; i < 4; i++) {
-		
-	set<vector<string> > to_insert;
-	set<vector<string> > to_remove;
+	while(true){
 
-		printf("\e[31m Prunning iteration \e[0m\n");
+		int prev_size = values_set.size();
+
+		set<vector<string> > to_insert;
+		set<vector<string> > to_remove;
+
+		debug && printf("\e[31m Prunning iteration \e[0m\n");
 
 
 
@@ -830,30 +775,26 @@ set<vector<string> > minimal_vectors(){
 				if( *v1 == *v2 ) continue;
 
 				if( !dontcares(*v1) ){
-					printf("\e[34m Insert nodc \e[0m"); printvector( *v1 );
+					if(debug){ printf("\e[34m Insert nodc \e[0m"); printvector( *v1 ); }
 					to_insert.insert(*v1);
 				}
 
-				bool someonecovers = false;
 				if( dontcares(*v1) || dontcares(*v2) ){
 
-					printf("\e[31m v1 \e[0m "); printvector(*v1);
-					printf("\e[31m v2 \e[0m "); printvector(*v2);
+					if(debug){printf("\e[31m v1 \e[0m "); printvector(*v1);}
+					if(debug){printf("\e[31m v2 \e[0m "); printvector(*v2);}
 
 					if( covers_bool(*v1, *v2) ){
-						someonecovers = true;
-						to_remove.insert(*v1); printf("\e[34m remove \e[0m "); printvector(*v1);
-						to_remove.insert(*v2); printf("\e[34m remove \e[0m "); printvector(*v2);
-						printf("\e[34m Insert  \e[0m"); printvector( covers(*v1, *v2) );
+
+						to_remove.insert(*v1);
+						to_remove.insert(*v2);
 						to_insert.insert( covers(*v1, *v2) );
+
+						if(debug){ printf("\e[34m remove \e[0m "); printvector(*v1); }
+						if(debug){ printf("\e[34m remove \e[0m "); printvector(*v2); }
+						if(debug){ printf("\e[34m Insert  \e[0m"); printvector( covers(*v1, *v2) ); }
+
 					}
-
-					printf("someone covers %d\n", someonecovers);
-
-					//if( !someonecovers ){
-						//printf("\e[34m noone covers  \e[0m"); printvector(*v1);
-						//to_insert.insert(*v1);
-					//}
 
 				}
 
@@ -861,26 +802,18 @@ set<vector<string> > minimal_vectors(){
 
 		}
 
-		printf("values_set.size() %lu\n", values_set.size());
-		printf("toremove.size %lu\n", to_insert.size() );
+		debug && printf("values_set.size() %lu\n", values_set.size());
+		debug && printf("toremove.size %lu\n", to_insert.size() );
 		for( set<vector<string> >::iterator it = to_remove.begin(); it != to_remove.end(); it++ ){
-			printf("remove "); printvector(*it);
+			if(debug){ printf("remove "); printvector(*it); }
 			values_set.erase( values_set.find(*it) );
 		}
 
-		printf("toinsert.size %lu\n", to_insert.size() );
+		debug && printf("toinsert.size %lu\n", to_insert.size() );
 		for( set<vector<string> >::iterator it = to_insert.begin(); it != to_insert.end(); it++ ){
-			printf("insert "); printvector(*it);
+			if(debug){ printf("insert "); printvector(*it); }
 			values_set.insert( *it );
 		}
-
-		
-
-
-
-
-
-
 
 		debug && printf("\n\e[32m values \e[0m\n");
 		for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
@@ -891,9 +824,10 @@ set<vector<string> > minimal_vectors(){
 			debug && printf("\n");
 		}
 
+		int size = values_set.size();
+
+		if( size == prev_size ) break;
 	}
-
-
 
 	set<vector<string> > values_set2;
 	for( set<vector<string> >::iterator it = values_set.begin(); it != values_set.end(); it++ ){
@@ -908,20 +842,10 @@ set<vector<string> > minimal_vectors(){
 		values_set2.insert(vect2);
 		
 	}
-	
-
-	
 
 	return values_set2;
 	
 }
-
-typedef struct FreeVariableInfo{
-	string name;
-	string type;
-	string position;
-
-} FreeVariableInfo;
 
 vector<FreeVariableInfo> get_free_variables(){
 
@@ -1100,7 +1024,7 @@ void show_test_vectors(){
 	for( vector<map<string, string> >::iterator it = vectors.begin(); it != vectors.end(); it++ ){
 
 		for( map<string,string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
-			printf("%s -> %s\n", it2->first.c_str(), it2->second.c_str() );
+			debug && printf("%s -> %s\n", it2->first.c_str(), it2->second.c_str() );
 		}
 		
 		
@@ -1167,8 +1091,6 @@ int main(int argc, const char *argv[]) {
 	if( cmd_option_bool("test") ){
 		set_option("run", "true");
 	}
-
-	set_option("developer", "true");
 
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();

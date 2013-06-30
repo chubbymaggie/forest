@@ -46,7 +46,4 @@ void insert_problem();
 
 bool yet_covered();
 
-void insert_measurement(string, string);
-
-
 #endif /* end of include guard: _DATABASE_H_ */

@@ -23,12 +23,13 @@
 
 using namespace std;
 
-#define debug true
+#define debug false
 
 set<string> visited_bbs;
 set<string> visited_fns;
 set<string> available_fns;
 set<string> available_bbs;
+map<string, vector<string> > test_vectors;
 
 string actual_fn_name;
 
@@ -71,7 +72,7 @@ void end_bb(char* name){
 
 map<string, vector<string> > load_test_vectors(){
 
-	printf("load_test_vectors\n");
+	debug && printf("load_test_vectors\n");
 
 	vector<string> free_variables;
 	map<string, vector<string> > ret;
@@ -79,7 +80,7 @@ map<string, vector<string> > load_test_vectors(){
 	FILE* file;
 	char line[128];
 
-	printf("loading free_variables\n"); fflush(stdout);
+	debug && printf("loading free_variables\n"); fflush(stdout);
 
 	file = fopen ( "free_variables", "r" );
 	
@@ -93,7 +94,7 @@ map<string, vector<string> > load_test_vectors(){
 	fclose ( file );
 
 
-	printf("loading test_vectors\n"); fflush(stdout);
+	debug && printf("loading test_vectors\n"); fflush(stdout);
 
 	file = fopen ( "vectors", "r" );
 	
@@ -103,7 +104,7 @@ map<string, vector<string> > load_test_vectors(){
 		vector<string> tokens = tokenize(string(line), " ");
 
 		for ( unsigned int i = 0; i < tokens.size(); i++) {
-			printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
+			debug && printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
 			ret[ free_variables[i] ].push_back(tokens[i]);
 		}
 		
@@ -112,21 +113,17 @@ map<string, vector<string> > load_test_vectors(){
 	}
 	fclose ( file );
 
-	printf("End_loading\n"); fflush(stdout);
+	debug && printf("End_loading\n"); fflush(stdout);
 
 	return ret;
 	
 }
-
-map<string, vector<string> > test_vectors;
 
 int stoi(string str){
 	int ret;
 	sscanf(str.c_str(), "%d", &ret);
 	return ret;
 }
-
-extern "C" int vector_int(char*);
 
 int vector_int(char* _name){
 	
@@ -136,7 +133,7 @@ int vector_int(char* _name){
 	string ret = test_vectors[string(name)][0];
 	test_vectors[string(name)].erase(test_vectors[string(name)].begin());
 
-	printf("vector_int %s %s\n", _name, ret.c_str());
+	debug && printf("vector_int %s %s\n", _name, ret.c_str());
 
 	return stoi(ret);
 }
@@ -147,7 +144,7 @@ void begin_sim(char* functions, char* bbs){
 	test_vectors = load_test_vectors();
 
 	{
-		printf("Inserging functions %s\n", functions);
+		debug && printf("Inserting functions %s\n", functions);
 		vector<string> tokens = tokenize(functions, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
@@ -156,21 +153,21 @@ void begin_sim(char* functions, char* bbs){
 			if( *it == "end_bb"     ) continue;
 			if( *it == "BeginFn"    ) continue;
 			if( *it == "vector_int" ) continue;
-			printf("Insert_fn %s\n", it->c_str());
+			debug && printf("Insert_fn %s\n", it->c_str());
 			available_fns.insert(*it);
 		}
 	}
 	
 
 	{
-		printf("Inserging bbs %s\n", bbs);
+		debug && printf("Inserting bbs %s\n", bbs);
 		vector<string> tokens = tokenize(bbs, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
 			if( *it == "main_entry" ) continue;
 			if( *it == "main_bb" ) continue;
 			if( *it == "main_bb2" ) continue;
-			printf("Insert_bb %s\n", it->c_str());
+			debug && printf("Insert_bb %s\n", it->c_str());
 			available_bbs.insert(*it);
 		}
 	}
@@ -193,18 +190,18 @@ void BeginFn(char* _fn_name){
 
 void end_sim(){
 
-	printf("visited fns %lu/%lu\n", visited_fns.size(), available_fns.size() );
-	printf("visited bbs %lu/%lu\n", visited_bbs.size(), available_bbs.size() );
+	debug && printf("visited fns %lu/%lu\n", visited_fns.size(), available_fns.size() );
+	debug && printf("visited bbs %lu/%lu\n", visited_bbs.size(), available_bbs.size() );
 
-	printf("visited_fns\n");
+	debug && printf("visited_fns\n");
 	for( set<string>::iterator it = visited_fns.begin(); it != visited_fns.end(); it++ ){
-		printf("%s,", it->c_str() );
-	} printf("\n");
+		debug && printf("%s,", it->c_str() );
+	} debug && printf("\n");
 	
-	printf("visited_bbs\n");
+	debug && printf("visited_bbs\n");
 	for( set<string>::iterator it = visited_bbs.begin(); it != visited_bbs.end(); it++ ){
-		printf("%s,", it->c_str() );
-	} printf("\n");
+		debug && printf("%s,", it->c_str() );
+	} debug && printf("\n");
 
 	stringstream value;
 
