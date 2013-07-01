@@ -51,7 +51,7 @@ string content( string name ){
 
 string realvalue_mangled(string varname){
 
-	printf("\e[33m realvalue_mangled \e[0m %s\n", varname.c_str() );
+	//printf("\e[33m realvalue_mangled \e[0m %s\n", varname.c_str() );
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for realvalue_mangled");
 
@@ -66,7 +66,7 @@ string realvalue_mangled(string varname){
 
 string realvalue(string varname){
 
-	printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
+	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
 
 	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for realvalue");
 
@@ -117,7 +117,13 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	set_real_value( dst, realvalue(src), fn_name );
 
-	variables[ name(dst, fn_name) ].type = variables[name(src)].type;
+	//variables[ name(dst, fn_name) ].type = variables[name(src)].type;
+	//variables[ name(dst, fn_name) ].type = type(name(src));
+	//printf("namedst %s\n", name(dst, fn_name).c_str() );
+	settype(name(dst, fn_name), type(name(src)));
+	//settype(name(dst, fn_name), variables[name(src)].type );
+	
+
 
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 
@@ -279,16 +285,20 @@ void ReturnInstr(char* _retname ){
 	if(!check_unmangled_name(retname)) assert(0 && "Wrong return name for ReturnInstr");
 
 
-	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 	if( callstack.size() == 0 ) return;
 
 	string last_rg_callstack = callstack[ callstack.size() - 1].first;
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
-	callstack.erase( callstack.end() - 1 );
-
 	assign_instruction( retname, last_rg_callstack, last_fn_callstack );
+
+	callstack.erase( callstack.end() - 1 );
+	actual_function = last_fn_callstack;
+	//printf("callstack %s %s\n", callstack[0].first.c_str(), callstack[0].second.c_str() );
+	
+
+	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
 
 }

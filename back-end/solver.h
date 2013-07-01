@@ -203,6 +203,7 @@ bool is_number(const std::string& s) ;
 bool check_name(string name);
 bool check_mangled_name(string name);
 bool check_unmangled_name(string name);
+void settype(string name, string type);
 
 /**
  * @brief Name of a variable

@@ -85,7 +85,7 @@ int count(string name, string character){
 
 bool check_mangled_name(string name){
 
-	printf("check mangled name %s\n", name.c_str());
+	//printf("check mangled name %s\n", name.c_str());
 	int number_of_underscore = count(name, "_");
 	if(
 			number_of_underscore != 2 && // main_register_r1
@@ -114,7 +114,7 @@ bool check_mangled_name(string name){
 }
 
 bool check_unmangled_name(string name){
-	printf("check unmangled name %s\n", name.c_str());
+	//printf("check unmangled name %s\n", name.c_str());
 	int number_of_underscore = count(name, "_");
 	if(
 			number_of_underscore != 1 && // register_retval
@@ -406,7 +406,22 @@ string negation(string condition){
 	return negation_ss.str();
 }
 
+void settype(string name, string type){
+
+	printf("settype name %s type %s\n", name.c_str(), type.c_str());
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for settype");
+	variables[name].type = type;
+
+}
+
 string type(string name){
+
+	printf("type: name %s type %s \e[36m---\e[0m %s\n", name.c_str(), variables[name].type.c_str(), variables["Z9myisloweri_register_r3"].type.c_str()     );
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
+
+	if(name.substr(0,9) == "constant_") return "IntegerTyID32";
+	if( is_number(name) ) return "IntegerTyID32";
 
 	if (variables[name].type == "IntegerTyID32")
 		return "Int";
@@ -416,6 +431,13 @@ string type(string name){
 
 	if (variables[name].type == "IntegerTyID16")
 		return "Int";
+
+	if (variables[name].type == "Int")
+		return "Int";
+
+	if (variables[name].type == "bool")
+		return "bool";
+
 
 	assert(0 && "Unknown Type");
 
