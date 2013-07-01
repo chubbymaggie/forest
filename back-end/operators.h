@@ -143,6 +143,9 @@ extern "C" void end_sim();
 extern "C" void getelementptr(char*, char*, char*, char*);
 
 extern "C" void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to );
+
+extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );
+
 extern "C" void ReturnInstr(char* _retname );
 extern "C" void BeginFn(char* _fn_name);
 

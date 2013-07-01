@@ -918,37 +918,65 @@ struct CallInstr: public ModulePass {
 						string oplist  = operand_list.str();
 						string fn_oplist = function_operand_list.str();
 						string ret_to = operandname( in_c );
+						string ret_type = get_type_str( in_c->getType() );
 						
 						//cerr << fn_name << endl;
 						//cerr << oplist  << endl;
 						//cerr << fn_oplist << endl;
 
-						GlobalVariable* c1 = make_global_str(M, fn_name );
-						GlobalVariable* c2 = make_global_str(M, oplist );
-						GlobalVariable* c3 = make_global_str(M, fn_oplist );
-						GlobalVariable* c4 = make_global_str(M, ret_to );
+						Function::iterator fn_begin = in_c->getCalledFunction()->begin();
+						Function::iterator fn_end   = in_c->getCalledFunction()->end();
 
-						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
-									Type::getVoidTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									(Type *)0
-									));
-
-						BasicBlock::iterator insertpos = in;
-
-						std::vector<Value*> params;
-						params.push_back(pointerToArray(M,c1));
-						params.push_back(pointerToArray(M,c2));
-						params.push_back(pointerToArray(M,c3));
-						params.push_back(pointerToArray(M,c4));
-						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-
-						//in++;
+						bool annotated = (fn_begin != fn_end);
 
 
+						if( annotated ){
+
+							GlobalVariable* c1 = make_global_str(M, fn_name );
+							GlobalVariable* c2 = make_global_str(M, oplist );
+							GlobalVariable* c3 = make_global_str(M, fn_oplist );
+							GlobalVariable* c4 = make_global_str(M, ret_to );
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
+							params.push_back(pointerToArray(M,c2));
+							params.push_back(pointerToArray(M,c3));
+							params.push_back(pointerToArray(M,c4));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						} else {
+							GlobalVariable* c1 = make_global_str(M, fn_name );
+							GlobalVariable* c2 = make_global_str(M, ret_to );
+							GlobalVariable* c3 = make_global_str(M, ret_type );
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "NonAnnotatedCallInstr" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
+							params.push_back(pointerToArray(M,c2));
+							params.push_back(pointerToArray(M,c3));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						}
 					}
 				}
 			}

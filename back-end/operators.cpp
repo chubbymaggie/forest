@@ -217,6 +217,18 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 
 }
 
+void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
+
+	string fn_name           = string(_fn_name);
+	string ret_to            = string(_ret_to);
+	string ret_type          = string(_ret_type);
+
+	variables[name(ret_to)].name_hint = "return of " + fn_name;
+	variables[name(ret_to)].type = ret_type;
+
+	printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
+}
+
 void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
 
 
@@ -228,7 +240,6 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 	if( fn_name.substr(0,1) == "_" ) fn_name = fn_name.substr(1);
 
 
-	if( oplist.size() && oplist[0] != "register_" ){
 
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
@@ -236,14 +247,11 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	}
 
-	}
 
-	variables[name(ret_to)].name_hint = "return of " + fn_name;
 
 	debug && printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
 
-	if( ret_to != "register_" )
-		callstack.push_back( pair<string, string>(ret_to, actual_function) );
+	callstack.push_back( pair<string, string>(ret_to, actual_function) );
 
 
 }

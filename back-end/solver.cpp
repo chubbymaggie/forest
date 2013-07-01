@@ -171,7 +171,7 @@ void get_values(){
 	stringstream filename;
 	filename << "/tmp/z3_" << getpid() << ".smt2";
 
-	//debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
+	debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
 
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;
@@ -204,13 +204,13 @@ void get_values(){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
 
-		string name = it->name;
+		string varname = it->name;
 		string value = result_get(*it_ret);
 
-		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
+		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), value.c_str() ); fflush(stdout);
 
-		set_real_value(name, value);
-		//variables[name].real_value = value;
+		//set_real_value(varname, value);
+		variables[varname].real_value = value;
 
 	}
 
@@ -225,8 +225,8 @@ void get_values(){
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
-		set_real_value(name, value);
-		//variables[name].real_value = value;
+		//set_real_value(name, value);
+		variables[name].real_value = value;
 
 		it_ret++;
 	}
@@ -369,7 +369,8 @@ string name_without_suffix( string name ){
 
 string get_type(string name){
 
-	return type(name_without_suffix(name));
+	//return type(name_without_suffix(name));
+	return type(name);
 
 }
 
