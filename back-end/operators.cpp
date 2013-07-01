@@ -169,6 +169,19 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
 	}
 
+	if(operation == ">="){
+		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
+	}
+
+
+	if(operation == "<"){
+		set_real_value(dst, ( stoi(realvalue(op1) ) < stoi( realvalue(op2) ) )?"true":"false" );
+	}
+
+	if(operation == ">"){
+		set_real_value(dst, ( stoi(realvalue(op1) ) > stoi( realvalue(op2) ) )?"true":"false" );
+	}
+
 	if(operation == "="){
 		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
 	}
@@ -387,6 +400,8 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 									 name(dst).c_str(), realvalue(dst).c_str() );
 
 	variables[ name(dst) ].type = "bool";
+
+	assert( (realvalue(dst) == "true" || realvalue(dst) == "false") && "Invalid result for a comparison operation" );
 }
 
 int show_problem(){
