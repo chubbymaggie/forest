@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -456,6 +456,8 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 	int size;
 	sscanf(_size, "%d", &size);
 
+	variables[mem_var.str()].type = type;
+
 	if( type == "ArrayTyID" ){
 		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
 			stringstream mem_name; mem_name << "mem_" << i;
@@ -466,11 +468,12 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 		stringstream constant_name; constant_name << "constant_" << alloca_pointer;
 		assign_instruction( constant_name.str(), reg );
-		//settype(name( reg ), "Int");
+		settype(name( reg ), "Int");
+
+		//variables[mem_var.str()].type = subtype;
 
 	}
 
-	variables[mem_var.str()].type = type;
 
 
 	alloca_pointer += size;

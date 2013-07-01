@@ -2,8 +2,8 @@
 
 int main(void) {
 
-	int numbers[10];
-	int arraysize = 10;
+	int numbers[3];
+	int arraysize = 3;
 
 	int i, j, temp;
 
