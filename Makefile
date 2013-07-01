@@ -26,4 +26,5 @@ test:
 	@forest ./test/klee-examples/get_sign/config.xml
 	@forest ./test/klee-examples/islower/config.xml
 	@forest ./test/simple/forloop/config.xml
+	#@forest ./test/examples-mutants/bubble/config.xml
 
