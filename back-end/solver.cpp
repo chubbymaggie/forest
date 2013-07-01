@@ -152,6 +152,20 @@ string result_get(string get_str){
 
 }
 
+void set_real_value(string varname, string value, string fn_name ){
+
+	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
+
+	variables[ name(varname, fn_name) ].real_value = value;
+}
+
+void set_real_value(string varname, string value ){
+
+	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
+
+	variables[ name(varname) ].real_value = value;
+}
+
 void get_values(){
 
 	stringstream filename;
@@ -195,8 +209,8 @@ void get_values(){
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
-
-		variables[name].real_value = value;
+		set_real_value(name, value);
+		//variables[name].real_value = value;
 
 	}
 
@@ -211,7 +225,8 @@ void get_values(){
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
-		variables[name].real_value = value;
+		set_real_value(name, value);
+		//variables[name].real_value = value;
 
 		it_ret++;
 	}

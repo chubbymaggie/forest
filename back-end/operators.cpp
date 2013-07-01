@@ -65,20 +65,6 @@ string realvalue(string varname){
 
 }
 
-void set_real_value(string varname, string value, string fn_name ){
-
-	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
-
-	variables[ name(varname, fn_name) ].real_value = value;
-}
-
-void set_real_value(string varname, string value ){
-
-	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
-
-	variables[ name(varname) ].real_value = value;
-}
-
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
     	

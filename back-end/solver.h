@@ -211,5 +211,11 @@ bool check_name(string name);
  */
 string name( string input, string fn_name = "" );
 
+
+
+void set_real_value(string varname, string value, string fn_name );
+
+void set_real_value(string varname, string value );
+
 #endif /* end of include guard: _SOLVER_H_ */
 

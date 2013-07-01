@@ -1037,7 +1037,7 @@ void create_table_minimal_test_vectors(){
 
 
 	stringstream cmd;
-	cmd << "echo drop table minimal_vectors; | sqlite3 database.db";
+	cmd << "echo 'drop table minimal_vectors;' | sqlite3 database.db";
 	systm(cmd.str());
 
 	cmd.str("");
