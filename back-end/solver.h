@@ -201,6 +201,8 @@ bool is_number(const std::string& s) ;
 
 
 bool check_name(string name);
+bool check_mangled_name(string name);
+bool check_unmangled_name(string name);
 
 /**
  * @brief Name of a variable

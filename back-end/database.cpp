@@ -149,7 +149,7 @@ void insert_problem(){
 			if( it->second.content == "" ) continue;
 
 			string name = it->first;
-			string value = realvalue(name);
+			string value = realvalue_mangled(name);
 			string hint = variables[name].name_hint;
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";

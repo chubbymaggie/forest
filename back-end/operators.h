@@ -157,6 +157,7 @@ extern "C" void BeginFn(char* _fn_name);
  * @return 
  */
 string realvalue(string name);
+string realvalue_mangled(string name);
 
 /**
  * @brief Tokenizes a string

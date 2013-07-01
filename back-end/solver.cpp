@@ -45,21 +45,87 @@ int count(string name, string character){
 
 }
 
-bool check_name(string name){
+//bool check_name(string name){
 
+	//int number_of_underscore = count(name, "_");
+	//if(
+			//number_of_underscore != 0 &&
+			//number_of_underscore != 3 &&
+			//number_of_underscore != 2 &&
+			//number_of_underscore != 1 &&
+			//number_of_underscore != 4
+	//)
+		//return false;
+
+	//if(number_of_underscore == 4){
+		//vector<string> tokens = tokenize(name, "_");
+		//if(tokens[3] != "offset")
+			//return false;
+	//}
+
+	//if(number_of_underscore == 3){
+		//vector<string> tokens = tokenize(name, "_");
+		//if(tokens[2] != "offset")
+			//return false;
+	//}
+
+	//if( name.substr(0,4) == "mem_" )
+		//if(!is_number(name.substr(4))) return false;
+
+	//if( name.substr(0,9) == "constant_" )
+		//if(!is_number(name.substr(9))) return false;
+
+	//if( name.find("_") == string::npos ){
+		//if(!is_number(name)) return false;
+	//}
+
+	//return true;
+
+//}
+
+bool check_mangled_name(string name){
+
+	printf("check mangled name %s\n", name.c_str());
 	int number_of_underscore = count(name, "_");
 	if(
-			number_of_underscore != 0 &&
-			number_of_underscore != 3 &&
-			number_of_underscore != 2 &&
-			number_of_underscore != 1 &&
-			number_of_underscore != 4
+			number_of_underscore != 2 && // main_register_r1
+			number_of_underscore != 0 && // 2
+			number_of_underscore != 1 && // mem_9
+			number_of_underscore != 4 // main_register_r1_offset_0
 	)
 		return false;
 
-	if(number_of_underscore == 4){
+	if( number_of_underscore == 1 ){
 		vector<string> tokens = tokenize(name, "_");
-		if(tokens[3] != "offset")
+		if(tokens[0] != "mem") return false;
+	}
+
+	if( number_of_underscore == 4 ){
+		vector<string> tokens = tokenize(name, "_");
+		if(tokens[3] != "offset") return false;
+	}
+
+	if( number_of_underscore == 0 ){
+		if( !is_number(name) ) return false;
+	}
+
+	return true;
+
+}
+
+bool check_unmangled_name(string name){
+	printf("check unmangled name %s\n", name.c_str());
+	int number_of_underscore = count(name, "_");
+	if(
+			number_of_underscore != 1 && // register_retval
+			number_of_underscore != 2 && // register_x_addr
+			number_of_underscore != 3 // register_r1_offset_0
+	)
+		return false;
+
+	if(number_of_underscore == 2){
+		vector<string> tokens = tokenize(name, "_");
+		if(tokens[2] != "addr")
 			return false;
 	}
 
@@ -67,16 +133,6 @@ bool check_name(string name){
 		vector<string> tokens = tokenize(name, "_");
 		if(tokens[2] != "offset")
 			return false;
-	}
-
-	if( name.substr(0,4) == "mem_" )
-		if(!is_number(name.substr(4))) return false;
-
-	if( name.substr(0,9) == "constant_" )
-		if(!is_number(name.substr(9))) return false;
-
-	if( name.find("_") == string::npos ){
-		if(!is_number(name)) return false;
 	}
 
 	return true;
@@ -154,14 +210,22 @@ string result_get(string get_str){
 
 void set_real_value(string varname, string value, string fn_name ){
 
-	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
+	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
 	variables[ name(varname, fn_name) ].real_value = value;
 }
 
+
+void set_real_value_mangled(string varname, string value ){
+
+	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
+
+	variables[varname].real_value = value;
+}
+
 void set_real_value(string varname, string value ){
 
-	if(!check_name(varname)) assert(0 && "Wrong name for set_real_value");
+	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
 	variables[ name(varname) ].real_value = value;
 }
@@ -209,8 +273,8 @@ void get_values(){
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), value.c_str() ); fflush(stdout);
 
-		//set_real_value(varname, value);
-		variables[varname].real_value = value;
+		set_real_value_mangled(varname, value);
+		//variables[varname].real_value = value;
 
 	}
 
@@ -225,8 +289,8 @@ void get_values(){
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
 
-		//set_real_value(name, value);
-		variables[name].real_value = value;
+		set_real_value_mangled(name, value);
+		//variables[name].real_value = value;
 
 		it_ret++;
 	}
@@ -301,7 +365,7 @@ bool solvable_problem(){
 void insert_variable(string name, string position){
 
 
-	if(!check_name(name)) assert(0 && "Wrong name for insert_variable");
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
 
 
 	if( name.find("constant") != string::npos )
@@ -360,7 +424,7 @@ string type(string name){
 
 string name_without_suffix( string name ){
 
-	if(!check_name(name)) assert(0 && "Wrong name for name_without_suffix");
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for name_without_suffix");
 
 	int s1 = name.find("_");
 	int s2 = name.find("_", s1+1);
