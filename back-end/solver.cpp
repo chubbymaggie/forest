@@ -377,7 +377,7 @@ void insert_variable(string name, string position){
 	//if(variables[name].contents.size() == 0)
 		//return;
 		
-	debug && printf("\e[32m Insert_variable \e[0m %s %s\n", name.c_str(), position.c_str() );
+	debug && printf("\e[32m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
 
 	NameAndPosition nandp = {name, position};
 	variable_names.insert(nandp);
@@ -408,15 +408,12 @@ string negation(string condition){
 
 void settype(string name, string type){
 
-	printf("settype name %s type %s\n", name.c_str(), type.c_str());
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for settype");
 	variables[name].type = type;
 
 }
 
 string type(string name){
-
-	printf("type: name %s type %s \e[36m---\e[0m %s\n", name.c_str(), variables[name].type.c_str(), variables["Z9myisloweri_register_r3"].type.c_str()     );
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
 

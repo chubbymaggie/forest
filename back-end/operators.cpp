@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
+#define see_each_problem true
 #define see_flat_problem false
 #define SIZE_STR 512
 
@@ -449,7 +449,8 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
 
-	variables[mem_var.str()].real_value = "0";
+	//variables[mem_var.str()].real_value = "0";
+	set_real_value(mem_var.str(), string("0"));
 	variables[mem_var.str()].name_hint = reg;
 
 	int size;
@@ -463,7 +464,10 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 			variables[ mem_name.str() ].type = subtype;
 		}
 
-		assign_instruction( "constant_0", reg );
+		stringstream constant_name; constant_name << "constant_" << alloca_pointer;
+		assign_instruction( constant_name.str(), reg );
+		//settype(name( reg ), "Int");
+
 	}
 
 	variables[mem_var.str()].type = type;
@@ -471,7 +475,7 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	alloca_pointer += size;
 
-	debug && printf("\e[31m alloca_instr %s %s %s %s\e[0m. %s %s %s %s\n", name(reg).c_str(), type.c_str(), _size,_subtype,name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str() );
+	debug && printf("\e[31m alloca_instr %s %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), type.c_str(), _size,_subtype,name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer);
 
 }
 
