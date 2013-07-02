@@ -142,7 +142,15 @@ string get_type_str( const Type* t){
 		return "ArrayTyID";
 	}
 
-	return "";
+	if(typId == 0){
+		return "VoidTyID";
+	}
+
+
+	t->dump();
+	cerr << typId << endl;
+
+	assert(0 && "Unknown Type");
 
 	//switch(typId){
 
@@ -184,6 +192,7 @@ string get_op_name_from_id(int opId){
 		case 16: return "/";
 		case 18: return "%";
 		case 19: return "%";
+		default: assert(0 && "Unknown operand");
 
 	}
 
@@ -234,7 +243,7 @@ int primary_size( const Type* t ){
 	if( type == "IntegerTyID8" ) return 1;
 	if( type == "PointerTyID" ) return 4;
 	if( type == "FloatTyID" ) return 4;
-	else return 0;
+	assert(0 && "Unknown type");
 
 }
 
@@ -628,6 +637,7 @@ struct IcmpInstr: public ModulePass {
 			case CmpInst::ICMP_SLT             : return "<";
 			case CmpInst::ICMP_SLE             : return "<=";
 			case CmpInst::BAD_ICMP_PREDICATE   : return "";
+			defalut: assert(0 && "Unknown Operation");
 
 		}
 	}

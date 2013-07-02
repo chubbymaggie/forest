@@ -200,13 +200,18 @@ string result_get(string get_str){
 		//printf("%s\n", it->c_str() );
 	//}
 	
-
+	string ret;
 
 	if( tokens[tokens.size() - 3] == "-" )
-		return "-" + tokens[tokens.size() - 2];
+		ret = "-" + tokens[tokens.size() - 2];
 	else 
-		return tokens[tokens.size() - 2];
+		ret = tokens[tokens.size() - 2];
 
+	//printf("ret %s\n", ret.c_str() );
+	assert( is_number(ret) && "Result is not a number");
+
+
+	return ret;
 }
 
 void set_real_value(string varname, string value, string fn_name ){
@@ -472,9 +477,20 @@ string get_type(string name){
 }
 
 bool is_number(const std::string& s) {
-    std::string::const_iterator it = s.begin();
-    while (it != s.end() && std::isdigit(*it)) ++it;
-    return !s.empty() && it == s.end();
+
+	if( s== "true" || s== "false") return true;
+
+	if(s.substr(0,1) == "-") return is_number(s.substr(1));
+
+	//printf("%s\n", s.substr(0,s.find(".")).c_str() );
+	//printf("%s\n", s.substr(s.find(".")+1).c_str() );
+	if( s.find(".") != string::npos ) return 
+		is_number(s.substr(0,s.find("."))) &&
+		is_number(s.substr(s.find(".")+1));
+
+	std::string::const_iterator it = s.begin();
+	while (it != s.end() && std::isdigit(*it)) ++it;
+	return !s.empty() && it == s.end();
 }
 
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
