@@ -169,7 +169,7 @@ void dump_conditions(FILE* file){
 
 void dump_header(FILE* file){
 	fprintf(file,"(set-option :produce-models true)\n");
-	fprintf(file,"(set-logic QF_NIA)\n");
+	fprintf(file,"(set-logic AUFNIRA)\n");
 
 }
 
@@ -432,12 +432,19 @@ string type(string name){
 	if (variables[name].type == "IntegerTyID16")
 		return "Int";
 
+	if (variables[name].type == "PointerTyID")
+		return "Int";
+
 	if (variables[name].type == "Int")
 		return "Int";
+
+	if (variables[name].type == "FloatTyID")
+		return "Real";
 
 	if (variables[name].type == "bool")
 		return "bool";
 
+	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 
 	assert(0 && "Unknown Type");
 

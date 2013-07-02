@@ -52,6 +52,12 @@ string operandname( Value* operand ){
 		stringstream nameop1_ss; nameop1_ss << "constant_" << val;
 		return nameop1_ss.str();
 
+	} else if( ConstantFP::classof(operand) ){
+
+		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
+		float val = CF->getValueAPF().convertToFloat();
+		stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+		return nameop1_ss.str();
 	} else {
 		return "register_" + operand->getName().str();
 	}
@@ -94,7 +100,15 @@ string get_type_str( const Type* t){
 
 	int typId = t->getTypeID();
 
+	//t->dump();
 	//cerr << typId << endl;
+
+
+	if(typId == 1){
+		stringstream name;
+		name << "FloatTyID";
+		return name.str();
+	}
 
 	if(typId == 9){
 		stringstream name;
@@ -137,12 +151,15 @@ string get_type_str( const Type* t){
 
 string get_op_name_from_id(int opId){
 
+	//cerr << "opID " << opId << endl;
+
 
 	switch(opId){
 
 		case  8: return "+";
 		case 10: return "-";
 		case 12: return "*";
+		case 13: return "*";
 		case 15: return "/";
 		case 18: return "%";
 
@@ -194,6 +211,7 @@ int primary_size( const Type* t ){
 	if( type == "IntegerTyID16" ) return 2;
 	if( type == "IntegerTyID8" ) return 1;
 	if( type == "PointerTyID" ) return 4;
+	if( type == "FloatTyID" ) return 4;
 	else return 0;
 
 }
@@ -350,7 +368,8 @@ struct FillNames : public ModulePass {
 
 					if( CallInst::classof(in) ){
 						if( !in->hasName() )
-							in->setName("r");
+							if( !(in->getType()->isVoidTy()) )
+								in->setName("r");
 					}
 
 
@@ -559,20 +578,20 @@ struct IcmpInstr: public ModulePass {
 		switch( instr->getPredicate() ){
 
 			case CmpInst::FCMP_FALSE           : return "";
-			case CmpInst::FCMP_OEQ             : return "";
-			case CmpInst::FCMP_OGT             : return "";
-			case CmpInst::FCMP_OGE             : return "";
-			case CmpInst::FCMP_OLT             : return "";
-			case CmpInst::FCMP_OLE             : return "";
-			case CmpInst::FCMP_ONE             : return "";
+			case CmpInst::FCMP_OEQ             : return "=";
+			case CmpInst::FCMP_OGT             : return ">";
+			case CmpInst::FCMP_OGE             : return ">=";
+			case CmpInst::FCMP_OLT             : return "<";
+			case CmpInst::FCMP_OLE             : return "<=";
+			case CmpInst::FCMP_ONE             : return "#";
 			case CmpInst::FCMP_ORD             : return "";
 			case CmpInst::FCMP_UNO             : return "";
-			case CmpInst::FCMP_UEQ             : return "";
-			case CmpInst::FCMP_UGT             : return "";
-			case CmpInst::FCMP_UGE             : return "";
-			case CmpInst::FCMP_ULT             : return "";
-			case CmpInst::FCMP_ULE             : return "";
-			case CmpInst::FCMP_UNE             : return "";
+			case CmpInst::FCMP_UEQ             : return "=";
+			case CmpInst::FCMP_UGT             : return ">";
+			case CmpInst::FCMP_UGE             : return ">=";
+			case CmpInst::FCMP_ULT             : return "<";
+			case CmpInst::FCMP_ULE             : return "<=";
+			case CmpInst::FCMP_UNE             : return "#";
 			case CmpInst::FCMP_TRUE            : return "";
 			case CmpInst::BAD_FCMP_PREDICATE   : return "";
 			case CmpInst::ICMP_EQ              : return "=";
