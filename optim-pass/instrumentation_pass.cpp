@@ -27,6 +27,7 @@
 #include "llvm/Instructions.h"
 #include "llvm/DerivedTypes.h"
 #include "llvm/Support/IRBuilder.h"
+#include "llvm/ADT/APFloat.h"
 #include <sstream>
 #include <iostream>
 #include <fstream>
@@ -55,8 +56,17 @@ string operandname( Value* operand ){
 	} else if( ConstantFP::classof(operand) ){
 
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
-		float val = CF->getValueAPF().convertToFloat();
-		stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+
+		stringstream nameop1_ss;
+
+		if( operand->getType()->getTypeID() == 1){
+			float val = CF->getValueAPF().convertToFloat();
+			nameop1_ss << "constant_" << val;
+		} else {
+			float val = CF->getValueAPF().convertToDouble();
+			nameop1_ss << "constant_" << val;
+		}
+
 		return nameop1_ss.str();
 	} else {
 		return "register_" + operand->getName().str();
