@@ -157,7 +157,10 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	variables[name(dst)].content = content_ss.str();
 
-	variables[name(dst)].type = variables[name(op1)].type;
+	if( variables[name(op1)].type != "" )
+		variables[name(dst)].type = variables[name(op1)].type;
+	else
+		variables[name(dst)].type = variables[name(op2)].type;
 
 
 

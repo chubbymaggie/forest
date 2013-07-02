@@ -217,8 +217,10 @@ void cmd_option_set(string key, string value ){
 
 void systm( string cmd ){
 
-	if( cmd_option_bool("verbose") )
+	if( cmd_option_bool("verbose") ){
 		printf("\e[31m %s \e[0m\n", cmd.c_str() );
+		fflush(stdout);
+	}
 
 	stringstream command;
 

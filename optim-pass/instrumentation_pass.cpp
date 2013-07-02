@@ -120,6 +120,13 @@ string get_type_str( const Type* t){
 		return name.str();
 	}
 
+	if(typId == 2){
+		stringstream name;
+		name << "DoubleTyID";
+		return name.str();
+	}
+
+
 	if(typId == 9){
 		stringstream name;
 		name << "IntegerTyID" << t->getPrimitiveSizeInBits();
@@ -167,11 +174,15 @@ string get_op_name_from_id(int opId){
 	switch(opId){
 
 		case  8: return "+";
+		case  9: return "+";
 		case 10: return "-";
+		case 11: return "-";
 		case 12: return "*";
 		case 13: return "*";
 		case 15: return "/";
+		case 16: return "/";
 		case 18: return "%";
+		case 19: return "%";
 
 	}
 
@@ -423,6 +434,7 @@ struct BinaryOp: public ModulePass {
 				blk_iterator(bb, in){
 					if( BinaryOperator::classof(in) ){
 
+						in->dump();
 						string nameres = "register_" + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );

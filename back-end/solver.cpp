@@ -423,6 +423,9 @@ string type(string name){
 	if (variables[name].type == "IntegerTyID32")
 		return "Int";
 
+	if (variables[name].type == "DoubleTyID")
+		return "Real";
+
 	if (variables[name].type == "IntegerTyID64")
 		return "Int";
 
