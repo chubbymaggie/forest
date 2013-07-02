@@ -243,6 +243,9 @@ int primary_size( const Type* t ){
 	if( type == "IntegerTyID8" ) return 1;
 	if( type == "PointerTyID" ) return 4;
 	if( type == "FloatTyID" ) return 4;
+	if( type == "DoubleTyID" ) return 8;
+
+	cerr << type << endl;
 	assert(0 && "Unknown type");
 
 }

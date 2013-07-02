@@ -450,8 +450,15 @@ string type(string name){
 	if (variables[name].type == "FloatTyID")
 		return "Real";
 
+	if (variables[name].type == "Real")
+		return "Real";
+
 	if (variables[name].type == "bool")
 		return "bool";
+
+	if (variables[name].type == "Pointer")
+		return "Pointer";
+
 
 	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 

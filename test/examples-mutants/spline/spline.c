@@ -7,7 +7,8 @@
 /*                                              */
 /************************************************/
 
-#include "cmath.h"
+#include <cmath>
+#define PROTOTYPE true
 
 /*-----------------------------------------------------------------*/
 
@@ -476,3 +477,24 @@ sum += dx *
 return (sum);
 }
 /*-------------------------------------------------------------------*/
+
+
+int main(){
+
+	int n = 10;
+	int end1;
+	int end2;
+	double slope1;
+	double slope2;
+	double x[10];
+	double y[10];
+	double b[10];
+	double c[10];
+	double d[10];
+	int iflag;
+
+	spline(n, end1, end2, slope1, slope2, x, y, b, c, d, &iflag);
+}
+
+
+

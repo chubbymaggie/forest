@@ -159,9 +159,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	variables[name(dst)].content = content_ss.str();
 
 	if( variables[name(op1)].type != "" )
-		variables[name(dst)].type = variables[name(op1)].type;
+		settype(name(dst), type(name(op1)));
 	else
-		variables[name(dst)].type = variables[name(op2)].type;
+		settype(name(dst), type(name(op2)));
 
 
 
@@ -477,6 +477,7 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 	sscanf(_size, "%d", &size);
 
 	variables[mem_var.str()].type = type;
+	variables[name(reg)].type = "Pointer";
 
 	if( type == "ArrayTyID" ){
 		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
@@ -485,14 +486,13 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 			variables[ mem_name.str() ].name_hint = mem_hint.str();
 			variables[ mem_name.str() ].type = subtype;
 		}
-
-		stringstream constant_name; constant_name << "constant" UNDERSCORE << alloca_pointer;
-		assign_instruction( constant_name.str(), reg );
-		settype(name( reg ), "Int");
-
-		//variables[mem_var.str()].type = subtype;
-
 	}
+
+	stringstream constant_name; constant_name << "constant" UNDERSCORE << alloca_pointer;
+	assign_instruction( constant_name.str(), reg );
+	settype(name( reg ), "Int");
+
+
 
 
 

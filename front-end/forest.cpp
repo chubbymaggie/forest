@@ -233,7 +233,10 @@ void systm( string cmd ){
 	else
 		command << "(" << cmd << ") >/dev/null 2>/dev/null";
 
-	system(command.str().c_str() );
+	int ret = system(command.str().c_str() );
+
+	if(ret != 0) exit(0);
+
 }
 
 void make_bc(){
