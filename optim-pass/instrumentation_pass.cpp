@@ -37,6 +37,7 @@
 #define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
 #define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
+#define UNDERSCORE "@"
 
 using namespace llvm;
 using namespace std;
@@ -50,7 +51,7 @@ string operandname( Value* operand ){
 
 		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
 		int64_t val = CI->getSExtValue();
-		stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 		return nameop1_ss.str();
 
 	} else if( ConstantFP::classof(operand) ){
@@ -61,15 +62,15 @@ string operandname( Value* operand ){
 
 		if( operand->getType()->getTypeID() == 1){
 			float val = CF->getValueAPF().convertToFloat();
-			nameop1_ss << "constant_" << val;
+			nameop1_ss << "constant" UNDERSCORE << val;
 		} else {
 			float val = CF->getValueAPF().convertToDouble();
-			nameop1_ss << "constant_" << val;
+			nameop1_ss << "constant" UNDERSCORE << val;
 		}
 
 		return nameop1_ss.str();
 	} else {
-		return "register_" + operand->getName().str();
+		return "register" UNDERSCORE + operand->getName().str();
 	}
 
 }
@@ -199,12 +200,12 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
 		if(CI){
 			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_" << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 			ret.push_back( nameop1_ss.str() );
 		} else {
 			Value* value = it->get();
 			string name = value->getName().str();
-			stringstream nameop1_ss; nameop1_ss << "register_" << name;
+			stringstream nameop1_ss; nameop1_ss << "register" UNDERSCORE << name;
 			ret.push_back( nameop1_ss.str() );
 
 
@@ -335,7 +336,7 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 	vector<string> ret2;// ret2.push_back("0");
 	for( vector<int>::iterator it = ret.begin(); it != ret.end(); it++ ){
 		stringstream ss;
-		ss << "constant_";
+		ss << "constant" UNDERSCORE;
 		ss << *it;
 		ret2.push_back(ss.str());
 	}
@@ -435,7 +436,7 @@ struct BinaryOp: public ModulePass {
 					if( BinaryOperator::classof(in) ){
 
 						in->dump();
-						string nameres = "register_" + in->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );
 						int nameop     = in->getOpcode();
@@ -489,7 +490,7 @@ struct CastInstr: public ModulePass {
 
 						if( in->getName() == "alloca point" ) continue;
 
-						string nameres = "register_" + in->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string type = get_type_str( in->getType() );
 
@@ -539,7 +540,7 @@ struct LoadStore: public ModulePass {
 				blk_iterator(bb, in){
 					if( LoadInst::classof(in) ){
 
-						string nameres = "register_" + in->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
@@ -639,7 +640,7 @@ struct IcmpInstr: public ModulePass {
 				blk_iterator(bb, in){
 					if( CmpInst::classof(in) ){
 
-						string nameres = "register_" + in->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );
 						string cmptype = get_predicate( cast<CmpInst>(in) );
@@ -1034,7 +1035,7 @@ struct CallInstr: public ModulePass {
 
 						string returnoperand;
 						if( !in_r->getReturnValue() )
-							returnoperand = "register_";
+							returnoperand = "register" UNDERSCORE;
 						else
 							returnoperand = operandname( in_r->getReturnValue() );
 
@@ -1160,7 +1161,7 @@ struct AllocaInstr: public ModulePass {
 
 						AllocaInst* in_a = cast<AllocaInst>(in);
 
-						string nameres = "register_" + in->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
 
 						string type = get_type_str(in_a->getAllocatedType());
 						string subtype;
@@ -1237,8 +1238,8 @@ struct GetelementPtr: public ModulePass {
 						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
 						Value* pointer = in_g->getPointerOperand();
 
-						string nameres = "register_" + in->getName().str();
-						string nameop1 = "register_" + pointer->getName().str();
+						string nameres = "register" UNDERSCORE + in->getName().str();
+						string nameop1 = "register" UNDERSCORE + pointer->getName().str();
 
 						//for( op_iterator it = in_g->idx_begin(); it != in_g->idx_end(); it++ ){
 							//it->dump();
@@ -1263,7 +1264,7 @@ struct GetelementPtr: public ModulePass {
 						} else if( t_pp ){
 							const Type* tp = t_p->getElementType();
 							stringstream size; size << get_size(t_pp);
-							sizes.push_back( "constant_" + size.str() );
+							sizes.push_back( "constant" UNDERSCORE + size.str() );
 						}
 
 						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);

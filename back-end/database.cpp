@@ -109,6 +109,23 @@ void create_tables(){
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
 }
 
+string gethint(string name){
+
+
+	string str = name;
+	string oldStr = "@";
+	string newStr = "_";
+	size_t pos = 0;
+
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+
+	return str;
+
+}
+
 void insert_problem(){
 
 	stringstream action;
@@ -137,7 +154,7 @@ void insert_problem(){
 			string name = it->name;
 			string value = (variables[name].real_value == "")?string("0"):variables[name].real_value;
 			//string value = variables[name].real_value;
-			string hint = variables[name].name_hint;
+			string hint = gethint(variables[name].name_hint);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
@@ -150,7 +167,7 @@ void insert_problem(){
 
 			string name = it->first;
 			string value = realvalue_mangled(name);
-			string hint = variables[name].name_hint;
+			string hint = gethint(variables[name].name_hint);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
 			//printf("%s\n", value.c_str());
@@ -164,7 +181,7 @@ void insert_problem(){
 			//if( it->second.content == "") continue;
 			//string name = it->first;
 			//string value = realvalue(name);
-			//string hint = variables[name].name_hint;
+			//string hint = gethint(variables[name].name_hint);
 			//bool is_memory = (name.substr(0,4) == "mem_");
 			//action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
 			

@@ -26,6 +26,7 @@
 #define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
+#define UNDERSCORE "@"
 
 int alloca_pointer = 0;
 map<string, Variable> variables;
@@ -41,7 +42,7 @@ string content( string name ){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if( variables[name].content == "" ){
-		insert_variable(name, actual_function + "_" + variables[name].name_hint );
+		insert_variable(name, actual_function + UNDERSCORE + variables[name].name_hint );
 		return name;
 
 	} else {
@@ -149,7 +150,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
 
 	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
-	if( variables[name(op1)].type == "bool" && op2 == "constant_0" && operation == "#" ){
+	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
 		content_ss.str("");
 		content_ss << content(name(op1));
 	}
@@ -276,7 +277,7 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 	vector<string> fn_oplist = tokenize( string(_fn_oplist), ",");
 	string ret_to            = string(_ret_to);
 
-	if( fn_name.substr(0,1) == "_" ) fn_name = fn_name.substr(1);
+	if( fn_name.substr(0,1) == UNDERSCORE ) fn_name = fn_name.substr(1);
 
 
 
@@ -346,7 +347,7 @@ void load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
 	string addr = string(_addr);
-	string src = "mem_" + realvalue(addr);
+	string src = "mem" UNDERSCORE + realvalue(addr);
 
 	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for load");
 	if(!check_unmangled_name(addr)) assert(0 && "Wrong addr for load");
@@ -367,7 +368,7 @@ void store_instr(char* _src, char* _addr){
 
 	string src = string(_src);
 	string addr = string(_addr);
-	string dst = "mem_" + realvalue(string(_addr)) ;
+	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
 	if(!check_unmangled_name(src)) assert(0 && "Wrong src for store");
@@ -466,7 +467,7 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 	stringstream rvalue; rvalue << alloca_pointer; 
 	set_real_value(reg,rvalue.str());
 
-	stringstream mem_var; mem_var << "mem_" << rvalue.str().c_str();
+	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
 
 	//variables[mem_var.str()].real_value = "0";
 	set_real_value(mem_var.str(), string("0"));
@@ -479,13 +480,13 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	if( type == "ArrayTyID" ){
 		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
-			stringstream mem_name; mem_name << "mem_" << i;
+			stringstream mem_name; mem_name << "mem" UNDERSCORE << i;
 			stringstream mem_hint; mem_hint << reg << "+" << i-alloca_pointer;
 			variables[ mem_name.str() ].name_hint = mem_hint.str();
 			variables[ mem_name.str() ].type = subtype;
 		}
 
-		stringstream constant_name; constant_name << "constant_" << alloca_pointer;
+		stringstream constant_name; constant_name << "constant" UNDERSCORE << alloca_pointer;
 		assign_instruction( constant_name.str(), reg );
 		settype(name( reg ), "Int");
 
@@ -522,7 +523,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 
 
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
-		stringstream namedst; namedst << dst << "_offset_" << i;
+		stringstream namedst; namedst << dst << UNDERSCORE "offset" UNDERSCORE << i;
 		//printf("%s = %s · %s\n", namedst.str().c_str(), indexes[i].c_str(), sizes[i].c_str());
 		binary_instruction(namedst.str(), indexes[i], sizes[i], "*");
 	}
@@ -532,13 +533,13 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 		if( i == 0 ){
 			stringstream namedst; namedst << dst;
 			stringstream nameop1; nameop1 << pointer;
-			stringstream nameop2; nameop2 << dst << "_offset_" << i;
+			stringstream nameop2; nameop2 << dst << UNDERSCORE "offset" UNDERSCORE << i;
 			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
 			binary_instruction(namedst.str(),nameop1.str(), nameop2.str(), "+");
 		} else {
 			stringstream namedst; namedst << dst;
 			stringstream nameop1; nameop1 << dst;
-			stringstream nameop2; nameop2 << dst << "_offset_" << i;
+			stringstream nameop2; nameop2 << dst << UNDERSCORE "offset" UNDERSCORE << i;
 			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
 			binary_instruction(namedst.str(), nameop1.str(), nameop2.str(), "+");
 		}
@@ -559,7 +560,7 @@ void BeginFn(char* _fn_name){
 
 	string fn_name = string(_fn_name);
 
-	if( fn_name.substr(0,1) == "_" )
+	if( fn_name.substr(0,1) == UNDERSCORE )
 		actual_function = fn_name.substr(1);
 	else
 		actual_function = fn_name;

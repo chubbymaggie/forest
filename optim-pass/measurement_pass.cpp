@@ -37,6 +37,8 @@
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
 #define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
 
+#define UNDERSCORE "_"
+
 using namespace llvm;
 using namespace std;
 
@@ -570,7 +572,8 @@ struct ChangeAssigns: public ModulePass {
 						//ConstantInt* const_int32_4 = ConstantInt::get(M.getContext(), APInt(32, StringRef("0"), 10));
 						//gvar_int32_global_a->setInitializer(const_int32_4);
 						string tgtfnname = (fn->getName().str() == "test")?"main":fn->getName().str();
-						GlobalVariable* gvar_int32_global_a = M.getGlobalVariable( tgtfnname+ "_register_" + in->getName().str() );
+						GlobalVariable* gvar_int32_global_a = M.getGlobalVariable( tgtfnname+ 
+								UNDERSCORE "register" UNDERSCORE + in->getName().str() );
 
 
 						BasicBlock::iterator insertpos = in; insertpos++;

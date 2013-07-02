@@ -23,6 +23,7 @@
 
 #define SIZE_STR 32768
 #define debug true
+#define UNDERSCORE "@"
 
 extern map<string, Variable> variables;
 extern set<NameAndPosition> variable_names;
@@ -47,7 +48,7 @@ int count(string name, string character){
 
 //bool check_name(string name){
 
-	//int number_of_underscore = count(name, "_");
+	//int number_of_underscore = count(name, UNDERSCORE);
 	//if(
 			//number_of_underscore != 0 &&
 			//number_of_underscore != 3 &&
@@ -58,24 +59,24 @@ int count(string name, string character){
 		//return false;
 
 	//if(number_of_underscore == 4){
-		//vector<string> tokens = tokenize(name, "_");
+		//vector<string> tokens = tokenize(name, UNDERSCORE);
 		//if(tokens[3] != "offset")
 			//return false;
 	//}
 
 	//if(number_of_underscore == 3){
-		//vector<string> tokens = tokenize(name, "_");
+		//vector<string> tokens = tokenize(name, UNDERSCORE);
 		//if(tokens[2] != "offset")
 			//return false;
 	//}
 
-	//if( name.substr(0,4) == "mem_" )
+	//if( name.substr(0,4) == "mem" UNDERSCORE )
 		//if(!is_number(name.substr(4))) return false;
 
-	//if( name.substr(0,9) == "constant_" )
+	//if( name.substr(0,9) == "constant" UNDERSCORE )
 		//if(!is_number(name.substr(9))) return false;
 
-	//if( name.find("_") == string::npos ){
+	//if( name.find(UNDERSCORE) == string::npos ){
 		//if(!is_number(name)) return false;
 	//}
 
@@ -86,7 +87,7 @@ int count(string name, string character){
 bool check_mangled_name(string name){
 
 	//printf("check mangled name %s\n", name.c_str());
-	int number_of_underscore = count(name, "_");
+	int number_of_underscore = count(name, UNDERSCORE);
 	if(
 			number_of_underscore != 2 && // main_register_r1
 			number_of_underscore != 0 && // 2
@@ -96,12 +97,12 @@ bool check_mangled_name(string name){
 		return false;
 
 	if( number_of_underscore == 1 ){
-		vector<string> tokens = tokenize(name, "_");
+		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[0] != "mem") return false;
 	}
 
 	if( number_of_underscore == 4 ){
-		vector<string> tokens = tokenize(name, "_");
+		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[3] != "offset") return false;
 	}
 
@@ -115,7 +116,7 @@ bool check_mangled_name(string name){
 
 bool check_unmangled_name(string name){
 	//printf("check unmangled name %s\n", name.c_str());
-	int number_of_underscore = count(name, "_");
+	int number_of_underscore = count(name, UNDERSCORE);
 	if(
 			number_of_underscore != 1 && // register_retval
 			number_of_underscore != 2 && // register_x_addr
@@ -124,13 +125,13 @@ bool check_unmangled_name(string name){
 		return false;
 
 	if(number_of_underscore == 2){
-		vector<string> tokens = tokenize(name, "_");
+		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[2] != "addr")
 			return false;
 	}
 
 	if(number_of_underscore == 3){
-		vector<string> tokens = tokenize(name, "_");
+		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[2] != "offset")
 			return false;
 	}
@@ -417,7 +418,7 @@ string type(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
 
-	if(name.substr(0,9) == "constant_") return "IntegerTyID32";
+	if(name.substr(0,9) == "constant" UNDERSCORE) return "IntegerTyID32";
 	if( is_number(name) ) return "IntegerTyID32";
 
 	if (variables[name].type == "IntegerTyID32")
@@ -458,8 +459,8 @@ string name_without_suffix( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for name_without_suffix");
 
-	int s1 = name.find("_");
-	int s2 = name.find("_", s1+1);
+	int s1 = name.find(UNDERSCORE);
+	int s2 = name.find(UNDERSCORE, s1+1);
 	return name.substr(0,s2);
 }
 
@@ -489,14 +490,14 @@ string name( string input, string fn_name ){
 	if(input.find("constant") != string::npos ){
 		int ini = 9;
 		string interm = input.substr(ini);
-		int len = interm.find("_");
+		int len = interm.find(UNDERSCORE);
 		string final = interm.substr(0, len);
 
 		return final;
-	} else if (input.substr(0,4) == "mem_" ){
+	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
 		return input;
 	} else {
-		return ((fn_name == "")?actual_function:fn_name) + "_" + input;
+		return ((fn_name == "")?actual_function:fn_name) + UNDERSCORE + input;
 		//return input;
 	}
 
