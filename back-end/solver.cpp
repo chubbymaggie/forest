@@ -616,6 +616,24 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
+bool get_is_propagated_constant(string varname){
+	if(!check_unmangled_name( varname)) assert(0 && "Wrong src for assign");
+	return variables[name(varname)].is_propagated_constant;
+}
+
+void set_is_propagated_constant(string varname){
+	if(!check_unmangled_name(varname)) assert(0 && "Wrong src for assign");
+
+	variables[name(varname)].is_propagated_constant = true;
+
+}
+
+bool is_constant(string varname){
+	if(!check_unmangled_name(varname)) assert(0 && "Wrong src for assign");
+
+	return varname.substr(0,9) == "constant" UNDERSCORE;
+
+}
 
 void assign_instruction(string src, string dst, string fn_name){
 
@@ -630,6 +648,13 @@ void assign_instruction(string src, string dst, string fn_name){
 	set_real_value( dst, realvalue(src), fn_name );
 
 	settype(name(dst, fn_name), get_type(name(src)));
+
+	if( get_is_propagated_constant(src) )
+		set_is_propagated_constant(dst);
+
+	if( is_constant(src) )
+		set_is_propagated_constant(dst);
+
 
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 
@@ -671,6 +696,18 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 
+
+	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
+
+	if( get_is_propagated_constant(op1) && is_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
+
+	if( is_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
 
 
 

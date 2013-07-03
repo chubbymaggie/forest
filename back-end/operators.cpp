@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
+#define see_each_problem true
 #define see_flat_problem false
 #define SIZE_STR 512
 #define UNDERSCORE "@"
@@ -406,6 +406,8 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		return real_value_prev == "true";
 	} else {
+
+		if( get_is_propagated_constant(cmp) ) exit(0);
 
 
 		if( realvalue(cmp) == "true" )

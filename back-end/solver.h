@@ -233,5 +233,7 @@ int show_problem();
 void print_path_stack();
 void push_path_stack(bool step);
 
+bool get_is_propagated_constant(string varname);
+
 #endif /* end of include guard: _SOLVER_H_ */
 

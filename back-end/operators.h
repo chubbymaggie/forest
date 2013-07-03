@@ -40,6 +40,7 @@ typedef struct Variable {
 	string type;
 	string name_hint;
 	string content;
+	bool is_propagated_constant;
 } Variable;
 
 
