@@ -29,208 +29,16 @@
 #define UNDERSCORE "@"
 
 int alloca_pointer = 0;
-map<string, Variable> variables;
-set<NameAndPosition> variable_names;
 vector<pair<string, string> > callstack;
-vector<bool> path_stack;
 
 string actual_function;
 string actual_bb;
 
-string content( string name ){
 
-	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
-	if( variables[name].content == "" ){
-		insert_variable(name, actual_function + UNDERSCORE + variables[name].name_hint );
-		return name;
 
-	} else {
-		return variables[name].content;
-	}
-}
 
-string realvalue_mangled(string varname){
 
-	//printf("\e[33m realvalue_mangled \e[0m %s\n", varname.c_str() );
-
-	if(!check_mangled_name(varname)) assert(0 && "Wrong name for realvalue_mangled");
-
-
-	if( varname.find("constant") != string::npos )
-		return varname.substr(9);
-	else if( variables[varname].real_value == "" )
-		return "0";
-	else
-		return variables[varname].real_value;
-}
-
-string realvalue(string varname){
-
-	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
-
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for realvalue");
-
-
-
-	if( varname.find("constant") != string::npos )
-		return varname.substr(9);
-	else if( variables[name(varname)].real_value == "" )
-		return "0";
-	else
-		return variables[name(varname)].real_value;
-
-}
-
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
-
-void assign_instruction(string src, string dst, string fn_name){
-
-	if(!check_unmangled_name(src)) assert(0 && "Wrong src for assign");
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for assign");
-
-
-	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
-
-	variables[ name(dst, fn_name) ].content = content( name(src) );
-
-	set_real_value( dst, realvalue(src), fn_name );
-
-	//variables[ name(dst, fn_name) ].type = variables[name(src)].type;
-	//variables[ name(dst, fn_name) ].type = type(name(src));
-	//printf("namedst %s\n", name(dst, fn_name).c_str() );
-	settype(name(dst, fn_name), type(name(src)));
-	//settype(name(dst, fn_name), variables[name(src)].type );
-	
-
-
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
-
-}
-
-void binary_instruction(string dst, string op1, string op2, string operation){
-
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
-	if(!check_unmangled_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
-	if(!check_unmangled_name(op2)) assert(0 && "Wrong op2 for binary_instruction");
-
-	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
-
-
-	stringstream content_ss;
-
-
-	if( operation == "#" )
-		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
-	else if (operation == "%")
-		content_ss << "(mod " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
-	else 
-		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
-
-	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
-	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
-		content_ss.str("");
-		content_ss << content(name(op1));
-	}
-
-
-	variables[name(dst)].content = content_ss.str();
-
-	if( variables[name(op1)].type != "" )
-		settype(name(dst), type(name(op1)));
-	else
-		settype(name(dst), type(name(op2)));
-
-
-
-
-
-
-
-	if(operation == "<="){
-		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == ">="){
-		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-
-	if(operation == "<"){
-		set_real_value(dst, ( stoi(realvalue(op1) ) < stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == ">"){
-		set_real_value(dst, ( stoi(realvalue(op1) ) > stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == "="){
-		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == "#"){
-		set_real_value(dst, ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-
-	if(operation == "+"){
-		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
-		set_real_value(dst, result.str());
-	}
-
-	if(operation == "-"){
-		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
-		set_real_value(dst, result.str());
-	}
-
-	if(operation == "*"){
-		stringstream result; result << stoi(realvalue(op1)) * stoi(realvalue(op2));
-		set_real_value(dst, result.str());
-	}
-
-
-	if(operation == "/"){
-		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
-		set_real_value(dst, result.str());
-	}
-
-
-	if(operation == "%"){
-		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
-		set_real_value(dst, result.str());
-	}
-
-	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
-	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
-
-
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
-                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str() );
-
-
-}
 
 void cast_instruction(char* _dst, char* _src, char* _type){
 
@@ -245,10 +53,10 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 
 	assign_instruction(src,dst);
 
-	if( variables[name(src)].type != "bool" )
-		variables[ name(dst) ].type = type;
+	if( get_type(name(src)) != "bool" )
+		settype(name(dst), type);
 	else
-		variables[ name(dst) ].type = "bool";
+		settype(name(dst), "bool");
 
 	debug && printf("\e[31m Cast_instruction %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(), type.c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
@@ -263,8 +71,8 @@ void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
 	string ret_to            = string(_ret_to);
 	string ret_type          = string(_ret_type);
 
-	variables[name(ret_to)].name_hint = "return of " + fn_name;
-	variables[name(ret_to)].type = ret_type;
+	set_name_hint(name(ret_to), "return of " + fn_name );
+	settype(name(ret_to), ret_type );
 
 	printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
 }
@@ -404,39 +212,11 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
 									 name(dst).c_str(), realvalue(dst).c_str() );
 
-	variables[ name(dst) ].type = "bool";
+	settype(name(dst), "bool");
 
 	assert( (realvalue(dst) == "true" || realvalue(dst) == "false") && "Invalid result for a comparison operation" );
 }
 
-int show_problem(){
-
-	dump_header();
-	dump_variables();
-	dump_conditions();
-	dump_get();
-	dump_tail();
-
-	stringstream filename; filename << "/tmp/z3-" << rand() << ".smt2";
-
-	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
-
-	FILE* file = fopen(filename.str().c_str(), "w");
-
-	dump_header(file);
-	dump_variables(file);
-	dump_conditions(file);
-	dump_get(file);
-	dump_tail(file);
-
-	fclose(file);
-
-
-
-	fflush(stdout);
-
-	getchar();
-}
 
 void br_instr_incond(){
 
@@ -469,22 +249,21 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
 
-	//variables[mem_var.str()].real_value = "0";
 	set_real_value(mem_var.str(), string("0"));
-	variables[mem_var.str()].name_hint = reg;
+	set_name_hint(mem_var.str(), reg);
 
 	int size;
 	sscanf(_size, "%d", &size);
 
-	variables[mem_var.str()].type = type;
-	variables[name(reg)].type = "Pointer";
+	settype(mem_var.str(), type);
+	settype(name(reg), "Pointer");
 
 	if( type == "ArrayTyID" ){
 		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
 			stringstream mem_name; mem_name << "mem" UNDERSCORE << i;
 			stringstream mem_hint; mem_hint << reg << "+" << i-alloca_pointer;
-			variables[ mem_name.str() ].name_hint = mem_hint.str();
-			variables[ mem_name.str() ].type = subtype;
+			set_name_hint(mem_name.str(), mem_hint.str());
+			settype(mem_name.str(), subtype);
 		}
 	}
 
@@ -586,17 +365,6 @@ void end_sim(){
 	
 }
 
-void print_path_stack(){
-
-
-	debug && printf("\e[33m Path_stack \e[0m");
-	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
-		debug && printf("%s", (*it)?"T":"F" );
-	}
-	debug && printf("\n");
-	
-
-}
 
 bool br_instr_cond(char* _cmp, char* _joints){
 
@@ -627,7 +395,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		int status;
 		waitpid(pid, &status, 0);
 
-		path_stack.push_back( real_value_prev == "true");
+		push_path_stack( real_value_prev == "true");
 		print_path_stack();
 
 		if(yet_covered()) exit(0);
@@ -653,7 +421,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 			debug && printf("hijo sat\n"); fflush(stdout);
 			get_values();
 
-			path_stack.push_back( real_value_prev != "true");
+			push_path_stack( real_value_prev != "true");
 			print_path_stack();
 
 			if(yet_covered()) exit(0);

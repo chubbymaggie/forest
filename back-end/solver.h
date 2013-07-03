@@ -176,20 +176,12 @@ string past(string name);
  *
  * @return 
  */
-string type(string name);
-
-/**
- * @brief Type of a variable
- *
- * @param name
- *
- * @return 
- */
 string get_type(string name);
 
 string name_without_suffix(string name);
 
 
+void set_name_hint(string name, string hint);
 
 
 
@@ -219,6 +211,27 @@ string name( string input, string fn_name = "" );
 void set_real_value(string varname, string value, string fn_name );
 
 void set_real_value(string varname, string value );
+
+string content( string name );
+
+
+string realvalue(string varname);
+
+
+vector<string> tokenize(const string& str,const string& delimiters);
+
+
+void assign_instruction(string src, string dst, string fn_name);
+
+
+void binary_instruction(string dst, string op1, string op2, string operation);
+
+
+int show_problem();
+
+
+void print_path_stack();
+void push_path_stack(bool step);
 
 #endif /* end of include guard: _SOLVER_H_ */
 
