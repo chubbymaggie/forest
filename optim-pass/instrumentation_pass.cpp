@@ -69,6 +69,9 @@ string operandname( Value* operand ){
 		}
 
 		return nameop1_ss.str();
+	} else if ( ConstantPointerNull::classof(operand) ){
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE "0";
+		return nameop1_ss.str();
 	} else {
 		return "register" UNDERSCORE + operand->getName().str();
 	}
@@ -177,7 +180,7 @@ string get_type_str( const Type* t){
 
 string get_op_name_from_id(int opId){
 
-	//cerr << "opID " << opId << endl;
+	cerr << "opID " << opId << endl;
 
 
 	switch(opId){

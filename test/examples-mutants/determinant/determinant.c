@@ -43,12 +43,14 @@
 //
 //==============================================================================
 
+#include <stdlib.h>
+#include <math.h>
 
 double Determinant(double **a,int n)
 {
     int i,j,j1,j2 ;                    // general loop and matrix subscripts
     double det = 0 ;                   // init determinant
-    double **m = NULL ;                // pointer to pointers to implement 2d
+    double **m = 0;                // pointer to pointers to implement 2d
                                        // square array
 
     if (n < 1)    {   }                // error condition, should never get here
@@ -113,4 +115,11 @@ double Determinant(double **a,int n)
     return(det) ;
 }
 
+int main(){
 
+	int n = 10;
+	double m[10][10];
+
+	Determinant((double**)m,n);
+
+}
