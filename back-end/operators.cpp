@@ -26,7 +26,7 @@
 #define see_each_problem false
 #define see_flat_problem false
 #define SIZE_STR 512
-#define UNDERSCORE "@"
+#define UNDERSCORE "_"
 
 int alloca_pointer = 0;
 vector<pair<string, string> > callstack;

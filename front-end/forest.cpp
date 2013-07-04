@@ -235,7 +235,7 @@ void systm( string cmd ){
 
 	int ret = system(command.str().c_str() );
 
-	if(ret != 0) exit(0);
+	//if(ret != 0) exit(0);
 
 }
 
@@ -477,6 +477,44 @@ void show_results(){
 
 }
 
+
+void show_coverage(){
+
+	//if( !done_run ) run();
+
+	stringstream cmd;
+
+	// Muestro los resultados de la base de datos
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 20 15\\n.headers on\\nselect * from measurements;' | sqlite3 database.db";
+
+
+
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+	
+	fp = popen(cmd.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+	
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		printf("%s", it->c_str());
+	}
+	
+
+
+
+}
+
+
+
+
 void test(){
 
 
@@ -667,6 +705,11 @@ set<vector<string> > minimal_vectors(){
 	stringstream command;
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
+
+	if(cd_path != "")
+		command << "cd " << cd_path << ";";
+
+
 	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 database.db";
 	fp = popen(command.str().c_str(), "r");
 	while (fgets(ret,SIZE_STR, fp) != NULL)
@@ -857,6 +900,10 @@ vector<FreeVariableInfo> get_free_variables(){
 	stringstream cmd;
 
 	cmd.str("");
+
+	if(cd_path != "")
+		cmd << "cd " << cd_path << ";";
+
 	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 database.db";
 
 	FILE *fp;
@@ -1082,6 +1129,74 @@ void minimal_test_vectors_to_db(){
 	}
 }
 
+int stoi(string str){
+	int ret;
+	sscanf(str.c_str(), "%d", &ret);
+	return ret;
+}
+
+void check_coverage(){
+
+	//printf("check_coverage\n");
+
+	vector<string> coverages;
+
+	coverages.push_back("fn");
+	coverages.push_back("bb");
+
+	for( vector<string>::iterator it = coverages.begin(); it != coverages.end(); it++ ){
+
+		string cov = *it;
+
+		int expected_coverage = cmd_option_int("expected_" + cov + "_coverage");
+
+		stringstream cmd;
+
+		// Muestro los resultados de la base de datos
+		cmd.str("");
+		if(cd_path != "")
+			cmd << "cd " << cd_path << ";";
+		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 database.db";
+
+
+
+		FILE *fp;
+		stringstream command;
+		char ret[SIZE_STR];
+		vector<string> ret_vector;
+
+		fp = popen(cmd.str().c_str(), "r");
+
+		while (fgets(ret,SIZE_STR, fp) != NULL)
+			ret_vector.push_back(ret);
+
+		pclose(fp);
+
+		vector<string> tokens = tokenize( *(ret_vector.begin()), " ");
+
+		string coverage_s = tokens[2];
+
+		int archived_coverage = stoi(coverage_s);
+
+
+
+		string explanation = cmd_option_str("explanation") + " ";
+
+		while( explanation.length() < 46 )
+			explanation = explanation + ".";
+
+		printf("* Coverage of %s", explanation.c_str() );
+
+
+		if( archived_coverage <  expected_coverage ) printf("\e[31m Less coverage than expected :(\e[0m\n");
+		if( archived_coverage >  expected_coverage ) printf("\e[33m More coverage than expected :S\e[0m\n");
+		if( archived_coverage == expected_coverage ) printf("\e[32m Same coverage as expected :)\e[0m\n");
+
+	}
+
+
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1097,6 +1212,11 @@ int main(int argc, const char *argv[]) {
 		set_option("run", "true");
 	}
 
+	if( cmd_option_bool("check_coverage") ){
+		set_option("measure_coverage", "true");
+	}
+
+
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
@@ -1108,6 +1228,8 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("show_results")) show_results();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
+	if(cmd_option_bool("show_coverage")) show_coverage();
+	if(cmd_option_bool("check_coverage")) check_coverage();
 
 
 	return 0;

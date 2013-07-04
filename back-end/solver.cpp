@@ -23,7 +23,7 @@
 
 #define SIZE_STR 32768
 #define debug true
-#define UNDERSCORE "@"
+#define UNDERSCORE "_"
 
 map<string, Variable> variables;
 set<NameAndPosition> variable_names;
@@ -110,7 +110,9 @@ bool check_mangled_name(string name){
 			number_of_underscore != 2 && // main_register_r1
 			number_of_underscore != 0 && // 2
 			number_of_underscore != 1 && // mem_9
-			number_of_underscore != 4 // main_register_r1_offset_0
+			number_of_underscore != 4 && // main_register_r1_offset_0
+			number_of_underscore != 3 // Z3dbls_register_x_addr
+
 	)
 		return false;
 
@@ -123,6 +125,12 @@ bool check_mangled_name(string name){
 		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[3] != "offset") return false;
 	}
+
+	if( number_of_underscore == 3 ){
+		vector<string> tokens = tokenize(name, UNDERSCORE);
+		if(tokens[3] != "addr") return false;
+	}
+
 
 	if( number_of_underscore == 0 ){
 		if( !is_number(name) ) return false;

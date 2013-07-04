@@ -206,11 +206,16 @@ void end_sim(){
 	stringstream value;
 
 	value.str("");
-	value << visited_fns.size() << "/" << available_fns.size();
+	value << visited_fns.size() << "/" << available_fns.size() << " ( " <<
+		(int)(100.0*(float)visited_fns.size()/(float)available_fns.size())
+		<< " % )";
+
 	insert_measurement("visited_fns", value.str());
 
 	value.str("");
-	value << visited_bbs.size() << "/" << available_bbs.size();
+	value << visited_bbs.size() << "/" << available_bbs.size() << " ( " <<
+		(int)(100.0*(float)visited_bbs.size()/(float)available_bbs.size())
+		<< " % )";
 	insert_measurement("visited_bbs", value.str());
 
 	end_database();

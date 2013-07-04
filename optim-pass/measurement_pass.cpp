@@ -242,7 +242,7 @@ struct BeginEnd: public ModulePass {
 			functions += fn->getName().str() + ",";
 
 			fun_iterator(fn,bb){
-				basic_blocks += fn->getName().str() + "_" + bb->getName().str() + ",";
+				basic_blocks += fn->getName().str() + UNDERSCORE + bb->getName().str() + ",";
 			}
 		}
 
@@ -357,7 +357,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 			std::vector<Constant*> const_ptr_11_indices;
 			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10)));
 			const_ptr_11_indices.push_back(ConstantInt::get(mod->getContext(), APInt(64, StringRef("0"), 10)));
-			GlobalVariable* gvar_array__str = new GlobalVariable(*mod,ArrayType::get(IntegerType::get(mod->getContext(), 8), it->name.length() + 1), true, GlobalValue::PrivateLinkage, 0, "global_" + it->name);
+			GlobalVariable* gvar_array__str = new GlobalVariable(*mod,ArrayType::get(IntegerType::get(mod->getContext(), 8), it->name.length() + 1), true, GlobalValue::PrivateLinkage, 0, "global" UNDERSCORE + it->name);
 			gvar_array__str->setInitializer(const_array_9);
 			CallInst* int32_17 = CallInst::Create(func_vector_int,ConstantExpr::getGetElementPtr(gvar_array__str, &const_ptr_11_indices[0], const_ptr_11_indices.size()), "", label_bb);
 
@@ -514,14 +514,14 @@ map<string, string> load_names_from_pos(){
 
 		vector<string> tokens = tokenize(string(line), " ");
 
-		vector<string> tokens2 = tokenize(tokens[2], "_");
+		vector<string> tokens2 = tokenize(tokens[2], UNDERSCORE );
 
 		string position;
 
 		if(tokens2[0] == "main")
-			position = "test_" + tokens2[2];
+			position = "test" UNDERSCORE + tokens2[2];
 		else
-			position = tokens2[0] + "_" + tokens2[2];
+			position = tokens2[0] + UNDERSCORE + tokens2[2];
 
 
 		string name = tokens[0];
@@ -555,7 +555,7 @@ struct ChangeAssigns: public ModulePass {
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
 
-					string actual_reg_name = fn->getName().str() + "_" + in->getName().str();
+					string actual_reg_name = fn->getName().str() + UNDERSCORE + in->getName().str();
 
 					//cerr << "actual_reg_name " << actual_reg_name << endl;
 
