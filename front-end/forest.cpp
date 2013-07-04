@@ -944,7 +944,15 @@ void gen_file_free_variables(){
 		outfile.push_back( it->name + " " + it->type + " " + it->position );
 	}
 
-	FILE* file = fopen("free_variables", "w");
+	string filename;
+
+	if(cd_path == "")
+		filename = "free_variables";
+	else
+		filename = cd_path + "/free_variables";
+
+	FILE* file = fopen(filename.c_str(), "w");
+
 	for( vector<string>::iterator it = outfile.begin(); it != outfile.end(); it++ ){
 		fprintf(file, "%s\n", it->c_str());
 	}
@@ -991,8 +999,14 @@ void gen_file_vectors(){
 	}
 
 
+	string filename;
 
-	FILE* file = fopen("vectors", "w");
+	if(cd_path == "")
+		filename = "vectors";
+	else
+		filename = cd_path + "/vectors";
+
+	FILE* file = fopen( filename.c_str(), "w");
 	for( vector<string>::iterator it = output_file.begin(); it != output_file.end(); it++ ){
 		fprintf(file, "%s\n", it->c_str());
 	}
