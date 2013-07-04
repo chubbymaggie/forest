@@ -356,24 +356,27 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 		for( vector<FreeVariable>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 
-
-
-	std::vector<const Type*>FuncTy_7_args;
-	Function* func_vector_int = Function::Create(
-			FunctionType::get( IntegerType::get(mod->getContext(), 16), FuncTy_7_args, true), // --- 32
-			GlobalValue::ExternalLinkage,
-			"vector_short", mod); // (external, no body)
+	//std::vector<const Type*>FuncTy_7_args;
+	//Function* func_vector_int = Function::Create(
+			//FunctionType::get( IntegerType::get(mod->getContext(), 32), FuncTy_7_args, true), // --- 32
+			//GlobalValue::ExternalLinkage,
+			//"vector_int", mod); // (external, no body)
+				Function* func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
+							Type::getInt32Ty( mod->getContext() ),
+							Type::getInt8PtrTy( mod->getContext() ),
+							(Type *)0
+							));
 
 
 
 
 			GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
-					IntegerType::get(mod->getContext(), 16), // -------------------------------------------------- 32
+					IntegerType::get(mod->getContext(), 32), // -------------------------------------------------- 32
 					false,
 					GlobalValue::CommonLinkage,
 					0, // has initializer, specified below
 					it->position);
-			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 16, StringRef("0"), 10)); // -------- 32
+			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 32, StringRef("0"), 10)); // -------- 32
 			gvar_int32_global_int_a->setInitializer(const_int32_10);
 
 
