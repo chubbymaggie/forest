@@ -204,6 +204,13 @@ struct BbMarks: public ModulePass {
 						(Type *)0
 						));
 
+			Value* EndFn = cast<Value> ( M.getOrInsertFunction( "EndFn" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+
+
+
 			Function::iterator begin = fn->begin();
 			Function::iterator end   = fn->end();
 
@@ -211,12 +218,21 @@ struct BbMarks: public ModulePass {
 			if( begin != end ){
 				//begin->dump();
 
-				BasicBlock::iterator insertpos = fn->begin()->begin();
-				//insertpos++;
+				{
+					BasicBlock::iterator insertpos = fn->begin()->begin();
+					std::vector<Value*> params;
+					params.push_back(pointerToArray(M,c1));
+					CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+				}
 
-				std::vector<Value*> params;
-				params.push_back(pointerToArray(M,c1));
-				CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+				{
+					Function::iterator insertfn = fn->end(); insertfn--;
+					BasicBlock::iterator insertpos = insertfn->end(); insertpos--;
+					std::vector<Value*> params;
+					CallInst::Create(EndFn, params.begin(), params.end(), "", insertpos);
+				}
+
+
 				
 			}
 
@@ -239,10 +255,15 @@ struct BeginEnd: public ModulePass {
 		string basic_blocks;
 
 		mod_iterator(M, fn){
-			functions += fn->getName().str() + ",";
+
+			if(fn->getName() == "main") continue;
+
+			if( fn->begin() != fn->end() )
+				functions += ((fn->getName().str() == "test")?string("main"):fn->getName().str()) + ",";
+
 
 			fun_iterator(fn,bb){
-				basic_blocks += fn->getName().str() + UNDERSCORE + bb->getName().str() + ",";
+				basic_blocks += ((fn->getName().str() == "test")?string("main"):fn->getName().str())+ UNDERSCORE + bb->getName().str()+ ",";
 			}
 		}
 
@@ -309,14 +330,6 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 			GlobalValue::ExternalLinkage,
 			"main", mod); 
 
-	std::vector<const Type*>FuncTy_7_args;
-	Function* func_vector_int = Function::Create(
-			FunctionType::get( IntegerType::get(mod->getContext(), 32), FuncTy_7_args, true),
-			GlobalValue::ExternalLinkage,
-			"vector_int", mod); // (external, no body)
-
-
-
 
 	// Function: main (func_main)
 	{
@@ -343,15 +356,28 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 		for( vector<FreeVariable>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 
+
+
+	std::vector<const Type*>FuncTy_7_args;
+	Function* func_vector_int = Function::Create(
+			FunctionType::get( IntegerType::get(mod->getContext(), 16), FuncTy_7_args, true), // --- 32
+			GlobalValue::ExternalLinkage,
+			"vector_short", mod); // (external, no body)
+
+
+
+
 			GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
-					IntegerType::get(mod->getContext(), 32),
+					IntegerType::get(mod->getContext(), 16), // -------------------------------------------------- 32
 					false,
 					GlobalValue::CommonLinkage,
 					0, // has initializer, specified below
-					//it->name);
 					it->position);
-			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt(32, StringRef("0"), 10));
+			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 16, StringRef("0"), 10)); // -------- 32
 			gvar_int32_global_int_a->setInitializer(const_int32_10);
+
+
+
 
 			Constant* const_array_9 = ConstantArray::get(mod->getContext(), it->name, true);
 			std::vector<Constant*> const_ptr_11_indices;

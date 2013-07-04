@@ -1186,6 +1186,8 @@ void check_coverage(){
 
 		pclose(fp);
 
+		assert( ret_vector.size() && "No coverage measurements");
+
 		vector<string> tokens = tokenize( *(ret_vector.begin()), " ");
 
 		string coverage_s = tokens[2];

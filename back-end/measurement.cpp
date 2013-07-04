@@ -25,11 +25,14 @@ using namespace std;
 
 #define debug true
 
+#define UNDERSCORE "_"
+
 set<string> visited_bbs;
 set<string> visited_fns;
 set<string> available_fns;
 set<string> available_bbs;
 map<string, vector<string> > test_vectors;
+vector<string> fn_stack;
 
 string actual_fn_name;
 
@@ -61,7 +64,7 @@ void begin_bb(char* _name){
 
 	string name = string(_name);
 
-	visited_bbs.insert(actual_fn_name + "_" + name);
+	visited_bbs.insert(actual_fn_name + UNDERSCORE + name);
 
 	debug && printf("\e[31m begin_bb %s \e[0m\n", _name );
 }
@@ -125,6 +128,14 @@ int stoi(string str){
 	return ret;
 }
 
+short stos(string str){
+	short ret;
+	int ret_i;
+	sscanf(str.c_str(), "%d", &ret_i);
+	ret = ret_i;
+	return ret;
+}
+
 int vector_int(char* _name){
 	
 	string name = string(_name);
@@ -138,6 +149,23 @@ int vector_int(char* _name){
 	return stoi(ret);
 }
 
+
+short vector_short(char* _name){
+
+	string name = string(_name);
+
+
+	string ret = test_vectors[string(name)][0];
+	test_vectors[string(name)].erase(test_vectors[string(name)].begin());
+
+	debug && printf("vector_short %s %s\n", _name, ret.c_str());
+
+	short ret_s = stos(ret);
+
+	return ret_s;
+}
+
+
 void begin_sim(char* functions, char* bbs){
 
 	start_database();
@@ -148,11 +176,11 @@ void begin_sim(char* functions, char* bbs){
 		vector<string> tokens = tokenize(functions, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-			if( *it == "test"       ) continue;
-			if( *it == "begin_bb"   ) continue;
-			if( *it == "end_bb"     ) continue;
-			if( *it == "BeginFn"    ) continue;
-			if( *it == "vector_int" ) continue;
+			//if( *it == "test"       ) continue;
+			//if( *it == "begin_bb"   ) continue;
+			//if( *it == "end_bb"     ) continue;
+			//if( *it == "BeginFn"    ) continue;
+			//if( *it == "vector_int" ) continue;
 			debug && printf("Insert_fn %s\n", it->c_str());
 			available_fns.insert(*it);
 		}
@@ -164,9 +192,9 @@ void begin_sim(char* functions, char* bbs){
 		vector<string> tokens = tokenize(bbs, ",");
 	
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-			if( *it == "main_entry" ) continue;
-			if( *it == "main_bb" ) continue;
-			if( *it == "main_bb2" ) continue;
+			//if( *it == "main_entry" ) continue;
+			//if( *it == "main_bb" ) continue;
+			//if( *it == "main_bb2" ) continue;
 			debug && printf("Insert_bb %s\n", it->c_str());
 			available_bbs.insert(*it);
 		}
@@ -181,12 +209,34 @@ void BeginFn(char* _fn_name){
 
 	actual_fn_name = function_name;
 
+	fn_stack.push_back(function_name);
+
 	visited_fns.insert(function_name);
 
 	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
 
 
 }
+
+
+void EndFn(){
+
+	assert(fn_stack.size() && "Empty stack");
+
+	debug && printf("\e[31m end_fn %lu \e[0m\n", fn_stack.size());
+
+	printf("size %lu\n", fn_stack.size());
+	fn_stack.erase(fn_stack.end()-1);
+
+	if(fn_stack.size()){
+		string function_name = fn_stack[fn_stack.size()-1];
+		actual_fn_name = function_name;
+	}
+
+
+
+}
+
 
 void end_sim(){
 
@@ -197,11 +247,27 @@ void end_sim(){
 	for( set<string>::iterator it = visited_fns.begin(); it != visited_fns.end(); it++ ){
 		debug && printf("%s,", it->c_str() );
 	} debug && printf("\n");
+
+
+	debug && printf("available_fns\n");
+	for( set<string>::iterator it = available_fns.begin(); it != available_fns.end(); it++ ){
+		debug && printf("%s,", it->c_str() );
+	} debug && printf("\n");
+
+
 	
 	debug && printf("visited_bbs\n");
 	for( set<string>::iterator it = visited_bbs.begin(); it != visited_bbs.end(); it++ ){
 		debug && printf("%s,", it->c_str() );
 	} debug && printf("\n");
+
+
+	debug && printf("available_bbs\n");
+	for( set<string>::iterator it = available_bbs.begin(); it != available_bbs.end(); it++ ){
+		debug && printf("%s,", it->c_str() );
+	} debug && printf("\n");
+
+
 
 	stringstream value;
 

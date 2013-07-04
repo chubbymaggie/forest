@@ -28,6 +28,7 @@
 #include <vector>
 #include <sstream>
 #include <string.h>
+#include <assert.h>
 
 /**
  * @brief  Begin basic Block
@@ -54,9 +55,11 @@ extern "C" void begin_sim(char*, char*);
 extern "C" void end_sim();
 
 extern "C" void BeginFn(char* _fn_name);
+extern "C" void EndFn();
 
 
 extern "C" int vector_int(char*);
+extern "C" short vector_short(char*);
 
 #endif /* end of include guard: _OPERATORS_H_ */
 
