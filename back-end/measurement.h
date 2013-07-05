@@ -59,6 +59,7 @@ extern "C" void EndFn();
 
 
 extern "C" int vector_int(char*);
+extern "C" char vector_char(char*);
 extern "C" short vector_short(char*);
 
 #endif /* end of include guard: _OPERATORS_H_ */

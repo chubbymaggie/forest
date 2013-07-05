@@ -1204,9 +1204,9 @@ void check_coverage(){
 		printf("* Coverage of %s", explanation.c_str() );
 
 
-		if( archived_coverage <  expected_coverage ) printf("\e[31m Less coverage than expected :(\e[0m\n");
-		if( archived_coverage >  expected_coverage ) printf("\e[33m More coverage than expected :S\e[0m\n");
-		if( archived_coverage == expected_coverage ) printf("\e[32m Same coverage as expected :)\e[0m\n");
+		if( archived_coverage <  expected_coverage ) printf("\e[31m Less coverage than expected :( (%d < %d)\e[0m\n", archived_coverage, expected_coverage);
+		if( archived_coverage >  expected_coverage ) printf("\e[33m More coverage than expected :S (%d > %d)\e[0m\n", archived_coverage, expected_coverage);
+		if( archived_coverage == expected_coverage ) printf("\e[32m Same coverage as expected :) (%d)\e[0m\n", archived_coverage);
 
 	}
 

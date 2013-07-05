@@ -136,6 +136,15 @@ short stos(string str){
 	return ret;
 }
 
+
+short stoc(string str){
+	char ret;
+	int ret_i;
+	sscanf(str.c_str(), "%d", &ret_i);
+	ret = ret_i;
+	return ret;
+}
+
 int vector_int(char* _name){
 	
 	string name = string(_name);
@@ -163,6 +172,21 @@ short vector_short(char* _name){
 	short ret_s = stos(ret);
 
 	return ret_s;
+}
+
+
+char vector_char(char* _name){
+
+	string name = string(_name);
+
+	string ret = test_vectors[string(name)][0];
+	test_vectors[string(name)].erase(test_vectors[string(name)].begin());
+
+	debug && printf("vector_char %s %s\n", _name, ret.c_str());
+
+	char ret_c = stoc(ret);
+
+	return ret_c;
 }
 
 
