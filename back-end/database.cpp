@@ -141,7 +141,7 @@ void insert_problem(){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = it->name;
-		string type = get_type(name);
+		string type = get_sized_type(name);
 		string position = it->position;
 		action << "insert into variables values ('" << name << "','" << type << "','" << position << "'," << id << ");";
 	}

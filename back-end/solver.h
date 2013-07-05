@@ -178,6 +178,8 @@ string past(string name);
  */
 string get_type(string name);
 
+string get_sized_type(string name);
+
 string name_without_suffix(string name);
 
 

@@ -462,6 +462,32 @@ string name_without_suffix( string name ){
 	return name.substr(0,s2);
 }
 
+
+string get_sized_type(string name){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for sized type");
+
+	if (variables[name].type == "IntegerTyID32")
+		return "Int32";
+
+	if (variables[name].type == "IntegerTyID8")
+		return "Int8";
+
+	if (variables[name].type == "IntegerTyID16")
+		return "Int16";
+
+	if (variables[name].type == "FloatTyID")
+		return "Float32";
+
+	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
+
+	assert(0 && "Unknown Type");
+
+	return "Int";
+
+}
+
+
 string get_type(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");

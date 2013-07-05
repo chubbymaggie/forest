@@ -361,23 +361,54 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 			//FunctionType::get( IntegerType::get(mod->getContext(), 32), FuncTy_7_args, true), // --- 32
 			//GlobalValue::ExternalLinkage,
 			//"vector_int", mod); // (external, no body)
-				Function* func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
+			
+			Function* func_vector_int;
+
+			if( it->type == "Int16" ){
+
+				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
+							Type::getInt16Ty( mod->getContext() ),
+							Type::getInt8PtrTy( mod->getContext() ),
+							(Type *)0
+							));
+			} else if ( it->type == "Int32" ){
+
+				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_short" ,
 							Type::getInt32Ty( mod->getContext() ),
 							Type::getInt8PtrTy( mod->getContext() ),
 							(Type *)0
 							));
 
+			} else {
+				assert(0 && "Unknown type");
+			}
 
 
+			GlobalVariable* gvar_int32_global_int_a;
 
-			GlobalVariable* gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
-					IntegerType::get(mod->getContext(), 32), // -------------------------------------------------- 32
-					false,
-					GlobalValue::CommonLinkage,
-					0, // has initializer, specified below
-					it->position);
-			ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 32, StringRef("0"), 10)); // -------- 32
-			gvar_int32_global_int_a->setInitializer(const_int32_10);
+			if(it->type == "Int16"){
+
+				gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
+							 IntegerType::get(mod->getContext(), 16), // -------------------------------------------------- 32
+							 false,
+							 GlobalValue::CommonLinkage,
+							 0, // has initializer, specified below
+							 it->position);
+				 ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 16, StringRef("0"), 10)); // -------- 32
+							 gvar_int32_global_int_a->setInitializer(const_int32_10);
+
+			 } else if (it->type == "Int32"){
+
+				gvar_int32_global_int_a = new GlobalVariable(/*Module=*/*mod, 
+						  	IntegerType::get(mod->getContext(), 32), // -------------------------------------------------- 32
+						  	false,
+							GlobalValue::CommonLinkage,
+							0, // has initializer, specified below
+							it->position);
+				ConstantInt* const_int32_10 = ConstantInt::get(mod->getContext(), APInt( 32, StringRef("0"), 10)); // -------- 32
+						  	gvar_int32_global_int_a->setInitializer(const_int32_10);
+
+			}
 
 
 
