@@ -57,6 +57,7 @@ extern "C" void end_sim();
 extern "C" void BeginFn(char* _fn_name);
 extern "C" void EndFn();
 
+extern "C" void br_instr_cond(bool value);
 
 extern "C" int vector_int(char*);
 extern "C" char vector_char(char*);

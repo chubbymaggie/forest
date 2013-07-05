@@ -36,6 +36,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 void insert_measurement(string, string);
 void start_database();
 void end_database();
+void insert_problem();
 
 
 #endif /* end of include guard: _DATABASE_H_ */

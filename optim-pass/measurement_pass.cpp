@@ -665,6 +665,55 @@ struct ChangeAssigns: public ModulePass {
 	}
 };
 
+
+struct BrInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	BrInstr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( BranchInst::classof(in) ){
+
+						BranchInst* in_b = cast<BranchInst>(in);
+
+						//in_b->getCondition()->getType()->dump();
+
+						if( in_b->isConditional() ){
+
+							////cerr << "\033[31m" << joints_s << "\033[0m" << endl;
+
+							//string nameop1 = operandname( in->getOperand(0) );
+
+							//GlobalVariable* c1 = make_global_str(M, nameop1);
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_instr_cond" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt1Ty( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in; //insertpos++;
+
+							std::vector<Value*> params;
+							params.push_back(in_b->getCondition());
+
+							CallInst* ci = CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+						}
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -672,6 +721,7 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		{BbMarks        pass;   pass.runOnModule(M);}
+		{BrInstr        pass;   pass.runOnModule(M);}
 		{ChangeMain     pass;   pass.runOnModule(M);}
 		{ChangeAssigns  pass;   pass.runOnModule(M);}
 		{BeginEnd       pass;   pass.runOnModule(M);}
@@ -700,3 +750,5 @@ static RegisterPass<ChangeMain> ChangeMain(       "changemain"           , "Inst
 char ChangeAssigns::ID = 0;
 static RegisterPass<ChangeAssigns> ChangeAssigns(       "changeassigns"           , "Instrument all operations" );
 
+char BrInstr::ID = 0;
+static RegisterPass< BrInstr> BrInstr(       "branchinstr"           , "Instrument branch operations" );

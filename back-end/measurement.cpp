@@ -33,6 +33,7 @@ set<string> available_fns;
 set<string> available_bbs;
 map<string, vector<string> > test_vectors;
 vector<string> fn_stack;
+vector<bool> path_stack;
 
 string actual_fn_name;
 
@@ -260,6 +261,17 @@ void EndFn(){
 
 
 }
+
+
+void br_instr_cond(bool value){
+
+	printf("br_instr_cond %d\n", value);
+
+	path_stack.push_back(value);
+	insert_problem();
+
+}
+
 
 
 void end_sim(){

@@ -21,6 +21,8 @@
 
 #include "database_measurement.h"
 
+extern vector<bool> path_stack;
+
 #define debug true
 
 sqlite3 *db;
@@ -63,3 +65,21 @@ void insert_measurement(string name, string value){
 
 }
 
+void insert_problem(){
+
+	stringstream action;
+	//string id = "(select max(problem_id) from problems)";
+	string id = "(select count() from problems)";
+
+	string path;
+	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		path += (*it)?"T":"F";
+	}
+	
+	action << "insert into problems (path) values (" << "'" << path << "');";
+
+	printf("action %s\n", action.str().c_str() );
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+}
