@@ -1213,6 +1213,134 @@ void check_coverage(){
 
 }
 
+void gen_file_free_variables_from_xml(){
+
+	vector<string> free_variables = cmd_option_string_vector("random_variable");
+
+
+	string filename;
+
+	if(cd_path == "")
+		filename = "free_variables";
+	else
+		filename = cd_path + "/free_variables";
+
+	FILE* file = fopen(filename.c_str(), "w");
+
+
+	for( vector<string>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		fprintf(file, "%s\n", it->c_str() );
+	}
+
+	fclose(file);
+
+}
+
+int custom_random(string name, map<string, string> distributions){
+
+
+	vector<string> tokens = tokenize( distributions[name], " ");
+	string distribution = tokens[0];
+
+	printf("distribution %s %s\n", name.c_str(), distribution.c_str());
+
+	if( distribution == "uniform" ){
+
+		int min_r = stoi(tokens[1]);
+		int max_r = stoi(tokens[2]);
+		int ret = (rand() % (max_r-min_r)) + min_r;
+
+		return ret;
+
+	}
+
+	assert(0 && "Unknown distribution");
+
+
+}
+
+void gen_file_vectors_random(){
+
+	string filename;
+
+	if(cd_path == "")
+		filename = "vectors";
+	else
+		filename = cd_path + "/vectors";
+
+	FILE* file = fopen(filename.c_str(), "w");
+
+	vector<string> types;
+	vector<string> names;
+	vector<string> free_variables = cmd_option_string_vector("random_variable");
+	for( vector<string>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		vector<string> tokens = tokenize(*it, " ");
+		types.push_back(tokens[1]);
+		names.push_back(tokens[0]);
+	}
+
+	map<string, string> distributions_map;
+	vector<string> distributions = cmd_option_string_vector("distribution");
+	for( vector<string>::iterator it = distributions.begin(); it != distributions.end(); it++ ){
+		vector<string> tokens = tokenize(*it, " ");
+
+		string distribution;
+		for ( unsigned int i = 1; i < tokens.size(); i++) {
+			distribution += " " + tokens[i];
+		}
+
+		distributions_map[tokens[0]] = distribution;
+	}
+
+
+
+
+
+
+
+	for ( unsigned int i = 0; i < cmd_option_int("num_random_vectors"); i++) {
+		for ( unsigned int j = 0; j < types.size(); j++) {
+			string type = types[j];
+			string name = names[j];
+			if( type == "Int32" ){
+				fprintf(file, "%d ", (int)custom_random(name, distributions_map) );
+			} else if( type == "Int16" ){
+				fprintf(file, "%d ", (short)custom_random(name, distributions_map) );
+			} else if( type == "Int8"){
+				fprintf(file, "%d ", (char)custom_random(name, distributions_map) );
+			} else {
+				assert(0 && "Unknown type");
+			}
+		}
+
+		fprintf(file, "\n");
+		
+	}
+	
+
+
+
+	fclose(file);
+
+
+}
+
+void random_testing(){
+
+	gen_file_free_variables_from_xml();
+	gen_file_vectors_random();
+	gen_final_for_measurement();
+
+	// Ejecuta
+	
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+	cmd.str("");
+	cmd << "./" + output_file;
+	systm(cmd.str().c_str());
+
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1246,6 +1374,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
 	if(cmd_option_bool("show_coverage")) show_coverage();
 	if(cmd_option_bool("check_coverage")) check_coverage();
+	if(cmd_option_bool("random_testing")) random_testing();
 
 
 	return 0;

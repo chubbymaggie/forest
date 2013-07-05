@@ -11,6 +11,17 @@
 	<option key="output_file" value="final"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 
+	<option key="random_variable" value="mem_12 Int32 main_register_b"/> 
+	<option key="random_variable" value="mem_16 Int32 main_register_c"/> 
+	<option key="random_variable" value="mem_20 Int32 main_register_d"/> 
+	<option key="random_variable" value="mem_8  Int32 main_register_a"/> 
+	<option key="num_random_vectors" value="10"/> 
+	<option key="distribution" value="mem_12 uniform 0 10"/> 
+	<option key="distribution" value="mem_16 uniform 0 10"/> 
+	<option key="distribution" value="mem_20 uniform 0 10"/> 
+	<option key="distribution" value="mem_8  uniform 0 10"/> 
+	
+
 </options>
 <variables>
 
