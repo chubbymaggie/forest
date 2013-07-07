@@ -18,15 +18,19 @@
  * =====================================================================================
  */
 
-
-typedef struct Estructura {
+struct Estructura {
 	int entero1;
-} Estructura;
+	int entero2;
+	struct estructura3{
+		int entero4;
+		int entero5;
+	};
+};
 
 int main(){
 
-	Estructura a;
-	if( a.entero1 > 0 )
+	Estructura a = {1,2};
+	if( a.entero1 + a.entero2 + a.estructura3.entero5 > 0 )
 		return 0;
 	else
 		return 1;
