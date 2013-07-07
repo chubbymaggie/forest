@@ -186,6 +186,7 @@ string name_without_suffix(string name);
 void set_name_hint(string name, string hint);
 
 
+int count(string name, string character);
 
 void dump_flatened_variables(FILE* file = stdout );
 

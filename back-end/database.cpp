@@ -27,7 +27,7 @@ sqlite3 *db;
 
 extern map<string, Variable> variables;
 extern set<NameAndPosition> variable_names;
-extern vector<string> conditions;
+extern vector<Condition> conditions;
 extern vector<bool> path_stack;
 
 vector< pair<string, string> > retsqlite;
@@ -104,6 +104,19 @@ void create_tables(){
 	action << "value varchar(50)";
 	action << ");";
 
+
+	action << "create table statistics(";
+	action << "problem_id integer,";
+	action << "num_of_assertions integer,";
+	action << "num_of_variables integer,";
+	action << "num_of_mults integer,";
+	action << "num_of_divs integer,";
+	action << "num_of_sums integer,";
+	action << "num_of_subs integer,";
+	action << "time_ms float";
+	action << ");";
+
+
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
@@ -125,6 +138,46 @@ string gethint(string name){
 	return str;
 
 }
+
+
+
+int num_of_assertions() { return conditions.size(); }
+
+int num_of_variables()  { return variable_names.size(); }
+
+int num_of_mults(){
+	int ret = 0;
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		ret += count(it->cond, "*");
+	}
+	return ret;
+}
+
+int num_of_divs(){
+	int ret = 0;
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		ret += count(it->cond, "/");
+	}
+	return ret;
+}
+
+int num_of_sums(){
+	int ret = 0;
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		ret += count(it->cond, "+");
+	}
+	return ret;
+}
+
+int num_of_subs(){
+	int ret = 0;
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		ret += count(it->cond, "-");
+	}
+	return ret;
+}
+
+
 
 void insert_problem(){
 
@@ -191,6 +244,44 @@ void insert_problem(){
 
 		
 	}
+
+
+	{
+		struct timespec ping_time;
+		struct timespec pong_time;
+		
+		clock_gettime(CLOCK_MONOTONIC, &ping_time);
+		solvable_problem();
+		clock_gettime(CLOCK_MONOTONIC, &pong_time);
+		
+		float spent_time = 0;
+		spent_time += pong_time.tv_sec - ping_time.tv_sec;
+		spent_time *= 1e9;
+		spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
+		spent_time /= 1e9;
+		spent_time *= 1000;
+	
+
+
+		action << "insert into statistics values (" << id                  << "," <<
+						    num_of_assertions() << "," <<
+						    num_of_variables()  << "," <<
+						    num_of_mults()      << "," <<
+						    num_of_divs()       << "," <<
+						    num_of_sums()       << "," <<
+						    num_of_subs()       << "," <<
+						    spent_time          << ");";
+
+
+	}
+
+
+
+
+
+
+
+
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 

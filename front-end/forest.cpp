@@ -418,7 +418,7 @@ void final(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -o " << output_file;
+	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 	done_final = true;
