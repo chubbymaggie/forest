@@ -387,6 +387,30 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 
 }
 
+vector<string> get_struct_offsets( const StructType* t ){
+
+	vector<string> ret;
+
+	unsigned int numelems = t->getNumElements();
+
+	int offset = 0;
+
+	for ( unsigned int i = 0; i < numelems; i++) {
+		stringstream ss;
+		ss << "constant" UNDERSCORE;
+		ss << offset;
+		ret.push_back(ss.str());
+
+		offset += get_size( t->getElementType(i) );
+	}
+
+	return ret;
+
+}
+
+
+
+
 // Optimization passes
 
 struct FillNames : public ModulePass {
@@ -1187,6 +1211,28 @@ struct BbMarks: public ModulePass {
 	}
 };
 
+string get_flattened_types(const Type* t){
+	t->dump();
+
+	string ret;
+	const StructType* t_s = dyn_cast<StructType>(t);
+	const ArrayType*  t_a = dyn_cast<ArrayType>(t);
+
+	if(t_s){
+		unsigned int numelems = t_s->getNumElements();
+
+		for ( unsigned int i = 0; i < numelems; i++) {
+			ret += get_flattened_types(t_s->getElementType(i));
+		}
+
+		return ret;
+	} else {
+		return get_type_str(t) + ",";
+	}
+
+
+}
+
 struct AllocaInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	AllocaInstr() : ModulePass(ID) {}
@@ -1210,6 +1256,9 @@ struct AllocaInstr: public ModulePass {
 							const ArrayType* typ = cast<ArrayType>(in_a->getAllocatedType());
 							const Type* typ2 = cast<Type>( element_type(typ) );
 							subtype = get_type_str( typ2 );
+						} else if(type == "StructTyID") {
+							subtype = get_flattened_types(in_a->getAllocatedType());
+							cerr << "subtype_flattened " << subtype << endl;
 						} else {
 							subtype = type;
 						}
@@ -1290,6 +1339,7 @@ struct GetelementPtr: public ModulePass {
 
 						const PointerType* t_p  = dyn_cast<PointerType>(in_g->getPointerOperandType());
 						const ArrayType*   t_a  = dyn_cast<ArrayType>(t_p->getElementType());
+						const StructType*  t_s  = dyn_cast<StructType>(t_p->getElementType());
 						const Type* t_pp        = t_p->getElementType();
 
 						//cerr << t_p << " " << t_a << endl;
@@ -1301,6 +1351,8 @@ struct GetelementPtr: public ModulePass {
 						vector<string> sizes;
 						if( t_a ){
 							sizes = get_nested_sizes( t_a );
+						} else if (t_s) {
+							sizes = get_struct_offsets(t_s);
 						} else if( t_pp ){
 							const Type* tp = t_p->getElementType();
 							stringstream size; size << get_size(t_pp);
@@ -1334,7 +1386,10 @@ struct GetelementPtr: public ModulePass {
 						GlobalVariable* c3 = make_global_str(M, indexes_str);
 						GlobalVariable* c4 = make_global_str(M, nst_sizes);
 
-						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
+						Value* InitFn;
+
+						if( t_s ){
+							InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr_struct" ,
 									Type::getVoidTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -1342,6 +1397,19 @@ struct GetelementPtr: public ModulePass {
 									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
 									));
+						} else if( t_a || t_pp ){
+							InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						} else {
+							assert(0 && "getelementptr no pointer or struct");
+						}
 
 						BasicBlock::iterator insertpos = in; insertpos++;
 
@@ -1433,17 +1501,17 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		{StructureSizes pass;   pass.runOnModule(M);}
-		//{CallInstr      pass;   pass.runOnModule(M);}
-		//{BinaryOp       pass;   pass.runOnModule(M);}
-		//{CastInstr      pass;   pass.runOnModule(M);}
-		//{LoadStore      pass;   pass.runOnModule(M);}
-		//{IcmpInstr      pass;   pass.runOnModule(M);}
-		//{BrInstr        pass;   pass.runOnModule(M);}
-		//{BbMarks        pass;   pass.runOnModule(M);}
-		//{AllocaInstr    pass;   pass.runOnModule(M);}
-		//{BeginEnd       pass;   pass.runOnModule(M);}
-		//{GetelementPtr  pass;   pass.runOnModule(M);}
+		//{StructureSizes pass;   pass.runOnModule(M);}
+		{CallInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp       pass;   pass.runOnModule(M);}
+		{CastInstr      pass;   pass.runOnModule(M);}
+		{LoadStore      pass;   pass.runOnModule(M);}
+		{IcmpInstr      pass;   pass.runOnModule(M);}
+		{BrInstr        pass;   pass.runOnModule(M);}
+		{BbMarks        pass;   pass.runOnModule(M);}
+		{AllocaInstr    pass;   pass.runOnModule(M);}
+		{BeginEnd       pass;   pass.runOnModule(M);}
+		{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}

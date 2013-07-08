@@ -479,6 +479,9 @@ string get_sized_type(string name){
 	if (variables[name].type == "FloatTyID")
 		return "Float32";
 
+	if (variables[name].type == "DoubleTyID")
+		return "Float64";
+
 	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 
 	assert(0 && "Unknown Type");

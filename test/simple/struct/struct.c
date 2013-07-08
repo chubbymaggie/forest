@@ -24,7 +24,7 @@ struct Estructura3 {
 };
 
 struct Estructura {
-	int entero1;
+	double entero1;
 	int entero2;
 	struct Estructura3 estructura3;
 };

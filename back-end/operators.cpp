@@ -236,6 +236,19 @@ void end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
+int get_size(string type){
+
+	if( type == "IntegerTyID32" )
+		return 4;
+
+	if( type == "DoubleTyID" )
+		return 8;
+
+
+	assert(0 && "Unknown type");
+
+}
+
 void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	string reg = string(_reg);
@@ -266,6 +279,26 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 			settype(mem_name.str(), subtype);
 		}
 	}
+
+	if( type == "StructTyID" ){
+		vector<string> tokens = tokenize(subtype, ",");
+
+		int position = alloca_pointer;
+		for ( unsigned int i = 0; i < tokens.size(); i++) {
+
+			stringstream mem_name; mem_name << "mem" UNDERSCORE << position;
+			stringstream mem_hint; mem_hint << reg << "+" << position - alloca_pointer;
+			set_name_hint(mem_name.str(), mem_hint.str());
+
+			//printf("type_struct %s %s\n", mem_name.str().c_str(), tokens[i].c_str() );
+
+			settype(mem_name.str(), tokens[i]);
+			position += get_size(tokens[i]);
+		}
+
+	}
+
+
 
 	stringstream constant_name; constant_name << "constant" UNDERSCORE << alloca_pointer;
 	assign_instruction( constant_name.str(), reg );
@@ -328,6 +361,42 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 }
+
+
+void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _offsets){
+
+	string dst     = string(_dst);
+	string pointer = string(_pointer);
+	vector<string> indexes = tokenize(string(_indexes), ",");
+	vector<string> offsets = tokenize(string(_offsets), ",");
+
+	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for getelementptr");
+	if(!check_unmangled_name(pointer)) assert(0 && "Wrong dst for getelementptr");
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		if(!check_unmangled_name(*it)) assert(0 && "Wrong index for getelementptr");
+	}
+	for( vector<string>::iterator it = offsets.begin(); it != offsets.end(); it++ ){
+		if(!check_unmangled_name(*it)) assert(0 && "Wrong size for getelementptr");
+	}
+	
+	assert( indexes[0] == "constant_0" );
+	assert( indexes[1].substr(0,9) == "constant_" );
+
+
+	int index;
+	sscanf( indexes[1].substr(9).c_str(), "%d", &index);
+
+	//printf("%d %s %s\n", index, indexes[index].c_str(), _indexes );
+
+	binary_instruction(dst, pointer, offsets[index], "+");
+
+
+	
+	debug && printf("\e[31m getelementptr_struct %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _offsets,
+		                                                          name(dst).c_str(), realvalue(dst).c_str() );
+
+}
+
 
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
