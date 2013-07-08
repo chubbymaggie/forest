@@ -149,6 +149,9 @@ string get_type_str( const Type* t){
 		return "VoidTyID";
 	}
 
+	if(typId == 11){
+		return "StructTyID";
+	}
 
 	t->dump();
 	cerr << typId << endl;
@@ -157,22 +160,22 @@ string get_type_str( const Type* t){
 
 	//switch(typId){
 
-		//case  0: return "VoidTyID";
-		//case  1: return "HalfTyID";
-		//case  2: return "FloatTyID";
-		//case  3: return "DoubleTyID";
-		//case  4: return "X86_FP80TyID";
-		//case  5: return "FP128TyID";
-		//case  6: return "PPC_FP128TyID";
-		//case  7: return "LabelTyID";
-		//case  8: return "MetadataTyID";
-		////case  9: return "X86_MMXTyID";
-		//case 9: return "IntegerTyID";
-		//case 11: return "FunctionTyID";
-		//case 12: return "StructTyID";
-		////case 13: return "ArrayTyID";
-		//case 13: return "PointerTyID";
-		//case 15: return "VectorTyID";
+		//case  -1: return "VoidTyID";
+		//case  0: return "HalfTyID";
+		//case  1: return "FloatTyID";
+		//case  2: return "DoubleTyID";
+		//case  3: return "X86_FP80TyID";
+		//case  4: return "FP128TyID";
+		//case  5: return "PPC_FP128TyID";
+		//case  6: return "LabelTyID";
+		//case  7: return "MetadataTyID";
+		////case  8: return "X86_MMXTyID";
+		//case 8: return "IntegerTyID";
+		//case 10: return "FunctionTyID";
+		//case 11: return "StructTyID";
+		////case 12: return "ArrayTyID";
+		//case 12: return "PointerTyID";
+		//case 14: return "VectorTyID";
 
 	//}
 
@@ -306,13 +309,34 @@ int product(vector<int> elem){
 	return prod;
 }
 
+int sizeofstruct(const Type* t);
+int get_size( const Type* t );
+
+int sizeofstruct(const Type* t){
+
+	int ret = 0;
+	const StructType* t_s = dyn_cast<StructType>(t);
+
+	unsigned int numelems = t_s->getNumElements();
+
+	for ( unsigned int i = 0; i < numelems; i++) {
+		ret += get_size( t_s->getElementType(i) );
+	}
+
+	//return t_s->getNumElements();
+	return ret;
+}
+
 int get_size( const Type* t ){
 
 	const ArrayType* t_a = dyn_cast<ArrayType>(t);
+	const StructType* t_s = dyn_cast<StructType>(t);
 
 
 	if( t_a ){
 		return product(get_dimensions(t_a))*element_size(t_a);
+	} else if (t_s){
+		return sizeofstruct(t);
 	} else {
 		return primary_size(t);
 	}
@@ -1375,22 +1399,51 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
+struct StructureSizes: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	StructureSizes() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( AllocaInst::classof(in) ){
+
+						AllocaInst* in_a = cast<AllocaInst>(in);
+
+						in_a->getAllocatedType()->dump();
+
+						cerr << get_type_str(in_a->getAllocatedType()) << endl;
+
+						cerr << get_size(in_a->getAllocatedType()) << endl;
+					}
+				}
+			}
+		}
+		
+
+		return false;
+	}
+};
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
 
-		{CallInstr     pass;   pass.runOnModule(M);}
-		{BinaryOp      pass;   pass.runOnModule(M);}
-		{CastInstr     pass;   pass.runOnModule(M);}
-		{LoadStore     pass;   pass.runOnModule(M);}
-		{IcmpInstr     pass;   pass.runOnModule(M);}
-		{BrInstr       pass;   pass.runOnModule(M);}
-		{BbMarks       pass;   pass.runOnModule(M);}
-		{AllocaInstr   pass;   pass.runOnModule(M);}
-		{BeginEnd      pass;   pass.runOnModule(M);}
-		{GetelementPtr pass;   pass.runOnModule(M);}
+		{StructureSizes pass;   pass.runOnModule(M);}
+		//{CallInstr      pass;   pass.runOnModule(M);}
+		//{BinaryOp       pass;   pass.runOnModule(M);}
+		//{CastInstr      pass;   pass.runOnModule(M);}
+		//{LoadStore      pass;   pass.runOnModule(M);}
+		//{IcmpInstr      pass;   pass.runOnModule(M);}
+		//{BrInstr        pass;   pass.runOnModule(M);}
+		//{BbMarks        pass;   pass.runOnModule(M);}
+		//{AllocaInstr    pass;   pass.runOnModule(M);}
+		//{BeginEnd       pass;   pass.runOnModule(M);}
+		//{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -1430,6 +1483,9 @@ static RegisterPass<GetelementPtr> GetelementPtr( "instr_getelementptr" , "Instr
 
 char BeginEnd::ID = 0;
 static RegisterPass<BeginEnd> BeginEnd(           "instr_beginend"      , "Instrument begin and end of program" );
+
+char StructureSizes::ID = 0;
+static RegisterPass<StructureSizes> StructureSizes( "instr_structure_sizes"      , "Instrument structure sizes" );
 
 char All::ID = 0;
 static RegisterPass<All> All(                     "instr_all"           , "Instrument all operations" );
