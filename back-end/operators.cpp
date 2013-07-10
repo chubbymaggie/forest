@@ -331,7 +331,8 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
 	}
 	
-
+	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
+		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
@@ -460,7 +461,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 	if( int pid = fork() ){
 
-		debug && printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
+		//debug && printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
 
 		
 		int status;

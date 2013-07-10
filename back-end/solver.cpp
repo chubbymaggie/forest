@@ -670,7 +670,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	if(!check_mangled_name(name(op1))) assert(0 && "Wrong op1 for binary_instruction");
 	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_instruction");
 
-	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
+	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s (%s %s)\e[0m\n",
+			name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str(),
+		        get_type(name(op1)).c_str(), get_type(name(op2)).c_str() );
 
 
 	stringstream content_ss;
