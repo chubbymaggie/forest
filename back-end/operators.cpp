@@ -47,8 +47,8 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 	string type = string(_type);
 
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for cast_instruction");
-	if(!check_unmangled_name(src)) assert(0 && "Wrong src for cast_instruction");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for cast_instruction");
+	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for cast_instruction");
 
 
 	assign_instruction(src,dst);
@@ -108,7 +108,7 @@ void ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);
 
-	if(!check_unmangled_name(retname)) assert(0 && "Wrong return name for ReturnInstr");
+	if(!check_mangled_name(name(retname))) assert(0 && "Wrong return name for ReturnInstr");
 
 
 
@@ -137,9 +137,9 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	string operation = string(_operation);
 
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for binary_op");
-	if(!check_unmangled_name(op1)) assert(0 && "Wrong op1 for binary_op");
-	if(!check_unmangled_name(op2)) assert(0 && "Wrong op2 for binary_op");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for binary_op");
+	if(!check_mangled_name(name(op1))) assert(0 && "Wrong op1 for binary_op");
+	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_op");
 
 
 	binary_instruction(dst, op1, op2, operation);
@@ -157,8 +157,8 @@ void load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for load");
-	if(!check_unmangled_name(addr)) assert(0 && "Wrong addr for load");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
+	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
 
 
@@ -179,9 +179,9 @@ void store_instr(char* _src, char* _addr){
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
-	if(!check_unmangled_name(src)) assert(0 && "Wrong src for store");
-	if(!check_unmangled_name(addr)) assert(0 && "Wrong addr for store");
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for store");
+	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
+	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
 
 
 	assign_instruction(src, dst);
@@ -200,9 +200,9 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	string cmp2 = string(_cmp2);
 	string type = string(_type);
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for compare");
-	if(!check_unmangled_name(cmp1)) assert(0 && "Wrong cmp1 for compare");
-	if(!check_unmangled_name(cmp2)) assert(0 && "Wrong cmp2 for compare");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for compare");
+	if(!check_mangled_name(name(cmp1))) assert(0 && "Wrong cmp1 for compare");
+	if(!check_mangled_name(name(cmp2))) assert(0 && "Wrong cmp2 for compare");
 
 
 	binary_instruction(dst, cmp1, cmp2, type);
@@ -255,7 +255,7 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 	string type = string(_type);
 	string subtype = string(_subtype);
 
-	if(!check_unmangled_name(reg)) assert(0 && "Wrong dst for alloca");
+	if(!check_mangled_name(name(reg))) assert(0 && "Wrong dst for alloca");
 
 	stringstream rvalue; rvalue << alloca_pointer; 
 	set_real_value(reg,rvalue.str());
@@ -322,13 +322,13 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 	vector<string> sizes   = tokenize(string(_sizes), ",");
 
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for getelementptr");
-	if(!check_unmangled_name(pointer)) assert(0 && "Wrong dst for getelementptr");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
+	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		if(!check_unmangled_name(*it)) assert(0 && "Wrong index for getelementptr");
+		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
 	for( vector<string>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
-		if(!check_unmangled_name(*it)) assert(0 && "Wrong size for getelementptr");
+		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
 	}
 	
 
@@ -370,13 +370,13 @@ void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _off
 	vector<string> indexes = tokenize(string(_indexes), ",");
 	vector<string> offsets = tokenize(string(_offsets), ",");
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for getelementptr");
-	if(!check_unmangled_name(pointer)) assert(0 && "Wrong dst for getelementptr");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
+	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		if(!check_unmangled_name(*it)) assert(0 && "Wrong index for getelementptr");
+		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
 	for( vector<string>::iterator it = offsets.begin(); it != offsets.end(); it++ ){
-		if(!check_unmangled_name(*it)) assert(0 && "Wrong size for getelementptr");
+		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
 	}
 	
 	assert( indexes[0] == "constant_0" );
@@ -440,7 +440,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 	string cmp = string(_cmp);
 	vector<string> joints = tokenize(string(_joints), ",");
 
-	if(!check_unmangled_name(cmp)) assert(0 && "Wrong comparison for break");
+	if(!check_mangled_name(name(cmp))) assert(0 && "Wrong comparison for break");
 
 	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 

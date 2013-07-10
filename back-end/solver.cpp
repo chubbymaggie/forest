@@ -107,34 +107,23 @@ bool check_mangled_name(string name){
 	//printf("check mangled name %s\n", name.c_str());
 	int number_of_underscore = count(name, UNDERSCORE);
 	if(
-			number_of_underscore != 2 && // main_register_r1
-			number_of_underscore != 0 && // 2
-			number_of_underscore != 1 && // mem_9
-			number_of_underscore != 4 && // main_register_r1_offset_0
-			number_of_underscore != 3 // Z3dbls_register_x_addr
-
+			number_of_underscore != 1 && // main_registerunderscoreval mem_9
+			number_of_underscore != 0    // 0
 	)
 		return false;
 
 	if( number_of_underscore == 1 ){
 		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[0] != "mem") return false;
+		if(tokens[1].substr(0,8) != "register" &&
+		   tokens[0].substr(0,3) != "mem" 
+		  ) return false;
 	}
 
-	if( number_of_underscore == 4 ){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[3] != "offset") return false;
+	if( number_of_underscore  == 0 ){
+		if( !is_number(name) )
+			return false;
 	}
 
-	if( number_of_underscore == 3 ){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[3] != "addr") return false;
-	}
-
-
-	if( number_of_underscore == 0 ){
-		if( !is_number(name) ) return false;
-	}
 
 	return true;
 
@@ -566,6 +555,9 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 }
 
 string name( string input, string fn_name ){
+
+	if(input.substr(0,9) != "constant_" && input.substr(0,4) != "mem_")
+		myReplace(input, UNDERSCORE, "underscore" );
 
 	if(input.find("constant") != string::npos ){
 		int ini = 9;
