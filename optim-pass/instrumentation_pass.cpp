@@ -193,11 +193,18 @@ string get_op_name_from_id(int opId){
 		case 10: return "-";
 		case 11: return "-";
 		case 12: return "*";
+		case 14: return "/";
 		case 13: return "*";
 		case 15: return "/";
 		case 16: return "/";
 		case 18: return "%";
 		case 19: return "%";
+		case 20: return "L";
+		case 21: return "R";
+		case 22: return "R";
+		case 23: return "Y";
+		case 24: return "O";
+		case 25: return "X";
 		default: assert(0 && "Unknown operand");
 
 	}
@@ -247,6 +254,7 @@ int primary_size( const Type* t ){
 	if( type == "IntegerTyID32" ) return 4;
 	if( type == "IntegerTyID16" ) return 2;
 	if( type == "IntegerTyID8" ) return 1;
+	if( type == "IntegerTyID64" ) return 8;
 	if( type == "PointerTyID" ) return 4;
 	if( type == "FloatTyID" ) return 4;
 	if( type == "DoubleTyID" ) return 8;
