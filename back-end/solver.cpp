@@ -129,32 +129,6 @@ bool check_mangled_name(string name){
 
 }
 
-bool check_unmangled_name(string name){
-	//printf("check unmangled name %s\n", name.c_str());
-	int number_of_underscore = count(name, UNDERSCORE);
-	if(
-			number_of_underscore != 1 && // register_retval
-			number_of_underscore != 2 && // register_x_addr
-			number_of_underscore != 3 // register_r1_offset_0
-	)
-		return false;
-
-	if(number_of_underscore == 2){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[2] != "addr")
-			return false;
-	}
-
-	if(number_of_underscore == 3){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[2] != "offset")
-			return false;
-	}
-
-	return true;
-
-}
-
 void dump_variables(FILE* file){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -231,7 +205,7 @@ string result_get(string get_str){
 
 void set_real_value(string varname, string value, string fn_name ){
 
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for set_real_value");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for set_real_value");
 
 	variables[ name(varname, fn_name) ].real_value = value;
 }
@@ -246,7 +220,7 @@ void set_real_value_mangled(string varname, string value ){
 
 void set_real_value(string varname, string value ){
 
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for set_real_value");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for set_real_value");
 
 	variables[ name(varname) ].real_value = value;
 }
@@ -607,7 +581,7 @@ string realvalue(string varname){
 
 	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
 
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong name for realvalue");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for realvalue");
 
 
 
@@ -646,19 +620,19 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 }
 
 bool get_is_propagated_constant(string varname){
-	if(!check_unmangled_name( varname)) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(name( varname))) assert(0 && "Wrong src for assign");
 	return variables[name(varname)].is_propagated_constant;
 }
 
 void set_is_propagated_constant(string varname){
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for assign");
 
 	variables[name(varname)].is_propagated_constant = true;
 
 }
 
 bool is_constant(string varname){
-	if(!check_unmangled_name(varname)) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for assign");
 
 	return varname.substr(0,9) == "constant" UNDERSCORE;
 
@@ -666,8 +640,8 @@ bool is_constant(string varname){
 
 void assign_instruction(string src, string dst, string fn_name){
 
-	if(!check_unmangled_name(src)) assert(0 && "Wrong src for assign");
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for assign");
+	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for assign");
 
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
@@ -692,9 +666,9 @@ void assign_instruction(string src, string dst, string fn_name){
 
 void binary_instruction(string dst, string op1, string op2, string operation){
 
-	if(!check_unmangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
-	if(!check_unmangled_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
-	if(!check_unmangled_name(op2)) assert(0 && "Wrong op2 for binary_instruction");
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for binary_instruction");
+	if(!check_mangled_name(name(op1))) assert(0 && "Wrong op1 for binary_instruction");
+	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_instruction");
 
 	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s\e[0m\n", name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str() );
 

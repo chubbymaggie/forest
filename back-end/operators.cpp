@@ -413,6 +413,8 @@ void BeginFn(char* _fn_name){
 	else
 		actual_function = fn_name;
 
+	myReplace(actual_function, UNDERSCORE, "underscore");
+
 
 	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
 
