@@ -536,6 +536,16 @@ string name( string input, string fn_name ){
 	 		input.substr(0,7) != "global" UNDERSCORE )
 		myReplace(input, UNDERSCORE, "underscore" );
 
+
+	if( input.substr(0,7) == "global" UNDERSCORE ){
+		string postfix = input.substr(7);
+		//printf("postfix %s\n", postfix.c_str() );
+		myReplace(postfix, UNDERSCORE, "underscore");
+		input = string("global") + UNDERSCORE + postfix;
+
+		//printf("globalname %s\n", input.c_str());
+	}
+
 	if(input.find("constant") != string::npos ){
 		int ini = 9;
 		string interm = input.substr(ini);

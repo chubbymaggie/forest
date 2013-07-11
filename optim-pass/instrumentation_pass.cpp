@@ -186,7 +186,7 @@ string get_type_str( const Type* t){
 
 string get_op_name_from_id(int opId){
 
-	cerr << "opID " << opId << endl;
+	//cerr << "opID " << opId << endl;
 
 
 	switch(opId){
@@ -509,7 +509,7 @@ struct BinaryOp: public ModulePass {
 				blk_iterator(bb, in){
 					if( BinaryOperator::classof(in) ){
 
-						in->dump();
+						//in->dump();
 						string nameres = "register" UNDERSCORE + in->getName().str();
 						string nameop1 = operandname( in->getOperand(0) );
 						string nameop2 = operandname( in->getOperand(1) );
@@ -1019,6 +1019,9 @@ struct CallInstr: public ModulePass {
 
 						string fn_name = in_c->getCalledFunction()->getName().str();
 
+						if(fn_name == "global_var_init") continue;
+
+
 						stringstream operand_list;
 						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
 							string name = operandname( in_c->getArgOperand(i) );
@@ -1501,7 +1504,7 @@ struct GlobalInit: public ModulePass {
 
 		glo_iterator(M,gl){
 
-			gl->dump();
+			//gl->dump();
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
 			const PointerType* pointertype  = cast<PointerType>(gl->getType());
