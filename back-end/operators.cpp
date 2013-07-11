@@ -249,6 +249,35 @@ int get_size(string type){
 
 }
 
+void global_var_init(char* _varname, char* _type, char* _value){
+
+	string varname  = string(_varname);
+	string type  = string(_type);
+	string value = string(_value);
+
+
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
+
+
+	stringstream rvalue; rvalue << alloca_pointer; 
+	set_real_value(varname,rvalue.str());
+
+	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
+
+	stringstream constant_name; constant_name << "constant" UNDERSCORE << value;
+	assign_instruction( constant_name.str(), mem_var.str());
+
+	set_name_hint(mem_var.str(), varname);
+	settype(mem_var.str(), type);
+
+	int size = get_size(type);
+
+	alloca_pointer += size;
+
+	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(), type.c_str(), value.c_str()
+			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer );
+}
+
 void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	string reg = string(_reg);

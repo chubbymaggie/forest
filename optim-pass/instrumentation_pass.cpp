@@ -34,9 +34,10 @@
 #include <stdio.h>
 #include <map>
 
-#define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
-#define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
-#define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
+#define mod_iterator(mod, fn) for( Module::iterator        fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
+#define glo_iterator(mod, gl) for( Module::global_iterator gl = mod.global_begin(), gl_end    = mod.global_end();  gl != gl_end;   ++gl )
+#define fun_iterator(fun, bb) for( Function::iterator      bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
+#define blk_iterator(blk, in) for( BasicBlock::iterator    in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
 #define UNDERSCORE "_"
 
 using namespace llvm;
@@ -72,6 +73,8 @@ string operandname( Value* operand ){
 	} else if ( ConstantPointerNull::classof(operand) ){
 		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE "0";
 		return nameop1_ss.str();
+	} else if(GlobalVariable::classof(operand)){
+		return "global" UNDERSCORE + operand->getName().str();
 	} else {
 		return "register" UNDERSCORE + operand->getName().str();
 	}
@@ -1475,6 +1478,84 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
+typedef struct VarInit {
+	string name;
+	string type;
+	string initialization;
+} VarInit;
+
+
+string itos( int value ){
+	stringstream ret_ss;
+	ret_ss << value;
+	return ret_ss.str();
+}
+
+struct GlobalInit: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	GlobalInit() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		vector<VarInit> global_var_inits;
+
+		glo_iterator(M,gl){
+
+			gl->dump();
+
+			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+			const PointerType* pointertype  = cast<PointerType>(gl->getType());
+			const Type*        type_t       = pointertype->getElementType();
+			string             type         = get_type_str(type_t);
+
+			if( type == "IntegerTyID32"){
+
+				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+				Constant*          constant     = global_var->getInitializer();
+				ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
+				int64_t            val          = constant_int->getSExtValue();
+				string             val_s        = itos(val);
+
+				VarInit varinit = {name, type, val_s};
+
+				global_var_inits.push_back(varinit);
+
+			}
+
+		}
+
+		for( vector<VarInit>::iterator it = global_var_inits.begin(); it != global_var_inits.end(); it++ ){
+
+			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
+
+			string name           = it->name;
+			string type           = it->type;
+			string initialization = it->initialization;
+
+			GlobalVariable* c1 = make_global_str(M, name);
+			GlobalVariable* c2 = make_global_str(M, type);
+			GlobalVariable* c3 = make_global_str(M, initialization);
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "global_var_init" ,
+						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			params.push_back(pointerToArray(M,c1));
+			params.push_back(pointerToArray(M,c2));
+			params.push_back(pointerToArray(M,c3));
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+		}
+
+		return false;
+	}
+};
+
+
 struct StructureSizes: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	StructureSizes() : ModulePass(ID) {}
@@ -1510,6 +1591,8 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		//{StructureSizes pass;   pass.runOnModule(M);}
+		
+		{GlobalInit     pass;   pass.runOnModule(M);}
 		{CallInstr      pass;   pass.runOnModule(M);}
 		{BinaryOp       pass;   pass.runOnModule(M);}
 		{CastInstr      pass;   pass.runOnModule(M);}
@@ -1562,6 +1645,9 @@ static RegisterPass<BeginEnd> BeginEnd(           "instr_beginend"      , "Instr
 
 char StructureSizes::ID = 0;
 static RegisterPass<StructureSizes> StructureSizes( "instr_structure_sizes"      , "Instrument structure sizes" );
+
+char GlobalInit::ID = 0;
+static RegisterPass<GlobalInit> GlobalInit( "instr_globalinit"      , "Initialize global variables" );
 
 char All::ID = 0;
 static RegisterPass<All> All(                     "instr_all"           , "Instrument all operations" );

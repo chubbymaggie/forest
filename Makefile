@@ -29,4 +29,5 @@ test:
 	@forest ./test/simple/float/config.xml
 	@forest ./test/simple/floatint/config.xml
 	@forest ./test/simple/struct/config.xml
+	@forest ./test/simple/global/config.xml
 

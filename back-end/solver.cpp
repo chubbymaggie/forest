@@ -115,7 +115,8 @@ bool check_mangled_name(string name){
 	if( number_of_underscore == 1 ){
 		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[1].substr(0,8) != "register" &&
-		   tokens[0].substr(0,3) != "mem" 
+		   tokens[0].substr(0,3) != "mem"      &&
+		   tokens[0].substr(0,6) != "global"
 		  ) return false;
 	}
 
@@ -530,7 +531,9 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 
 string name( string input, string fn_name ){
 
-	if(input.substr(0,9) != "constant_" && input.substr(0,4) != "mem_")
+	if(input.substr(0,9) != "constant" UNDERSCORE &&
+			input.substr(0,4) != "mem" UNDERSCORE &&
+	 		input.substr(0,7) != "global" UNDERSCORE )
 		myReplace(input, UNDERSCORE, "underscore" );
 
 	if(input.find("constant") != string::npos ){
@@ -541,6 +544,8 @@ string name( string input, string fn_name ){
 
 		return final;
 	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
+		return input;
+	} else if (input.substr(0,7) == "global" UNDERSCORE ){
 		return input;
 	} else {
 		return ((fn_name == "")?actual_function:fn_name) + UNDERSCORE + input;
