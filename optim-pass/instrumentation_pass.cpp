@@ -667,6 +667,54 @@ struct LoadStore: public ModulePass {
 	}
 };
 
+
+
+struct SeparateGetElm: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	SeparateGetElm() : ModulePass(ID) {}
+
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( LoadInst::classof(in) ){
+
+
+						bool is_getelement = !(in->getOperand(0)->hasName());
+
+						if( is_getelement ){
+
+							GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
+							Value* pointer = gepop->getPointerOperand();
+							User::op_iterator idxbegin = gepop->idx_begin();
+							User::op_iterator idxend   = gepop->idx_end();
+							vector<Value*> indices(idxbegin, idxend);
+
+							GetElementPtrInst* getelement = GetElementPtrInst::Create(pointer, indices.begin(),indices.end(), "pointer", in);
+
+							in->setOperand(0,getelement);
+
+							gepop->dump();
+							pointer->dump();
+							(*idxbegin)->dump();
+
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+};
+
 struct IcmpInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	IcmpInstr() : ModulePass(ID) {}
@@ -1595,17 +1643,19 @@ struct All: public ModulePass {
 
 		//{StructureSizes pass;   pass.runOnModule(M);}
 		
-		{GlobalInit     pass;   pass.runOnModule(M);}
-		{CallInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp       pass;   pass.runOnModule(M);}
-		{CastInstr      pass;   pass.runOnModule(M);}
-		{LoadStore      pass;   pass.runOnModule(M);}
-		{IcmpInstr      pass;   pass.runOnModule(M);}
-		{BrInstr        pass;   pass.runOnModule(M);}
-		{BbMarks        pass;   pass.runOnModule(M);}
-		{AllocaInstr    pass;   pass.runOnModule(M);}
-		{BeginEnd       pass;   pass.runOnModule(M);}
-		{GetelementPtr  pass;   pass.runOnModule(M);}
+
+		{SeparateGetElm   pass;   pass.runOnModule(M);}
+		//{GlobalInit     pass;   pass.runOnModule(M);}
+		//{CallInstr      pass;   pass.runOnModule(M);}
+		//{BinaryOp       pass;   pass.runOnModule(M);}
+		//{CastInstr      pass;   pass.runOnModule(M);}
+		//{LoadStore      pass;   pass.runOnModule(M);}
+		//{IcmpInstr      pass;   pass.runOnModule(M);}
+		//{BrInstr        pass;   pass.runOnModule(M);}
+		//{BbMarks        pass;   pass.runOnModule(M);}
+		//{AllocaInstr    pass;   pass.runOnModule(M);}
+		//{BeginEnd       pass;   pass.runOnModule(M);}
+		//{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -1624,6 +1674,9 @@ static RegisterPass<CastInstr> CastInstr(         "instr_castinstr"     , "Instr
 
 char LoadStore::ID = 0;
 static RegisterPass<LoadStore> LoadStore(         "instr_loadstore"     , "Instrument load/store operations" );
+
+char SeparateGetElm::ID = 0;
+static RegisterPass<SeparateGetElm> SeparateGetElm( "separate_getelem"  , "Separate GetElementPtr from load/store instructions" );
 
 char IcmpInstr::ID = 0;
 static RegisterPass<IcmpInstr> IcmpInstr(         "instr_icmpinstr"     , "Instrument comparison operations" );
