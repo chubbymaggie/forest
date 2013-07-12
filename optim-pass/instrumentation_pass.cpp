@@ -696,9 +696,9 @@ struct SeparateGetElm: public ModulePass {
 
 							in->setOperand(0,getelement);
 
-							gepop->dump();
-							pointer->dump();
-							(*idxbegin)->dump();
+							//gepop->dump();
+							//pointer->dump();
+							//(*idxbegin)->dump();
 
 
 						}
@@ -1389,8 +1389,16 @@ struct GetelementPtr: public ModulePass {
 						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
 						Value* pointer = in_g->getPointerOperand();
 
+
+						GlobalVariable* pointer_global = dyn_cast<GlobalVariable>(pointer);
+
 						string nameres = "register" UNDERSCORE + in->getName().str();
-						string nameop1 = "register" UNDERSCORE + pointer->getName().str();
+
+						string nameop1;
+						if( pointer_global )
+							nameop1 = "global" UNDERSCORE + pointer->getName().str();
+						else
+							nameop1 = "register" UNDERSCORE + pointer->getName().str();
 
 						//for( op_iterator it = in_g->idx_begin(); it != in_g->idx_end(); it++ ){
 							//it->dump();
@@ -1573,6 +1581,15 @@ struct GlobalInit: public ModulePass {
 
 			}
 
+			if( type == "ArrayTyID" ){
+				string             val_s        = "0";
+
+				VarInit varinit = {name, type, val_s};
+
+				global_var_inits.push_back(varinit);
+
+			}
+
 		}
 
 		for( vector<VarInit>::iterator it = global_var_inits.begin(); it != global_var_inits.end(); it++ ){
@@ -1645,17 +1662,17 @@ struct All: public ModulePass {
 		
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		//{GlobalInit     pass;   pass.runOnModule(M);}
-		//{CallInstr      pass;   pass.runOnModule(M);}
-		//{BinaryOp       pass;   pass.runOnModule(M);}
-		//{CastInstr      pass;   pass.runOnModule(M);}
-		//{LoadStore      pass;   pass.runOnModule(M);}
-		//{IcmpInstr      pass;   pass.runOnModule(M);}
-		//{BrInstr        pass;   pass.runOnModule(M);}
-		//{BbMarks        pass;   pass.runOnModule(M);}
-		//{AllocaInstr    pass;   pass.runOnModule(M);}
-		//{BeginEnd       pass;   pass.runOnModule(M);}
-		//{GetelementPtr  pass;   pass.runOnModule(M);}
+		{GlobalInit     pass;   pass.runOnModule(M);}
+		{CallInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp       pass;   pass.runOnModule(M);}
+		{CastInstr      pass;   pass.runOnModule(M);}
+		{LoadStore      pass;   pass.runOnModule(M);}
+		{IcmpInstr      pass;   pass.runOnModule(M);}
+		{BrInstr        pass;   pass.runOnModule(M);}
+		{BbMarks        pass;   pass.runOnModule(M);}
+		{AllocaInstr    pass;   pass.runOnModule(M);}
+		{BeginEnd       pass;   pass.runOnModule(M);}
+		{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}

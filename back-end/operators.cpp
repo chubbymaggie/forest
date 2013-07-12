@@ -244,6 +244,10 @@ int get_size(string type){
 	if( type == "DoubleTyID" )
 		return 8;
 
+	if( type == "Int" )
+		return 4;
+
+	printf("get_size type %s\n", type.c_str());
 
 	assert(0 && "Unknown type");
 
@@ -267,10 +271,23 @@ void global_var_init(char* _varname, char* _type, char* _value){
 	stringstream constant_name; constant_name << "constant" UNDERSCORE << value;
 	assign_instruction( constant_name.str(), mem_var.str());
 
-	set_name_hint(mem_var.str(), varname);
-	settype(mem_var.str(), type);
+	int size = 4;//get_size(type); // FIXME
 
-	int size = get_size(type);
+	set_name_hint(mem_var.str(), varname);
+
+	for ( unsigned int i = 0; i < 40; i++) { // FIXME
+		mem_var.str("");
+		int pos = alloca_pointer + i;
+		mem_var << "mem" UNDERSCORE << pos;
+
+		settype(mem_var.str(), "Int");
+	}
+
+
+	printf("settype %s Int\n", name(varname).c_str() );
+	settype( name(varname), "Int");
+
+
 
 	alloca_pointer += size;
 
