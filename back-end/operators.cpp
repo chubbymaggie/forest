@@ -244,7 +244,10 @@ int get_size(string type){
 	if( type == "DoubleTyID" )
 		return 8;
 
-	if( type == "Int" )
+	if( type == "IntegerTyID8" )
+		return 1;
+
+	if( type == "int" )
 		return 4;
 
 	printf("get_size type %s\n", type.c_str());
@@ -253,46 +256,47 @@ int get_size(string type){
 
 }
 
-void global_var_init(char* _varname, char* _type, char* _value){
+string itos(int i){
+	stringstream i_ss;
+	i_ss << i;
+	return i_ss.str();
+}
 
-	string varname  = string(_varname);
-	string type  = string(_type);
-	string value = string(_value);
+void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
+	string varname        = string(_varname);
+	int nelems            = stoi(string(_nelems));
+	string type           = string(_type);
+	vector<string> values = tokenize(string(_values), ",");
+
+	debug && printf("\e[33m global_var_init %s %s %s %s\e[0m.\n", _varname, _nelems, _type, _values);
 
 	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
 
 
 	stringstream rvalue; rvalue << alloca_pointer; 
 	set_real_value(varname,rvalue.str());
+	settype( name(varname), "Int");
 
-	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
+	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 
-	stringstream constant_name; constant_name << "constant" UNDERSCORE << value;
-	assign_instruction( constant_name.str(), mem_var.str());
+	for ( unsigned int i = 0; i < nelems; i++) {
 
-	int size = 4;//get_size(type); // FIXME
+		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-	set_name_hint(mem_var.str(), varname);
+		stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
+		assign_instruction( constant_name.str(), mem_var.str());
 
-	for ( unsigned int i = 0; i < 40; i++) { // FIXME
-		mem_var.str("");
-		int pos = alloca_pointer + i;
-		mem_var << "mem" UNDERSCORE << pos;
+		set_name_hint(mem_var.str(), varname);
 
-		settype(mem_var.str(), "Int");
+		settype(mem_var.str(), type);
+
+		alloca_pointer += get_size(type);
 	}
 
 
-	printf("settype %s Int\n", name(varname).c_str() );
-	settype( name(varname), "Int");
-
-
-
-	alloca_pointer += size;
-
-	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(), type.c_str(), value.c_str()
-			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer );
+	debug && printf("\e[31m global_var_init %s %d %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(),nelems, type.c_str(),_values 
+			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
 }
 
 void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){

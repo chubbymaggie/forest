@@ -1539,6 +1539,7 @@ struct BeginEnd: public ModulePass {
 
 typedef struct VarInit {
 	string name;
+	string nelems;
 	string type;
 	string initialization;
 } VarInit;
@@ -1574,17 +1575,41 @@ struct GlobalInit: public ModulePass {
 				ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
 				int64_t            val          = constant_int->getSExtValue();
 				string             val_s        = itos(val);
+				string             nelems       = itos(1);
 
-				VarInit varinit = {name, type, val_s};
+				VarInit varinit = {name,nelems, type, val_s};
 
 				global_var_inits.push_back(varinit);
 
 			}
 
 			if( type == "ArrayTyID" ){
-				string             val_s        = "0";
 
-				VarInit varinit = {name, type, val_s};
+				const ArrayType* t_a = cast<ArrayType>(type_t);
+
+				string nelems = itos( t_a->getNumElements() );
+
+				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+				Constant*          constant     = global_var->getInitializer();
+				ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
+
+				stringstream val_ss;
+				for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
+					Value* operand_i = constant_a->getOperand(i);
+					ConstantInt*       constant_int = dyn_cast<ConstantInt>(operand_i);
+					int64_t            val          = constant_int->getSExtValue();
+
+					val_ss << val << ",";
+				}
+
+				string val_s  = val_ss.str();
+
+				const ArrayType* type_a = cast<ArrayType>(type_t);
+				const Type* type_e      = type_a->getElementType();
+				string type_e_s         = get_type_str(type_e);
+				
+
+				VarInit varinit = {name,nelems, type_e_s, val_s};
 
 				global_var_inits.push_back(varinit);
 
@@ -1597,15 +1622,18 @@ struct GlobalInit: public ModulePass {
 			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
 
 			string name           = it->name;
+			string nelems         = it->nelems;
 			string type           = it->type;
 			string initialization = it->initialization;
 
 			GlobalVariable* c1 = make_global_str(M, name);
-			GlobalVariable* c2 = make_global_str(M, type);
-			GlobalVariable* c3 = make_global_str(M, initialization);
+			GlobalVariable* c2 = make_global_str(M, nelems);
+			GlobalVariable* c3 = make_global_str(M, type);
+			GlobalVariable* c4 = make_global_str(M, initialization);
 	
 			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "global_var_init" ,
 						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
@@ -1616,6 +1644,7 @@ struct GlobalInit: public ModulePass {
 			params.push_back(pointerToArray(M,c1));
 			params.push_back(pointerToArray(M,c2));
 			params.push_back(pointerToArray(M,c3));
+			params.push_back(pointerToArray(M,c4));
 			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 		}
 

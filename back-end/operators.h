@@ -144,7 +144,7 @@ extern "C" void end_sim();
 extern "C" void getelementptr(char*, char*, char*, char*);
 extern "C" void getelementptr_struct(char*, char*, char*, char*);
 
-extern "C" void global_var_init(char* _name, char* _type, char* _value);
+extern "C" void global_var_init(char* _name,char* nelems, char* _type, char* _value);
 extern "C" void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to );
 
 extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );
