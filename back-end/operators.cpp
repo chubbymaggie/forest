@@ -113,6 +113,7 @@ void ReturnInstr(char* _retname ){
 
 
 	if( callstack.size() == 0 ) return;
+	if( retname == "register_" ) return;
 
 	string last_rg_callstack = callstack[ callstack.size() - 1].first;
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;

@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT false
+#define EXIT_ON_INSERT true
 
 map<string, Variable> variables;
 set<NameAndPosition> variable_names;
@@ -377,7 +377,7 @@ void insert_variable(string name, string position){
 		
 	debug && printf("\e[32m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
 
-	if( PAUSE_ON_INSERT 
+	if( PAUSE_ON_INSERT )
 		getchar();
 
 	if( EXIT_ON_INSERT )
