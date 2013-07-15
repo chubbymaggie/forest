@@ -71,7 +71,7 @@ void upzero (int dlt, int *dlti, int *bli);
 int filtep (int rlt1, int al1, int rlt2, int al2);
 int quantl (int el, int detl);
 int logscl (int il, int nbl);
-int scalel (int nbl, int shift_constant);
+int scalel (int nbl, int shift_cons);
 int uppol2 (int al1, int al2, int plt, int plt1, int plt2);
 int uppol1 (int al1, int apl2, int plt, int plt1);
 int logsch (int ih, int nbh);
@@ -646,12 +646,12 @@ logscl (int il, int nbl)
 /* scalel: compute quantizer scale factor in lower or upper sub-band*/
 
 int
-scalel (int nbl, int shift_constant)
+scalel (int nbl, int shift_cons)
 {
   int wd1, wd2, wd3;
   wd1 = (nbl >> 6) & 31;
   wd2 = nbl >> 11;
-  wd3 = ilb_table[wd1] >> (shift_constant + 1 - wd2);
+  wd3 = ilb_table[wd1] >> (shift_cons + 1 - wd2);
   return (wd3 << 3);
 }
 
