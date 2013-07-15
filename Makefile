@@ -30,4 +30,5 @@ test:
 	@forest ./test/simple/floatint/config.xml
 	@forest ./test/simple/struct/config.xml
 	@forest ./test/simple/global/config.xml
+	@forest ./test/simple/shift/config.xml
 
