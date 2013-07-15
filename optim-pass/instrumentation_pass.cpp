@@ -730,9 +730,31 @@ struct SeparateGetElm: public ModulePass {
 
 					}
 
+					if( CallInst::classof(in) ){
 
 
+						CallInst* in_c = cast<CallInst>(in);
 
+						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
+
+							bool is_getelement = !(in_c->getArgOperand(i)->hasName());
+							GEPOperator* gepop = dyn_cast<GEPOperator>(in_c->getArgOperand(i));
+
+
+							if( is_getelement && gepop ){
+
+								Value* pointer = gepop->getPointerOperand();
+								User::op_iterator idxbegin = gepop->idx_begin();
+								User::op_iterator idxend   = gepop->idx_end();
+								vector<Value*> indices(idxbegin, idxend);
+								GetElementPtrInst* getelement = GetElementPtrInst::Create(pointer, indices.begin(),indices.end(), "pointer", in);
+								in->setOperand(i,getelement);
+
+							}
+
+						}
+
+					}
 
 				}
 
