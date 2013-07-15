@@ -705,6 +705,35 @@ struct SeparateGetElm: public ModulePass {
 
 					}
 
+					if( StoreInst::classof(in) ){
+
+
+
+						bool is_getelement = !(in->getOperand(0)->hasName());
+						GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
+
+						if( is_getelement && gepop ){
+							in->dump();
+
+
+							Value* pointer = gepop->getPointerOperand();
+							User::op_iterator idxbegin = gepop->idx_begin();
+							User::op_iterator idxend   = gepop->idx_end();
+							vector<Value*> indices(idxbegin, idxend);
+
+							GetElementPtrInst* getelement = GetElementPtrInst::Create(pointer, indices.begin(),indices.end(), "pointer", in);
+
+							in->setOperand(0,getelement);
+
+
+						}
+
+					}
+
+
+
+
+
 				}
 
 			}
