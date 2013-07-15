@@ -20,7 +20,8 @@
 
 #include "database.h"
 
-#define debug true
+#define debug true 
+#define DATABASE_VALUES false
 
 sqlite3 *db;
 
@@ -222,6 +223,7 @@ void insert_problem(){
 			string value = realvalue_mangled(name);
 			string hint = gethint(variables[name].name_hint);
 
+			if(DATABASE_VALUES)
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
 			//printf("%s\n", value.c_str());
 

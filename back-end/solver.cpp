@@ -24,6 +24,8 @@
 #define SIZE_STR 32768
 #define debug true
 #define UNDERSCORE "_"
+#define PAUSE_ON_INSERT false
+#define EXIT_ON_INSERT false
 
 map<string, Variable> variables;
 set<NameAndPosition> variable_names;
@@ -375,6 +377,12 @@ void insert_variable(string name, string position){
 		
 	debug && printf("\e[32m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
 
+	if( PAUSE_ON_INSERT 
+		getchar();
+
+	if( EXIT_ON_INSERT )
+		exit(0);
+
 	NameAndPosition nandp = {name, position};
 	variable_names.insert(nandp);
 
@@ -445,6 +453,9 @@ string get_sized_type(string name){
 
 	if (variables[name].type == "DoubleTyID")
 		return "Float64";
+
+	if (variables[name].type == "Int")
+		return "Int";
 
 	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 

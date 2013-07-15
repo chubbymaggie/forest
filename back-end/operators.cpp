@@ -24,9 +24,9 @@
 
 #define debug true
 #define see_each_problem false
-#define see_flat_problem false
 #define SIZE_STR 512
 #define UNDERSCORE "_"
+#define PROPAGATE_CONSTANTS true
 
 int alloca_pointer = 0;
 vector<pair<string, string> > callstack;
@@ -269,13 +269,13 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 	string type           = string(_type);
 	vector<string> values = tokenize(string(_values), ",");
 
-	debug && printf("\e[33m global_var_init %s %s %s %s\e[0m.\n", _varname, _nelems, _type, _values);
+	//debug && printf("\e[33m global_var_init %s %s %s %s\e[0m.\n", _varname, _nelems, _type, _values);
 
 	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
 
 
-	stringstream rvalue; rvalue << alloca_pointer; 
-	set_real_value(varname,rvalue.str());
+	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	assign_instruction(rvalue.str(), name(varname));
 	settype( name(varname), "Int");
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
@@ -284,8 +284,10 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
-		assign_instruction( constant_name.str(), mem_var.str());
+		if(values.size()){
+			stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
+			assign_instruction( constant_name.str(), mem_var.str());
+		}
 
 		set_name_hint(mem_var.str(), varname);
 
@@ -309,11 +311,15 @@ void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
 
 	stringstream rvalue; rvalue << alloca_pointer; 
 	set_real_value(reg,rvalue.str());
+	//stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	//assign_instruction(rvalue.str(), name(reg));
 
 	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
 
 	set_real_value(mem_var.str(), string("0"));
 	set_name_hint(mem_var.str(), reg);
+	//rvalue.str(""); rvalue << "constant" UNDERSCORE << 0; 
+	//assign_instruction(rvalue.str(), mem_var.str() );
 
 	int size;
 	sscanf(_size, "%d", &size);
@@ -381,8 +387,8 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
 	}
 	
-	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
-		                                                          name(dst).c_str(), realvalue(dst).c_str() );
+	//debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
+									  //name(dst).c_str(), realvalue(dst).c_str() );
 
 
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
@@ -529,7 +535,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		return real_value_prev == "true";
 	} else {
 
-		if( get_is_propagated_constant(cmp) ) exit(0);
+		if( get_is_propagated_constant(cmp) && PROPAGATE_CONSTANTS ) exit(0);
 
 
 		if( realvalue(cmp) == "true" )

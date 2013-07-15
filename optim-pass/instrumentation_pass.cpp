@@ -1594,12 +1594,14 @@ struct GlobalInit: public ModulePass {
 				ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
 
 				stringstream val_ss;
-				for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
-					Value* operand_i = constant_a->getOperand(i);
-					ConstantInt*       constant_int = dyn_cast<ConstantInt>(operand_i);
-					int64_t            val          = constant_int->getSExtValue();
+				if( constant_a ){
+					for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
+						Value* operand_i = constant_a->getOperand(i);
+						ConstantInt*       constant_int = dyn_cast<ConstantInt>(operand_i);
+						int64_t            val          = constant_int->getSExtValue();
 
-					val_ss << val << ",";
+						val_ss << val << ",";
+					}
 				}
 
 				string val_s  = val_ss.str();
