@@ -690,11 +690,30 @@ void assign_instruction(string src, string dst, string fn_name){
 }
 
 
+bool implemented_operation(string operation){
+	if(operation == "+" ) return true;
+	if(operation == "<=") return true;
+	if(operation == ">=") return true;
+	if(operation == "<" ) return true;
+	if(operation == ">" ) return true;
+	if(operation == "=" ) return true;
+	if(operation == "#" ) return true;
+	if(operation == "+" ) return true;
+	if(operation == "-" ) return true;
+	if(operation == "*" ) return true;
+	if(operation == "/" ) return true;
+	if(operation == "%" ) return true;
+
+	printf("operation %s\n", operation.c_str());
+	return false;
+}
+
 void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for binary_instruction");
 	if(!check_mangled_name(name(op1))) assert(0 && "Wrong op1 for binary_instruction");
 	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_instruction");
+	if(!implemented_operation(operation)) assert(0 && "Not implemented operation");
 
 	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s (%s %s)\e[0m\n",
 			name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str(),

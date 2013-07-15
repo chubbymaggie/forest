@@ -85,7 +85,7 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 	vector<string> fn_oplist = tokenize( string(_fn_oplist), ",");
 	string ret_to            = string(_ret_to);
 
-	if( fn_name.substr(0,1) == UNDERSCORE ) fn_name = fn_name.substr(1);
+	myReplace(fn_name, UNDERSCORE, "");
 
 
 
@@ -466,10 +466,8 @@ void BeginFn(char* _fn_name){
 
 	string fn_name = string(_fn_name);
 
-	if( fn_name.substr(0,1) == UNDERSCORE )
-		actual_function = fn_name.substr(1);
-	else
-		actual_function = fn_name;
+	myReplace(fn_name, UNDERSCORE, "");
+	actual_function = fn_name;
 
 	myReplace(actual_function, UNDERSCORE, "underscore");
 
