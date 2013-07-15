@@ -703,6 +703,7 @@ bool implemented_operation(string operation){
 	if(operation == "*" ) return true;
 	if(operation == "/" ) return true;
 	if(operation == "%" ) return true;
+	if(operation == "R" ) return true;
 
 	printf("operation %s\n", operation.c_str());
 	return false;
@@ -723,12 +724,21 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	stringstream content_ss;
 
 
-	if( operation == "#" )
+	if( operation == "#" ){
 		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
-	else if (operation == "%")
+	} else if (operation == "%") {
 		content_ss << "(mod " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
-	else 
+	} else if (operation == "R" ) {
+
+		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
+		int factor = 1 << exponent;
+
+		content_ss << "(/ " << content(name(op1)) << " " << factor << ")";
+
+	} else {
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+	}
 
 	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
 	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
@@ -814,6 +824,20 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
 		set_real_value(dst, result.str());
 	}
+
+	if(operation == "R"){
+		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		int places = stoi( op2.substr(9) );
+
+		int result_i = stoi(realvalue(op1)) >> places;
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+		printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
+
+	}
+
 
 	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
 	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
