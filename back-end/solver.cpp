@@ -394,11 +394,11 @@ int stoi(string str){
 	return ret;
 }
 
-void push_condition(string cond, string fn, vector<string> joints ){
+void push_condition(string cond, string fn, vector<string> joints, bool fuzzme ){
 
 	set<string> joints_set = set<string>(joints.begin(), joints.end());
 
-	Condition condition = { cond, fn, joints_set };
+	Condition condition = { cond, fn, joints_set, fuzzme };
 	conditions.push_back( condition );
 }
 
@@ -681,6 +681,9 @@ void assign_instruction(string src, string dst, string fn_name){
 	if( get_is_propagated_constant(src) )
 		set_is_propagated_constant(dst);
 
+	if( get_fuzz_constr(name(src)) )
+		set_fuzz_constr(name(dst));
+
 	if( is_constant(src) )
 		set_is_propagated_constant(dst);
 
@@ -754,6 +757,20 @@ string wired_and( string op1, string op2, int nbits ){
 
 }
 
+void set_fuzz_constr(string name){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong dst for set_fuzz_constr");
+	variables[name].fuzzme = true;
+
+}
+
+bool get_fuzz_constr(string name){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong dst for get_fuzz_constr");
+	return variables[name].fuzzme;
+
+}
+
 void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for binary_instruction");
@@ -783,6 +800,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	} else if (operation == "Y" ) {
 		content_ss << wired_and(op1, op2, 5);
+		set_fuzz_constr(name(dst));
 	} else {
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
 	}
@@ -802,7 +820,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		settype(name(dst), get_type(name(op2)));
 
 
-
+	if( get_fuzz_constr(name(op1)) || get_fuzz_constr(name(op2)) ){
+		set_fuzz_constr(name(dst));
+	}
 
 	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
 		set_is_propagated_constant(dst);

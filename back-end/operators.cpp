@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 #define PROPAGATE_CONSTANTS true
@@ -532,10 +532,11 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		if( get_is_propagated_constant(cmp) && PROPAGATE_CONSTANTS ) exit(0);
 
 
-		if( realvalue(cmp) == "true" )
-			push_condition( negation(content( name(cmp) )), actual_function, joints );
-		else
-			push_condition( content( name(cmp) ) , actual_function, joints );
+		if( realvalue(cmp) == "true" ){
+			push_condition( negation(content( name(cmp) )), actual_function, joints, get_fuzz_constr(name(cmp)) );
+		} else {
+			push_condition( content( name(cmp) ) , actual_function, joints, get_fuzz_constr(name(cmp)));
+		}
 
 
 		see_each_problem && show_problem();

@@ -37,6 +37,7 @@ typedef struct Condition {
 	string cond;
 	string function;
 	set<string> joints;
+	bool fuzzme;
 } Condition;
 
 
@@ -131,7 +132,7 @@ string extract_condition(string content);
  *
  * @param condition
  */
-void push_condition(string condition, string function, vector<string> joints);
+void push_condition(string condition, string function, vector<string> joints, bool fuzzme);
 
 /**
  * @brief Negates a condition
@@ -242,6 +243,13 @@ bool get_is_propagated_constant(string varname);
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr);
 
 string itos(int i);
+
+
+void set_fuzz_constr(string name);
+bool get_fuzz_constr(string name);
+
+
+
 
 #endif /* end of include guard: _SOLVER_H_ */
 
