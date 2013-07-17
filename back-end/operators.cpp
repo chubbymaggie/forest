@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
+#define see_each_problem true
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 #define PROPAGATE_CONSTANTS true
@@ -257,11 +257,6 @@ int get_size(string type){
 
 }
 
-string itos(int i){
-	stringstream i_ss;
-	i_ss << i;
-	return i_ss.str();
-}
 
 void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 

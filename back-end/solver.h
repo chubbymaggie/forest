@@ -241,6 +241,7 @@ bool get_is_propagated_constant(string varname);
 
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr);
 
+string itos(int i);
 
 #endif /* end of include guard: _SOLVER_H_ */
 

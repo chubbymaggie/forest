@@ -704,9 +704,54 @@ bool implemented_operation(string operation){
 	if(operation == "/" ) return true;
 	if(operation == "%" ) return true;
 	if(operation == "R" ) return true;
+	if(operation == "Y" ) return true;
 
 	printf("operation %s\n", operation.c_str());
 	return false;
+}
+
+string itos(int i){
+	stringstream i_ss;
+	i_ss << i;
+	return i_ss.str();
+}
+
+string wired_and( string op1, string op2, int nbits ){
+
+	string res;
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0; i < nbits; i++) {
+		int mod1 = ( 1 << i+1 );
+		int mod2 = ( 1 << i   );
+
+		string content1 = content(name(op1));
+		string content2 = content(name(op2));
+		
+		//printf("content %s %s\n", content1.c_str(), content2.c_str() );
+
+		stringstream x_bit_i;
+		stringstream y_bit_i;
+		stringstream z_bit_i;
+		x_bit_i << "(/ (- (mod " << content1 << " " << mod1 << ") (mod " << content1 << " " << mod2 << ")) " << mod2 << ")";
+		y_bit_i << "(/ (- (mod " << content2 << " " << mod1 << ") (mod " << content2 << " " << mod2 << ")) " << mod2 << ")";
+
+		z_bit_i << "(* " << x_bit_i.str() << " " << y_bit_i.str() << ")";
+
+		z_bits.push_back(z_bit_i.str());
+	}
+
+	res = z_bits[0];
+
+	for ( unsigned int i = 1; i < nbits; i++) {
+		int mod = ( 1 << i );
+		res = "(+ (* " + z_bits[i] + " " + itos(mod) + ") " + res + ")";
+	}
+
+	printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
 }
 
 void binary_instruction(string dst, string op1, string op2, string operation){
@@ -736,6 +781,8 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 		content_ss << "(/ " << content(name(op1)) << " " << factor << ")";
 
+	} else if (operation == "Y" ) {
+		content_ss << wired_and(op1, op2, 5);
 	} else {
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
 	}
@@ -836,6 +883,14 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 		printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
 
+	}
+
+	if( operation == "Y" ){
+		int op1_i = stoi(op1);
+		int op2_i = stoi(op2);
+		int res = op1_i & op2_i;
+		stringstream result; result << res;
+		set_real_value(dst, result.str());
 	}
 
 
