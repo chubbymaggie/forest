@@ -522,9 +522,9 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		if(yet_covered()) exit(0);
 
-		//insert_problem();
+		insert_problem();
 
-		debug && printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
+		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
 
 		return real_value_prev == "true";
 	} else {
@@ -543,7 +543,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 
 		if( solvable_problem() ){
-			debug && printf("hijo sat\n"); fflush(stdout);
+			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
 			get_values();
 
 			push_path_stack( real_value_prev != "true");
@@ -552,10 +552,10 @@ bool br_instr_cond(char* _cmp, char* _joints){
 			if(yet_covered()) exit(0);
 
 			insert_problem();
-			debug && printf("fin hijo sat\n"); fflush(stdout);
+			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {
-			debug && printf("hijo unsat\n"); fflush(stdout);
+			debug && printf("\e[31m hijo unsat \e[0m\n"); fflush(stdout);
 			//insert_problem();
 			exit(0);
 		}

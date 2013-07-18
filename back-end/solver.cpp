@@ -235,9 +235,9 @@ string result_get(string get_str){
 
 	vector<string> tokens = tokenize( get_str, "() ");
 
-	for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		printf("%s\n", it->c_str() );
-	}
+	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		//printf("%s\n", it->c_str() );
+	//}
 	
 	string ret;
 
@@ -407,7 +407,7 @@ string get_exclusion( vector<string> excluded_values ){
 
 	string ret;
 	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
-		printf("get_exclusion %s\n", it->c_str() );
+		//printf("get_exclusion %s\n", it->c_str() );
 		vector<string> tokens = tokenize(*it, "() ");
 		string name = tokens[0];
 		string value = tokens[1];
@@ -505,6 +505,9 @@ bool solvable_problem(){
 
 		sat = 1;
 
+		if( n_fuzzs == 0 )
+			return get_is_sat(sat_str);
+
 		if( !get_is_sat(sat_str) ){
 			sat = 0;
 			break;
@@ -523,8 +526,8 @@ bool solvable_problem(){
 
 	}
 
-	printf("sat %d\n", sat);
-	exit(0);
+	//printf("sat %d\n", sat);
+	//exit(0);
 
 	return sat;
 	
