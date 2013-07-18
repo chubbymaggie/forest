@@ -26,7 +26,7 @@
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
-#define FUZZ_LIMIT 300
+#define FUZZ_LIMIT 500
 
 map<string, Variable> variables;
 set<NameAndPosition> variable_names;
@@ -305,7 +305,8 @@ void get_values(){
 
 	dump_header(file);
 	dump_variables(file);
-	dump_conditions(file);
+	dump_conditions2(file);
+	dump_exclusions(file);
 	dump_get(file);
 	dump_get_fuzz(file);
 	dump_tail(file);
@@ -439,6 +440,11 @@ void dump_exclusions(FILE* file){
 		fprintf(file,"(assert %s)\n", it->c_str() );
 	}
 	
+	fprintf(file,"(assert (> mem_8   0))\n" );
+	fprintf(file,"(assert (> mem_12  0))\n" );
+	fprintf(file,"(assert (< mem_8  16))\n" );
+	fprintf(file,"(assert (< mem_12 16))\n" );
+
 	fprintf(file,"(check-sat)\n");
 
 
@@ -495,13 +501,13 @@ bool solvable_problem(){
 		vector<string> vect_for_fuzz = vector<string>(ret_vector.begin()+1, ret_vector.begin()+1+n_fuzzs);
 		vector<string> vect_for_fvar = vector<string>(ret_vector.begin()+1+n_fuzzs, ret_vector.begin()+1+n_fuzzs+n_fvars);
 
-		debug && printf("\e[31m sat_str \e[0m %s\n", sat_str.c_str());
-		for( vector<string>::iterator it = vect_for_fuzz.begin(); it != vect_for_fuzz.end(); it++ ){
-			debug && printf("\e[31m vect_for_fuzz \e[0m %s\n", it->c_str());
-		}
-		for( vector<string>::iterator it = vect_for_fvar.begin(); it != vect_for_fvar.end(); it++ ){
-			debug && printf("\e[31m vect_for_pvar \e[0m %s\n", it->c_str());
-		}
+		//debug && printf("\e[31m sat_str \e[0m %s\n", sat_str.c_str());
+		//for( vector<string>::iterator it = vect_for_fuzz.begin(); it != vect_for_fuzz.end(); it++ ){
+			//debug && printf("\e[31m vect_for_fuzz \e[0m %s\n", it->c_str());
+		//}
+		//for( vector<string>::iterator it = vect_for_fvar.begin(); it != vect_for_fvar.end(); it++ ){
+			//debug && printf("\e[31m vect_for_pvar \e[0m %s\n", it->c_str());
+		//}
 
 		sat = 1;
 
@@ -523,6 +529,9 @@ bool solvable_problem(){
 		} else {
 			break;
 		}
+
+		if( i == FUZZ_LIMIT - 1 )
+			debug && printf("\e[33m FUZZ_LIMIT exceeded \e[0m\n");
 
 	}
 
@@ -895,7 +904,6 @@ string itos(int i){
 
 string wired_and( string op1, string op2, int nbits ){
 
-	string res;
 	vector<string> z_bits;
 
 	for ( unsigned int i = 0; i < nbits; i++) {
@@ -910,20 +918,24 @@ string wired_and( string op1, string op2, int nbits ){
 		stringstream x_bit_i;
 		stringstream y_bit_i;
 		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
 		x_bit_i << "(/ (- (mod " << content1 << " " << mod1 << ") (mod " << content1 << " " << mod2 << ")) " << mod2 << ")";
 		y_bit_i << "(/ (- (mod " << content2 << " " << mod1 << ") (mod " << content2 << " " << mod2 << ")) " << mod2 << ")";
 
 		z_bit_i << "(* " << x_bit_i.str() << " " << y_bit_i.str() << ")";
 
-		z_bits.push_back(z_bit_i.str());
+		z_bit_i_sh << "(* " << z_bit_i.str() << " " << mod2 << ")";
+
+		z_bits.push_back(z_bit_i_sh.str());
 	}
 
-	res = z_bits[0];
+	string res;
 
-	for ( unsigned int i = 1; i < nbits; i++) {
-		int mod = ( 1 << i );
-		res = "(+ (* " + z_bits[i] + " " + itos(mod) + ") " + res + ")";
+	for ( unsigned int i = 0; i < nbits; i++) {
+		res += z_bits[i] + " ";
 	}
+
+	res = "(+ " + res + ")";
 
 	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
 
@@ -973,7 +985,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		content_ss << "(/ " << content(name(op1)) << " " << factor << ")";
 
 	} else if (operation == "Y" ) {
-		content_ss << wired_and(op1, op2, 5);
+		content_ss << wired_and(op1, op2, 4);
 		set_fuzz_constr(name(dst));
 	} else {
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
