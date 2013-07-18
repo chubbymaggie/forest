@@ -522,7 +522,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		if(yet_covered()) exit(0);
 
-		insert_problem();
+		//insert_problem();
 
 		debug && printf("proceso %d acaba de esperar\n", getpid() ); fflush(stdout);
 

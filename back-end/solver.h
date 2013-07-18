@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <string.h>
 #include <set>
 #include <map>
 #include <vector>
@@ -59,6 +60,7 @@ void dump_variables(FILE* file = stdout);
  * @param FILE: file to dump
  */
 void dump_conditions(FILE* file = stdout);
+void dump_exclusions(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib header
@@ -80,6 +82,7 @@ void dump_tail(FILE* file = stdout);
  * @param file
  */
 void dump_get(FILE* file = stdout);
+void dump_get_fuzz(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib assigns

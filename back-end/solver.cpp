@@ -26,6 +26,7 @@
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
+#define FUZZ_LIMIT 300
 
 map<string, Variable> variables;
 set<NameAndPosition> variable_names;
@@ -152,11 +153,21 @@ void dump_variables(FILE* file){
 void dump_conditions(FILE* file){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", it->cond.c_str() );
+		if(!it->fuzzme)
+			fprintf(file,"(assert %s)\n", it->cond.c_str() );
 	}
 	
 	fprintf(file,"(check-sat)\n");
 
+
+}
+
+void dump_conditions2(FILE* file){
+
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		if(!it->fuzzme)
+			fprintf(file,"(assert %s)\n", it->cond.c_str() );
+	}
 
 }
 
@@ -168,6 +179,26 @@ void dump_header(FILE* file){
 
 void dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
+}
+
+void dump_get_fuzz(FILE* file){
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		if(it->fuzzme)
+			fprintf(file,"(get-value (%s)); \e[33m fuzzme \e[0m\n", it->cond.c_str() );
+	}
+
+}
+
+int get_num_fuzzs(){
+
+	int ret = 0;
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		if(it->fuzzme)
+			ret++;
+	}
+
+	return ret;
+
 }
 
 void dump_get(FILE* file){
@@ -184,13 +215,29 @@ void dump_get(FILE* file){
 	
 }
 
+void dump_get_free(FILE* file){
+
+
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+		fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
+	}
+}
+
+
+int get_num_fvars(){
+
+	return variable_names.size();
+
+}
+
+
 string result_get(string get_str){
 
 	vector<string> tokens = tokenize( get_str, "() ");
 
-	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		//printf("%s\n", it->c_str() );
-	//}
+	for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		printf("%s\n", it->c_str() );
+	}
 	
 	string ret;
 
@@ -205,6 +252,24 @@ string result_get(string get_str){
 
 	return ret;
 }
+
+
+string result_get2(string get_str){
+
+	vector<string> tokens = tokenize( get_str, "() ");
+
+	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		//printf("%s\n", it->c_str() );
+	//}
+	
+	string ret = tokens[tokens.size() - 1];
+
+	assert( (ret == "true" || ret == "false") && "Result is not a boolean const");
+
+
+	return ret;
+}
+
 
 void set_real_value(string varname, string value, string fn_name ){
 
@@ -242,6 +307,7 @@ void get_values(){
 	dump_variables(file);
 	dump_conditions(file);
 	dump_get(file);
+	dump_get_fuzz(file);
 	dump_tail(file);
 
 	fclose(file);
@@ -319,41 +385,146 @@ void get_values(){
 
 }
 
+bool get_is_sat(string is_sat){
+	if( is_sat == "sat" ) return true;
+	else return false;
+}
+
+bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
+
+	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
+		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
+		if( result_get2(*it) == "false" ){
+			return false;
+		}
+	}
+	
+	return true;
+
+}
+
+string get_exclusion( vector<string> excluded_values ){
+
+	string ret;
+	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
+		printf("get_exclusion %s\n", it->c_str() );
+		vector<string> tokens = tokenize(*it, "() ");
+		string name = tokens[0];
+		string value = tokens[1];
+		ret += "(= " + name + " " + value + ") ";
+	}
+
+	ret = "(not (and " + ret + "))";
+
+	//printf("excl %s\n", ret.c_str() );
+
+	return ret;
+}
+
+vector<string> exclusions;
+
+void insert_exclusion(string exclusion){
+
+	exclusions.push_back(exclusion);
+}
+
+void clean_exclusions(){
+	exclusions.clear();
+}
+
+
+void dump_exclusions(FILE* file){
+
+	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
+		fprintf(file,"(assert %s)\n", it->c_str() );
+	}
+	
+	fprintf(file,"(check-sat)\n");
+
+
+}
+
+
 bool solvable_problem(){
-
-	stringstream filename;
-	filename << "/tmp/z3_" << getpid() << ".smt2";
-
-	debug && printf("\e[31m filename solvable_problem \e[0m %s\n", filename.str().c_str() );
-
-	FILE* file = fopen(filename.str().c_str(), "w");
-	vector<string> ret_vector;
-
-	dump_header(file);
-	dump_variables(file);
-	dump_conditions(file);
-	dump_tail(file);
-
-	fclose(file);
-
-	FILE *fp;
-	stringstream command;
-	char ret[SIZE_STR];
-	
-	command << "z3 " << filename.str();
-
-	fp = popen(command.str().c_str(), "r");
-	
-	while (fgets(ret,SIZE_STR, fp) != NULL)
-		ret_vector.push_back(ret);
-	
-	pclose(fp);
 
 	bool sat = 0;
 
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		if( it->substr(0,3) == "sat" ) sat = 1;
+
+	clean_exclusions();
+
+	for ( unsigned int i = 0; i < FUZZ_LIMIT; i++) {
+	
+		stringstream filename;
+		filename << "/tmp/z3_" << rand() << ".smt2";
+
+		debug && printf("\e[31m filename solvable_problem \e[0m %s\n", filename.str().c_str() );
+
+		FILE* file = fopen(filename.str().c_str(), "w");
+		vector<string> ret_vector;
+
+		dump_header(file);
+		dump_variables(file);
+		dump_conditions2(file);
+		dump_exclusions(file);
+		dump_get_fuzz(file);
+		dump_get_free(file);
+		dump_tail(file);
+
+		fclose(file);
+
+		FILE *fp;
+		stringstream command;
+		char ret[SIZE_STR];
+		
+		command << "z3 " << filename.str();
+
+		fp = popen(command.str().c_str(), "r");
+		
+		while (fgets(ret,SIZE_STR, fp) != NULL){
+			ret[strlen(ret)-1] = 0;
+			ret_vector.push_back(ret);
+		}
+		
+		pclose(fp);
+
+		int n_fuzzs = get_num_fuzzs();
+		int n_fvars = get_num_fvars();
+
+
+		string         sat_str       = ret_vector[0];
+		vector<string> vect_for_fuzz = vector<string>(ret_vector.begin()+1, ret_vector.begin()+1+n_fuzzs);
+		vector<string> vect_for_fvar = vector<string>(ret_vector.begin()+1+n_fuzzs, ret_vector.begin()+1+n_fuzzs+n_fvars);
+
+		debug && printf("\e[31m sat_str \e[0m %s\n", sat_str.c_str());
+		for( vector<string>::iterator it = vect_for_fuzz.begin(); it != vect_for_fuzz.end(); it++ ){
+			debug && printf("\e[31m vect_for_fuzz \e[0m %s\n", it->c_str());
+		}
+		for( vector<string>::iterator it = vect_for_fvar.begin(); it != vect_for_fvar.end(); it++ ){
+			debug && printf("\e[31m vect_for_pvar \e[0m %s\n", it->c_str());
+		}
+
+		sat = 1;
+
+		if( !get_is_sat(sat_str) ){
+			sat = 0;
+			break;
+		}
+
+		if( !get_is_sat_with_fuzz(vect_for_fuzz) ){
+			sat = 0;
+		}
+
+		if( !sat ){
+			string exclusion = get_exclusion(vect_for_fvar);
+			insert_exclusion(exclusion);
+		} else {
+			break;
+		}
+
 	}
+
+	printf("sat %d\n", sat);
+	exit(0);
 
 	return sat;
 	
@@ -751,7 +922,7 @@ string wired_and( string op1, string op2, int nbits ){
 		res = "(+ (* " + z_bits[i] + " " + itos(mod) + ") " + res + ")";
 	}
 
-	printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
 
 	return res;
 
@@ -931,6 +1102,7 @@ int show_problem(){
 	dump_variables();
 	dump_conditions();
 	dump_get();
+	dump_get_fuzz();
 	dump_tail();
 
 	stringstream filename; filename << "/tmp/z3-" << rand() << ".smt2";
@@ -943,6 +1115,7 @@ int show_problem(){
 	dump_variables(file);
 	dump_conditions(file);
 	dump_get(file);
+	dump_get_fuzz(file);
 	dump_tail(file);
 
 	fclose(file);
