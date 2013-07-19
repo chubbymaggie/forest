@@ -420,6 +420,13 @@ vector<string> get_struct_offsets( const StructType* t ){
 }
 
 
+void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
+	size_t pos = 0;
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
 
 
 // Optimization passes
@@ -427,6 +434,30 @@ vector<string> get_struct_offsets( const StructType* t ){
 struct FillNames : public ModulePass {
 
 	void put_operator_names( Module &M ){
+
+
+		//mod_iterator(M, fun){
+			//fun_iterator(fun,bb){
+				//blk_iterator(bb, in){
+
+					//string name = in->getName().str();
+					//myReplace(name, "_", "");
+					//in->setName(name);
+
+
+				//}
+			//}
+		//}
+
+		glo_iterator(M,gl){
+
+			string name = gl->getName().str();
+			myReplace(name, "_", "");
+			gl->setName(name);
+
+		}
+
+
 
 		mod_iterator(M, fun){
 			fun_iterator(fun,bb){
