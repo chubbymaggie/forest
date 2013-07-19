@@ -69,6 +69,8 @@ void dump_exclusions(FILE* file = stdout);
  */
 void dump_header(FILE* file = stdout);
 
+void dump_type_limits(FILE* file = stdout);
+
 /**
  * @brief Dumps smtlib tail
  *

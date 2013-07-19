@@ -177,6 +177,44 @@ void dump_header(FILE* file){
 
 }
 
+int minval(string type){
+	if(type == "Int32") return -(1 << 31);
+	if(type == "Int16") return -(1 << 15);
+	if(type == "Int8") return 0;
+	if(type == "Float32") return -1000;
+
+	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+}
+
+int maxval(string type){
+	if(type == "Int32") return (1 << 30);
+	if(type == "Int16") return (1 << 15);
+	if(type == "Int8") return (1 << 8);
+	if(type == "Float32") return 1000;
+
+	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+
+}
+
+void dump_type_limits(FILE* file){
+
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+
+		vector<string> tokens = tokenize(it->name, " ");
+
+		string name = tokens[0];
+		string type = get_sized_type(it->name);
+
+		if( get_type(it->name) != "Real" )
+			fprintf(file,"(assert (and (> %s %d) (< %s %d)))\n", name.c_str(), minval(type), name.c_str(), maxval(type) );
+		
+	}
+}
+
 void dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
 }
@@ -305,6 +343,7 @@ void get_values(){
 
 	dump_header(file);
 	dump_variables(file);
+	dump_type_limits(file);
 	dump_conditions2(file);
 	dump_exclusions(file);
 	dump_get(file);
@@ -440,10 +479,10 @@ void dump_exclusions(FILE* file){
 		fprintf(file,"(assert %s)\n", it->c_str() );
 	}
 	
-	fprintf(file,"(assert (> mem_8   0))\n" );
-	fprintf(file,"(assert (> mem_12  0))\n" );
-	fprintf(file,"(assert (< mem_8  16))\n" );
-	fprintf(file,"(assert (< mem_12 16))\n" );
+	//fprintf(file,"(assert (> mem_8   0))\n" );
+	//fprintf(file,"(assert (> mem_12  0))\n" );
+	//fprintf(file,"(assert (< mem_8  16))\n" );
+	//fprintf(file,"(assert (< mem_12 16))\n" );
 
 	fprintf(file,"(check-sat)\n");
 
@@ -470,6 +509,7 @@ bool solvable_problem(){
 
 		dump_header(file);
 		dump_variables(file);
+		dump_type_limits(file);
 		dump_conditions2(file);
 		dump_exclusions(file);
 		dump_get_fuzz(file);
@@ -1115,6 +1155,7 @@ int show_problem(){
 
 	dump_header();
 	dump_variables();
+	dump_type_limits();
 	dump_conditions();
 	dump_get();
 	dump_get_fuzz();
@@ -1128,6 +1169,7 @@ int show_problem(){
 
 	dump_header(file);
 	dump_variables(file);
+	dump_type_limits(file);
 	dump_conditions(file);
 	dump_get(file);
 	dump_get_fuzz(file);
