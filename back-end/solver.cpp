@@ -178,10 +178,9 @@ void dump_header(FILE* file){
 }
 
 int minval(string type){
-	if(type == "Int32") return -(1 << 31);
-	if(type == "Int16") return -(1 << 15);
-	if(type == "Int8") return 0;
-	if(type == "Float32") return -1000;
+	if(type == "Int32") return 0;
+	if(type == "Int16") return 0;
+	if(type == "Int8")  return 0;
 
 	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -192,7 +191,6 @@ int maxval(string type){
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
 	if(type == "Int8") return (1 << 8);
-	if(type == "Float32") return 1000;
 
 	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -210,7 +208,7 @@ void dump_type_limits(FILE* file){
 		string type = get_sized_type(it->name);
 
 		if( get_type(it->name) != "Real" )
-			fprintf(file,"(assert (and (> %s %d) (< %s %d)))\n", name.c_str(), minval(type), name.c_str(), maxval(type) );
+			fprintf(file,"(assert (and (>= %s %d) (< %s %d)))\n", name.c_str(), minval(type), name.c_str(), maxval(type) );
 		
 	}
 }
@@ -277,6 +275,7 @@ string result_get(string get_str){
 		//printf("%s\n", it->c_str() );
 	//}
 	
+	assert(tokens.size() >= 3 && "result_get error");	
 	string ret;
 
 	if( tokens[tokens.size() - 3] == "-" )
@@ -308,6 +307,27 @@ string result_get2(string get_str){
 	return ret;
 }
 
+string result_get3(string get_str){
+
+	vector<string> tokens = tokenize( get_str, "() ");
+
+
+	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		//printf("%s\n", it->c_str() );
+	//}
+	
+	string ret;
+
+	if( tokens.size() >= 3 && tokens[tokens.size() - 2] == "-" )
+		ret = "-" + tokens[tokens.size() - 1];
+	else 
+		ret = tokens[tokens.size() - 1];
+
+	assert( is_number(ret) && "Result is not a number");
+
+
+	return ret;
+}
 
 void set_real_value(string varname, string value, string fn_name ){
 
@@ -447,10 +467,13 @@ string get_exclusion( vector<string> excluded_values ){
 
 	string ret;
 	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
-		//printf("get_exclusion %s\n", it->c_str() );
+
+		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get3(*it).c_str() );
+		//printf("get_exclusion %s\n", it->c_str());
+
 		vector<string> tokens = tokenize(*it, "() ");
 		string name = tokens[0];
-		string value = tokens[1];
+		string value = result_get3(*it);
 		ret += "(= " + name + " " + value + ") ";
 	}
 
