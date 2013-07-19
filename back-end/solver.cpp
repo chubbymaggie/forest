@@ -934,7 +934,11 @@ void assign_instruction(string src, string dst, string fn_name){
 		set_is_propagated_constant(dst);
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
+	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
+                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str() );
+
+
 
 }
 
@@ -1155,8 +1159,8 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	}
 
 	if( operation == "Y" ){
-		int op1_i = stoi(op1);
-		int op2_i = stoi(op2);
+		int op1_i = stoi(realvalue(op1));
+		int op2_i = stoi(realvalue(op2));
 		int res = op1_i & op2_i;
 		stringstream result; result << res;
 		set_real_value(dst, result.str());
