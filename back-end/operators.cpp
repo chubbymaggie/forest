@@ -113,7 +113,15 @@ void ReturnInstr(char* _retname ){
 
 
 	if( callstack.size() == 0 ) return;
-	if( retname == "register_" ) return;
+	if( retname == "register_" ){
+
+		string last_fn_callstack = callstack[ callstack.size() - 1].second;
+
+		callstack.erase( callstack.end() - 1 );
+		actual_function = last_fn_callstack;
+
+		return;
+	}
 
 	string last_rg_callstack = callstack[ callstack.size() - 1].first;
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;
@@ -122,8 +130,7 @@ void ReturnInstr(char* _retname ){
 
 	callstack.erase( callstack.end() - 1 );
 	actual_function = last_fn_callstack;
-	//printf("callstack %s %s\n", callstack[0].first.c_str(), callstack[0].second.c_str() );
-	
+
 
 	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
 
