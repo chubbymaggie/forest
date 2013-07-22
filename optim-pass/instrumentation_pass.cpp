@@ -1824,17 +1824,17 @@ struct All: public ModulePass {
 		
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		//{GlobalInit     pass;   pass.runOnModule(M);}
-		//{CallInstr      pass;   pass.runOnModule(M);}
-		//{BinaryOp       pass;   pass.runOnModule(M);}
-		//{CastInstr      pass;   pass.runOnModule(M);}
-		//{LoadStore      pass;   pass.runOnModule(M);}
-		//{IcmpInstr      pass;   pass.runOnModule(M);}
-		//{BrInstr        pass;   pass.runOnModule(M);}
-		//{BbMarks        pass;   pass.runOnModule(M);}
-		//{AllocaInstr    pass;   pass.runOnModule(M);}
-		//{BeginEnd       pass;   pass.runOnModule(M);}
-		//{GetelementPtr  pass;   pass.runOnModule(M);}
+		{GlobalInit     pass;   pass.runOnModule(M);}
+		{CallInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp       pass;   pass.runOnModule(M);}
+		{CastInstr      pass;   pass.runOnModule(M);}
+		{LoadStore      pass;   pass.runOnModule(M);}
+		{IcmpInstr      pass;   pass.runOnModule(M);}
+		{BrInstr        pass;   pass.runOnModule(M);}
+		{BbMarks        pass;   pass.runOnModule(M);}
+		{AllocaInstr    pass;   pass.runOnModule(M);}
+		{BeginEnd       pass;   pass.runOnModule(M);}
+		{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}

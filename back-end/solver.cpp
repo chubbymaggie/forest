@@ -958,6 +958,7 @@ bool implemented_operation(string operation){
 	if(operation == "%" ) return true;
 	if(operation == "R" ) return true;
 	if(operation == "Y" ) return true;
+	if(operation == "X" ) return true;
 
 	printf("operation %s\n", operation.c_str());
 	return false;
@@ -1010,6 +1011,49 @@ string wired_and( string op1, string op2, int nbits ){
 
 }
 
+
+string wired_xor( string op1, string op2, int nbits ){
+
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0; i < nbits; i++) {
+		int mod1 = ( 1 << i+1 );
+		int mod2 = ( 1 << i   );
+
+		string content1 = content(name(op1));
+		string content2 = content(name(op2));
+		
+		//printf("content %s %s\n", content1.c_str(), content2.c_str() );
+
+		stringstream x_bit_i;
+		stringstream y_bit_i;
+		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
+		x_bit_i << "(/ (- (mod " << content1 << " " << mod1 << ") (mod " << content1 << " " << mod2 << ")) " << mod2 << ")";
+		y_bit_i << "(/ (- (mod " << content2 << " " << mod1 << ") (mod " << content2 << " " << mod2 << ")) " << mod2 << ")";
+
+		z_bit_i << "(- (+ " << x_bit_i.str() << " " << y_bit_i.str() << ") (* 2 " << x_bit_i.str() << " " << y_bit_i.str() << "))";
+
+		z_bit_i_sh << "(* " << z_bit_i.str() << " " << mod2 << ")";
+
+		z_bits.push_back(z_bit_i_sh.str());
+	}
+
+	string res;
+
+	for ( unsigned int i = 0; i < nbits; i++) {
+		res += z_bits[i] + " ";
+	}
+
+	res = "(+ " + res + ")";
+
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
+}
+
+
 void set_fuzz_constr(string name){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong dst for set_fuzz_constr");
@@ -1053,6 +1097,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	} else if (operation == "Y" ) {
 		content_ss << wired_and(op1, op2, 4);
+		set_fuzz_constr(name(dst));
+	} else if (operation == "X" ) {
+		content_ss << wired_xor(op1, op2, 4);
 		set_fuzz_constr(name(dst));
 	} else {
 		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
