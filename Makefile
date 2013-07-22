@@ -32,4 +32,5 @@ test:
 	@forest ./test/simple/global/config.xml
 	@forest ./test/simple/shift/config.xml
 	@forest ./test/simple/wired_bool/config.xml
+	@forest ./test/simple/array2d/config.xml
 
