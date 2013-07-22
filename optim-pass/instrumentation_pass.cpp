@@ -419,7 +419,6 @@ vector<string> get_struct_offsets( const StructType* t ){
 
 }
 
-
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
 	size_t pos = 0;
 	while((pos = str.find(oldStr, pos)) != std::string::npos){
@@ -1669,27 +1668,57 @@ struct GlobalInit: public ModulePass {
 
 				const ArrayType* t_a = cast<ArrayType>(type_t);
 
-				string nelems = itos( t_a->getNumElements() );
+				string nelems = itos( product(get_dimensions(t_a)) );
 
 				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
 				Constant*          constant     = global_var->getInitializer();
 				ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
 
+				bool ndimensions = 0;
+
 				stringstream val_ss;
 				if( constant_a ){
 					for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
-						Value* operand_i = constant_a->getOperand(i);
-						ConstantInt*       constant_int = dyn_cast<ConstantInt>(operand_i);
-						int64_t            val          = constant_int->getSExtValue();
 
-						val_ss << val << ",";
+						Value*         operand_i    = constant_a->getOperand(i);
+						ConstantInt*   constant_int = dyn_cast<ConstantInt>(operand_i);
+						ConstantArray* constant_arr = dyn_cast<ConstantArray>(operand_i);
+
+						if(constant_int){
+							ndimensions = 1;
+							int64_t            val          = constant_int->getSExtValue();
+							val_ss << val << ",";
+						} else if (constant_arr){
+							ndimensions = 2;
+							for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
+								Value* operand_i_2 = constant_arr->getOperand(j);
+								ConstantInt* constant_int_2 = dyn_cast<ConstantInt>(operand_i_2);
+								int64_t val = constant_int_2->getSExtValue();
+								val_ss << val << ",";
+							}
+
+
+						} else {
+							assert(0 && "Unknown array");
+						}
+
 					}
 				}
 
 				string val_s  = val_ss.str();
 
 				const ArrayType* type_a = cast<ArrayType>(type_t);
-				const Type* type_e      = type_a->getElementType();
+
+				//const Type* type_e      = type_a->getElementType();
+				//if(ndimensions == 1){
+					//string type_e_s         = get_type_str(type_e);
+				//} else if (ndimensions == 2){
+					//const ConstantArray* type_e_as_array = cast<ConstantArray>(type_e);
+					//type_e = type_e_as_array->getElementType();
+				//}
+
+				
+				const Type* type_e      = element_type(type_a);
 				string type_e_s         = get_type_str(type_e);
 				
 
