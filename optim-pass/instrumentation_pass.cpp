@@ -786,6 +786,26 @@ struct SeparateGetElm: public ModulePass {
 
 					}
 
+					if( GetElementPtrInst::classof(in) ){
+
+						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
+
+						bool is_getelement = !(in_g->getPointerOperand()->hasName());
+						GEPOperator* gepop = dyn_cast<GEPOperator>(in_g->getPointerOperand());
+
+						if( is_getelement && gepop ){
+
+							Value* pointer = gepop->getPointerOperand();
+							User::op_iterator idxbegin = gepop->idx_begin();
+							User::op_iterator idxend   = gepop->idx_end();
+							vector<Value*> indices(idxbegin, idxend);
+							GetElementPtrInst* getelement = GetElementPtrInst::Create(pointer, indices.begin(),indices.end(), "pointer", in);
+							in->setOperand(0,getelement);
+
+						}
+
+					}
+
 				}
 
 			}
@@ -1804,17 +1824,17 @@ struct All: public ModulePass {
 		
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit     pass;   pass.runOnModule(M);}
-		{CallInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp       pass;   pass.runOnModule(M);}
-		{CastInstr      pass;   pass.runOnModule(M);}
-		{LoadStore      pass;   pass.runOnModule(M);}
-		{IcmpInstr      pass;   pass.runOnModule(M);}
-		{BrInstr        pass;   pass.runOnModule(M);}
-		{BbMarks        pass;   pass.runOnModule(M);}
-		{AllocaInstr    pass;   pass.runOnModule(M);}
-		{BeginEnd       pass;   pass.runOnModule(M);}
-		{GetelementPtr  pass;   pass.runOnModule(M);}
+		//{GlobalInit     pass;   pass.runOnModule(M);}
+		//{CallInstr      pass;   pass.runOnModule(M);}
+		//{BinaryOp       pass;   pass.runOnModule(M);}
+		//{CastInstr      pass;   pass.runOnModule(M);}
+		//{LoadStore      pass;   pass.runOnModule(M);}
+		//{IcmpInstr      pass;   pass.runOnModule(M);}
+		//{BrInstr        pass;   pass.runOnModule(M);}
+		//{BbMarks        pass;   pass.runOnModule(M);}
+		//{AllocaInstr    pass;   pass.runOnModule(M);}
+		//{BeginEnd       pass;   pass.runOnModule(M);}
+		//{GetelementPtr  pass;   pass.runOnModule(M);}
 
 		return false;
 	}
