@@ -1722,13 +1722,37 @@ struct GlobalInit: public ModulePass {
 			const Type*        type_t       = pointertype->getElementType();
 			string             type         = get_type_str(type_t);
 
-			if( type == "IntegerTyID32"){
+			//cerr << "tipo " << type << endl;
+
+			if( type == "IntegerTyID32" || type == "IntegerTyID64" ){
 
 				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
 				Constant*          constant     = global_var->getInitializer();
 				ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
 				int64_t            val          = constant_int->getSExtValue();
 				string             val_s        = itos(val);
+				string             nelems       = itos(1);
+
+				VarInit varinit = {name,nelems, type, val_s};
+
+				global_var_inits.push_back(varinit);
+
+			} else if( type == "FloatTyID" ){
+
+				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+				Constant*          constant     = global_var->getInitializer();
+				ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
+				stringstream       val_ss;
+
+				if( constant->getType()->getTypeID() == 1){
+					float val = constant_fp->getValueAPF().convertToFloat();
+					val_ss << val;
+				} else {
+					float val = constant_fp->getValueAPF().convertToDouble();
+					val_ss << val;
+				}
+
+				string             val_s        = val_ss.str();
 				string             nelems       = itos(1);
 
 				VarInit varinit = {name,nelems, type, val_s};

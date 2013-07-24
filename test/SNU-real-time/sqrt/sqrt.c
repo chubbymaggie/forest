@@ -41,7 +41,7 @@
 /*************************************************************************/
 
 
-double fabs(double n)
+double my_fabs(double n)
 {
   double f;
 
@@ -70,7 +70,7 @@ float sqrt(float val)
 	  dx = (val - (x*x)) / (2.0 * x);
 	  x = x + dx;
 	  diff = val - (x*x);
-	  if (fabs(diff) <= min_tol) flag = 1;
+	  if (my_fabs(diff) <= min_tol) flag = 1;
 	}
 	else 
 	  x =x;
