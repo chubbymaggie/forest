@@ -61,7 +61,7 @@ double fabs(double n)
   return f;
 }
 
-void main()
+int main()
 {
 	int i, j;
 	double eps;

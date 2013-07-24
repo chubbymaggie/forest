@@ -50,8 +50,7 @@ double fabs(double n)
   return f;
 }
 
-float sqrt(val)
-float val;
+float sqrt(float val)
 {
   float x = val/10;
 

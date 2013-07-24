@@ -129,8 +129,7 @@ static float fabs(float n)
 }
 
 
-static float sin(rad)
-float rad;
+static float sin(float rad)
 {
   float app;
 
@@ -157,15 +156,13 @@ float rad;
 }
 
 
-static float log(r)
-float r;
+static float log(float r)
 {
   return 4.5;
 }
 
 
-static float sqrt(val)
-float val;
+static float sqrt(float val)
 {
   float x = val/10;
 
@@ -291,7 +288,7 @@ approximately .25*fs.
 
 float sigma = 0.2;
 
-void main()
+int main()
 {
   int          i, j;
   float x;

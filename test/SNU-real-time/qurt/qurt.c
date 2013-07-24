@@ -67,8 +67,7 @@ double fabs(double n)
   return f;
 }
 
-double sqrt(val)
-double val;
+double sqrt(double val)
 {
   double x = val/10;
 
@@ -98,7 +97,7 @@ double val;
 }
 
 
-void main()
+int main()
 {
 
 	int flag;

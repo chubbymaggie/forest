@@ -269,8 +269,7 @@ float fabs(float n)
   return f;
 }
 
-float sin(rad)
-float rad;
+float sin(float rad)
 {
   float app;
 
@@ -297,10 +296,8 @@ float rad;
 }
 
 
-float cos(rad)
-float rad;
+float cos(float rad)
 {
-  float sin();
 
   return (sin (PI / 2.0 - rad));
 }
@@ -802,7 +799,7 @@ int logsch(int ih,int nbh)
 
 #define PI 3.14159265358979323846
 
-void main()
+int main()
 {
     int i,j,f;
     static int test_data[SIZE],compressed[SIZE],result[SIZE];

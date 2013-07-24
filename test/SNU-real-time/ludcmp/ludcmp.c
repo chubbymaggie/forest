@@ -72,7 +72,7 @@ static double fabs(double n)
   return f;
 }
 
-void main()
+int main()
 {
 
 	int i, j, nmax = 50, n = 5, chkerr;

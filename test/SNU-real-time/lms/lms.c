@@ -67,8 +67,7 @@ int rand()
   return (unsigned int)(next/65536) % 32768;
 }
 
-static float log(r)
-float r;
+static float log(float r)
 {
   return 4.5;
 }
@@ -82,8 +81,7 @@ static float fabs(float n)
   return f;
 }
 
-static float sqrt(val)
-float val;
+static float sqrt(float val)
 {
   float x = val/10;
 
@@ -113,8 +111,7 @@ float val;
 }
 
 
-static float sin(rad)
-float rad;
+static float sin(float rad)
 {
   float app;
 
@@ -180,7 +177,7 @@ static float gaussian()
 }
 
 
-void main()
+int main()
 {
     float lms(float,float,float *,int,float,float);
     static float d[N],b[21];

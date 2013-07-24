@@ -67,8 +67,7 @@ float fabs(float n)
 }
 
 
-float sin(rad)
-float rad;
+float sin(float rad)
 {
   float app;
 
@@ -94,17 +93,15 @@ float rad;
   return(app);
 }
 
-float cos(rad)
-float rad;
+float cos(float rad)
 {
-  float sin();
 
   return (sin (PI / 2.0 - rad));
 }
 
     
 
-void main()
+int main()
 {
     int i;
 

@@ -70,8 +70,7 @@ static double log(double n)
 }
 
 
-static double sin(rad)
-double rad;
+static double sin(double rad)
 {
   double app;
 
@@ -100,13 +99,12 @@ double rad;
 
 static double cos(double rad)
 {
-  double sin();
 
   return (sin (PI / 2.0 - rad));
 }
 
 
-void main()
+int main()
 {
 
 	int  i, n = 8, flag, chkerr;

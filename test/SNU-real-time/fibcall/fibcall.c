@@ -48,8 +48,7 @@
 	int cnt;
 #endif 
 
-fib(n)
-     int  n;
+int fib(int n)
 {
   int  i, Fnew, Fold, temp,ans;
 
@@ -71,7 +70,7 @@ fib(n)
   return ans;
 }
     
-main()
+int main()
 {
   int a;
 

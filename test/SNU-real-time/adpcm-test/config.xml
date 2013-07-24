@@ -4,7 +4,7 @@
 	<option key="verbose" value="false"/> 
 	<option key="test" value="true"/> 
 	<option key="explanation" value="adpcm example"/> 
-	<option key="file" value="adpcm.c"/> 
+	<option key="file" value="adpcm-test.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
 	<option key="output_file" value="final"/> 
