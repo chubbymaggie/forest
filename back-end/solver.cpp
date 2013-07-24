@@ -763,6 +763,8 @@ string get_type(string name){
 
 bool is_number(const std::string& s) {
 
+	//printf("\e[33m is_number \e[0m %s\n", s.c_str() );
+
 	if( s== "true" || s== "false") return true;
 
 	if(s.substr(0,1) == "-") return is_number(s.substr(1));
@@ -772,6 +774,11 @@ bool is_number(const std::string& s) {
 	if( s.find(".") != string::npos ) return 
 		is_number(s.substr(0,s.find("."))) &&
 		is_number(s.substr(s.find(".")+1));
+
+
+	if( s.find("e") != string::npos ) return 
+		is_number(s.substr(0,s.find("e"))) &&
+		is_number(s.substr(s.find("e")+1));
 
 	std::string::const_iterator it = s.begin();
 	while (it != s.end() && std::isdigit(*it)) ++it;
