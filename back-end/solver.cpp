@@ -957,6 +957,7 @@ bool implemented_operation(string operation){
 	if(operation == "/" ) return true;
 	if(operation == "%" ) return true;
 	if(operation == "R" ) return true;
+	if(operation == "L" ) return true;
 	if(operation == "Y" ) return true;
 	if(operation == "X" ) return true;
 
@@ -1094,6 +1095,14 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		int factor = 1 << exponent;
 
 		content_ss << "(/ " << content(name(op1)) << " " << factor << ")";
+
+	} else if (operation == "L" ) {
+
+		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
+		int factor = 1 << exponent;
+
+		content_ss << "(* " << content(name(op1)) << " " << factor << ")";
 
 	} else if (operation == "Y" ) {
 		content_ss << wired_and(op1, op2, 4);

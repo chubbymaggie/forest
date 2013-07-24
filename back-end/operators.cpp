@@ -255,6 +255,9 @@ int get_size(string type){
 	if( type == "IntegerTyID8" )
 		return 1;
 
+	if( type == "IntegerTyID16" )
+		return 2;
+
 	if( type == "int" )
 		return 4;
 
