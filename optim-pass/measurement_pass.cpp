@@ -119,7 +119,8 @@ struct FillNames : public ModulePass {
 
 					if( CallInst::classof(in) ){
 						if( !in->hasName() )
-							in->setName("r");
+							if( !(in->getType()->isVoidTy()) )
+								in->setName("r");
 					}
 
 
@@ -714,6 +715,61 @@ struct BrInstr: public ModulePass {
 };
 
 
+
+struct CountBranches: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	CountBranches() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( BranchInst::classof(in) ){
+
+						BranchInst* in_b = cast<BranchInst>(in);
+
+						if( in_b->isConditional() ){
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_count" ,
+										Type::getVoidTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in; //insertpos++;
+
+							std::vector<Value*> params;
+							CallInst* ci = CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+						}
+					}
+				}
+			}
+		}
+
+		{
+			Function::iterator insertpos_f = M.getFunction("main")->end();
+			insertpos_f--;
+			BasicBlock::iterator insertpos_b = insertpos_f->end();
+			insertpos_b--;
+
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "end_count" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos_b);
+		}
+
+
+		return false;
+	}
+};
+
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -733,22 +789,27 @@ struct All: public ModulePass {
 // Identifiers
 
 char FillNames::ID = 0;
-static RegisterPass<FillNames> FillNames(         "meas_fillnames"       , "Instrument Basic-Blocks" );
+static RegisterPass<FillNames> FillNames(         "meas_fillnames"  , "Instrument Basic-Blocks" );
 
 char BbMarks::ID = 0;
-static RegisterPass<BbMarks> BbMarks(             "meas_bbmarks"       , "Instrument Basic-Blocks" );
+static RegisterPass<BbMarks> BbMarks(             "meas_bbmarks"    , "Instrument Basic-Blocks" );
 
 char BeginEnd::ID = 0;
-static RegisterPass<BeginEnd> BeginEnd(           "meas_beginend"      , "Instrument begin and end of program" );
+static RegisterPass<BeginEnd> BeginEnd(           "meas_beginend"   , "Instrument begin and end of program" );
+
+char CountBranches::ID = 0;
+static RegisterPass<CountBranches> CountBranches( "meas_countbr"    , "Instrument begin and end of program" );
 
 char All::ID = 0;
-static RegisterPass<All> All(                     "meas_all"           , "Instrument all operations" );
+static RegisterPass<All> All(                     "meas_all"        , "Instrument all operations" );
 
 char ChangeMain::ID = 0;
-static RegisterPass<ChangeMain> ChangeMain(       "changemain"           , "Instrument all operations" );
+static RegisterPass<ChangeMain> ChangeMain(       "changemain"      , "Instrument all operations" );
 
 char ChangeAssigns::ID = 0;
-static RegisterPass<ChangeAssigns> ChangeAssigns(       "changeassigns"           , "Instrument all operations" );
+static RegisterPass<ChangeAssigns> ChangeAssigns( "changeassigns"   , "Instrument all operations" );
 
 char BrInstr::ID = 0;
-static RegisterPass< BrInstr> BrInstr(       "branchinstr"           , "Instrument branch operations" );
+static RegisterPass< BrInstr> BrInstr(            "branchinstr"     , "Instrument branch operations" );
+
+

@@ -63,5 +63,11 @@ extern "C" int vector_int(char*);
 extern "C" char vector_char(char*);
 extern "C" short vector_short(char*);
 
+
+extern "C" void br_count();
+extern "C" void end_count();
+
+
+
 #endif /* end of include guard: _OPERATORS_H_ */
 

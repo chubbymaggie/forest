@@ -1341,6 +1341,62 @@ void random_testing(){
 
 }
 
+
+void count_branches(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Segundo paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_countbr < /tmp/file-2.bc > /tmp/file-3.bc";
+	systm(cmd.str().c_str());
+
+	// Pasa de .bc a .s
+	cmd.str("");
+	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
+	systm(cmd.str().c_str());
+
+	// Pasa de .s a .o
+	cmd.str("");
+	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
+	systm(cmd.str().c_str());
+
+	// linka
+	cmd.str("");
+	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	systm(cmd.str().c_str());
+
+	// ejecuta
+	cmd.str("");
+	cmd << "./" << output_file;
+	systm(cmd.str().c_str());
+
+}
+
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1375,6 +1431,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("show_coverage")) show_coverage();
 	if(cmd_option_bool("check_coverage")) check_coverage();
 	if(cmd_option_bool("random_testing")) random_testing();
+	if(cmd_option_bool("count_branches")) count_branches();
 
 
 	return 0;

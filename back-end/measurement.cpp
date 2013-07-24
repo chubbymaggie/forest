@@ -327,3 +327,14 @@ void end_sim(){
 
 }
 
+int branches_count = 0;
+
+void br_count(){
+	branches_count++;
+}
+
+void end_count(){
+	printf("Number of branches %d\n", branches_count);
+}
+
+
