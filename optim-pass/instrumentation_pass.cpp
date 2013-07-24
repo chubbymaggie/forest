@@ -1756,11 +1756,24 @@ struct GlobalInit: public ModulePass {
 						Value*         operand_i    = constant_a->getOperand(i);
 						ConstantInt*   constant_int = dyn_cast<ConstantInt>(operand_i);
 						ConstantArray* constant_arr = dyn_cast<ConstantArray>(operand_i);
+						ConstantFP*    constant_fp  = dyn_cast<ConstantFP>(operand_i);
 
 						if(constant_int){
 							ndimensions = 1;
 							int64_t            val          = constant_int->getSExtValue();
 							val_ss << val << ",";
+						} else if(constant_fp){
+
+
+							if( operand_i->getType()->getTypeID() == 1){
+								float val = constant_fp->getValueAPF().convertToFloat();
+								val_ss << val << ",";
+							} else {
+								float val = constant_fp->getValueAPF().convertToDouble();
+								val_ss << val << ",";
+							}
+
+
 						} else if (constant_arr){
 							ndimensions = 2;
 							for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
@@ -1772,6 +1785,7 @@ struct GlobalInit: public ModulePass {
 
 
 						} else {
+							gl->dump();
 							assert(0 && "Unknown array");
 						}
 

@@ -277,6 +277,9 @@ int get_size(string type){
 	if( type == "DoubleTyID" )
 		return 8;
 
+	if( type == "FloatTyID" )
+		return 8;
+
 	if( type == "IntegerTyID8" )
 		return 1;
 
