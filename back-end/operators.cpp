@@ -104,6 +104,31 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 }
 
+void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
+
+	string dest = string(_dest);
+	string cond = string(_cond);
+	string sel1 = string(_sel1);
+	string sel2 = string(_sel2);
+
+	if( realvalue(cond) == "true" ){
+
+		assign_instruction( sel1, dest  );
+
+	} else if( realvalue(cond) == "false" ){
+
+		assign_instruction( sel2, dest  );
+
+	} else {
+		assert(0 && "Not binary condition");
+	}
+
+	debug && printf("\e[31m select_op %s %s %s %s\e[0m\n", _dest, _cond, _sel1, _sel2);
+	//exit(0);
+
+}
+
+
 void ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);

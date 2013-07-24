@@ -153,6 +153,8 @@ extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret
 extern "C" void ReturnInstr(char* _retname );
 extern "C" void BeginFn(char* _fn_name);
 
+extern "C" void select_op(char* dest, char* cond, char* sel1, char* sel2 );
+
 /**
  * @brief Returns actual value of a variable
  *

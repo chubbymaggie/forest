@@ -528,6 +528,59 @@ struct FillNames : public ModulePass {
 	}
 };
 
+
+struct SelectInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	SelectInstr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( SelectInst::classof(in) ){
+
+						//in->dump();
+						string nameres = "register" UNDERSCORE + in->getName().str();
+						string nameop1 = operandname( in->getOperand(0) );
+						string nameop2 = operandname( in->getOperand(1) );
+						string nameop3 = operandname( in->getOperand(2) );
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, nameop1);
+						GlobalVariable* c3 = make_global_str(M, nameop2);
+						GlobalVariable* c4 = make_global_str(M, nameop3);
+
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "select_op" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						params.push_back(pointerToArray(M,c3));
+						params.push_back(pointerToArray(M,c4));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
 struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BinaryOp() : ModulePass(ID) {}
@@ -1824,17 +1877,18 @@ struct All: public ModulePass {
 		
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit     pass;   pass.runOnModule(M);}
-		{CallInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp       pass;   pass.runOnModule(M);}
-		{CastInstr      pass;   pass.runOnModule(M);}
-		{LoadStore      pass;   pass.runOnModule(M);}
-		{IcmpInstr      pass;   pass.runOnModule(M);}
-		{BrInstr        pass;   pass.runOnModule(M);}
-		{BbMarks        pass;   pass.runOnModule(M);}
-		{AllocaInstr    pass;   pass.runOnModule(M);}
-		{BeginEnd       pass;   pass.runOnModule(M);}
-		{GetelementPtr  pass;   pass.runOnModule(M);}
+		{GlobalInit       pass;   pass.runOnModule(M);}
+		{CallInstr        pass;   pass.runOnModule(M);}
+		{SelectInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp         pass;   pass.runOnModule(M);}
+		{CastInstr        pass;   pass.runOnModule(M);}
+		{LoadStore        pass;   pass.runOnModule(M);}
+		{IcmpInstr        pass;   pass.runOnModule(M);}
+		{BrInstr          pass;   pass.runOnModule(M);}
+		{BbMarks          pass;   pass.runOnModule(M);}
+		{AllocaInstr      pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
+		{GetelementPtr    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -1843,47 +1897,50 @@ struct All: public ModulePass {
 // Identifiers
 
 char FillNames::ID = 0;
-static RegisterPass<FillNames> FillNames(         "instr_fill_names"    , "Fills operands and Block Names" );
+static RegisterPass<FillNames> FillNames(           "instr_fill_names"      , "Fills operands and Block Names" );
 
 char BinaryOp::ID = 0;
-static RegisterPass<BinaryOp> BinaryOp(           "instr_binaryop"      , "Instrument binary operations" );
+static RegisterPass<BinaryOp> BinaryOp(             "instr_binaryop"        , "Instrument binary operations" );
+
+char SelectInstr::ID = 0;
+static RegisterPass<SelectInstr> SelectInstr(       "instr_select"          , "Instrument select operations" );
 
 char CastInstr::ID = 0;
-static RegisterPass<CastInstr> CastInstr(         "instr_castinstr"     , "Instrument cast operations" );
+static RegisterPass<CastInstr> CastInstr(           "instr_castinstr"       , "Instrument cast operations" );
 
 char LoadStore::ID = 0;
-static RegisterPass<LoadStore> LoadStore(         "instr_loadstore"     , "Instrument load/store operations" );
+static RegisterPass<LoadStore> LoadStore(           "instr_loadstore"       , "Instrument load/store operations" );
 
 char SeparateGetElm::ID = 0;
-static RegisterPass<SeparateGetElm> SeparateGetElm( "separate_getelem"  , "Separate GetElementPtr from load/store instructions" );
+static RegisterPass<SeparateGetElm> SeparateGetElm  ( "separate_getelem"    , "Separate GetElementPtr from load/store instructions" );
 
 char IcmpInstr::ID = 0;
-static RegisterPass<IcmpInstr> IcmpInstr(         "instr_icmpinstr"     , "Instrument comparison operations" );
+static RegisterPass<IcmpInstr> IcmpInstr(           "instr_icmpinstr"       , "Instrument comparison operations" );
 
 char BrInstr::ID = 0;
-static RegisterPass<BrInstr> BrInstr(             "instr_brinstr"       , "Instrument branch operations" );
+static RegisterPass<BrInstr> BrInstr(               "instr_brinstr"         , "Instrument branch operations" );
 
 char CallInstr::ID = 0;
-static RegisterPass<CallInstr> CallInstr(         "instr_callinstr"     , "Instrument call operations" );
+static RegisterPass<CallInstr> CallInstr(           "instr_callinstr"       , "Instrument call operations" );
 
 char BbMarks::ID = 0;
-static RegisterPass<BbMarks> BbMarks(             "instr_bbmarks"       , "Instrument Basic-Blocks" );
+static RegisterPass<BbMarks> BbMarks(               "instr_bbmarks"         , "Instrument Basic-Blocks" );
 
 char AllocaInstr::ID = 0;
-static RegisterPass<AllocaInstr> AllocaInstr(     "instr_alloca"        , "Instrument alloca operations" );
+static RegisterPass<AllocaInstr> AllocaInstr(       "instr_alloca"          , "Instrument alloca operations" );
 
 char GetelementPtr::ID = 0;
-static RegisterPass<GetelementPtr> GetelementPtr( "instr_getelementptr" , "Instrument getelementptr operations" );
+static RegisterPass<GetelementPtr> GetelementPtr(   "instr_getelementptr"   , "Instrument getelementptr operations" );
 
 char BeginEnd::ID = 0;
-static RegisterPass<BeginEnd> BeginEnd(           "instr_beginend"      , "Instrument begin and end of program" );
+static RegisterPass<BeginEnd> BeginEnd(             "instr_beginend"        , "Instrument begin and end of program" );
 
 char StructureSizes::ID = 0;
-static RegisterPass<StructureSizes> StructureSizes( "instr_structure_sizes"      , "Instrument structure sizes" );
+static RegisterPass<StructureSizes> StructureSizes( "instr_structure_sizes" , "Instrument structure sizes" );
 
 char GlobalInit::ID = 0;
-static RegisterPass<GlobalInit> GlobalInit( "instr_globalinit"      , "Initialize global variables" );
+static RegisterPass<GlobalInit> GlobalInit(         "instr_globalinit"      , "Initialize global variables" );
 
 char All::ID = 0;
-static RegisterPass<All> All(                     "instr_all"           , "Instrument all operations" );
+static RegisterPass<All> All(                        "instr_all"            , "Instrument all operations" );
 
