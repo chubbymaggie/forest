@@ -52,7 +52,7 @@ static double  a[3][3] = {
 double  b[3][3], c[3][3], aa[3][3], a_i[3][3], e[3][3], det;
 
 
-double fabs(double n)
+double my_fabs(double n)
 {
   double f;
 
@@ -120,7 +120,7 @@ int minver(int row, int col, double eps)
 	    wmax = 0.0;
 	    for(i = k; i < row; i++)
 	      {
-		w = fabs(a[i][k]);
+		w = my_fabs(a[i][k]);
 		if(w > wmax)
 		  {
 		    wmax = w;
@@ -128,7 +128,7 @@ int minver(int row, int col, double eps)
 		  }
 	      }
 	    pivot = a[r][k];
-	    api = fabs(pivot);
+	    api = my_fabs(pivot);
 	    if(api <= eps)
 	      {
 		det = w1;
