@@ -1735,9 +1735,31 @@ struct GlobalInit: public ModulePass {
 
 				global_var_inits.push_back(varinit);
 
-			}
+			} else if( type == "DoubleTyID" ){
 
-			if( type == "ArrayTyID" ){
+				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+				Constant*          constant     = global_var->getInitializer();
+				ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
+				stringstream       val_ss;
+
+				if( constant->getType()->getTypeID() == 1){
+					float val = constant_fp->getValueAPF().convertToFloat();
+					val_ss << val;
+				} else {
+					float val = constant_fp->getValueAPF().convertToDouble();
+					val_ss << val;
+				}
+
+				string             val_s        = val_ss.str();
+				string             nelems       = itos(1);
+
+				VarInit varinit = {name,nelems, type, val_s};
+
+				global_var_inits.push_back(varinit);
+
+			} else if( type == "ArrayTyID" ){
+
+				cerr << "ARRAY" << endl;
 
 				const ArrayType* t_a = cast<ArrayType>(type_t);
 
@@ -1779,8 +1801,24 @@ struct GlobalInit: public ModulePass {
 							for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
 								Value* operand_i_2 = constant_arr->getOperand(j);
 								ConstantInt* constant_int_2 = dyn_cast<ConstantInt>(operand_i_2);
-								int64_t val = constant_int_2->getSExtValue();
-								val_ss << val << ",";
+								ConstantFP*  constant_fp_2  = dyn_cast<ConstantFP>(operand_i_2);
+
+								if(constant_int_2){
+
+									int64_t val = constant_int_2->getSExtValue();
+									val_ss << val << ",";
+
+								} else if(constant_fp_2){
+
+									if( operand_i_2->getType()->getTypeID() == 1){
+										float val = constant_fp_2->getValueAPF().convertToFloat();
+										val_ss << val << ",";
+									} else {
+										float val = constant_fp_2->getValueAPF().convertToDouble();
+										val_ss << val << ",";
+									}
+
+								}
 							}
 
 
@@ -1813,6 +1851,8 @@ struct GlobalInit: public ModulePass {
 
 				global_var_inits.push_back(varinit);
 
+			} else {
+				assert( 0 && "Unkown array");
 			}
 
 		}
@@ -1892,17 +1932,17 @@ struct All: public ModulePass {
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
-		{CallInstr        pass;   pass.runOnModule(M);}
-		{SelectInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp         pass;   pass.runOnModule(M);}
-		{CastInstr        pass;   pass.runOnModule(M);}
-		{LoadStore        pass;   pass.runOnModule(M);}
-		{IcmpInstr        pass;   pass.runOnModule(M);}
-		{BrInstr          pass;   pass.runOnModule(M);}
-		{BbMarks          pass;   pass.runOnModule(M);}
-		{AllocaInstr      pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
-		{GetelementPtr    pass;   pass.runOnModule(M);}
+		//{CallInstr        pass;   pass.runOnModule(M);}
+		//{SelectInstr      pass;   pass.runOnModule(M);}
+		//{BinaryOp         pass;   pass.runOnModule(M);}
+		//{CastInstr        pass;   pass.runOnModule(M);}
+		//{LoadStore        pass;   pass.runOnModule(M);}
+		//{IcmpInstr        pass;   pass.runOnModule(M);}
+		//{BrInstr          pass;   pass.runOnModule(M);}
+		//{BbMarks          pass;   pass.runOnModule(M);}
+		//{AllocaInstr      pass;   pass.runOnModule(M);}
+		//{BeginEnd         pass;   pass.runOnModule(M);}
+		//{GetelementPtr    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
