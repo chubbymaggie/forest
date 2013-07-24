@@ -69,7 +69,7 @@ struct DATA data[15] = { {1, 100},
 	     {17, 133},
 	     {18, 10} };
 
-void main(void)
+int main(void)
 {
 	binary_search(8);
 }

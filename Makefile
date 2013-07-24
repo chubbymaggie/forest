@@ -33,4 +33,5 @@ test:
 	@forest ./test/simple/shift/config.xml
 	@forest ./test/simple/wired_bool/config.xml
 	@forest ./test/simple/array2d/config.xml
+	@forest ./test/SNU-real-time/insertsort/config.xml
 
