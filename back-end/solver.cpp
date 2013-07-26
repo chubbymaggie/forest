@@ -717,7 +717,13 @@ string get_type(string name){
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
 
 	if(name.substr(0,9) == "constant" UNDERSCORE) return "IntegerTyID32";
-	if( is_number(name) ) return "IntegerTyID32";
+	if( is_number(name) ){
+
+		if( name.find(".") != string::npos )
+			return "FloatTyID";
+		else
+			return "IntegerTyID32";
+	}
 
 	if (variables[name].type == "IntegerTyID32")
 		return "Int";
