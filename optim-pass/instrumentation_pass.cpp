@@ -1783,7 +1783,7 @@ struct GlobalInit: public ModulePass {
 
 			} else if( type == "ArrayTyID" ){
 
-				cerr << "ARRAY" << endl;
+				//cerr << "ARRAY" << endl;
 
 				const ArrayType* t_a = cast<ArrayType>(type_t);
 
@@ -1793,10 +1793,32 @@ struct GlobalInit: public ModulePass {
 				Constant*          constant     = global_var->getInitializer();
 				ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
 
+				//global_var->getInitializer()->dump();
+
+				if( !(global_var->hasInitializer()) )
+					assert(0 && "Array sin inicializador");
+
+				bool zeroinitializer = global_var->getInitializer()->isNullValue();
+
+
+
 				bool ndimensions = 0;
 
 				stringstream val_ss;
+
+				if( zeroinitializer ){
+
+						for ( unsigned int i = 0; i < t_a->getNumElements(); i++) {
+							val_ss << "0,";
+						}
+				}
+
 				if( constant_a ){
+
+
+					//gl->dump();
+					//cerr << "constant_a" << endl << "-------------" << endl;
+
 					for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
 
 						Value*         operand_i    = constant_a->getOperand(i);
