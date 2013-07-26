@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT true
+#define EXIT_ON_INSERT false
 #define FUZZ_LIMIT 500
 
 map<string, Variable> variables;
@@ -927,9 +927,11 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
 
+	//if( variables[name(dst)].type == "" ) assert(0 && "No type in dst");
+	settype(name(dst, fn_name), get_type(name(src)));
+
 	set_real_value( dst, realvalue(src), fn_name );
 
-	settype(name(dst, fn_name), get_type(name(src)));
 
 	if( get_is_propagated_constant(src) )
 		set_is_propagated_constant(dst);

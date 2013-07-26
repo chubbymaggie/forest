@@ -312,14 +312,16 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
 
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	settype( name(varname), "Pointer");
 	assign_instruction(rvalue.str(), name(varname));
-	settype( name(varname), "Int");
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 
 	for ( unsigned int i = 0; i < nelems; i++) {
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
+
+		settype(mem_var.str(), type);
 
 		if(values.size()){
 			stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
@@ -328,7 +330,6 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
 		set_name_hint(mem_var.str(), varname);
 
-		settype(mem_var.str(), type);
 
 		alloca_pointer += get_size(type);
 	}
