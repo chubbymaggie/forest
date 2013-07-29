@@ -1814,12 +1814,19 @@ struct GlobalInit: public ModulePass {
 					//cerr << get_type_str(t_a->getElementType()) << endl;
 					
 					string zero;
-					if( get_type_str(t_a->getElementType()) == "FloatTyID" )
+					if( get_type_str(t_a->getElementType()) == "FloatTyID" ){
 						zero = "0.0";
-					else if( get_type_str(t_a->getElementType()) == "IntegerTyID" )
+					} else if( get_type_str(t_a->getElementType()) == "DoubleTyID" ){
+						zero = "0.0";
+					} else if ( get_type_str(t_a->getElementType()) == "IntegerTyID" ){
 						zero = "0";
-					else
+					} else if (get_type_str(t_a->getElementType()) == "IntegerTyID32"){
+						zero = "0";
+					} else {
+						t_a->getElementType()->dump();
+						cerr << get_type_str(t_a->getElementType()) << endl;
 						assert(0 && "Unknown initializer");
+					}
 
 					for ( unsigned int i = 0; i < t_a->getNumElements(); i++) {
 						val_ss << zero << ",";

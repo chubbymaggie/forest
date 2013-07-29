@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT false
+#define EXIT_ON_INSERT true
 #define FUZZ_LIMIT 500
 
 map<string, Variable> variables;
@@ -1291,6 +1291,8 @@ void print_path_stack(){
 		debug && printf("%s", (*it)?"T":"F" );
 	}
 	debug && printf("\n");
+
+	debug && printf("\e[33m Depth \e[0m %lu\n", path_stack.size());
 	
 
 }
