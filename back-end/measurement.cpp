@@ -159,7 +159,6 @@ int vector_int(char* _name){
 	return stoi(ret);
 }
 
-
 short vector_short(char* _name){
 
 	string name = string(_name);
@@ -175,7 +174,6 @@ short vector_short(char* _name){
 	return ret_s;
 }
 
-
 char vector_char(char* _name){
 
 	string name = string(_name);
@@ -189,7 +187,6 @@ char vector_char(char* _name){
 
 	return ret_c;
 }
-
 
 void begin_sim(char* functions, char* bbs){
 
@@ -243,7 +240,6 @@ void BeginFn(char* _fn_name){
 
 }
 
-
 void EndFn(){
 
 	assert(fn_stack.size() && "Empty stack");
@@ -262,7 +258,6 @@ void EndFn(){
 
 }
 
-
 void br_instr_cond(bool value){
 
 	printf("br_instr_cond %d\n", value);
@@ -271,8 +266,6 @@ void br_instr_cond(bool value){
 	insert_problem();
 
 }
-
-
 
 void end_sim(){
 
@@ -336,5 +329,4 @@ void br_count(){
 void end_count(){
 	printf("Number of branches %d\n", branches_count);
 }
-
 

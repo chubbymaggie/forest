@@ -25,7 +25,6 @@
 
 sqlite3 *db;
 
-
 extern map<string, Variable> variables;
 extern set<NameAndPosition> variable_names;
 extern vector<Condition> conditions;
@@ -140,11 +139,13 @@ string gethint(string name){
 
 }
 
+int num_of_assertions() {
+	return conditions.size();
+}
 
-
-int num_of_assertions() { return conditions.size(); }
-
-int num_of_variables()  { return variable_names.size(); }
+int num_of_variables() {
+	return variable_names.size();
+}
 
 int num_of_mults(){
 	int ret = 0;
@@ -177,8 +178,6 @@ int num_of_subs(){
 	}
 	return ret;
 }
-
-
 
 void insert_problem(){
 

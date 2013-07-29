@@ -43,6 +43,19 @@
 using namespace llvm;
 using namespace std;
 
+// Function declaration
+
+int sizeofstruct(const Type* t);
+int get_size( const Type* t );
+
+// Type declarations
+
+typedef struct VarInit {
+	string name;
+	string nelems;
+	string type;
+	string initialization;
+} VarInit;
 
 // Helper Functions
 
@@ -322,9 +335,6 @@ int product(vector<int> elem){
 	return prod;
 }
 
-int sizeofstruct(const Type* t);
-int get_size( const Type* t );
-
 int sizeofstruct(const Type* t){
 
 	int ret = 0;
@@ -429,6 +439,11 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 	}
 }
 
+string itos( int value ){
+	stringstream ret_ss;
+	ret_ss << value;
+	return ret_ss.str();
+}
 
 // Optimization passes
 
@@ -530,7 +545,6 @@ struct FillNames : public ModulePass {
 	}
 };
 
-
 struct SelectInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	SelectInstr() : ModulePass(ID) {}
@@ -581,7 +595,6 @@ struct SelectInstr: public ModulePass {
 		return false;
 	}
 };
-
 
 struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -751,8 +764,6 @@ struct LoadStore: public ModulePass {
 		return false;
 	}
 };
-
-
 
 struct SeparateGetElm: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -1693,20 +1704,6 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
-typedef struct VarInit {
-	string name;
-	string nelems;
-	string type;
-	string initialization;
-} VarInit;
-
-
-string itos( int value ){
-	stringstream ret_ss;
-	ret_ss << value;
-	return ret_ss.str();
-}
-
 struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GlobalInit() : ModulePass(ID) {}
@@ -1968,7 +1965,6 @@ struct GlobalInit: public ModulePass {
 		return false;
 	}
 };
-
 
 struct StructureSizes: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid

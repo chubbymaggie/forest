@@ -34,12 +34,6 @@ vector<pair<string, string> > callstack;
 string actual_function;
 string actual_bb;
 
-
-
-
-
-
-
 void cast_instruction(char* _dst, char* _src, char* _type){
 
 	string dst = string(_dst);
@@ -127,7 +121,6 @@ void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 	//exit(0);
 
 }
-
 
 void ReturnInstr(char* _retname ){
 
@@ -250,7 +243,6 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	assert( (realvalue(dst) == "true" || realvalue(dst) == "false") && "Invalid result for a comparison operation" );
 }
 
-
 void br_instr_incond(){
 
 	debug && printf("\e[31m inconditional_branch_instr\e[0m\n" );
@@ -297,7 +289,6 @@ int get_size(string type){
 	assert(0 && "Unknown type");
 
 }
-
 
 void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
@@ -457,7 +448,6 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 
 }
 
-
 void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _offsets){
 
 	string dst     = string(_dst);
@@ -491,7 +481,6 @@ void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _off
 		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 }
-
 
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
@@ -528,7 +517,6 @@ void end_sim(){
 	//get_values();
 	
 }
-
 
 bool br_instr_cond(char* _cmp, char* _joints){
 

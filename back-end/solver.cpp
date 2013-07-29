@@ -36,7 +36,6 @@ extern string actual_function;
 vector<Condition> conditions;
 vector<bool> path_stack;
 
-
 void push_path_stack(bool step){
 	path_stack.push_back(step);
 }
@@ -66,44 +65,6 @@ int count(string name, string character){
     return n;
 
 }
-
-//bool check_name(string name){
-
-	//int number_of_underscore = count(name, UNDERSCORE);
-	//if(
-			//number_of_underscore != 0 &&
-			//number_of_underscore != 3 &&
-			//number_of_underscore != 2 &&
-			//number_of_underscore != 1 &&
-			//number_of_underscore != 4
-	//)
-		//return false;
-
-	//if(number_of_underscore == 4){
-		//vector<string> tokens = tokenize(name, UNDERSCORE);
-		//if(tokens[3] != "offset")
-			//return false;
-	//}
-
-	//if(number_of_underscore == 3){
-		//vector<string> tokens = tokenize(name, UNDERSCORE);
-		//if(tokens[2] != "offset")
-			//return false;
-	//}
-
-	//if( name.substr(0,4) == "mem" UNDERSCORE )
-		//if(!is_number(name.substr(4))) return false;
-
-	//if( name.substr(0,9) == "constant" UNDERSCORE )
-		//if(!is_number(name.substr(9))) return false;
-
-	//if( name.find(UNDERSCORE) == string::npos ){
-		//if(!is_number(name)) return false;
-	//}
-
-	//return true;
-
-//}
 
 bool check_mangled_name(string name){
 
@@ -259,13 +220,11 @@ void dump_get_free(FILE* file){
 	}
 }
 
-
 int get_num_fvars(){
 
 	return variable_names.size();
 
 }
-
 
 string result_get(string get_str){
 
@@ -289,7 +248,6 @@ string result_get(string get_str){
 
 	return ret;
 }
-
 
 string result_get2(string get_str){
 
@@ -335,7 +293,6 @@ void set_real_value(string varname, string value, string fn_name ){
 
 	variables[ name(varname, fn_name) ].real_value = value;
 }
-
 
 void set_real_value_mangled(string varname, string value ){
 
@@ -419,14 +376,6 @@ void get_values(){
 		it_ret++;
 	}
 
-
-
-
-
-
-
-
-
 	//map<string,Variable>::iterator it_var = variables.begin();
 	//vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
 
@@ -495,7 +444,6 @@ void clean_exclusions(){
 	exclusions.clear();
 }
 
-
 void dump_exclusions(FILE* file){
 
 	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
@@ -511,7 +459,6 @@ void dump_exclusions(FILE* file){
 
 
 }
-
 
 bool solvable_problem(){
 
@@ -603,7 +550,6 @@ bool solvable_problem(){
 
 	return sat;
 	
-	
 }
 
 void insert_variable(string name, string position){
@@ -670,7 +616,6 @@ void set_name_hint(string name, string hint){
 
 }
 
-
 string name_without_suffix( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for name_without_suffix");
@@ -679,7 +624,6 @@ string name_without_suffix( string name ){
 	int s2 = name.find(UNDERSCORE, s1+1);
 	return name.substr(0,s2);
 }
-
 
 string get_sized_type(string name){
 
@@ -710,7 +654,6 @@ string get_sized_type(string name){
 	return "Int";
 
 }
-
 
 string get_type(string name){
 
@@ -879,7 +822,6 @@ string realvalue(string varname){
 
 }
 
-
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
     	
@@ -957,7 +899,6 @@ void assign_instruction(string src, string dst, string fn_name){
 
 }
 
-
 bool implemented_operation(string operation){
 	if(operation == "+" ) return true;
 	if(operation == "<=") return true;
@@ -1027,7 +968,6 @@ string wired_and( string op1, string op2, int nbits ){
 
 }
 
-
 string wired_xor( string op1, string op2, int nbits ){
 
 	vector<string> z_bits;
@@ -1068,7 +1008,6 @@ string wired_xor( string op1, string op2, int nbits ){
 	return res;
 
 }
-
 
 void set_fuzz_constr(string name){
 
@@ -1248,7 +1187,6 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 }
 
-
 int show_problem(){
 
 	dump_header();
@@ -1282,7 +1220,6 @@ int show_problem(){
 	getchar();
 }
 
-
 void print_path_stack(){
 
 
@@ -1296,5 +1233,4 @@ void print_path_stack(){
 	
 
 }
-
 

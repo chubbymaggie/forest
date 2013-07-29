@@ -33,7 +33,6 @@
 
 using namespace std;
 
-
 static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
 void start_database();

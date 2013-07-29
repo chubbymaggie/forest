@@ -36,12 +36,18 @@
 #define mod_iterator(mod, fn) for( Module::iterator     fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define fun_iterator(fun, bb) for( Function::iterator   bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
 #define blk_iterator(blk, in) for( BasicBlock::iterator in = blk->begin(), instruction_end = blk->end(); in != instruction_end; ++in )
-
 #define UNDERSCORE "_"
 
 using namespace llvm;
 using namespace std;
 
+// Type Definitions
+
+typedef struct FreeVariable{
+	string name;
+	string type;
+	string position;
+} FreeVariable;
 
 // Helper Functions
 
@@ -308,12 +314,6 @@ struct BeginEnd: public ModulePass {
 		return false;
 	}
 };
-
-typedef struct FreeVariable{
-	string name;
-	string type;
-	string position;
-} FreeVariable;
 
 void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVariable> free_variables, set<vector<string> > values ){
 
@@ -666,7 +666,6 @@ struct ChangeAssigns: public ModulePass {
 	}
 };
 
-
 struct BrInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
 	BrInstr() : ModulePass(ID) {}
@@ -713,8 +712,6 @@ struct BrInstr: public ModulePass {
 		return false;
 	}
 };
-
-
 
 struct CountBranches: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
@@ -767,8 +764,6 @@ struct CountBranches: public ModulePass {
 		return false;
 	}
 };
-
-
 
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid

@@ -27,9 +27,7 @@ extern vector<bool> path_stack;
 
 sqlite3 *db;
 
-
 vector< pair<string, string> > retsqlite;
-
 
 void start_database(){
 	debug && printf("\e[31m start_database \e[0m\n"); fflush(stdout);
@@ -83,3 +81,4 @@ void insert_problem(){
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
+
