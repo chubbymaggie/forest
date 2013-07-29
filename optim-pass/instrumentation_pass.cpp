@@ -259,7 +259,7 @@ int primary_size( const Type* t ){
 	if( type == "IntegerTyID8" ) return 1;
 	if( type == "IntegerTyID64" ) return 8;
 	if( type == "PointerTyID" ) return 4;
-	if( type == "FloatTyID" ) return 4;
+	if( type == "FloatTyID" ) return 8;
 	if( type == "DoubleTyID" ) return 8;
 
 	cerr << type << endl;
@@ -1847,6 +1847,9 @@ struct GlobalInit: public ModulePass {
 						} else if(constant_fp){
 
 
+							val_ss.setf( std::ios::fixed, std:: ios::floatfield );
+							val_ss.precision(5);
+
 							if( operand_i->getType()->getTypeID() == 1){
 								float val = constant_fp->getValueAPF().convertToFloat();
 								val_ss << val << ",";
@@ -1870,6 +1873,9 @@ struct GlobalInit: public ModulePass {
 
 								} else if(constant_fp_2){
 
+									val_ss.setf( std::ios::fixed, std:: ios::floatfield );
+									val_ss.precision(5);
+
 									if( operand_i_2->getType()->getTypeID() == 1){
 										float val = constant_fp_2->getValueAPF().convertToFloat();
 										val_ss << val << ",";
@@ -1891,6 +1897,8 @@ struct GlobalInit: public ModulePass {
 				}
 
 				string val_s  = val_ss.str();
+
+				//cerr << "val_s " << val_s << endl;
 
 				const ArrayType* type_a = cast<ArrayType>(type_t);
 
