@@ -60,6 +60,8 @@ string operandname( Value* operand ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
 		stringstream nameop1_ss;
+		nameop1_ss.setf( std::ios::fixed, std:: ios::floatfield );
+		nameop1_ss.precision(5);
 
 		if( operand->getType()->getTypeID() == 1){
 			float val = CF->getValueAPF().convertToFloat();
