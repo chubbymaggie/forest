@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT true
+#define EXIT_ON_INSERT false
 #define FUZZ_LIMIT 500
 
 map<string, Variable> variables;

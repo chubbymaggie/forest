@@ -83,6 +83,126 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 	return const_ptr_9;
 }
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+vector<FreeVariable> load_variables(){
+
+	vector<FreeVariable> ret;
+
+	FILE *file = fopen ( "free_variables", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+		vector<string> tokens = tokenize(string(line), " ");
+		string name = tokens[0];
+		string type = tokens[1];
+		string position = tokens[2];
+		FreeVariable frv = {name,type, position};
+		ret.push_back(frv);
+	}
+	fclose ( file );
+
+
+	//for( vector<FreeVariable>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//cerr << it->name << " " << it->type << endl;
+	//}
+	
+
+	return ret;
+
+}
+
+set<vector<string> > load_values(){
+
+
+	set<vector<string> > ret;
+
+	FILE *file = fopen ( "vectors", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		ret.insert(tokens);
+
+	}
+	fclose ( file );
+	
+
+	return ret;
+
+
+
+}
+
+map<string, string> load_names_from_pos(){
+
+	map<string, string> ret;
+
+	FILE *file = fopen ( "free_variables", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+
+
+		vector<string> tokens = tokenize(string(line), " ");
+
+		vector<string> tokens2 = tokenize(tokens[2], UNDERSCORE );
+
+		string position;
+
+		if(tokens2[0] == "main")
+			position = "test" UNDERSCORE + tokens2[2];
+		else
+			position = tokens2[0] + UNDERSCORE + tokens2[2];
+
+
+		string name = tokens[0];
+
+		ret[position] = name;
+
+	}
+	fclose ( file );
+
+
+	//for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//cerr << "load_names_from_pos " << it->first << " " << it->second<< endl;
+	//}
+	
+
+
+	return ret;
+
+}
+
 // Optimization passes
 
 struct FillNames : public ModulePass {
@@ -473,85 +593,6 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 }
 
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
-
-vector<FreeVariable> load_variables(){
-
-	vector<FreeVariable> ret;
-
-	FILE *file = fopen ( "free_variables", "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
-	
-
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-
-		vector<string> tokens = tokenize(string(line), " ");
-		string name = tokens[0];
-		string type = tokens[1];
-		string position = tokens[2];
-		FreeVariable frv = {name,type, position};
-		ret.push_back(frv);
-	}
-	fclose ( file );
-
-
-	//for( vector<FreeVariable>::iterator it = ret.begin(); it != ret.end(); it++ ){
-		//cerr << it->name << " " << it->type << endl;
-	//}
-	
-
-	return ret;
-
-}
-
-set<vector<string> > load_values(){
-
-
-	set<vector<string> > ret;
-
-	FILE *file = fopen ( "vectors", "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-
-		vector<string> tokens = tokenize(string(line), " ");
-
-		ret.insert(tokens);
-
-	}
-	fclose ( file );
-	
-
-	return ret;
-
-
-
-}
-
 struct ChangeMain: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	ChangeMain() : ModulePass(ID) {}
@@ -572,47 +613,6 @@ struct ChangeMain: public ModulePass {
 		return false;
 	}
 };
-
-map<string, string> load_names_from_pos(){
-
-	map<string, string> ret;
-
-	FILE *file = fopen ( "free_variables", "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-
-
-		vector<string> tokens = tokenize(string(line), " ");
-
-		vector<string> tokens2 = tokenize(tokens[2], UNDERSCORE );
-
-		string position;
-
-		if(tokens2[0] == "main")
-			position = "test" UNDERSCORE + tokens2[2];
-		else
-			position = tokens2[0] + UNDERSCORE + tokens2[2];
-
-
-		string name = tokens[0];
-
-		ret[position] = name;
-
-	}
-	fclose ( file );
-
-
-	//for( map<string, string>::iterator it = ret.begin(); it != ret.end(); it++ ){
-		//cerr << "load_names_from_pos " << it->first << " " << it->second<< endl;
-	//}
-	
-
-
-	return ret;
-
-}
 
 struct ChangeAssigns: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid

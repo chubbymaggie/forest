@@ -59,30 +59,36 @@ typedef struct VarInit {
 
 // Helper Functions
 
+string floatvalue( ConstantFP * CF ){
+
+	stringstream ret_ss;
+	ret_ss.setf( std::ios::fixed, std:: ios::floatfield );
+	ret_ss.precision(5);
+
+	if( CF->getType()->getTypeID() == 1)
+		ret_ss << CF->getValueAPF().convertToFloat();
+	else
+		ret_ss << CF->getValueAPF().convertToDouble();
+
+	return ret_ss.str();
+
+}
+
 string operandname( Value* operand ){
 
 	if( ConstantInt::classof(operand) ){
-
 		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
 		int64_t val = CI->getSExtValue();
 		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 		return nameop1_ss.str();
-
 	} else if( ConstantFP::classof(operand) ){
-
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
 		stringstream nameop1_ss;
 		nameop1_ss.setf( std::ios::fixed, std:: ios::floatfield );
 		nameop1_ss.precision(5);
 
-		if( operand->getType()->getTypeID() == 1){
-			float val = CF->getValueAPF().convertToFloat();
-			nameop1_ss << "constant" UNDERSCORE << val;
-		} else {
-			float val = CF->getValueAPF().convertToDouble();
-			nameop1_ss << "constant" UNDERSCORE << val;
-		}
+		nameop1_ss << "constant" UNDERSCORE << floatvalue(CF);
 
 		return nameop1_ss.str();
 	} else if ( ConstantPointerNull::classof(operand) ){
@@ -176,33 +182,11 @@ string get_type_str( const Type* t){
 
 	assert(0 && "Unknown Type");
 
-	//switch(typId){
-
-		//case  -1: return "VoidTyID";
-		//case  0: return "HalfTyID";
-		//case  1: return "FloatTyID";
-		//case  2: return "DoubleTyID";
-		//case  3: return "X86_FP80TyID";
-		//case  4: return "FP128TyID";
-		//case  5: return "PPC_FP128TyID";
-		//case  6: return "LabelTyID";
-		//case  7: return "MetadataTyID";
-		////case  8: return "X86_MMXTyID";
-		//case 8: return "IntegerTyID";
-		//case 10: return "FunctionTyID";
-		//case 11: return "StructTyID";
-		////case 12: return "ArrayTyID";
-		//case 12: return "PointerTyID";
-		//case 14: return "VectorTyID";
-
-	//}
-
 }
 
 string get_op_name_from_id(int opId){
 
 	//cerr << "opID " << opId << endl;
-
 
 	switch(opId){
 
@@ -251,9 +235,6 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 
 		}
 	}
-
-
-
 
 	return ret;
 
@@ -1440,34 +1421,34 @@ struct BbMarks: public ModulePass {
 	}
 };
 
-string get_flattened_types(const Type* t){
-	t->dump();
-
-	string ret;
-	const StructType* t_s = dyn_cast<StructType>(t);
-	const ArrayType*  t_a = dyn_cast<ArrayType>(t);
-
-	if(t_s){
-		unsigned int numelems = t_s->getNumElements();
-
-		for ( unsigned int i = 0; i < numelems; i++) {
-			ret += get_flattened_types(t_s->getElementType(i));
-		}
-
-		return ret;
-	} else {
-		return get_type_str(t) + ",";
-	}
-
-
-}
-
 struct AllocaInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	AllocaInstr() : ModulePass(ID) {}
 
-	virtual bool runOnModule(Module &M) {
 
+	string get_flattened_types(const Type* t){
+		t->dump();
+
+		string ret;
+		const StructType* t_s = dyn_cast<StructType>(t);
+		const ArrayType*  t_a = dyn_cast<ArrayType>(t);
+
+		if(t_s){
+			unsigned int numelems = t_s->getNumElements();
+
+			for ( unsigned int i = 0; i < numelems; i++) {
+				ret += get_flattened_types(t_s->getElementType(i));
+			}
+
+			return ret;
+		} else {
+			return get_type_str(t) + ",";
+		}
+
+
+	}
+
+	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
@@ -1493,13 +1474,10 @@ struct AllocaInstr: public ModulePass {
 						}
 
 						//cerr << type << endl;
-
 						
 						int size = get_size( in_a->getAllocatedType() );
 						stringstream size_ss; size_ss << size;
 
-						
-						
 						//in_a->getAllocatedType()->dump();
 						//cerr << "size: " << size << endl; fflush(stderr);
 
@@ -1708,6 +1686,179 @@ struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GlobalInit() : ModulePass(ID) {}
 
+	VarInit varinit_int( GlobalVariable* gl ){
+			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+
+			string             nelems       = itos(1);
+
+			const PointerType* pointertype  = cast<PointerType>(gl->getType());
+			const Type*        type_t       = pointertype->getElementType();
+			string             type         = get_type_str(type_t);
+
+			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+			Constant*          constant     = global_var->getInitializer();
+			ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
+			int64_t            val          = constant_int->getSExtValue();
+			string             val_s        = itos(val);
+
+			VarInit varinit = {name,nelems, type, val_s};
+
+			return varinit;
+
+	}
+
+	VarInit varinit_float( GlobalVariable* gl ){
+			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+
+			string             nelems       = itos(1);
+
+			const PointerType* pointertype  = cast<PointerType>(gl->getType());
+			const Type*        type_t       = pointertype->getElementType();
+			string             type         = get_type_str(type_t);
+
+			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+			Constant*          constant     = global_var->getInitializer();
+			ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
+			string             val_s        = floatvalue(constant_fp);
+
+			VarInit varinit = {name,nelems, type, val_s};
+
+			return varinit;
+	}
+
+	VarInit varinit_array( GlobalVariable* gl ){
+
+		//cerr << "ARRAY" << endl;
+		string             name         = string("global" UNDERSCORE) + gl->getName().str();
+
+		const PointerType* pointertype  = cast<PointerType>(gl->getType());
+		const Type*        type_t       = pointertype->getElementType();
+		string             type         = get_type_str(type_t);
+
+		const ArrayType* t_a = cast<ArrayType>(type_t);
+
+		string nelems = itos( product(get_dimensions(t_a)) );
+
+		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+		Constant*          constant     = global_var->getInitializer();
+		ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
+
+		//global_var->getInitializer()->dump();
+
+		if( !(global_var->hasInitializer()) )
+			assert(0 && "Array sin inicializador");
+
+		bool zeroinitializer = global_var->getInitializer()->isNullValue();
+
+
+
+		bool ndimensions = 0;
+
+		stringstream val_ss;
+
+		if( zeroinitializer ){
+
+			//t_a->getElementType()->dump();
+			//cerr << get_type_str(t_a->getElementType()) << endl;
+
+			string zero;
+			if( get_type_str(t_a->getElementType()) == "FloatTyID" ){
+				zero = "0.0";
+			} else if( get_type_str(t_a->getElementType()) == "DoubleTyID" ){
+				zero = "0.0";
+			} else if ( get_type_str(t_a->getElementType()) == "IntegerTyID" ){
+				zero = "0";
+			} else if (get_type_str(t_a->getElementType()) == "IntegerTyID32"){
+				zero = "0";
+			} else {
+				t_a->getElementType()->dump();
+				cerr << get_type_str(t_a->getElementType()) << endl;
+				assert(0 && "Unknown initializer");
+			}
+
+			for ( unsigned int i = 0; i < t_a->getNumElements(); i++) {
+				val_ss << zero << ",";
+			}
+
+		}
+
+		//cerr << "val_ss " << val_ss.str() << endl;
+
+		if( constant_a ){
+
+
+			//gl->dump();
+			//cerr << "constant_a" << endl << "-------------" << endl;
+
+			for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
+
+				Value*         operand_i    = constant_a->getOperand(i);
+				ConstantInt*   constant_int = dyn_cast<ConstantInt>(operand_i);
+				ConstantArray* constant_arr = dyn_cast<ConstantArray>(operand_i);
+				ConstantFP*    constant_fp  = dyn_cast<ConstantFP>(operand_i);
+
+				if(constant_int){
+					ndimensions = 1;
+					int64_t            val          = constant_int->getSExtValue();
+					val_ss << val << ",";
+				} else if(constant_fp){
+
+					val_ss << floatvalue(constant_fp) << ",";
+
+
+				} else if (constant_arr){
+					ndimensions = 2;
+					for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
+						Value* operand_i_2 = constant_arr->getOperand(j);
+						ConstantInt* constant_int_2 = dyn_cast<ConstantInt>(operand_i_2);
+						ConstantFP*  constant_fp_2  = dyn_cast<ConstantFP>(operand_i_2);
+
+						if(constant_int_2){
+
+							int64_t val = constant_int_2->getSExtValue();
+							val_ss << val << ",";
+
+						} else if(constant_fp_2){
+
+
+							val_ss << floatvalue( constant_fp_2 ) << ",";
+
+
+						}
+					}
+
+
+				} else {
+					gl->dump();
+					assert(0 && "Unknown array");
+				}
+
+			}
+		}
+
+		string val_s  = val_ss.str();
+
+		//cerr << "val_s " << val_s << endl;
+
+		const ArrayType* type_a = cast<ArrayType>(type_t);
+
+		//const Type* type_e      = type_a->getElementType();
+		//if(ndimensions == 1){
+		//string type_e_s         = get_type_str(type_e);
+		//} else if (ndimensions == 2){
+		//const ConstantArray* type_e_as_array = cast<ConstantArray>(type_e);
+		//type_e = type_e_as_array->getElementType();
+		//}
+
+
+		const Type* type_e      = element_type(type_a);
+		string type_e_s         = get_type_str(type_e);
+
+		VarInit varinit = {name,nelems, type_e_s, val_s};
+		return varinit;
+
+	}
+
 	virtual bool runOnModule(Module &M) {
 
 		vector<VarInit> global_var_inits;
@@ -1725,205 +1876,15 @@ struct GlobalInit: public ModulePass {
 
 			if( type == "IntegerTyID32" || type == "IntegerTyID64" ){
 
-				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-				Constant*          constant     = global_var->getInitializer();
-				ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
-				int64_t            val          = constant_int->getSExtValue();
-				string             val_s        = itos(val);
-				string             nelems       = itos(1);
+				global_var_inits.push_back(varinit_int(gl));
 
-				VarInit varinit = {name,nelems, type, val_s};
+			} else if( type == "FloatTyID" || type == "DoubleTyID"){
 
-				global_var_inits.push_back(varinit);
-
-			} else if( type == "FloatTyID" ){
-
-				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-				Constant*          constant     = global_var->getInitializer();
-				ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
-				stringstream       val_ss;
-
-				if( constant->getType()->getTypeID() == 1){
-					float val = constant_fp->getValueAPF().convertToFloat();
-					val_ss << val;
-				} else {
-					float val = constant_fp->getValueAPF().convertToDouble();
-					val_ss << val;
-				}
-
-				string             val_s        = val_ss.str();
-				string             nelems       = itos(1);
-
-				VarInit varinit = {name,nelems, type, val_s};
-
-				global_var_inits.push_back(varinit);
-
-			} else if( type == "DoubleTyID" ){
-
-				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-				Constant*          constant     = global_var->getInitializer();
-				ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
-				stringstream       val_ss;
-
-				if( constant->getType()->getTypeID() == 1){
-					float val = constant_fp->getValueAPF().convertToFloat();
-					val_ss << val;
-				} else {
-					float val = constant_fp->getValueAPF().convertToDouble();
-					val_ss << val;
-				}
-
-				string             val_s        = val_ss.str();
-				string             nelems       = itos(1);
-
-				VarInit varinit = {name,nelems, type, val_s};
-
-				global_var_inits.push_back(varinit);
+				global_var_inits.push_back(varinit_float(gl));
 
 			} else if( type == "ArrayTyID" ){
 
-				//cerr << "ARRAY" << endl;
-
-				const ArrayType* t_a = cast<ArrayType>(type_t);
-
-				string nelems = itos( product(get_dimensions(t_a)) );
-
-				GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-				Constant*          constant     = global_var->getInitializer();
-				ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
-
-				//global_var->getInitializer()->dump();
-
-				if( !(global_var->hasInitializer()) )
-					assert(0 && "Array sin inicializador");
-
-				bool zeroinitializer = global_var->getInitializer()->isNullValue();
-
-
-
-				bool ndimensions = 0;
-
-				stringstream val_ss;
-
-				if( zeroinitializer ){
-
-					//t_a->getElementType()->dump();
-					//cerr << get_type_str(t_a->getElementType()) << endl;
-					
-					string zero;
-					if( get_type_str(t_a->getElementType()) == "FloatTyID" ){
-						zero = "0.0";
-					} else if( get_type_str(t_a->getElementType()) == "DoubleTyID" ){
-						zero = "0.0";
-					} else if ( get_type_str(t_a->getElementType()) == "IntegerTyID" ){
-						zero = "0";
-					} else if (get_type_str(t_a->getElementType()) == "IntegerTyID32"){
-						zero = "0";
-					} else {
-						t_a->getElementType()->dump();
-						cerr << get_type_str(t_a->getElementType()) << endl;
-						assert(0 && "Unknown initializer");
-					}
-
-					for ( unsigned int i = 0; i < t_a->getNumElements(); i++) {
-						val_ss << zero << ",";
-					}
-
-				}
-
-				//cerr << "val_ss " << val_ss.str() << endl;
-
-				if( constant_a ){
-
-
-					//gl->dump();
-					//cerr << "constant_a" << endl << "-------------" << endl;
-
-					for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
-
-						Value*         operand_i    = constant_a->getOperand(i);
-						ConstantInt*   constant_int = dyn_cast<ConstantInt>(operand_i);
-						ConstantArray* constant_arr = dyn_cast<ConstantArray>(operand_i);
-						ConstantFP*    constant_fp  = dyn_cast<ConstantFP>(operand_i);
-
-						if(constant_int){
-							ndimensions = 1;
-							int64_t            val          = constant_int->getSExtValue();
-							val_ss << val << ",";
-						} else if(constant_fp){
-
-
-							val_ss.setf( std::ios::fixed, std:: ios::floatfield );
-							val_ss.precision(5);
-
-							if( operand_i->getType()->getTypeID() == 1){
-								float val = constant_fp->getValueAPF().convertToFloat();
-								val_ss << val << ",";
-							} else {
-								float val = constant_fp->getValueAPF().convertToDouble();
-								val_ss << val << ",";
-							}
-
-
-						} else if (constant_arr){
-							ndimensions = 2;
-							for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
-								Value* operand_i_2 = constant_arr->getOperand(j);
-								ConstantInt* constant_int_2 = dyn_cast<ConstantInt>(operand_i_2);
-								ConstantFP*  constant_fp_2  = dyn_cast<ConstantFP>(operand_i_2);
-
-								if(constant_int_2){
-
-									int64_t val = constant_int_2->getSExtValue();
-									val_ss << val << ",";
-
-								} else if(constant_fp_2){
-
-									val_ss.setf( std::ios::fixed, std:: ios::floatfield );
-									val_ss.precision(5);
-
-									if( operand_i_2->getType()->getTypeID() == 1){
-										float val = constant_fp_2->getValueAPF().convertToFloat();
-										val_ss << val << ",";
-									} else {
-										float val = constant_fp_2->getValueAPF().convertToDouble();
-										val_ss << val << ",";
-									}
-
-								}
-							}
-
-
-						} else {
-							gl->dump();
-							assert(0 && "Unknown array");
-						}
-
-					}
-				}
-
-				string val_s  = val_ss.str();
-
-				//cerr << "val_s " << val_s << endl;
-
-				const ArrayType* type_a = cast<ArrayType>(type_t);
-
-				//const Type* type_e      = type_a->getElementType();
-				//if(ndimensions == 1){
-					//string type_e_s         = get_type_str(type_e);
-				//} else if (ndimensions == 2){
-					//const ConstantArray* type_e_as_array = cast<ConstantArray>(type_e);
-					//type_e = type_e_as_array->getElementType();
-				//}
-
-				
-				const Type* type_e      = element_type(type_a);
-				string type_e_s         = get_type_str(type_e);
-				
-
-				VarInit varinit = {name,nelems, type_e_s, val_s};
-
-				global_var_inits.push_back(varinit);
+				global_var_inits.push_back(varinit_array(gl));
 
 			} else {
 				assert( 0 && "Unkown array");
@@ -1966,42 +1927,11 @@ struct GlobalInit: public ModulePass {
 	}
 };
 
-struct StructureSizes: public ModulePass {
-	static char ID; // Pass identification, replacement for typeid
-	StructureSizes() : ModulePass(ID) {}
-
-	virtual bool runOnModule(Module &M) {
-
-		mod_iterator(M, fn){
-			fun_iterator(fn, bb){
-				blk_iterator(bb, in){
-					if( AllocaInst::classof(in) ){
-
-						AllocaInst* in_a = cast<AllocaInst>(in);
-
-						in_a->getAllocatedType()->dump();
-
-						cerr << get_type_str(in_a->getAllocatedType()) << endl;
-
-						cerr << get_size(in_a->getAllocatedType()) << endl;
-					}
-				}
-			}
-		}
-		
-
-		return false;
-	}
-};
-
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
-
-		//{StructureSizes pass;   pass.runOnModule(M);}
-		
 
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
@@ -2061,9 +1991,6 @@ static RegisterPass<GetelementPtr> GetelementPtr(   "instr_getelementptr"   , "I
 
 char BeginEnd::ID = 0;
 static RegisterPass<BeginEnd> BeginEnd(             "instr_beginend"        , "Instrument begin and end of program" );
-
-char StructureSizes::ID = 0;
-static RegisterPass<StructureSizes> StructureSizes( "instr_structure_sizes" , "Instrument structure sizes" );
 
 char GlobalInit::ID = 0;
 static RegisterPass<GlobalInit> GlobalInit(         "instr_globalinit"      , "Initialize global variables" );
