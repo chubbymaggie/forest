@@ -35,6 +35,7 @@ set<string> flatened_variables;
 extern string actual_function;
 vector<Condition> conditions;
 vector<bool> path_stack;
+vector<string> exclusions;
 
 void push_path_stack(bool step){
 	path_stack.push_back(step);
@@ -118,17 +119,11 @@ void dump_conditions(FILE* file){
 			fprintf(file,"(assert %s)\n", it->cond.c_str() );
 	}
 	
-	fprintf(file,"(check-sat)\n");
-
-
 }
 
-void dump_conditions2(FILE* file){
+void dump_check_sat(FILE* file){
 
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if(!it->fuzzme)
-			fprintf(file,"(assert %s)\n", it->cond.c_str() );
-	}
+	fprintf(file,"(check-sat)\n");
 
 }
 
@@ -228,61 +223,19 @@ int get_num_fvars(){
 
 string result_get(string get_str){
 
+	get_str.erase(get_str.find_last_not_of(" \n\r\t")+1);
+
 	vector<string> tokens = tokenize( get_str, "() ");
 
-	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		//printf("%s\n", it->c_str() );
-	//}
-	
-	assert(tokens.size() >= 3 && "result_get error");	
+	assert(tokens.size() >= 2 && "result_get error");	
 	string ret;
 
-	if( tokens[tokens.size() - 3] == "-" )
-		ret = "-" + tokens[tokens.size() - 2];
-	else 
-		ret = tokens[tokens.size() - 2];
-
-	//printf("ret %s\n", ret.c_str() );
-	assert( is_number(ret) && "Result is not a number");
-
-
-	return ret;
-}
-
-string result_get2(string get_str){
-
-	vector<string> tokens = tokenize( get_str, "() ");
-
-	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		//printf("%s\n", it->c_str() );
-	//}
-	
-	string ret = tokens[tokens.size() - 1];
-
-	assert( (ret == "true" || ret == "false") && "Result is not a boolean const");
-
-
-	return ret;
-}
-
-string result_get3(string get_str){
-
-	vector<string> tokens = tokenize( get_str, "() ");
-
-
-	//for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		//printf("%s\n", it->c_str() );
-	//}
-	
-	string ret;
-
-	if( tokens.size() >= 3 && tokens[tokens.size() - 2] == "-" )
+	if( tokens[tokens.size() - 2] == "-" )
 		ret = "-" + tokens[tokens.size() - 1];
 	else 
 		ret = tokens[tokens.size() - 1];
 
 	assert( is_number(ret) && "Result is not a number");
-
 
 	return ret;
 }
@@ -321,8 +274,9 @@ void get_values(){
 	dump_header(file);
 	dump_variables(file);
 	dump_type_limits(file);
-	dump_conditions2(file);
+	dump_conditions(file);
 	dump_exclusions(file);
+	dump_check_sat(file);
 	dump_get(file);
 	dump_get_fuzz(file);
 	dump_tail(file);
@@ -403,7 +357,7 @@ bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
 
 	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
 		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
-		if( result_get2(*it) == "false" ){
+		if( result_get(*it) == "false" ){
 			return false;
 		}
 	}
@@ -417,12 +371,12 @@ string get_exclusion( vector<string> excluded_values ){
 	string ret;
 	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
 
-		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get3(*it).c_str() );
+		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get(*it).c_str() );
 		//printf("get_exclusion %s\n", it->c_str());
 
 		vector<string> tokens = tokenize(*it, "() ");
 		string name = tokens[0];
-		string value = result_get3(*it);
+		string value = result_get(*it);
 		ret += "(= " + name + " " + value + ") ";
 	}
 
@@ -432,8 +386,6 @@ string get_exclusion( vector<string> excluded_values ){
 
 	return ret;
 }
-
-vector<string> exclusions;
 
 void insert_exclusion(string exclusion){
 
@@ -455,7 +407,6 @@ void dump_exclusions(FILE* file){
 	//fprintf(file,"(assert (< mem_8  16))\n" );
 	//fprintf(file,"(assert (< mem_12 16))\n" );
 
-	fprintf(file,"(check-sat)\n");
 
 
 }
@@ -480,8 +431,9 @@ bool solvable_problem(){
 		dump_header(file);
 		dump_variables(file);
 		dump_type_limits(file);
-		dump_conditions2(file);
+		dump_conditions(file);
 		dump_exclusions(file);
+		dump_check_sat(file);
 		dump_get_fuzz(file);
 		dump_get_free(file);
 		dump_tail(file);
@@ -1193,6 +1145,7 @@ int show_problem(){
 	dump_variables();
 	dump_type_limits();
 	dump_conditions();
+	dump_check_sat();
 	dump_get();
 	dump_get_fuzz();
 	dump_tail();
@@ -1207,6 +1160,7 @@ int show_problem(){
 	dump_variables(file);
 	dump_type_limits(file);
 	dump_conditions(file);
+	dump_check_sat(file);
 	dump_get(file);
 	dump_get_fuzz(file);
 	dump_tail(file);
