@@ -47,6 +47,8 @@ using namespace std;
 
 int sizeofstruct(const Type* t);
 int get_size( const Type* t );
+string get_type_str( const Type* t);
+string get_flattened_types(const Type* t);
 
 // Type declarations
 
@@ -134,6 +136,28 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 	return const_ptr_9;
 }
 
+string get_flattened_types(const Type* t){
+	//t->dump();
+
+	string ret;
+	const StructType* t_s = dyn_cast<StructType>(t);
+	const ArrayType*  t_a = dyn_cast<ArrayType>(t);
+
+	if(t_s){
+		unsigned int numelems = t_s->getNumElements();
+
+		for ( unsigned int i = 0; i < numelems; i++) {
+			ret += get_flattened_types(t_s->getElementType(i));
+		}
+
+		return ret;
+	} else {
+		return get_type_str(t) + ",";
+	}
+
+
+}
+
 string get_type_str( const Type* t){
 
 	int typId = t->getTypeID();
@@ -174,7 +198,14 @@ string get_type_str( const Type* t){
 	}
 
 	if(typId == 11){
-		return "StructTyID";
+		//return "StructTyID";
+		
+		//cerr << "typid 11:";
+		//t->dump();
+		const StructType* t_s = cast<StructType>(t);
+		return get_flattened_types(t_s);
+		
+
 	}
 
 	t->dump();
@@ -432,6 +463,30 @@ string itos( int value ){
 	stringstream ret_ss;
 	ret_ss << value;
 	return ret_ss.str();
+}
+
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
 }
 
 // Optimization passes
@@ -1434,27 +1489,6 @@ struct AllocaInstr: public ModulePass {
 	AllocaInstr() : ModulePass(ID) {}
 
 
-	string get_flattened_types(const Type* t){
-		t->dump();
-
-		string ret;
-		const StructType* t_s = dyn_cast<StructType>(t);
-		const ArrayType*  t_a = dyn_cast<ArrayType>(t);
-
-		if(t_s){
-			unsigned int numelems = t_s->getNumElements();
-
-			for ( unsigned int i = 0; i < numelems; i++) {
-				ret += get_flattened_types(t_s->getElementType(i));
-			}
-
-			return ret;
-		} else {
-			return get_type_str(t) + ",";
-		}
-
-
-	}
 
 	virtual bool runOnModule(Module &M) {
 
@@ -1770,9 +1804,19 @@ struct GlobalInit: public ModulePass {
 				zero = "0";
 			} else if (get_type_str(t_a->getElementType()) == "IntegerTyID32"){
 				zero = "0";
+			} else if (get_type_str(t_a->getElementType()).find(",") != string::npos ){
+
+				string flat = get_flattened_types(t_a->getElementType());
+				vector<string> tokens = tokenize(flat, ",");
+				for ( unsigned int i = 0; i < tokens.size()-1; i++) {
+					zero = zero + "0,";
+				}
+				zero = zero + "0";
+
 			} else {
+				cerr << "error: " << endl;
 				t_a->getElementType()->dump();
-				cerr << get_type_str(t_a->getElementType()) << endl;
+				//cerr << get_type_str(t_a->getElementType()) << endl;
 				assert(0 && "Unknown initializer");
 			}
 
@@ -1883,6 +1927,8 @@ struct GlobalInit: public ModulePass {
 				global_var_inits.push_back(varinit_float(gl));
 
 			} else if( type == "ArrayTyID" ){
+
+				//cerr << "array" << endl;
 
 				global_var_inits.push_back(varinit_array(gl));
 

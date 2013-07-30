@@ -306,6 +306,7 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 	string varname        = string(_varname);
 	int nelems            = stoi(string(_nelems));
 	string type           = string(_type);
+	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
 	//debug && printf("\e[33m global_var_init %s %s %s %s\e[0m.\n", _varname, _nelems, _type, _values);
@@ -319,11 +320,11 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 
-	for ( unsigned int i = 0; i < nelems; i++) {
+	for ( unsigned int i = 0; i < nelems * types.size(); i++) {
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		settype(mem_var.str(), type);
+		settype(mem_var.str(), types[i%types.size()]);
 
 		if(values.size()){
 			stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
@@ -333,7 +334,7 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 		set_name_hint(mem_var.str(), varname);
 
 
-		alloca_pointer += get_size(type);
+		alloca_pointer += get_size(types[i%types.size()]);
 	}
 
 
