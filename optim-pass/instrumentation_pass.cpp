@@ -288,7 +288,15 @@ int element_size( const ArrayType* t ){
 
 	last_type = dyn_cast<ArrayType>(last_type)->getElementType();
 
-	return primary_size( last_type );
+	//return primary_size( last_type );
+
+	const StructType* t_s = dyn_cast<StructType>(last_type);
+
+	if (t_s){
+		return sizeofstruct(last_type);
+	} else {
+		return primary_size(last_type);
+	}
 
 }
 
@@ -1468,9 +1476,13 @@ struct AllocaInstr: public ModulePass {
 							const Type* typ2 = cast<Type>( element_type(typ) );
 							subtype = get_type_str( typ2 );
 							nelems = itos( product(get_dimensions(typ)) );
+
+							if(subtype == "StructTyID"){
+								subtype = get_flattened_types( typ2 );
+							}
+
 						} else if(type == "StructTyID") {
 							subtype = get_flattened_types(in_a->getAllocatedType());
-							cerr << "subtype_flattened " << subtype << endl;
 							nelems = "1";
 						} else {
 							subtype = type;
@@ -1478,19 +1490,6 @@ struct AllocaInstr: public ModulePass {
 						}
 
 						//cerr << type << endl;
-						
-						int size = get_size( in_a->getAllocatedType() );
-						stringstream size_ss; size_ss << size;
-
-						//in_a->getAllocatedType()->dump();
-						//cerr << "size: " << size << endl; fflush(stderr);
-
-
-						//vector<int> sizes = get_dimensions(in_a->getType());
-						//for ( unsigned int i = 0; i < sizes.size(); i++) {
-							//cerr << "size: " << sizes[i] << endl;
-						//}
-
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nelems);
