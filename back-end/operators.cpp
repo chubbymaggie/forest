@@ -284,6 +284,17 @@ int get_size(string type){
 	if( type == "int" )
 		return 4;
 
+
+	if( type.find(",") != string::npos ){
+		int sum = 0;
+		vector<string> tokens = tokenize(type,",");
+		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+			sum += get_size(*it);
+		}
+		return sum;
+	}
+
+
 	printf("get_size type %s\n", type.c_str());
 
 	assert(0 && "Unknown type");
@@ -330,72 +341,43 @@ void global_var_init(char* _varname, char* _nelems, char* _type, char* _values){
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
 }
 
-void alloca_instr(char* _reg, char* _type, char* _size, char* _subtype){
+void alloca_instr(char* _reg, char* _nelems, char* _subtype){
 
 	string reg = string(_reg);
-	string type = string(_type);
-	string subtype = string(_subtype);
+	int nelems = stoi(string(_nelems));
+	string subtypes = string(_subtype);
+	vector<string> subtype = tokenize(string(_subtype), ",");
 
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong dst for alloca");
 
-	stringstream rvalue; rvalue << alloca_pointer; 
-	set_real_value(reg,rvalue.str());
-	//stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
-	//assign_instruction(rvalue.str(), name(reg));
+	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	assign_instruction(rvalue.str(),reg);
 
-	stringstream mem_var; mem_var << "mem" UNDERSCORE << rvalue.str().c_str();
+	stringstream mem_var; mem_var << "mem" UNDERSCORE << alloca_pointer;
 
-	set_real_value(mem_var.str(), string("0"));
-	set_name_hint(mem_var.str(), reg);
-	//rvalue.str(""); rvalue << "constant" UNDERSCORE << 0; 
-	//assign_instruction(rvalue.str(), mem_var.str() );
 
-	int size;
-	sscanf(_size, "%d", &size);
+	settype(name(reg), subtype[0]);
 
-	settype(mem_var.str(), type);
-	settype(name(reg), "Pointer");
+	int position = alloca_pointer;
+	for ( unsigned int i = 0; i < nelems*subtype.size(); i++) {
 
-	if( type == "ArrayTyID" ){
-		for ( unsigned int i = alloca_pointer; i < alloca_pointer + size; i++) {
-			stringstream mem_name; mem_name << "mem" UNDERSCORE << i;
-			stringstream mem_hint; mem_hint << reg << "+" << i-alloca_pointer;
-			set_name_hint(mem_name.str(), mem_hint.str());
-			settype(mem_name.str(), subtype);
-		}
+		stringstream mem_name; mem_name << "mem" UNDERSCORE << position;
+		stringstream mem_hint;
+
+		if(nelems*subtype.size() == 1)
+			mem_hint << reg;
+		else 
+			mem_hint << reg << "+" << position - alloca_pointer;
+		set_name_hint(mem_name.str(), mem_hint.str() );
+
+		settype(mem_name.str(), subtype[i%subtype.size()] );
+		position += get_size(subtype[i%subtype.size()]);
 	}
 
-	if( type == "StructTyID" ){
-		vector<string> tokens = tokenize(subtype, ",");
+	alloca_pointer += nelems*get_size(subtypes);
 
-		int position = alloca_pointer;
-		for ( unsigned int i = 0; i < tokens.size(); i++) {
-
-			stringstream mem_name; mem_name << "mem" UNDERSCORE << position;
-			stringstream mem_hint; mem_hint << reg << "+" << position - alloca_pointer;
-			set_name_hint(mem_name.str(), mem_hint.str());
-
-			//printf("type_struct %s %s\n", mem_name.str().c_str(), tokens[i].c_str() );
-
-			settype(mem_name.str(), tokens[i]);
-			position += get_size(tokens[i]);
-		}
-
-	}
-
-
-
-	stringstream constant_name; constant_name << "constant" UNDERSCORE << alloca_pointer;
-	assign_instruction( constant_name.str(), reg );
-	settype(name( reg ), "Int");
-
-
-
-
-
-	alloca_pointer += size;
-
-	debug && printf("\e[31m alloca_instr %s %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), type.c_str(), _size,_subtype,name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer);
+	printf("\e[31m alloca_instr \e[0m %s %s %s\n", _reg, _nelems, _subtype );
+	//debug && printf("\e[31m alloca_instr %s %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), type.c_str(), _size,_subtype,name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer);
 
 }
 
