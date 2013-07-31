@@ -1606,6 +1606,8 @@ struct GetelementPtr: public ModulePass {
 							const Type* tp = t_p->getElementType();
 							stringstream size; size << get_size(t_pp);
 							sizes.push_back( "constant" UNDERSCORE + size.str() );
+						} else {
+							assert(0 && "Not array or struct or pointer");
 						}
 
 						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);
@@ -1721,43 +1723,58 @@ struct GlobalInit: public ModulePass {
 	GlobalInit() : ModulePass(ID) {}
 
 	VarInit varinit_int( GlobalVariable* gl ){
-			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+		string             name         = string("global" UNDERSCORE) + gl->getName().str();
 
-			string             nelems       = itos(1);
+		string             nelems       = itos(1);
 
-			const PointerType* pointertype  = cast<PointerType>(gl->getType());
-			const Type*        type_t       = pointertype->getElementType();
-			string             type         = get_type_str(type_t);
+		const PointerType* pointertype  = cast<PointerType>(gl->getType());
+		const Type*        type_t       = pointertype->getElementType();
+		string             type         = get_type_str(type_t);
 
-			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-			Constant*          constant     = global_var->getInitializer();
-			ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
-			int64_t            val          = constant_int->getSExtValue();
-			string             val_s        = itos(val);
+		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+		Constant*          constant     = global_var->getInitializer();
+		ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
+		int64_t            val          = constant_int->getSExtValue();
+		string             val_s        = itos(val);
 
-			VarInit varinit = {name,nelems, type, val_s};
+		VarInit varinit = {name,nelems, type, val_s};
 
-			return varinit;
+		return varinit;
 
 	}
 
 	VarInit varinit_float( GlobalVariable* gl ){
-			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+		string             name         = string("global" UNDERSCORE) + gl->getName().str();
 
-			string             nelems       = itos(1);
+		string             nelems       = itos(1);
+
+		const PointerType* pointertype  = cast<PointerType>(gl->getType());
+		const Type*        type_t       = pointertype->getElementType();
+		string             type         = get_type_str(type_t);
+
+		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+		Constant*          constant     = global_var->getInitializer();
+		ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
+		string             val_s        = floatvalue(constant_fp);
+
+		VarInit varinit = {name,nelems, type, val_s};
+
+		return varinit;
+	}
+
+	VarInit varinit_struct( GlobalVariable* gl ){
+
+		string             name         = string("global" UNDERSCORE) + gl->getName().str();
+		string             nelems       = itos(1);
 
 			const PointerType* pointertype  = cast<PointerType>(gl->getType());
 			const Type*        type_t       = pointertype->getElementType();
 			string             type         = get_type_str(type_t);
 
-			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-			Constant*          constant     = global_var->getInitializer();
-			ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
-			string             val_s        = floatvalue(constant_fp);
+		string             val_s        = "";
 
-			VarInit varinit = {name,nelems, type, val_s};
-
-			return varinit;
+		VarInit varinit = {name,nelems, type, val_s};
+		return varinit;
 	}
 
 	VarInit varinit_array( GlobalVariable* gl ){
@@ -1909,7 +1926,8 @@ struct GlobalInit: public ModulePass {
 
 		glo_iterator(M,gl){
 
-			//gl->dump();
+			cerr << "global ";
+			gl->dump();
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
 			const PointerType* pointertype  = cast<PointerType>(gl->getType());
@@ -1932,8 +1950,14 @@ struct GlobalInit: public ModulePass {
 
 				global_var_inits.push_back(varinit_array(gl));
 
+			} else if ( type.find(",") != string::npos ){
+
+
+				global_var_inits.push_back(varinit_struct(gl));
+
 			} else {
-				assert( 0 && "Unkown array");
+				cerr << type << endl;
+				assert( 0 && "Unkown global");
 			}
 
 		}
