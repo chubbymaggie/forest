@@ -393,6 +393,8 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
 	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
 		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
+	exit(0);
+
 	assert(indexes.size() <= sizes.size() && "More indexes than sizes");
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");

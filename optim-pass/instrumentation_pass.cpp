@@ -1558,6 +1558,67 @@ struct GetelementPtr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GetelementPtr() : ModulePass(ID) {}
 
+	string get_offset_tree( const Type* t, int* base){
+
+		const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
+		const StructType*       t_struct       = dyn_cast<StructType>(t);
+		const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
+		const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+		const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+
+		string type_str = get_type_str(t);
+
+		if(type_str == "PointerTyID"){
+			cerr << "pointer" << endl;
+
+			return "(" + get_offset_tree(t_sequential->getElementType(), base) + ")";
+
+		} else if(type_str.find(",") != string::npos ){
+
+			cerr << "struct" << endl;
+
+			string aux = "(";
+			for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
+				aux += get_offset_tree(t_struct->getElementType(i),base);
+			}
+			aux += ")";
+			return aux;
+
+		} else if(type_str == "ArrayTyID"){
+
+			cerr << "array" << endl;
+			assert(0 && "Array not implemented");
+
+		} else if( type_str == "IntegerTyID"){
+
+			cerr << "integer " << primary_size(t) << endl;
+			return itos( primary_size(t) ) + " ";
+
+		} else if( type_str == "IntegerTyID32"){
+
+			cerr << "integer32 " << primary_size(t) << endl;
+			string ret = itos(*base) + " ";
+			(*base) = (*base) + primary_size(t);
+			return ret;
+
+		} else if (type_str == "DoubleTyID"){
+
+			cerr << "double " << primary_size(t) << endl;
+			string ret = itos(*base) + " ";
+			(*base) = (*base) + primary_size(t);
+			return ret;
+
+		} else {
+
+			cerr << "----" << endl;
+			cerr << "otro" << endl;
+			t->dump();
+			cerr << type_str << endl;
+			assert(0 && "Unknown Type");
+
+		}
+	}
+
 	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fn){
@@ -1579,77 +1640,24 @@ struct GetelementPtr: public ModulePass {
 						else
 							nameop1 = "register" UNDERSCORE + pointer->getName().str();
 
-						//for( op_iterator it = in_g->idx_begin(); it != in_g->idx_end(); it++ ){
-							//it->dump();
-						//}
 						
 						vector<string> indexes = get_indexes(in_g);
-
-
-						const PointerType* t_p  = dyn_cast<PointerType>(in_g->getPointerOperandType());
-						const ArrayType*   t_a  = dyn_cast<ArrayType>(t_p->getElementType());
-						const StructType*  t_s  = dyn_cast<StructType>(t_p->getElementType());
-						const Type* t_pp        = t_p->getElementType();
-
-						//cerr << t_p << " " << t_a << endl;
-
-						//cerr << "GetElementPtrInst2" << endl; fflush(stderr);
-						//in_g->getPointerOperandType()->dump(); fflush(stderr);
-						//const ArrayType* t_a = dyn_cast<ArrayType>(in_g->getPointerOperandType());
-
-						vector<string> sizes;
-						if( t_a ){
-							sizes = get_nested_sizes( t_a );
-						} else if (t_s) {
-							sizes = get_struct_offsets(t_s);
-						} else if( t_pp ){
-							const Type* tp = t_p->getElementType();
-							stringstream size; size << get_size(t_pp);
-							sizes.push_back( "constant" UNDERSCORE + size.str() );
-						} else {
-							assert(0 && "Not array or struct or pointer");
-						}
-
-						//cerr << "GetElementPtrInst3" << endl; fflush(stderr);
-
-
-
-						//cerr << "result: " << nameres << endl;
-						//cerr << "operand1: " << nameop1 << endl;
-						//for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-							//cerr << "index: " << *it << endl;
-						//}
-						
-
 						string indexes_str;
 						for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
 							indexes_str += *it + ",";
 						}
 
-						string nst_sizes;
-						for( vector<string>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
-							nst_sizes += *it + ",";
-						}
-
+						int base = 0;
+						string offset_tree = get_offset_tree(in_g->getPointerOperand()->getType(), &base);
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
 						GlobalVariable* c3 = make_global_str(M, indexes_str);
-						GlobalVariable* c4 = make_global_str(M, nst_sizes);
+						GlobalVariable* c4 = make_global_str(M, offset_tree);
 
 						Value* InitFn;
 
-						if( t_s ){
-							InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr_struct" ,
-									Type::getVoidTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									(Type *)0
-									));
-						} else if( t_a || t_pp ){
-							InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
+						InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
 									Type::getVoidTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -1658,9 +1666,6 @@ struct GetelementPtr: public ModulePass {
 									(Type *)0
 									));
 
-						} else {
-							assert(0 && "getelementptr no pointer or struct");
-						}
 
 						BasicBlock::iterator insertpos = in; insertpos++;
 
