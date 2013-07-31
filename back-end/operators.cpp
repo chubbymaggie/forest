@@ -382,58 +382,99 @@ void alloca_instr(char* _reg, char* _nelems, char* _subtype){
 
 }
 
-void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _sizes){
+int get_ini_elem(int nelem_target, string offset_tree){
+
+	int depth = -1;
+	int nelem = -1;
+	for ( unsigned int i = 1; i < offset_tree.size(); i++) {
+		if(offset_tree[i] == '(') depth++;
+		if(offset_tree[i] == ')') depth--;
+		if(depth == 0 && offset_tree[i] == '(' ){ nelem++;}
+		if(nelem == nelem_target) return i;
+	}
+
+	assert(0 && "Unbalanced tree");
+
+}
+
+string close_str(string offset_tree){
+
+	int depth = 0;
+	for ( unsigned int i = 0; i < offset_tree.size(); i++) {
+		if(offset_tree[i] == '(') depth++;
+		if(offset_tree[i] == ')') depth--;
+		if(depth == 0) return offset_tree.substr(0,i+1);
+	}
+
+	assert(0 && "Unbalanced tree");
+
+}
+
+string trimpar(string str){
+
+	int n1 = str.find_first_not_of("()");
+	int n2 = str.substr(n1).find_first_not_of("0123456789-");
+	string firstnum = str.substr(n1).substr(0,n2);
+	//printf("trimpar %s %s %d %d %s\n", str.c_str(), str.substr(n1).c_str(),  n1, n2, str.substr(n1).substr(0,n2).c_str() );
+	assert( is_number(firstnum) && "ret is not a number");
+	return firstnum;
+}
+
+int get_offset(vector<string> indexes, string offset_tree){
+
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		printf("%s ", it->c_str() );
+	} printf(" --- ");
+	printf(" offset %s\n", offset_tree.c_str() );
+	
+
+	string realvalue_index_0_s = realvalue( indexes[0] );
+	int realvalue_index_0 = stoi(realvalue_index_0_s);
+
+	int ini_elem = get_ini_elem(realvalue_index_0, offset_tree);
+	string right_str = offset_tree.substr(ini_elem);
+	string elem_str = close_str(right_str);
+
+	vector<string>::iterator first_it = indexes.begin(); first_it++;
+	vector<string> rem_indexes = vector<string>(first_it, indexes.end());
+
+	if( rem_indexes.size() )
+		return get_offset(rem_indexes, elem_str);
+	else
+		return stoi(trimpar(elem_str));
+
+}
+
+void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
 
 	string dst     = string(_dst);
 	string pointer = string(_pointer);
 	vector<string> indexes = tokenize(string(_indexes), ",");
-	vector<string> sizes   = tokenize(string(_sizes), ",");
+	string offset_tree = string(_offset_tree);
 
 
-	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
+	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
 		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
-	exit(0);
-
-	assert(indexes.size() <= sizes.size() && "More indexes than sizes");
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
 	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
-	for( vector<string>::iterator it = sizes.begin(); it != sizes.end(); it++ ){
-		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
-	}
 	
-	//debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
-									  //name(dst).c_str(), realvalue(dst).c_str() );
+
+	int offset = get_offset(indexes, offset_tree);
+	printf("offset %d\n", offset);
+	
+	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
+	string offset_constant_s = offset_ss.str();
+	
+	binary_instruction(dst, pointer, offset_constant_s, "+");
+	//exit(0);
 
 
-	for ( unsigned int i = 0; i < indexes.size(); i++) {
-		stringstream namedst; namedst << dst << UNDERSCORE "offset" UNDERSCORE << i;
-		//printf("%s = %s · %s\n", namedst.str().c_str(), indexes[i].c_str(), sizes[i].c_str());
-		binary_instruction(namedst.str(), indexes[i], sizes[i], "*");
-	}
-
-
-	for ( unsigned int i = 0; i < indexes.size(); i++) {
-		if( i == 0 ){
-			stringstream namedst; namedst << dst;
-			stringstream nameop1; nameop1 << pointer;
-			stringstream nameop2; nameop2 << dst << UNDERSCORE "offset" UNDERSCORE << i;
-			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
-			binary_instruction(namedst.str(),nameop1.str(), nameop2.str(), "+");
-		} else {
-			stringstream namedst; namedst << dst;
-			stringstream nameop1; nameop1 << dst;
-			stringstream nameop2; nameop2 << dst << UNDERSCORE "offset" UNDERSCORE << i;
-			//printf("%s = %s + %s\n", namedst.str().c_str(), nameop1.str().c_str(), nameop2.str().c_str());
-			binary_instruction(namedst.str(), nameop1.str(), nameop2.str(), "+");
-		}
-	}
-
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _sizes,
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
 		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 }

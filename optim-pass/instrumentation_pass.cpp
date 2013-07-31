@@ -1565,6 +1565,7 @@ struct GetelementPtr: public ModulePass {
 		const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
 		const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
 		const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+		const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
 
 		string type_str = get_type_str(t);
 
@@ -1587,7 +1588,15 @@ struct GetelementPtr: public ModulePass {
 		} else if(type_str == "ArrayTyID"){
 
 			cerr << "array" << endl;
-			assert(0 && "Array not implemented");
+			t->dump();
+
+			string aux = "(";
+			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
+				aux += get_offset_tree(t_composite->getTypeAtIndex(i),base);
+			}
+			aux += ")";
+			return aux;
+
 
 		} else if( type_str == "IntegerTyID"){
 
@@ -1597,14 +1606,21 @@ struct GetelementPtr: public ModulePass {
 		} else if( type_str == "IntegerTyID32"){
 
 			cerr << "integer32 " << primary_size(t) << endl;
-			string ret = itos(*base) + " ";
+			string ret = "(" + itos(*base) + ")";
+			(*base) = (*base) + primary_size(t);
+			return ret;
+
+		} else if( type_str == "IntegerTyID8"){
+
+			cerr << "integer8 " << primary_size(t) << endl;
+			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "DoubleTyID"){
 
 			cerr << "double " << primary_size(t) << endl;
-			string ret = itos(*base) + " ";
+			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
