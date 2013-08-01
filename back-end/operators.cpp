@@ -311,7 +311,7 @@ void global_var_init(char* _varname, char* _type, char* _values){
 	assert(types.size() == values.size() && "Different number of types and values");
 
 
-	debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
+	//debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
 
 	//exit(0);
 
@@ -325,26 +325,27 @@ void global_var_init(char* _varname, char* _type, char* _values){
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 
-	//for ( unsigned int i = 0; i < nelems * types.size(); i++) {
+	for ( unsigned int i = 0; i < values.size(); i++) {
 
-		//stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
+		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		//settype(mem_var.str(), types[i%types.size()]);
+		settype(mem_var.str(), types[i]);
 
-		//if(values.size()){
-			//stringstream constant_name; constant_name << "constant" UNDERSCORE << values[i];
-			//assign_instruction( constant_name.str(), mem_var.str());
-		//}
+		if(values[i] != "X"){
+			stringstream constant_name; constant_name << values[i];
 
-		//set_name_hint(mem_var.str(), varname);
+			assign_instruction( constant_name.str(), mem_var.str());
+		}
 
-
-		//alloca_pointer += get_size(types[i%types.size()]);
-	//}
+		set_name_hint(mem_var.str(), varname);
 
 
-	//debug && printf("\e[31m global_var_init %s %d %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(),nelems, type.c_str(),_values 
-			//, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
+		alloca_pointer += get_size(types[i]);
+	}
+
+
+	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(),type.c_str(),_values 
+			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
 }
 
 void alloca_instr(char* _reg, char* _nelems, char* _subtype){
