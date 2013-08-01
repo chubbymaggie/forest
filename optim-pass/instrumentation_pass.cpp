@@ -198,12 +198,12 @@ string get_type_str( const Type* t){
 	}
 
 	if(typId == 11){
-		//return "StructTyID";
+		return "StructTyID";
 		
-		//cerr << "typid 11:";
-		//t->dump();
-		const StructType* t_s = cast<StructType>(t);
-		return get_flattened_types(t_s);
+		////cerr << "typid 11:";
+		////t->dump();
+		//const StructType* t_s = cast<StructType>(t);
+		//return get_flattened_types(t_s);
 		
 
 	}
@@ -1574,7 +1574,8 @@ struct GetelementPtr: public ModulePass {
 
 			return "(" + get_offset_tree(t_sequential->getElementType(), base) + ")";
 
-		} else if(type_str.find(",") != string::npos ){
+		//} else if(type_str.find(",") != string::npos ){
+		} else if(type_str == "StructTyID"){
 
 			cerr << "struct" << endl;
 
