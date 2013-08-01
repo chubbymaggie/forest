@@ -311,7 +311,10 @@ void global_var_init(char* _varname, char* _type, char* _values){
 	debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
 
 
-	assert(types.size() == values.size() && "Different number of types and values");
+	if( types.size() != values.size() ){
+		printf("%lu %lu\n", types.size(), values.size() );
+		assert( 0 && "Different number of types and values");
+	}
 
 	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
 

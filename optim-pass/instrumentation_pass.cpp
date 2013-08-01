@@ -1773,13 +1773,23 @@ struct GlobalInit: public ModulePass {
 			const ArrayType* array_type = cast<ArrayType>(constant->getType());
 
 			string aux;
-			for ( unsigned int i = 0; i < array_type->getNumElements(); i++) {
 
-				if(constant->isNullValue()){
+			if(constant->isNullValue()){
 
+				string flattenedtypes = get_flattened_types(array_type);
+				vector<string> tokens = tokenize(flattenedtypes, ",");
+
+				for ( unsigned int i = 0; i < tokens.size(); i++) {
 					aux += "X,";
+				}
 
-				} else {
+
+			} else {
+
+
+
+
+				for ( unsigned int i = 0; i < array_type->getNumElements(); i++) {
 
 					Value*         operand_i    = constant_array->getOperand(i);
 
