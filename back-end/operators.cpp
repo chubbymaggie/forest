@@ -348,43 +348,44 @@ void global_var_init(char* _varname, char* _type, char* _values){
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
 }
 
-void alloca_instr(char* _reg, char* _nelems, char* _subtype){
+void alloca_instr(char* _reg, char* _subtype){
 
 	string reg = string(_reg);
-	int nelems = stoi(string(_nelems));
 	string subtypes = string(_subtype);
 	vector<string> subtype = tokenize(string(_subtype), ",");
 
-	if(!check_mangled_name(name(reg))) assert(0 && "Wrong dst for alloca");
+	printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype );
+
+	//exit(0);
+
+
+	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
+
 
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
-	assign_instruction(rvalue.str(),reg);
+	settype( name(reg), "Pointer");
+	assign_instruction(rvalue.str(), reg );
 
-	stringstream mem_var; mem_var << "mem" UNDERSCORE << alloca_pointer;
+	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
+	int initial_alloca_pointer = alloca_pointer;
 
+	for ( unsigned int i = 0; i < subtype.size(); i++) {
 
-	settype(name(reg), subtype[0]);
-
-	int position = alloca_pointer;
-	for ( unsigned int i = 0; i < nelems*subtype.size(); i++) {
-
-		stringstream mem_name; mem_name << "mem" UNDERSCORE << position;
 		stringstream mem_hint;
+		stringstream mem_name; mem_name << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		if(nelems*subtype.size() == 1)
+		settype(mem_name.str(), subtype[i]);
+
+		if(subtype.size() == 1)
 			mem_hint << reg;
 		else 
-			mem_hint << reg << "+" << position - alloca_pointer;
+			mem_hint << reg << "+" << alloca_pointer - initial_alloca_pointer;
 		set_name_hint(mem_name.str(), mem_hint.str() );
 
-		settype(mem_name.str(), subtype[i%subtype.size()] );
-		position += get_size(subtype[i%subtype.size()]);
+		alloca_pointer += get_size(subtype[i]);
 	}
 
-	alloca_pointer += nelems*get_size(subtypes);
-
-	printf("\e[31m alloca_instr \e[0m %s %s %s\n", _reg, _nelems, _subtype );
-	//debug && printf("\e[31m alloca_instr %s %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), type.c_str(), _size,_subtype,name(reg).c_str(), realvalue(reg).c_str(), mem_var.str().c_str(), realvalue(mem_var.str()).c_str(), alloca_pointer);
+	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer);
 
 }
 

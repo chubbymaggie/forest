@@ -130,7 +130,7 @@ extern "C" void end_bb(char* a);
  * @param _reg: name of the register that holds the position of new variable in memory
  * @param _type: Data type of allocated value
  */
-extern "C" void alloca_instr(char* a, char* b, char* c);
+extern "C" void alloca_instr(char* a, char* b);
 
 /**
  * @brief Function that is called at the begining of simulation

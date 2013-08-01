@@ -1512,36 +1512,15 @@ struct AllocaInstr: public ModulePass {
 						string nameres = "register" UNDERSCORE + in->getName().str();
 
 						string type = get_type_str(in_a->getAllocatedType());
-						string subtype;
-						string nelems;
+						string subtype = get_flattened_types( in_a->getAllocatedType() );
 
-						if(type == "ArrayTyID"){
-							const ArrayType* typ = cast<ArrayType>(in_a->getAllocatedType());
-							const Type* typ2 = cast<Type>( element_type(typ) );
-							subtype = get_type_str( typ2 );
-							nelems = itos( product(get_dimensions(typ)) );
-
-							if(subtype == "StructTyID"){
-								subtype = get_flattened_types( typ2 );
-							}
-
-						} else if(type == "StructTyID") {
-							subtype = get_flattened_types(in_a->getAllocatedType());
-							nelems = "1";
-						} else {
-							subtype = type;
-							nelems = "1";
-						}
-
-						//cerr << type << endl;
+						//cerr << "subtype " << subtype << endl;
 
 						GlobalVariable* c1 = make_global_str(M, nameres);
-						GlobalVariable* c2 = make_global_str(M, nelems);
-						GlobalVariable* c3 = make_global_str(M, subtype);
+						GlobalVariable* c2 = make_global_str(M, subtype);
 
 						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "alloca_instr" ,
 									Type::getVoidTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
@@ -1552,7 +1531,6 @@ struct AllocaInstr: public ModulePass {
 						std::vector<Value*> params;
 						params.push_back(pointerToArray(M,c1));
 						params.push_back(pointerToArray(M,c2));
-						params.push_back(pointerToArray(M,c3));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}
