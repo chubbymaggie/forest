@@ -1756,10 +1756,13 @@ struct GlobalInit: public ModulePass {
 
 	string get_flattened_vals( Constant* constant ){
 
-		//cerr << "get_flattened_vals" << endl;
-		//constant->dump();
+		cerr << "get_flattened_vals" << endl;
+		constant->dump();
 
-		ConstantInt* constant_int = dyn_cast<ConstantInt>(constant);
+		//cerr << "type" << endl;
+		//cerr << ConstantUndefValue::classof(constant) << endl;
+
+		ConstantInt*   constant_int   = dyn_cast<ConstantInt>(constant);
 		ConstantArray* constant_array = dyn_cast<ConstantArray>(constant);
 
 
@@ -1779,18 +1782,30 @@ struct GlobalInit: public ModulePass {
 			return nameop1_ss.str();
 		} else if( type == "ArrayTyID" ){
 
+			cerr << "----- array ------" << endl;
+
+			const ArrayType* array_type = cast<ArrayType>(constant->getType());
+
 			string aux;
-			for ( unsigned int i = 0; i < constant_array->getNumOperands(); i++) {
-				Value*         operand_i    = constant_array->getOperand(i);
+			for ( unsigned int i = 0; i < array_type->getNumElements(); i++) {
 
-				cerr << "operand_i" << endl;
-				operand_i->dump();
+				if(constant->isNullValue()){
 
-				Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
+					aux += "X,";
 
-				assert(operand_i_const && "Operand i must be constant");
+				} else {
 
-				aux += get_flattened_vals(operand_i_const) + ",";
+					Value*         operand_i    = constant_array->getOperand(i);
+
+					cerr << "operand_i" << endl;
+					operand_i->dump();
+
+					Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
+
+					assert(operand_i_const && "Operand i must be constant");
+
+					aux += get_flattened_vals(operand_i_const) + ",";
+				}
 			}
 
 			return aux;
