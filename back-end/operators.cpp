@@ -324,6 +324,7 @@ void global_var_init(char* _varname, char* _type, char* _values){
 	assign_instruction(rvalue.str(), name(varname));
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
+	int prev_alloca_pointer = alloca_pointer;
 
 	for ( unsigned int i = 0; i < values.size(); i++) {
 
@@ -337,7 +338,14 @@ void global_var_init(char* _varname, char* _type, char* _values){
 			assign_instruction( constant_name.str(), mem_var.str());
 		}
 
-		set_name_hint(mem_var.str(), varname);
+		stringstream hint;
+		if(values.size() > 1){
+			hint << varname << "+" << (alloca_pointer-prev_alloca_pointer);
+		} else {
+			hint << varname;
+		}
+
+		set_name_hint(mem_var.str(), hint.str());
 
 
 		alloca_pointer += get_size(types[i]);

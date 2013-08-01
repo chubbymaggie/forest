@@ -27,14 +27,13 @@ struct Estructura {
 	double entero1;
 	int entero2;
 	struct Estructura3 estructura3;
-	struct Estructura3 estructura4;
 };
 
 struct Estructura a[10];
 
 int main(){
 
-	if( a[5].estructura4.entero5 > 0 )
+	if( a[5].estructura3.entero5 > 0 )
 		return 0;
 	else
 		return 1;
