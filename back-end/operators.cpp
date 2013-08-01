@@ -308,13 +308,10 @@ void global_var_init(char* _varname, char* _type, char* _values){
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
+	debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
+
+
 	assert(types.size() == values.size() && "Different number of types and values");
-
-
-	//debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
-
-	//exit(0);
-
 
 	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
 

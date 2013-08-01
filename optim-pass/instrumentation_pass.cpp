@@ -1569,6 +1569,7 @@ struct GetelementPtr: public ModulePass {
 
 			string aux = "(";
 			for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
+				//cerr << "element " << i << endl;
 				aux += get_offset_tree(t_struct->getElementType(i),base);
 			}
 			aux += ")";
@@ -1609,6 +1610,13 @@ struct GetelementPtr: public ModulePass {
 		} else if (type_str == "DoubleTyID"){
 
 			cerr << "double " << primary_size(t) << endl;
+			string ret = "(" + itos(*base) + ")";
+			(*base) = (*base) + primary_size(t);
+			return ret;
+
+		} else if (type_str == "FloatTyID"){
+
+			cerr << "float " << primary_size(t) << endl;
 			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
