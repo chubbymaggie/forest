@@ -54,7 +54,6 @@ string get_flattened_types(const Type* t);
 
 typedef struct VarInit {
 	string name;
-	string nelems;
 	string type;
 	string initialization;
 } VarInit;
@@ -140,17 +139,28 @@ string get_flattened_types(const Type* t){
 	//t->dump();
 
 	string ret;
-	const StructType* t_s = dyn_cast<StructType>(t);
-	const ArrayType*  t_a = dyn_cast<ArrayType>(t);
+	const StructType* t_struct = dyn_cast<StructType>(t);
+	const ArrayType*  t_array  = dyn_cast<ArrayType>(t);
+	const SequentialType*  t_sequential  = dyn_cast<SequentialType>(t);
 
-	if(t_s){
-		unsigned int numelems = t_s->getNumElements();
+	if(t_struct){
+		unsigned int numelems = t_struct->getNumElements();
 
 		for ( unsigned int i = 0; i < numelems; i++) {
-			ret += get_flattened_types(t_s->getElementType(i));
+			ret += get_flattened_types(t_struct->getElementType(i));
 		}
 
 		return ret;
+	} else if(t_array){
+		unsigned int numelems = t_array->getNumElements();
+
+		for ( unsigned int i = 0; i < numelems; i++) {
+			ret += get_flattened_types(t_sequential->getElementType());
+		}
+
+		return ret;
+		
+		
 	} else {
 		return get_type_str(t) + ",";
 	}
@@ -1575,7 +1585,7 @@ struct GetelementPtr: public ModulePass {
 			return "(" + get_offset_tree(t_sequential->getElementType(), base) + ")";
 
 		//} else if(type_str.find(",") != string::npos ){
-		} else if(type_str == "StructTyID"){
+		} else if( type_str == "StructTyID"){
 
 			cerr << "struct" << endl;
 
@@ -1744,201 +1754,52 @@ struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GlobalInit() : ModulePass(ID) {}
 
-	VarInit varinit_int( GlobalVariable* gl ){
-		string             name         = string("global" UNDERSCORE) + gl->getName().str();
+	string get_flattened_vals( Constant* constant ){
 
-		string             nelems       = itos(1);
+		//cerr << "get_flattened_vals" << endl;
+		//constant->dump();
 
-		const PointerType* pointertype  = cast<PointerType>(gl->getType());
-		const Type*        type_t       = pointertype->getElementType();
-		string             type         = get_type_str(type_t);
-
-		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-		Constant*          constant     = global_var->getInitializer();
-		ConstantInt*       constant_int = dyn_cast<ConstantInt>(constant);
-		int64_t            val          = constant_int->getSExtValue();
-		string             val_s        = itos(val);
-
-		VarInit varinit = {name,nelems, type, val_s};
-
-		return varinit;
-
-	}
-
-	VarInit varinit_float( GlobalVariable* gl ){
-		string             name         = string("global" UNDERSCORE) + gl->getName().str();
-
-		string             nelems       = itos(1);
-
-		const PointerType* pointertype  = cast<PointerType>(gl->getType());
-		const Type*        type_t       = pointertype->getElementType();
-		string             type         = get_type_str(type_t);
-
-		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-		Constant*          constant     = global_var->getInitializer();
-		ConstantFP*        constant_fp  = dyn_cast<ConstantFP>(constant);
-		string             val_s        = floatvalue(constant_fp);
-
-		VarInit varinit = {name,nelems, type, val_s};
-
-		return varinit;
-	}
-
-	VarInit varinit_struct( GlobalVariable* gl ){
-
-		string             name         = string("global" UNDERSCORE) + gl->getName().str();
-		string             nelems       = itos(1);
-
-			const PointerType* pointertype  = cast<PointerType>(gl->getType());
-			const Type*        type_t       = pointertype->getElementType();
-			string             type         = get_type_str(type_t);
-
-		string             val_s        = "";
-
-		VarInit varinit = {name,nelems, type, val_s};
-		return varinit;
-	}
-
-	VarInit varinit_array( GlobalVariable* gl ){
-
-		//cerr << "ARRAY" << endl;
-		string             name         = string("global" UNDERSCORE) + gl->getName().str();
-
-		const PointerType* pointertype  = cast<PointerType>(gl->getType());
-		const Type*        type_t       = pointertype->getElementType();
-		string             type         = get_type_str(type_t);
-
-		const ArrayType* t_a = cast<ArrayType>(type_t);
-
-		string nelems = itos( product(get_dimensions(t_a)) );
-
-		GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-		Constant*          constant     = global_var->getInitializer();
-		ConstantArray*     constant_a   = dyn_cast<ConstantArray>(constant);
-
-		//global_var->getInitializer()->dump();
-
-		if( !(global_var->hasInitializer()) )
-			assert(0 && "Array sin inicializador");
-
-		bool zeroinitializer = global_var->getInitializer()->isNullValue();
+		ConstantInt* constant_int = dyn_cast<ConstantInt>(constant);
+		ConstantArray* constant_array = dyn_cast<ConstantArray>(constant);
 
 
+		string type = get_type_str(constant->getType());
 
-		bool ndimensions = 0;
+		if( type == "IntegerTyID"){
+			int64_t val = constant_int->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "IntegerTyID32"){
+			int64_t val = constant_int->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "IntegerTyID8"){
+			int64_t val = constant_int->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "ArrayTyID" ){
 
-		stringstream val_ss;
+			string aux;
+			for ( unsigned int i = 0; i < constant_array->getNumOperands(); i++) {
+				Value*         operand_i    = constant_array->getOperand(i);
 
-		if( zeroinitializer ){
+				cerr << "operand_i" << endl;
+				operand_i->dump();
 
-			//t_a->getElementType()->dump();
-			//cerr << get_type_str(t_a->getElementType()) << endl;
+				Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
 
-			string zero;
-			if( get_type_str(t_a->getElementType()) == "FloatTyID" ){
-				zero = "0.0";
-			} else if( get_type_str(t_a->getElementType()) == "DoubleTyID" ){
-				zero = "0.0";
-			} else if ( get_type_str(t_a->getElementType()) == "IntegerTyID" ){
-				zero = "0";
-			} else if (get_type_str(t_a->getElementType()) == "IntegerTyID32"){
-				zero = "0";
-			} else if (get_type_str(t_a->getElementType()).find(",") != string::npos ){
+				assert(operand_i_const && "Operand i must be constant");
 
-				string flat = get_flattened_types(t_a->getElementType());
-				vector<string> tokens = tokenize(flat, ",");
-				for ( unsigned int i = 0; i < tokens.size()-1; i++) {
-					zero = zero + "0,";
-				}
-				zero = zero + "0";
-
-			} else {
-				cerr << "error: " << endl;
-				t_a->getElementType()->dump();
-				//cerr << get_type_str(t_a->getElementType()) << endl;
-				assert(0 && "Unknown initializer");
+				aux += get_flattened_vals(operand_i_const) + ",";
 			}
 
-			for ( unsigned int i = 0; i < t_a->getNumElements(); i++) {
-				val_ss << zero << ",";
-			}
+			return aux;
+			
 
+		} else {
+			cerr << type << endl;
+			assert( 0 && "Unknown initializer type");
 		}
-
-		//cerr << "val_ss " << val_ss.str() << endl;
-
-		if( constant_a ){
-
-
-			//gl->dump();
-			//cerr << "constant_a" << endl << "-------------" << endl;
-
-			for ( unsigned int i = 0; i < constant_a->getNumOperands(); i++) {
-
-				Value*         operand_i    = constant_a->getOperand(i);
-				ConstantInt*   constant_int = dyn_cast<ConstantInt>(operand_i);
-				ConstantArray* constant_arr = dyn_cast<ConstantArray>(operand_i);
-				ConstantFP*    constant_fp  = dyn_cast<ConstantFP>(operand_i);
-
-				if(constant_int){
-					ndimensions = 1;
-					int64_t            val          = constant_int->getSExtValue();
-					val_ss << val << ",";
-				} else if(constant_fp){
-
-					val_ss << floatvalue(constant_fp) << ",";
-
-
-				} else if (constant_arr){
-					ndimensions = 2;
-					for ( unsigned int j = 0; j < constant_a->getNumOperands(); j++) {
-						Value* operand_i_2 = constant_arr->getOperand(j);
-						ConstantInt* constant_int_2 = dyn_cast<ConstantInt>(operand_i_2);
-						ConstantFP*  constant_fp_2  = dyn_cast<ConstantFP>(operand_i_2);
-
-						if(constant_int_2){
-
-							int64_t val = constant_int_2->getSExtValue();
-							val_ss << val << ",";
-
-						} else if(constant_fp_2){
-
-
-							val_ss << floatvalue( constant_fp_2 ) << ",";
-
-
-						}
-					}
-
-
-				} else {
-					gl->dump();
-					assert(0 && "Unknown array");
-				}
-
-			}
-		}
-
-		string val_s  = val_ss.str();
-
-		//cerr << "val_s " << val_s << endl;
-
-		const ArrayType* type_a = cast<ArrayType>(type_t);
-
-		//const Type* type_e      = type_a->getElementType();
-		//if(ndimensions == 1){
-		//string type_e_s         = get_type_str(type_e);
-		//} else if (ndimensions == 2){
-		//const ConstantArray* type_e_as_array = cast<ConstantArray>(type_e);
-		//type_e = type_e_as_array->getElementType();
-		//}
-
-
-		const Type* type_e      = element_type(type_a);
-		string type_e_s         = get_type_str(type_e);
-
-		VarInit varinit = {name,nelems, type_e_s, val_s};
-		return varinit;
 
 	}
 
@@ -1948,39 +1809,22 @@ struct GlobalInit: public ModulePass {
 
 		glo_iterator(M,gl){
 
-			cerr << "global ";
-			gl->dump();
+			//cerr << "global ";
+			//gl->dump();
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
 			const PointerType* pointertype  = cast<PointerType>(gl->getType());
 			const Type*        type_t       = pointertype->getElementType();
-			string             type         = get_type_str(type_t);
 
-			//cerr << "tipo " << type << endl;
+			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+			Constant*          constant     = global_var->getInitializer();
 
-			if( type == "IntegerTyID32" || type == "IntegerTyID64" ){
+			string types = get_flattened_types(type_t);
+			string vals  = get_flattened_vals(constant);
 
-				global_var_inits.push_back(varinit_int(gl));
+			VarInit varinit = {name, types, vals };
 
-			} else if( type == "FloatTyID" || type == "DoubleTyID"){
-
-				global_var_inits.push_back(varinit_float(gl));
-
-			} else if( type == "ArrayTyID" ){
-
-				//cerr << "array" << endl;
-
-				global_var_inits.push_back(varinit_array(gl));
-
-			} else if ( type.find(",") != string::npos ){
-
-
-				global_var_inits.push_back(varinit_struct(gl));
-
-			} else {
-				cerr << type << endl;
-				assert( 0 && "Unkown global");
-			}
+			global_var_inits.push_back(varinit);
 
 		}
 
@@ -1989,18 +1833,15 @@ struct GlobalInit: public ModulePass {
 			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
 
 			string name           = it->name;
-			string nelems         = it->nelems;
 			string type           = it->type;
 			string initialization = it->initialization;
 
 			GlobalVariable* c1 = make_global_str(M, name);
-			GlobalVariable* c2 = make_global_str(M, nelems);
-			GlobalVariable* c3 = make_global_str(M, type);
-			GlobalVariable* c4 = make_global_str(M, initialization);
+			GlobalVariable* c2 = make_global_str(M, type);
+			GlobalVariable* c3 = make_global_str(M, initialization);
 	
 			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "global_var_init" ,
 						Type::getVoidTy( M.getContext() ),
-						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
@@ -2011,7 +1852,6 @@ struct GlobalInit: public ModulePass {
 			params.push_back(pointerToArray(M,c1));
 			params.push_back(pointerToArray(M,c2));
 			params.push_back(pointerToArray(M,c3));
-			params.push_back(pointerToArray(M,c4));
 			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 		}
 
