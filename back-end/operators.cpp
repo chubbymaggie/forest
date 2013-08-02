@@ -445,7 +445,8 @@ string trimpar(string str){
 	return firstnum;
 }
 
-int get_offset(vector<string> indexes, string offset_tree){
+int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
+
 
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
 		debug && printf("\e[33m %s ", it->c_str() );
@@ -466,10 +467,12 @@ int get_offset(vector<string> indexes, string offset_tree){
 	vector<string>::iterator first_it = indexes.begin(); first_it++;
 	vector<string> rem_indexes = vector<string>(first_it, indexes.end());
 
-	if( rem_indexes.size() )
-		return get_offset(rem_indexes, elem_str);
-	else
+	if( rem_indexes.size() ){
+		return get_offset(rem_indexes, elem_str, remaining_tree);
+	} else {
+		*remaining_tree = offset_tree;
 		return stoi(trimpar(elem_str));
+	}
 
 }
 
@@ -485,16 +488,26 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
 									  name(dst).c_str(), realvalue(dst).c_str() );
 
+	//printf("srctree %s\n", get_offset_tree(pointer).c_str() );
+
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
 	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
+
+	if( get_offset_tree(name(pointer)) != "" ){
+		printf("Using source offset_tree %s\n", get_offset_tree(name(pointer)).c_str() );
+		offset_tree = get_offset_tree(name(pointer));
+	}
 	
 
-	int offset = get_offset(indexes, offset_tree);
-	//printf("offset %d\n", offset);
+	string remaining_tree;
+	int offset = get_offset(indexes, offset_tree, &remaining_tree);
+	set_offset_tree(name(dst), remaining_tree);
+	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
+
 	
 	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
 	string offset_constant_s = offset_ss.str();

@@ -254,6 +254,8 @@ string itos(int i);
 void set_fuzz_constr(string name);
 bool get_fuzz_constr(string name);
 
+void set_offset_tree( string varname, string tree );
+string get_offset_tree( string varname );
 
 
 

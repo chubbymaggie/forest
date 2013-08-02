@@ -842,6 +842,10 @@ void assign_instruction(string src, string dst, string fn_name){
 	if( is_constant(src) )
 		set_is_propagated_constant(dst);
 
+	//printf("srctree %s\n", get_offset_tree(name(src)).c_str());
+
+	set_offset_tree(name(dst), get_offset_tree(name(src)));
+
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
@@ -1172,6 +1176,18 @@ int show_problem(){
 	fflush(stdout);
 
 	getchar();
+}
+
+void set_offset_tree( string varname, string tree ){
+	//assert(check_mangled_name(varname) && "Incorrect name for set_offset_tree");
+	//printf("set_offset_tree %s %s\n", varname.c_str(), tree.c_str() );
+	variables[varname].tree = tree;
+}
+
+string get_offset_tree( string varname ){
+	//assert(check_mangled_name(varname) && "Incorrect name for get_offset_tree");
+	//printf("get_offset_tree %s %s\n", varname.c_str(), variables[varname].tree.c_str() );
+	return variables[varname].tree;
 }
 
 void print_path_stack(){
