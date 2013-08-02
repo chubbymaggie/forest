@@ -19,10 +19,11 @@
  */
 
 
-float variable[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
 
 int main() {
 
+
+	float variable[5];
 
 	float* pointer = variable;
 
