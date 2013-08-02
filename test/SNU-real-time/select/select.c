@@ -107,6 +107,6 @@ float select(unsigned long k, unsigned long n)
 
 main()
 {
-  select(10, 20);
+  select(10, 19);
 }
 

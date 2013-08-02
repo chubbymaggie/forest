@@ -404,8 +404,15 @@ int get_ini_elem(int nelem_target, string offset_tree){
 	for ( unsigned int i = 1; i < offset_tree.size(); i++) {
 		if(offset_tree[i] == '(') depth++;
 		if(offset_tree[i] == ')') depth--;
-		if(depth == 0 && offset_tree[i] == '(' ){ nelem++;}
-		if(nelem == nelem_target) return i;
+		if(depth == 0 && offset_tree[i] == '(' ){
+			nelem++;
+			//printf("elem %d at %d\n", nelem, i);
+		}
+		if(nelem == nelem_target){
+			//printf("get_ini_elem %d %s : %d\n", nelem_target, offset_tree.c_str(), i);
+			return i;
+
+		}
 	}
 
 	assert(0 && "Unbalanced tree");
@@ -438,12 +445,15 @@ string trimpar(string str){
 int get_offset(vector<string> indexes, string offset_tree){
 
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		printf("%s ", it->c_str() );
-	} printf(" --- ");
-	printf(" offset %s\n", offset_tree.c_str() );
+		debug && printf("\e[33m %s ", it->c_str() );
+	} debug && printf(" --- ");
+	debug && printf(" offset %s\e[0m\n", offset_tree.c_str() );
 	
 
 	string realvalue_index_0_s = realvalue( indexes[0] );
+
+	debug && printf("\e[33m %s %s \e[0m\n", indexes[0].c_str(), realvalue(indexes[0]).c_str() );
+
 	int realvalue_index_0 = stoi(realvalue_index_0_s);
 
 	int ini_elem = get_ini_elem(realvalue_index_0, offset_tree);
@@ -468,8 +478,9 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	string offset_tree = string(_offset_tree);
 
 
-	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
-		                                                          name(dst).c_str(), realvalue(dst).c_str() );
+	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
+		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
+									  name(dst).c_str(), realvalue(dst).c_str() );
 
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
