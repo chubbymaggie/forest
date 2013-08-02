@@ -284,6 +284,9 @@ int get_size(string type){
 	if( type == "int" )
 		return 4;
 
+	if( type == "PointerTyID")
+		return 4;
+
 
 	if( type.find(",") != string::npos ){
 		int sum = 0;
@@ -491,7 +494,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	
 
 	int offset = get_offset(indexes, offset_tree);
-	printf("offset %d\n", offset);
+	//printf("offset %d\n", offset);
 	
 	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
 	string offset_constant_s = offset_ss.str();

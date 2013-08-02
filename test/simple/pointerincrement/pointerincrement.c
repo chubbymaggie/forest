@@ -19,14 +19,14 @@
  */
 
 
+float variable[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+
 int main() {
 
-	static float variable[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
 
 	float* pointer = variable;
 
-	/*for ( unsigned int i = 0; i < 10; i++)*/
-		pointer++;
+	pointer++;
 
 	if( *pointer == 2.0 )
 		return 0;
