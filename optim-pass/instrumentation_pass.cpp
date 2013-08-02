@@ -86,9 +86,6 @@ string operandname( Value* operand ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
 		stringstream nameop1_ss;
-		nameop1_ss.setf( std::ios::fixed, std:: ios::floatfield );
-		nameop1_ss.precision(5);
-
 		nameop1_ss << "constant" UNDERSCORE << floatvalue(CF);
 
 		return nameop1_ss.str();
@@ -1748,8 +1745,10 @@ struct GlobalInit: public ModulePass {
 		//cerr << "type" << endl;
 		//cerr << ConstantUndefValue::classof(constant) << endl;
 
-		ConstantInt*   constant_int   = dyn_cast<ConstantInt>(constant);
-		ConstantArray* constant_array = dyn_cast<ConstantArray>(constant);
+		ConstantInt*     constant_int    = dyn_cast<ConstantInt>(constant);
+		ConstantArray*   constant_array  = dyn_cast<ConstantArray>(constant);
+		ConstantFP*      constant_float  = dyn_cast<ConstantFP>(constant);
+		ConstantStruct*  constant_struct = dyn_cast<ConstantStruct>(constant);
 
 
 		string type = get_type_str(constant->getType());
@@ -1762,10 +1761,62 @@ struct GlobalInit: public ModulePass {
 			int64_t val = constant_int->getSExtValue();
 			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 			return nameop1_ss.str();
+		} else if( type == "IntegerTyID64"){
+			int64_t val = constant_int->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
 		} else if( type == "IntegerTyID8"){
 			int64_t val = constant_int->getSExtValue();
 			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 			return nameop1_ss.str();
+		} else if( type == "FloatTyID"){
+			string val = floatvalue(constant_float);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "DoubleTyID"){
+			string val = floatvalue(constant_float);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "StructTyID"){
+
+			cerr << "----- struct ------" << endl;
+
+			const StructType* struct_type = cast<StructType>(constant->getType());
+
+			struct_type->dump();
+			constant->dump();
+
+			string aux;
+
+			if(constant->isNullValue()){
+
+				string flattenedtypes = get_flattened_types(struct_type);
+				vector<string> tokens = tokenize(flattenedtypes, ",");
+
+				for ( unsigned int i = 0; i < tokens.size(); i++) {
+					aux += "X,";
+				}
+
+
+			} else {
+
+				for ( unsigned int i = 0; i < struct_type->getNumElements(); i++) {
+
+					Value*         operand_i    = constant_struct->getOperand(i);
+
+					cerr << "operand_i" << endl;
+					operand_i->dump();
+
+					Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
+
+					assert(operand_i_const && "Operand i must be constant");
+
+					aux += get_flattened_vals(operand_i_const) + ",";
+				}
+			}
+
+			return aux;
+
 		} else if( type == "ArrayTyID" ){
 
 			cerr << "----- array ------" << endl;
