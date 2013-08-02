@@ -497,7 +497,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
 
-	if( get_offset_tree(name(pointer)) != "" ){
+	if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
 		printf("Using source offset_tree %s\n", get_offset_tree(name(pointer)).c_str() );
 		offset_tree = get_offset_tree(name(pointer));
 	}
