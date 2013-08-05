@@ -32,6 +32,12 @@ struct Estructura {
 int main(){
 
 	struct Estructura a;
+
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
 	if( a.entero1 + a.entero2 + a.estructura3.entero5 > 0 )
 		return 0;
 	else

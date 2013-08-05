@@ -11,5 +11,10 @@ int myislower(int x) {
 
 int main() {
   char c;
+
+#ifdef KLEE
+  klee_make_symbolic(&c, sizeof(c), "c");
+#endif
+
   return myislower(c);
 }

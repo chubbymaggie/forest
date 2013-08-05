@@ -13,6 +13,11 @@
 
 int main(void) {
   int x;
+
+#ifdef KLEE
+  klee_make_symbolic(&x, sizeof(x), "x");
+#endif
+
   x = printf("Hello.\n");
   if (x == 3)
     return 1;

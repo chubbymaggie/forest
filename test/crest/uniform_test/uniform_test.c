@@ -16,6 +16,15 @@ int main(void) {
 	int c;
 	int d;
 
+#ifdef KLEE
+
+	klee_make_symbolic(&a, sizeof(a), "a");
+	klee_make_symbolic(&b, sizeof(b), "b");
+	klee_make_symbolic(&c, sizeof(c), "c");
+	klee_make_symbolic(&d, sizeof(d), "d");
+
+#endif
+
 	if (a == 5) {
 		if (b == 19) {
 			if (c == 7) {

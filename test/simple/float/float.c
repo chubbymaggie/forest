@@ -24,6 +24,11 @@ int main(){
 	float a;
 	float b;
 
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+	klee_make_symbolic(&b, sizeof(b), "b");
+#endif
+
 	if( a*b == 5 )
 		return 0;
 	else

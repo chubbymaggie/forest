@@ -21,6 +21,11 @@
 int a = 5;
 
 int main(){
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
 	if(a < 3)
 		return 0;
 	else

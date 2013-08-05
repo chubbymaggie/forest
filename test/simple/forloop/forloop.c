@@ -21,7 +21,14 @@
 
 int main() {
 	int a;
-	for ( unsigned int i = 0; i < 10; i++) {
+	
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
+	unsigned int i;
+
+	for ( i = 0; i < 10; i++) {
 		if( i == a ) return 0;
 	}
 	return 0;

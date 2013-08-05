@@ -15,5 +15,9 @@ int getsign(int x) {
 
 int main() {
   int a;
+
+#ifdef KLEE
+  klee_make_symbolic(&a, sizeof(a), "a");
+#endif
   return getsign(a);
 } 

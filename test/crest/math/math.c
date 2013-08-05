@@ -11,6 +11,16 @@
 
 int main(void) {
   int a, b, c, d, e;
+
+#ifdef KLEE
+  klee_make_symbolic(&a, sizeof(a), "a");
+  klee_make_symbolic(&b, sizeof(b), "b");
+  klee_make_symbolic(&c, sizeof(c), "c");
+  klee_make_symbolic(&d, sizeof(d), "d");
+  klee_make_symbolic(&e, sizeof(e), "e");
+#endif
+
+
   if (3*a + 3*(b - 5*c) + (b+c) - a == d - 17*e) {
     return 1;
   } else {

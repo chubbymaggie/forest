@@ -15,6 +15,11 @@ short dbl(short x) {
 
 int main(void) {
   short a;
+
+#ifdef KLEE
+  klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
   if (dbl(a) + 3 == 9) {
     return 0;
   } else {

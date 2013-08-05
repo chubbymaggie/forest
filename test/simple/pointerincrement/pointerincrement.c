@@ -25,6 +25,10 @@ int main() {
 
 	float variable[5];
 
+#ifdef KLEE
+	klee_make_symbolic(variable, sizeof(variable), "variable");
+#endif
+
 	float* pointer = variable;
 
 	pointer++;

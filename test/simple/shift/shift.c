@@ -23,6 +23,10 @@ int main() {
 
 	int a;
 
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
 	if(a >> 2 == 10) return 0;
 	else return 1;
 }

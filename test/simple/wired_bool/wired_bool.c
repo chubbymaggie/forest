@@ -23,6 +23,12 @@ int main() {
 	
 	int a;
 	int b;
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+	klee_make_symbolic(&b, sizeof(b), "b");
+#endif
+
 	int c = a & b;
 
 	if( c == 10 ) return 0;
