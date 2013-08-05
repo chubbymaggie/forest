@@ -365,7 +365,7 @@ void alloca_instr(char* _reg, char* _subtype){
 	string subtypes = string(_subtype);
 	vector<string> subtype = tokenize(string(_subtype), ",");
 
-	printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype );
+	//printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype );
 
 	//exit(0);
 
@@ -498,7 +498,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	}
 
 	if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
-		printf("Using source offset_tree %s\n", get_offset_tree(name(pointer)).c_str() );
+		//printf("Using source offset_tree %s\n", get_offset_tree(name(pointer)).c_str() );
 		offset_tree = get_offset_tree(name(pointer));
 	}
 	

@@ -137,6 +137,7 @@ int minval(string type){
 	if(type == "Int32") return 0;
 	if(type == "Int16") return 0;
 	if(type == "Int8")  return 0;
+	if(type == "Int") return 0;
 
 	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -147,6 +148,7 @@ int maxval(string type){
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
 	if(type == "Int8") return (1 << 8);
+	if(type == "Int") return (1 << 30);
 
 	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -1120,7 +1122,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
-		printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
+		//printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
 
 	}
 

@@ -860,7 +860,7 @@ struct SeparateGetElm: public ModulePass {
 						GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
 
 						if( is_getelement && gepop ){
-							in->dump();
+							//in->dump();
 
 
 							Value* pointer = gepop->getPointerOperand();
@@ -1555,14 +1555,14 @@ struct GetelementPtr: public ModulePass {
 		string type_str = get_type_str(t);
 
 		if(type_str == "PointerTyID"){
-			cerr << "pointer" << endl;
+			//cerr << "pointer" << endl;
 
 			return "(" + get_offset_tree(t_sequential->getElementType(), base) + ")";
 
 		//} else if(type_str.find(",") != string::npos ){
 		} else if( type_str == "StructTyID"){
 
-			cerr << "struct" << endl;
+			//cerr << "struct" << endl;
 
 			string aux = "(";
 			for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
@@ -1574,8 +1574,8 @@ struct GetelementPtr: public ModulePass {
 
 		} else if(type_str == "ArrayTyID"){
 
-			cerr << "array" << endl;
-			t->dump();
+			//cerr << "array" << endl;
+			//t->dump();
 
 			string aux = "(";
 			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
@@ -1587,43 +1587,43 @@ struct GetelementPtr: public ModulePass {
 
 		} else if( type_str == "IntegerTyID"){
 
-			cerr << "integer " << primary_size(t) << endl;
+			//cerr << "integer " << primary_size(t) << endl;
 			return itos( primary_size(t) ) + " ";
 
 		} else if( type_str == "IntegerTyID32"){
 
-			cerr << "integer32 " << primary_size(t) << endl;
+			//cerr << "integer32 " << primary_size(t) << endl;
 			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if( type_str == "IntegerTyID8"){
 
-			cerr << "integer8 " << primary_size(t) << endl;
+			//cerr << "integer8 " << primary_size(t) << endl;
 			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "DoubleTyID"){
 
-			cerr << "double " << primary_size(t) << endl;
+			//cerr << "double " << primary_size(t) << endl;
 			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "FloatTyID"){
 
-			cerr << "float " << primary_size(t) << endl;
+			//cerr << "float " << primary_size(t) << endl;
 			string ret = "(" + itos(*base) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else {
 
-			cerr << "----" << endl;
-			cerr << "otro" << endl;
-			t->dump();
-			cerr << type_str << endl;
+			//cerr << "----" << endl;
+			//cerr << "otro" << endl;
+			//t->dump();
+			//cerr << type_str << endl;
 			assert(0 && "Unknown Type");
 
 		}
@@ -1739,8 +1739,8 @@ struct GlobalInit: public ModulePass {
 
 	string get_flattened_vals( Constant* constant ){
 
-		cerr << "get_flattened_vals" << endl;
-		constant->dump();
+		//cerr << "get_flattened_vals" << endl;
+		//constant->dump();
 
 		//cerr << "type" << endl;
 		//cerr << ConstantUndefValue::classof(constant) << endl;
@@ -1779,7 +1779,7 @@ struct GlobalInit: public ModulePass {
 			return nameop1_ss.str();
 		} else if( type == "StructTyID"){
 
-			cerr << "----- struct ------" << endl;
+			//cerr << "----- struct ------" << endl;
 
 			const StructType* struct_type = cast<StructType>(constant->getType());
 
@@ -1804,8 +1804,8 @@ struct GlobalInit: public ModulePass {
 
 					Value*         operand_i    = constant_struct->getOperand(i);
 
-					cerr << "operand_i" << endl;
-					operand_i->dump();
+					//cerr << "operand_i" << endl;
+					//operand_i->dump();
 
 					Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
 
@@ -1819,7 +1819,7 @@ struct GlobalInit: public ModulePass {
 
 		} else if( type == "ArrayTyID" ){
 
-			cerr << "----- array ------" << endl;
+			//cerr << "----- array ------" << endl;
 
 			const ArrayType* array_type = cast<ArrayType>(constant->getType());
 
@@ -1844,8 +1844,8 @@ struct GlobalInit: public ModulePass {
 
 					Value*         operand_i    = constant_array->getOperand(i);
 
-					cerr << "operand_i" << endl;
-					operand_i->dump();
+					//cerr << "operand_i" << endl;
+					//operand_i->dump();
 
 					Constant*      operand_i_const = dyn_cast<Constant>(operand_i);
 

@@ -257,7 +257,7 @@ void make_bc(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -D NO_INIT -c /tmp/file.cpp -o /tmp/file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización

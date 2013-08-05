@@ -362,11 +362,13 @@ int main()
 
   /* Worst case settings */
   /* Set array to random values */
+#ifndef NO_INIT
   seed = 0;
   for (i = 0; i < 64; i++) {
     seed = ((seed * 133) + 81) % 65535;
     data[i] = seed;
   }
+#endif
 
 #ifdef KLEE
   klee_make_symbolic(data, sizeof(data), "data");
