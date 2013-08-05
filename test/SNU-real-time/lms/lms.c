@@ -184,6 +184,10 @@ int main()
     float signal_amp,noise_amp,arg,x,y;
     int k;
 
+#ifdef KLEE
+    klee_make_symbolic(d, sizeof(d), "d");
+#endif
+
 /* create signal plus noise */
     signal_amp = sqrt(2.0);
     noise_amp = 0.2*sqrt(12.0);

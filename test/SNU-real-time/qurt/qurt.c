@@ -102,6 +102,10 @@ int main()
 
 	int flag;
 
+#ifdef KLEE
+	klee_make_symbolic(a, sizeof(a), "a");
+#endif
+
 
 	a[0] =  1.0;
 	a[1] = -3.0;

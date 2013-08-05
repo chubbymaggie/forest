@@ -74,6 +74,12 @@ CL0:  for(i=1;i<=SIZE;i++)
 
 int main()
 {
+
+#ifdef KLEE
+    klee_make_symbolic(a, sizeof(a), "a");
+    klee_make_symbolic(b, sizeof(b), "b");
+#endif
+
     matmul(a,b,c);
 }
 	 

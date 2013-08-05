@@ -82,6 +82,11 @@ float sqrt(float val)
 int main(void)
 {
   float x=1234;
+
+#ifdef KLEE
+  klee_make_symbolic(&x, sizeof(x), "x");
+#endif
+
   sqrt(x);
   return 0;
 }

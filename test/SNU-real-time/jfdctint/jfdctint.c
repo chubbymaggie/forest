@@ -368,6 +368,10 @@ int main()
     data[i] = seed;
   }
 
+#ifdef KLEE
+  klee_make_symbolic(data, sizeof(data), "data");
+#endif
+
   jpeg_fdct_islow();
 
   return 0;

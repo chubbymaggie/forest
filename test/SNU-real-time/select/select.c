@@ -107,6 +107,11 @@ float select(unsigned long k, unsigned long n)
 
 main()
 {
+
+#ifdef KLEE
+  klee_make_symbolic(arr, sizeof(arr), "arr");
+#endif
+
   select(10, 19);
 }
 

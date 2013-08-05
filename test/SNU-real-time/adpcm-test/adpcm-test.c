@@ -804,6 +804,11 @@ int main()
     int i,j,f;
     static int test_data[SIZE],compressed[SIZE],result[SIZE];
 
+#ifdef KLEE
+    klee_make_symbolic(test_data, sizeof(test_data), "test_data");
+    klee_make_symbolic(compressed, sizeof(compressed), "compressed");
+#endif
+
 /* reset, initialize required memory */
     reset();
 

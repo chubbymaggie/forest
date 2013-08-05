@@ -112,6 +112,10 @@ int main(void)
 
 	unsigned short i1,i2;
 	unsigned long n;
+
+#ifdef KLEE
+	klee_make_symbolic(lin, sizeof(lin), "lin");
+#endif
 	
 	n=40;
 		lin[n+1]=0;

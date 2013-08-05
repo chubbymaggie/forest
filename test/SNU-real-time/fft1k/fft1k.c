@@ -108,6 +108,12 @@ int main()
     init_w(n);
 
     x[0].real = 1.0;
+
+
+#ifdef KLEE
+    klee_make_symbolic(x, sizeof(x), "x");
+#endif
+
     fft_c(n);
 }
 

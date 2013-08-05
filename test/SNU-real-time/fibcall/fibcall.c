@@ -75,6 +75,11 @@ int main()
   int a;
 
   a = 30;
+
+#ifdef KLEE
+  klee_make_symbolic(a, sizeof(a), "a");
+#endif
+
   fib(a);
 }
 

@@ -292,6 +292,11 @@ int main()
 {
   int          i, j;
   float x;
+
+#ifdef KLEE
+  klee_make_symbolic(&x, sizeof(x), "x");
+#endif
+
   static float hist[34];
 /* first with filter */
   for(i = 0 ; i < 10 ; i++) {

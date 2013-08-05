@@ -107,6 +107,11 @@ static double cos(double rad)
 int main()
 {
 
+#ifdef KLEE
+	klee_make_symbolic(ar, sizeof(ar), "ar");
+	klee_make_symbolic(ai, sizeof(ai), "ai");
+#endif
+
 	int  i, n = 8, flag, chkerr;
 
 

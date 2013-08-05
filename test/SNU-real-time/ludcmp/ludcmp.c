@@ -92,6 +92,10 @@ int main()
 			b[i] = w;
 	}
 
+#ifdef KLEE
+	klee_make_symbolic(a, sizeof(a), "a");
+#endif
+
 	chkerr = ludcmp(nmax, n, eps);
 
 }

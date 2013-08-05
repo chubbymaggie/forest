@@ -114,6 +114,11 @@ void sort(unsigned long n)
 
 main()
 {
+
+#ifdef KLEE
+	klee_make_symbolic(arr, sizeof(arr), "arr");
+#endif
+
   sort(20);
 }
 

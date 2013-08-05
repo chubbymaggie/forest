@@ -71,6 +71,11 @@ struct DATA data[15] = { {1, 100},
 
 int main(void)
 {
+
+#ifdef KLEE
+	klee_make_symbolic(data, sizeof(data), "data");
+#endif
+
 	binary_search(8);
 }
 
