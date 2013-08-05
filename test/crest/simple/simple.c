@@ -12,6 +12,12 @@
 
 int main(void) {
   int a, b;
+
+#ifdef KLEE
+  klee_make_symbolic(&a, sizeof(a), "a");
+  klee_make_symbolic(&b, sizeof(b), "b");
+#endif
+
   b = 3 * a + 2;
   if (b == 8) {
     return 8;

@@ -1,7 +1,7 @@
 all: ../bin/forest
 
 ../bin/forest: ../build/forest.o ../build/tinystr.o ../build/tinyxml.o ../build/tinyxmlerror.o ../build/tinyxmlparser.o 
-	g++ ../build/forest.o ../build/tiny*.o -o ../bin/forest
+	g++ ../build/forest.o ../build/tiny*.o -o ../bin/forest -lrt
 
 ../build/forest.o: forest.cpp 
 	g++ -c forest.cpp -o ../build/forest.o

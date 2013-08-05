@@ -443,6 +443,14 @@ void run(){
 
 }
 
+void db_command(string command){
+
+	stringstream cmd;
+	cmd << "echo '" << command << "' | sqlite3 database.db";
+	system(cmd.str().c_str());
+
+}
+
 void show_results(){
 
 	//if( !done_run ) run();
@@ -450,8 +458,7 @@ void show_results(){
 	stringstream cmd;
 
 	// Muestro los resultados de la base de datos
-	cmd.str("");
-	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;' | sqlite3 database.db";
+	db_command(".mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;");
 
 
 
@@ -486,7 +493,7 @@ void show_coverage(){
 
 	// Muestro los resultados de la base de datos
 	cmd.str("");
-	cmd << "echo '.mode columns\\n.width 20 15\\n.headers on\\nselect * from measurements;' | sqlite3 database.db";
+	db_command( ".mode columns\\n.width 20 15\\n.headers on\\nselect * from measurements;" );
 
 
 
@@ -1102,13 +1109,8 @@ void show_test_vectors(){
 void create_table_minimal_test_vectors(){
 
 
-	stringstream cmd;
-	cmd << "echo 'drop table minimal_vectors;' | sqlite3 database.db";
-	systm(cmd.str());
-
-	cmd.str("");
-	cmd << "echo 'create table minimal_vectors (vector_id Integer, variable varchar(50), value varchar(50));' | sqlite3 database.db";
-	systm(cmd.str());
+	db_command("drop table minimal_vectors;");
+	db_command( "create table minimal_vectors (vector_id Integer, variable varchar(50), value varchar(50));" );
 
 }
 
@@ -1128,8 +1130,8 @@ void minimal_test_vectors_to_db(){
 			string value = it2->second;
 
 			stringstream cmd;
-			cmd << "echo \"insert into minimal_vectors values (" << vect << ",'" << name << "','" << value << "');\"";
-			cmd << " | sqlite3 database.db";
+			cmd << "insert into minimal_vectors values (" << vect << ",'" << name << "','" << value << "');";
+			db_command(cmd.str());
 
 			systm( cmd.str() );
 
@@ -1396,6 +1398,74 @@ void count_branches(){
 
 }
 
+void do_klee(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.c";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "cd /tmp; llvm-gcc --emit-llvm -c -g -D KLEE file.c";
+	systm(cmd.str().c_str());
+
+	// Ejecutar klee
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+
+	command << "cd /tmp; klee --emit-all-errors file.o 2>&1";
+	
+
+	struct timespec ping_time;
+	struct timespec pong_time;
+	clock_gettime(CLOCK_MONOTONIC, &ping_time);
+
+	fp = popen(command.str().c_str(), "r");
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	pclose(fp);
+
+	clock_gettime(CLOCK_MONOTONIC, &pong_time);
+	float spent_time = 0;
+	spent_time += pong_time.tv_sec - ping_time.tv_sec;
+	spent_time *= 1e9;
+	spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
+	spent_time /= 1e9;
+	int time_ms_int = (int)(spent_time/1000.0);
+
+	
+	// Número de caminos ejecutados
+	int completed_paths;
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		if( it->find("completed paths") != string::npos ){
+			completed_paths = stoi(it->substr( it->find("=")+1 ));
+		}
+	}
+
+	// Guardar los valores en la base de datos
+	db_command( "create table klee( time_ms Integer, paths Integer );" );
+	cmd.str("");
+	cmd << "insert into klee values('" << time_ms_int << "','" << completed_paths << "');";
+	db_command(cmd.str());
+	
+
+
+
+	
+
+}
 
 int main(int argc, const char *argv[]) {
 
@@ -1432,6 +1502,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("check_coverage")) check_coverage();
 	if(cmd_option_bool("random_testing")) random_testing();
 	if(cmd_option_bool("count_branches")) count_branches();
+	if(cmd_option_bool("klee")) do_klee();
 
 
 	return 0;
