@@ -521,7 +521,7 @@ void insert_variable(string name, string position){
 	//if(variables[name].contents.size() == 0)
 		//return;
 		
-	debug && printf("\e[32m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
+	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
 
 	if( PAUSE_ON_INSERT )
 		getchar();
@@ -856,7 +856,7 @@ void assign_instruction(string src, string dst, string fn_name){
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
-	if( is_forced_free(name(dst)) ){
+	if( is_forced_free(name(src)) ){
 		setcontent(name(src), "");
 	}
 
@@ -868,13 +868,13 @@ void assign_instruction(string src, string dst, string fn_name){
 	set_real_value( dst, realvalue(src), fn_name );
 
 
-	if( get_is_propagated_constant(src) )
+	if( get_is_propagated_constant(src) && !is_forced_free(name(src)) )
 		set_is_propagated_constant(dst);
 
 	if( get_fuzz_constr(name(src)) )
 		set_fuzz_constr(name(dst));
 
-	if( is_constant(src) )
+	if( is_constant(src) && !is_forced_free(name(src)) )
 		set_is_propagated_constant(dst);
 
 	//printf("srctree %s\n", get_offset_tree(name(src)).c_str());

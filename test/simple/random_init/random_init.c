@@ -1,0 +1,36 @@
+/*
+ * =====================================================================================
+ * /
+ * |     Filename:  random_init.c
+ * |
+ * |  Description:  
+ * |
+ * |      Version:  1.0
+ * |      Created:  08/06/2013 03:28:02 PM
+ * |     Revision:  none
+ * |     Compiler:  gcc
+ * `-. .--------------------
+ *    Y
+ *    ,,  ,---,
+ *   (_,\/_\_/_\     Author:   Pablo González de Aledo (), pablo.aledo@gmail.com
+ *     \.\_/_\_/>    Company:  Universidad de Cantabria
+ *     '-'   '-'
+ * =====================================================================================
+ */
+
+int data[2];
+
+int main() {
+	int i, seed;
+
+	seed = 0;
+	for (i = 0; i < 2; i++) {
+		seed = ((seed * 133) + 81) % 65535;
+		data[i] = seed;
+	}
+
+	if( data[1] == 31416 )
+		return 0;
+	else
+		return 1;
+}
