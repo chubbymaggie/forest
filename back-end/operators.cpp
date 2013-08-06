@@ -559,6 +559,7 @@ void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 	start_database();
 	create_tables();
+	load_forced_free_vars();
 }
 
 void BeginFn(char* _fn_name){

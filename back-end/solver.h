@@ -257,6 +257,7 @@ bool get_fuzz_constr(string name);
 void set_offset_tree( string varname, string tree );
 string get_offset_tree( string varname );
 
+void load_forced_free_vars();
 
 
 #endif /* end of include guard: _SOLVER_H_ */

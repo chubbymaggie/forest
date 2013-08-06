@@ -424,6 +424,24 @@ void final(){
 	done_final = true;
 }
 
+void dump_forced_free_vars(){
+	vector<string> forced_free_vars = cmd_option_string_vector("forced_free_var");
+
+	stringstream filepath;
+
+	if(cd_path == "")
+		filepath << "free_vars";
+	else
+		filepath << cd_path << "free_vars";
+
+	FILE* file = fopen(filepath.str().c_str(), "w");
+	for( vector<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
+		fprintf(file, "%s\n", it->c_str());
+	}
+	fclose(file);
+	
+}
+
 void run(){
 
 	if( !done_final ) final();
@@ -431,6 +449,8 @@ void run(){
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
 	string output_file = cmd_option_str("output_file");
+
+	dump_forced_free_vars();
 
 	stringstream cmd;
 

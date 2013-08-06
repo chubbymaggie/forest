@@ -819,6 +819,35 @@ bool is_constant(string varname){
 
 }
 
+void setcontent(string varname, string content){
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for setcontent");
+	variables[varname].content = content;
+}
+
+set<string> forced_free_vars;
+
+bool is_forced_free(string position){
+	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+
+	if( forced_free_vars.find(position) != forced_free_vars.end() )
+		return true;
+	else 
+		return false;
+
+}
+
+void load_forced_free_vars(){
+	FILE *file = fopen ( "free_vars", "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		forced_free_vars.insert(string(line));
+	}
+	fclose ( file );
+	
+}
+
 void assign_instruction(string src, string dst, string fn_name){
 
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for assign");
@@ -826,6 +855,10 @@ void assign_instruction(string src, string dst, string fn_name){
 
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
+
+	if( is_forced_free(name(dst)) ){
+		setcontent(name(src), "");
+	}
 
 	variables[ name(dst, fn_name) ].content = content( name(src) );
 
@@ -1195,13 +1228,13 @@ string get_offset_tree( string varname ){
 void print_path_stack(){
 
 
-	debug && printf("\e[33m Path_stack \e[0m");
+	printf("\e[33m Path_stack \e[0m");
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
-		debug && printf("%s", (*it)?"T":"F" );
+		printf("%s", (*it)?"T":"F" );
 	}
-	debug && printf("\n");
+	printf("\n");
 
-	debug && printf("\e[33m Depth \e[0m %lu\n", path_stack.size());
+	printf("\e[33m Depth \e[0m %lu\n", path_stack.size());
 	
 
 }
