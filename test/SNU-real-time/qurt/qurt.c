@@ -67,7 +67,7 @@ double myfabs(double n)
   return f;
 }
 
-double sqrt(double val)
+double mysqrt(double val)
 {
   double x = val/10;
 
@@ -135,7 +135,7 @@ int  qurt()
 	if(a[0] == 0.0) return(999);
 	d = a[1]*a[1] - 4 * a[0] * a[2];
 	w1 = 2.0 * a[0];
-	w2 = sqrt(myfabs(d));
+	w2 = mysqrt(myfabs(d));
 	if(d > 0.0)
 	{
 		 flag = 1;
