@@ -229,7 +229,11 @@ string result_get(string get_str){
 
 	vector<string> tokens = tokenize( get_str, "() ");
 
-	assert(tokens.size() >= 2 && "result_get error");	
+	if(tokens.size() < 2){
+		printf("%s\n", get_str.c_str() );
+		assert(0 && "result_get error");	
+	}
+
 	string ret;
 
 	if( tokens[tokens.size() - 2] == "-" )
@@ -263,6 +267,56 @@ void set_real_value(string varname, string value ){
 	variables[ name(varname) ].real_value = value;
 }
 
+
+
+
+
+
+#define INITIAL_LINE_LENGTH	256
+char* fgetln(register FILE* fp, size_t *lenp) {
+	char c;
+	size_t n, siz;
+	size_t len, new_len;
+	char *buf;
+	char *p;
+
+	len = INITIAL_LINE_LENGTH;
+	n = siz = 0;
+
+	if ((buf = (char*)malloc(INITIAL_LINE_LENGTH + 1)) == NULL)
+		return (NULL);
+
+	p = buf;
+	for (;;) {
+		if ((c = getc(fp)) == EOF) {
+			if (siz != 0)
+				break;
+			free(buf);
+			return (NULL);
+		}
+
+		++siz;
+
+		if (c == '\n') {
+			*p++ = c;
+			break;
+		}
+		if (n++ >= len) {
+			new_len = len << 1;
+			if ((buf = (char*)realloc(buf, new_len + 1)) == NULL)
+	                        return (NULL);
+			len = new_len;
+			p = buf;
+	                p += len >> 1;
+		}
+		*p++ = c;
+	}
+	*p = 0;
+	if (lenp != NULL)
+		*lenp = siz;
+	return (buf);
+}
+
 void get_values(){
 
 	stringstream filename;
@@ -285,18 +339,25 @@ void get_values(){
 
 	fclose(file);
 
-	FILE *fp;
 	stringstream command;
-	char ret[SIZE_STR];
 	
-	command << "z3 " << filename.str();
+	command << "z3 " << filename.str() << " > /tmp/z3-getvalues";
 
-	fp = popen(command.str().c_str(), "r");
-	
-	while (fgets(ret,SIZE_STR, fp) != NULL)
-		ret_vector.push_back(ret);
-	
-	pclose(fp);
+	system(command.str().c_str());
+
+
+	FILE *f;
+	size_t len;
+	char *line;
+ 
+	f = fopen("/tmp/z3-getvalues", "r");
+
+	while (line = fgetln(f, &len)) {
+		line[len-1] = 0;
+		ret_vector.push_back(line);
+	}
+
+	fclose(f);
 
 	bool sat = 0;
 

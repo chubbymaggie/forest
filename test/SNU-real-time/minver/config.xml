@@ -8,4 +8,13 @@
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
 	<option key="output_file" value="final"/> 
+	<option key="output_file" value="mem_296"/>
+	<option key="output_file" value="mem_304"/>
+	<option key="output_file" value="mem_312"/>
+	<option key="output_file" value="mem_320"/>
+	<option key="output_file" value="mem_328"/>
+	<option key="output_file" value="mem_336"/>
+	<option key="output_file" value="mem_344"/>
+	<option key="output_file" value="mem_352"/>
+	<option key="output_file" value="mem_360"/>
 </options>

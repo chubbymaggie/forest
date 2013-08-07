@@ -67,7 +67,8 @@ int main()
 	double eps;
 
 #ifdef KLEE
-	klee_make_symbolic(aa, sizeof(aa), "aa");
+	klee_make_symbolic(a, sizeof(a), "a");
+	klee_make_symbolic(b, sizeof(b), "b");
 #endif
 
 	eps = 1.0e-6;
