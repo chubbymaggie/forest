@@ -856,8 +856,8 @@ struct SeparateGetElm: public ModulePass {
 
 
 
-						bool is_getelement = !(in->getOperand(0)->hasName());
-						GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
+						bool is_getelement = !(in->getOperand(1)->hasName());
+						GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(1));
 
 						if( is_getelement && gepop ){
 							//in->dump();
@@ -870,7 +870,7 @@ struct SeparateGetElm: public ModulePass {
 
 							GetElementPtrInst* getelement = GetElementPtrInst::Create(pointer, indices.begin(),indices.end(), "pointer", in);
 
-							in->setOperand(0,getelement);
+							in->setOperand(1,getelement);
 
 
 						}

@@ -58,7 +58,7 @@ int flag;
 int  qurt();
 
 
-double fabs(double n)
+double myfabs(double n)
 {
   double f;
 
@@ -87,7 +87,7 @@ double sqrt(double val)
 	  dx = (val - (x*x)) / (2.0 * x);
 	  x = x + dx;
 	  diff = val - (x*x);
-	  if (fabs(diff) <= min_tol) flag = 1;
+	  if (myfabs(diff) <= min_tol) flag = 1;
 	}
 	else 
 	  x =x;
@@ -135,7 +135,7 @@ int  qurt()
 	if(a[0] == 0.0) return(999);
 	d = a[1]*a[1] - 4 * a[0] * a[2];
 	w1 = 2.0 * a[0];
-	w2 = sqrt(fabs(d));
+	w2 = sqrt(myfabs(d));
 	if(d > 0.0)
 	{
 		 flag = 1;
