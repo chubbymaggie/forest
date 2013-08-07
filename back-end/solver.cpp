@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT false
+#define EXIT_ON_INSERT true
 #define FUZZ_LIMIT 500
 
 map<string, Variable> variables;
@@ -933,19 +933,19 @@ void assign_instruction(string src, string dst, string fn_name){
 		set_is_propagated_constant(dst);
 
 	if( get_fuzz_constr(name(src)) )
-		set_fuzz_constr(name(dst));
+		set_fuzz_constr(name(dst, fn_name));
 
 	if( is_constant(src) && !is_forced_free(name(src)) )
 		set_is_propagated_constant(dst);
 
 	//printf("srctree %s\n", get_offset_tree(name(src)).c_str());
 
-	set_offset_tree(name(dst), get_offset_tree(name(src)));
+	set_offset_tree(name(dst, fn_name), get_offset_tree(name(src)));
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
-                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str() );
+                 variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str(), realvalue(dst).c_str() );
 
 
 
