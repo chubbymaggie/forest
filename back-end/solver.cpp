@@ -25,7 +25,7 @@
 #define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
-#define EXIT_ON_INSERT true
+#define EXIT_ON_INSERT false
 #define FUZZ_LIMIT 500
 
 map<string, Variable> variables;
@@ -598,6 +598,12 @@ void insert_variable(string name, string position){
 int stoi(string str){
 	int ret;
 	sscanf(str.c_str(), "%d", &ret);
+	return ret;
+}
+
+float stof(string str){
+	float ret;
+	sscanf(str.c_str(), "%f", &ret);
 	return ret;
 }
 
@@ -1181,23 +1187,59 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 	if(operation == "+"){
-		stringstream result; result << stoi(realvalue(op1)) + stoi(realvalue(op2));
+
+		stringstream result;
+		if( get_type(name(dst)) == "Real" )
+			result << stof(realvalue(op1)) + stof(realvalue(op2));
+		else if (get_type(name(dst)) == "Int")
+			result << stoi(realvalue(op1)) + stoi(realvalue(op2));
+		else
+			assert(0 && "Unknown type");
+
 		set_real_value(dst, result.str());
 	}
 
 	if(operation == "-"){
-		stringstream result; result << stoi(realvalue(op1)) - stoi(realvalue(op2));
+
+
+		stringstream result;
+		if( get_type(name(dst)) == "Real" )
+			result << stof(realvalue(op1)) - stof(realvalue(op2));
+		else if (get_type(name(dst)) == "Int")
+			result << stoi(realvalue(op1)) - stoi(realvalue(op2));
+		else
+			assert(0 && "Unknown type");
+
+
 		set_real_value(dst, result.str());
 	}
 
 	if(operation == "*"){
-		stringstream result; result << stoi(realvalue(op1)) * stoi(realvalue(op2));
+
+		stringstream result;
+		if( get_type(name(dst)) == "Real" )
+			result << stof(realvalue(op1)) * stof(realvalue(op2));
+		else if (get_type(name(dst)) == "Int")
+			result << stoi(realvalue(op1)) * stoi(realvalue(op2));
+		else
+			assert(0 && "Unknown type");
+
+
 		set_real_value(dst, result.str());
 	}
 
 
 	if(operation == "/"){
-		stringstream result; result << stoi(realvalue(op1)) / stoi(realvalue(op2));
+
+
+		stringstream result;
+		if( get_type(name(dst)) == "Real" )
+			result << stof(realvalue(op1)) / stof(realvalue(op2));
+		else if (get_type(name(dst)) == "Int")
+			result << stoi(realvalue(op1)) / stoi(realvalue(op2));
+		else
+			assert(0 && "Unknown type");
+
 		set_real_value(dst, result.str());
 	}
 
