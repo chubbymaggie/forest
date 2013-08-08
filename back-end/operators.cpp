@@ -27,7 +27,7 @@
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 #define PROPAGATE_CONSTANTS true
-#define EXIT_ON_INSERT true
+#define EXIT_ON_INSERT false
 
 int alloca_pointer = 0;
 vector<pair<string, string> > callstack;
