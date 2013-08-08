@@ -868,19 +868,19 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 }
 
 bool get_is_propagated_constant(string varname){
-	if(!check_mangled_name(name( varname))) assert(0 && "Wrong src for assign");
-	return variables[name(varname)].is_propagated_constant;
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
+	return variables[varname].is_propagated_constant;
 }
 
 void set_is_propagated_constant(string varname){
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for set_is_propagated_constant");
 
-	variables[name(varname)].is_propagated_constant = true;
+	variables[varname].is_propagated_constant = true;
 
 }
 
 bool is_constant(string varname){
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for is_constant");
 
 	return varname.substr(0,9) == "constant" UNDERSCORE;
 
@@ -935,14 +935,12 @@ void assign_instruction(string src, string dst, string fn_name){
 	set_real_value( dst, realvalue(src), fn_name );
 
 
-	if( get_is_propagated_constant(src) && !is_forced_free(name(src)) )
-		set_is_propagated_constant(dst);
+	if( (get_is_propagated_constant(name(src)) || is_constant(src)) && !is_forced_free(name(src)) )
+		set_is_propagated_constant(name(dst, fn_name));
 
 	if( get_fuzz_constr(name(src)) )
 		set_fuzz_constr(name(dst, fn_name));
 
-	if( is_constant(src) && !is_forced_free(name(src)) )
-		set_is_propagated_constant(dst);
 
 	//printf("srctree %s\n", get_offset_tree(name(src)).c_str());
 
@@ -950,8 +948,9 @@ void assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
-                 variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str(), realvalue(dst).c_str() );
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d\n",
+                 variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str(), realvalue(dst).c_str(), 
+		 get_is_propagated_constant(name(src)), get_is_propagated_constant(name(dst, fn_name)) );
 
 
 
@@ -1145,16 +1144,16 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		set_fuzz_constr(name(dst));
 	}
 
-	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
-		set_is_propagated_constant(dst);
+	if( get_is_propagated_constant(name(op1)) && get_is_propagated_constant(name(op2)) ){
+		set_is_propagated_constant(name(dst));
 	}
 
-	if( get_is_propagated_constant(op1) && is_constant(op2) ){
-		set_is_propagated_constant(dst);
+	if( get_is_propagated_constant(name(op1)) && is_constant(op2) ){
+		set_is_propagated_constant(name(dst));
 	}
 
-	if( is_constant(op1) && get_is_propagated_constant(op2) ){
-		set_is_propagated_constant(dst);
+	if( is_constant(op1) && get_is_propagated_constant(name(op2)) ){
+		set_is_propagated_constant(name(dst));
 	}
 
 
@@ -1275,8 +1274,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s\n",
-                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str() );
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",
+                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str(),
+		get_is_propagated_constant(name(dst)) );
 
 
 }

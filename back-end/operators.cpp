@@ -601,7 +601,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 
-	debug && printf("\e[32m content \e[0m %s\n", content( name(cmp) ).c_str() );
+	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d\n", content( name(cmp) ).c_str(), get_is_propagated_constant(name(cmp)) );
 
 
 
@@ -633,7 +633,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 		return real_value_prev == "true";
 	} else {
 
-		if( get_is_propagated_constant(cmp) && PROPAGATE_CONSTANTS ) exit(0);
+		if( get_is_propagated_constant(name(cmp)) && PROPAGATE_CONSTANTS ) exit(0);
 
 
 		if( realvalue(cmp) == "true" ){
