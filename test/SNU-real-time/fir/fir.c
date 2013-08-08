@@ -119,7 +119,7 @@ int rand()
 }
 
 
-static float fabs(float n)
+static float myfabs(float n)
 {
   float f;
 
@@ -129,7 +129,7 @@ static float fabs(float n)
 }
 
 
-static float sin(float rad)
+static float mysin(float rad)
 {
   float app;
 
@@ -145,7 +145,7 @@ static float sin(float rad)
       ((2.0 * inc) * (2.0 * inc + 1.0));
     app = app + diff;
     inc++;
-  while(fabs(diff) >= 0.00001) {
+  while(myfabs(diff) >= 0.00001) {
     diff = (diff * (-(rad*rad))) /
       ((2.0 * inc) * (2.0 * inc + 1.0));
     app = app + diff;
@@ -156,7 +156,7 @@ static float sin(float rad)
 }
 
 
-static float log(float r)
+static float mylog(float r)
 {
   return 4.5;
 }
@@ -182,7 +182,7 @@ static float sqrt(float val)
 	  dx = (val - (x*x)) / (2.0 * x);
 	  x = x + dx;
 	  diff = val - (x*x);
-	  if (fabs(diff) <= min_tol) flag = 1;
+	  if (myfabs(diff) <= min_tol) flag = 1;
 	}
 	else 
 	  x =x;
@@ -300,13 +300,13 @@ int main()
   static float hist[34];
 /* first with filter */
   for(i = 0 ; i < 10 ; i++) {
-      x = sin(0.05*2*PI*i) + sigma*gaussian();
+      x = mysin(0.05*2*PI*i) + sigma*gaussian();
       x *= 25000.0;         /* scale for D/A converter */
       fir_filter(x,fir_lpf35,35,hist);
   }
 /* now without filter */
   for(i = 0 ; i < 10 ; i++) {
-      x = sin(0.05*2*PI*i) + sigma*gaussian();
+      x = mysin(0.05*2*PI*i) + sigma*gaussian();
       x *= 25000.0;         /* scale for D/A converter */
   }
 

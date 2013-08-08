@@ -27,6 +27,7 @@
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 #define PROPAGATE_CONSTANTS true
+#define EXIT_ON_INSERT true
 
 int alloca_pointer = 0;
 vector<pair<string, string> > callstack;
@@ -498,7 +499,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	}
 
 	if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
-		//printf("Using source offset_tree %s\n", get_offset_tree(name(pointer)).c_str() );
+		printf("\e[35m Using source offset_tree \e[0m %s\n", get_offset_tree(name(pointer)).c_str() );
 		offset_tree = get_offset_tree(name(pointer));
 	}
 	
@@ -634,6 +635,11 @@ bool br_instr_cond(char* _cmp, char* _joints){
 	} else {
 
 		if( get_is_propagated_constant(name(cmp)) && PROPAGATE_CONSTANTS ) exit(0);
+
+		if( EXIT_ON_INSERT ){
+			system("killall final");
+			assert(0 && "EXIT_ON_INSERT");
+		}
 
 
 		if( realvalue(cmp) == "true" ){
