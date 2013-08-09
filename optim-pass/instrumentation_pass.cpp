@@ -1660,15 +1660,22 @@ struct GetelementPtr: public ModulePass {
 						int base = 0;
 						string offset_tree = get_offset_tree(in_g->getPointerOperand()->getType(), &base);
 
+						const PointerType* pointertype = cast<PointerType>(in_g->getPointerOperand()->getType());
+						const Type*        pointedtype = pointertype->getElementType();
+						int   elementsize = get_size(pointedtype);
+						string elementsize_s = itos(elementsize);
+
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
 						GlobalVariable* c3 = make_global_str(M, indexes_str);
 						GlobalVariable* c4 = make_global_str(M, offset_tree);
+						GlobalVariable* c5 = make_global_str(M, elementsize_s);
 
 						Value* InitFn;
 
 						InitFn = cast<Value> ( M.getOrInsertFunction( "getelementptr" ,
 									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -1684,6 +1691,7 @@ struct GetelementPtr: public ModulePass {
 						params.push_back(pointerToArray(M,c2));
 						params.push_back(pointerToArray(M,c3));
 						params.push_back(pointerToArray(M,c4));
+						params.push_back(pointerToArray(M,c5));
 						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 					}

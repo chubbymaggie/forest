@@ -477,15 +477,47 @@ int get_offset(vector<string> indexes, string offset_tree, string* remaining_tre
 
 }
 
-void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
+bool has_index(string offset_tree, int index){
+
+	int depth = -1;
+	int nelem = -1;
+	for ( unsigned int i = 1; i < offset_tree.size(); i++) {
+		if(offset_tree[i] == '(') depth++;
+		if(offset_tree[i] == ')') depth--;
+		if(depth == 0 && offset_tree[i] == '(' ){
+			nelem++;
+		}
+		if(nelem == index){
+			return true;
+
+		}
+	}
+
+	return false;
+}
+
+int get_offset_wrapper(vector<string> indexes, string offset_tree, string* remaining_tree, int element_size ){
+
+	int index0 = stoi(realvalue(indexes[0]));
+	if( indexes.size() == 1 && !has_index(offset_tree, index0) ){
+		//printf("caso1\n");
+		return index0*element_size;
+	} else {
+		//printf("caso2\n");
+		return get_offset(indexes, offset_tree, remaining_tree);
+	}
+
+}
+
+void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree, char* _element_size){
 
 	string dst     = string(_dst);
 	string pointer = string(_pointer);
 	vector<string> indexes = tokenize(string(_indexes), ",");
 	string offset_tree = string(_offset_tree);
+	int element_size = stoi(string(_element_size));
 
-
-	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
+	debug && printf("\e[33m getelementptr %s %s %s %s %d\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree, element_size, 
 		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
 									  name(dst).c_str(), realvalue(dst).c_str() );
 
@@ -505,7 +537,7 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	
 
 	string remaining_tree;
-	int offset = get_offset(indexes, offset_tree, &remaining_tree);
+	int offset = get_offset_wrapper(indexes, offset_tree, &remaining_tree, element_size);
 	set_offset_tree(name(dst), remaining_tree);
 	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
 
