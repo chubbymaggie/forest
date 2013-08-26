@@ -446,37 +446,6 @@ string trimpar(string str){
 	return firstnum;
 }
 
-int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
-
-
-	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		debug && printf("\e[33m %s ", it->c_str() );
-	} debug && printf(" --- ");
-	debug && printf(" offset %s\e[0m\n", offset_tree.c_str() );
-	
-
-	string realvalue_index_0_s = realvalue( indexes[0] );
-
-	debug && printf("\e[33m %s %s \e[0m\n", indexes[0].c_str(), realvalue(indexes[0]).c_str() );
-
-	int realvalue_index_0 = stoi(realvalue_index_0_s);
-
-	int ini_elem = get_ini_elem(realvalue_index_0, offset_tree);
-	string right_str = offset_tree.substr(ini_elem);
-	string elem_str = close_str(right_str);
-
-	vector<string>::iterator first_it = indexes.begin(); first_it++;
-	vector<string> rem_indexes = vector<string>(first_it, indexes.end());
-
-	if( rem_indexes.size() ){
-		return get_offset(rem_indexes, elem_str, remaining_tree);
-	} else {
-		*remaining_tree = offset_tree;
-		return stoi(trimpar(elem_str));
-	}
-
-}
-
 bool has_index(string offset_tree, int index){
 
 	int depth = -1;
@@ -496,28 +465,57 @@ bool has_index(string offset_tree, int index){
 	return false;
 }
 
-int get_offset_wrapper(vector<string> indexes, string offset_tree, string* remaining_tree, int element_size ){
+int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
 
-	int index0 = stoi(realvalue(indexes[0]));
-	if( indexes.size() == 1 && !has_index(offset_tree, index0) ){
-		//printf("caso1\n");
-		return index0*element_size;
+
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		debug && printf("\e[33m %s ", it->c_str() );
+	} debug && printf(" --- ");
+	debug && printf(" offset %s\e[0m\n", offset_tree.c_str() );
+	
+
+	string realvalue_index_0_s = realvalue( indexes[0] );
+
+	debug && printf("\e[33m %s %s \e[0m\n", indexes[0].c_str(), realvalue(indexes[0]).c_str() );
+
+	int realvalue_index_0 = stoi(realvalue_index_0_s);
+
+	if( has_index(offset_tree, realvalue_index_0) ){
+
+		int ini_elem = get_ini_elem(realvalue_index_0, offset_tree);
+		string right_str = offset_tree.substr(ini_elem);
+		string elem_str = close_str(right_str);
+		printf("elem_str %s\n", elem_str.c_str());
+
+		vector<string>::iterator first_it = indexes.begin(); first_it++;
+		vector<string> rem_indexes = vector<string>(first_it, indexes.end());
+
+		if( rem_indexes.size() ){
+			return get_offset(rem_indexes, elem_str, remaining_tree);
+		} else {
+			*remaining_tree = offset_tree;
+			printf("elem_str to trim %s\n", elem_str.c_str());
+			return stoi(trimpar(elem_str));
+		}
+
 	} else {
-		//printf("caso2\n");
-		return get_offset(indexes, offset_tree, remaining_tree);
+		vector<string> tokens = tokenize(offset_tree, "(),");
+		string size_s = tokens[tokens.size()-1];
+		int size = stoi(size_s);
+		printf("offset_tree %s realvalue_index_0 %d size_s %s\n", offset_tree.c_str(), realvalue_index_0, size_s.c_str());
+		return size*realvalue_index_0;
 	}
 
 }
 
-void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree, char* _element_size){
+void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
 
 	string dst     = string(_dst);
 	string pointer = string(_pointer);
 	vector<string> indexes = tokenize(string(_indexes), ",");
 	string offset_tree = string(_offset_tree);
-	int element_size = stoi(string(_element_size));
 
-	debug && printf("\e[33m getelementptr %s %s %s %s %d\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree, element_size, 
+	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree, 
 		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
 									  name(dst).c_str(), realvalue(dst).c_str() );
 
@@ -530,14 +528,14 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
 	}
 
-	if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
-		printf("\e[35m Using source offset_tree \e[0m %s\n", get_offset_tree(name(pointer)).c_str() );
-		offset_tree = get_offset_tree(name(pointer));
-	}
+	//if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
+		//printf("\e[35m Using source offset_tree \e[0m %s\n", get_offset_tree(name(pointer)).c_str() );
+		//offset_tree = get_offset_tree(name(pointer));
+	//}
 	
 
 	string remaining_tree;
-	int offset = get_offset_wrapper(indexes, offset_tree, &remaining_tree, element_size);
+	int offset = get_offset(indexes, offset_tree, &remaining_tree);
 	set_offset_tree(name(dst), remaining_tree);
 	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
 

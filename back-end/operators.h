@@ -143,7 +143,7 @@ extern "C" void begin_sim();
  */
 extern "C" void end_sim();
 
-extern "C" void getelementptr(char*, char*, char*, char*, char*);
+extern "C" void getelementptr(char*, char*, char*, char*);
 extern "C" void getelementptr_struct(char*, char*, char*, char*);
 
 extern "C" void global_var_init(char* _name,char* _type, char* _value);

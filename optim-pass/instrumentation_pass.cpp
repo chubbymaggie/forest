@@ -1558,7 +1558,7 @@ struct GetelementPtr: public ModulePass {
 		if(type_str == "PointerTyID"){
 			//cerr << "pointer" << endl;
 
-			return "(" + get_offset_tree(t_sequential->getElementType(), base) + ")";
+			return "(" + get_offset_tree(t_sequential->getElementType(), base) + "," + itos(get_size(t)) + ")";
 
 		//} else if(type_str.find(",") != string::npos ){
 		} else if( type_str == "StructTyID"){
@@ -1570,6 +1570,7 @@ struct GetelementPtr: public ModulePass {
 				//cerr << "element " << i << endl;
 				aux += get_offset_tree(t_struct->getElementType(i),base);
 			}
+			aux += "," + itos(get_size(t));
 			aux += ")";
 			return aux;
 
@@ -1582,6 +1583,7 @@ struct GetelementPtr: public ModulePass {
 			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
 				aux += get_offset_tree(t_composite->getTypeAtIndex(i),base);
 			}
+			aux += "," + itos(get_size(t));
 			aux += ")";
 			return aux;
 
@@ -1594,28 +1596,28 @@ struct GetelementPtr: public ModulePass {
 		} else if( type_str == "IntegerTyID32"){
 
 			//cerr << "integer32 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if( type_str == "IntegerTyID8"){
 
 			//cerr << "integer8 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "DoubleTyID"){
 
 			//cerr << "double " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "FloatTyID"){
 
 			//cerr << "float " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
