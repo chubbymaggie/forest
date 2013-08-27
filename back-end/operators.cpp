@@ -255,7 +255,7 @@ void begin_bb(char* name){
 
 	clean_conditions_stack(actual_bb);
 
-	debug && printf("\e[31m begin_bb %s \e[0m\n", name );
+	debug && printf("\e[36m begin_bb %s (fn %s)\e[0m\n", name, actual_function.c_str() );
 }
 
 void end_bb(char* name){
@@ -485,7 +485,7 @@ int get_offset(vector<string> indexes, string offset_tree, string* remaining_tre
 		int ini_elem = get_ini_elem(realvalue_index_0, offset_tree);
 		string right_str = offset_tree.substr(ini_elem);
 		string elem_str = close_str(right_str);
-		printf("elem_str %s\n", elem_str.c_str());
+		//printf("elem_str %s\n", elem_str.c_str());
 
 		vector<string>::iterator first_it = indexes.begin(); first_it++;
 		vector<string> rem_indexes = vector<string>(first_it, indexes.end());
@@ -494,7 +494,7 @@ int get_offset(vector<string> indexes, string offset_tree, string* remaining_tre
 			return get_offset(rem_indexes, elem_str, remaining_tree);
 		} else {
 			*remaining_tree = offset_tree;
-			printf("elem_str to trim %s\n", elem_str.c_str());
+			//printf("elem_str to trim %s\n", elem_str.c_str());
 			return stoi(trimpar(elem_str));
 		}
 
@@ -603,7 +603,7 @@ void BeginFn(char* _fn_name){
 	myReplace(actual_function, UNDERSCORE, "underscore");
 
 
-	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
+	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
 
 
 }
@@ -674,8 +674,10 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		if( realvalue(cmp) == "true" ){
 			push_condition( negation(content( name(cmp) )), actual_function, joints, get_fuzz_constr(name(cmp)) );
-		} else {
+		} else if (realvalue(cmp) == "false" ){
 			push_condition( content( name(cmp) ) , actual_function, joints, get_fuzz_constr(name(cmp)));
+		} else {
+			assert(0 && "Non-boolean value for condition");
 		}
 
 

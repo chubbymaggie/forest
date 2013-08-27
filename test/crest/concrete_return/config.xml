@@ -3,7 +3,7 @@
 <options>
 	<option key="verbose" value="false"/> 
 	<option key="test" value="true"/> 
-	<option key="check_coverage" value="true"/> 
+	<option key="check_coverage" value="false"/> 
 	<option key="explanation" value="Llamada a funciones no anotadas"/> 
 	<option key="file" value="concrete_return.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 

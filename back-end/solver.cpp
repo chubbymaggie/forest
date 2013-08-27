@@ -1126,11 +1126,7 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	}
 
 	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
-	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
-		content_ss.str("");
-		content_ss << content(name(op1));
-	}
-
+	
 
 	variables[name(dst)].content = content_ss.str();
 
@@ -1272,6 +1268,19 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
 	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
+
+
+	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
+		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
+
+		content_ss.str("");
+		content_ss << content(name(op1));
+		variables[name(dst)].content = content_ss.str();
+
+		set_real_value(dst, realvalue(op1) );
+	}
+
+
 
 
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",

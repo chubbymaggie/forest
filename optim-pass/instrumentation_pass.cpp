@@ -1544,6 +1544,70 @@ struct GetelementPtr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GetelementPtr() : ModulePass(ID) {}
 
+	int get_offset(const Type* t, int debug = 1){
+
+		//cerr << "get_offset "; t->dump();
+		const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
+		const StructType*       t_struct       = dyn_cast<StructType>(t);
+		const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
+		const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+		const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+		const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
+
+		string type_str = get_type_str(t);
+
+		if(type_str == "PointerTyID"){
+			//cerr << "pointer " << endl;
+			return get_offset(t_pointer->getElementType());
+		} else if( type_str == "StructTyID"){
+			return -1;
+		} else if(type_str == "ArrayTyID"){
+			//cerr << "array " << endl;
+
+			int sum = 0;
+			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
+				sum += get_offset(t_composite->getTypeAtIndex(i));
+			}
+
+			return sum;
+		} else if( type_str == "IntegerTyID"){
+
+			//cerr << "Integer" << endl;
+
+			return get_size(t);
+
+		} else if( type_str == "IntegerTyID32"){
+			//cerr << "Integer32" << endl;
+
+			return get_size(t);
+
+		} else if( type_str == "IntegerTyID8"){
+			//cerr << "Integer8" << endl;
+
+			return get_size(t);
+
+		} else if (type_str == "DoubleTyID"){
+			//cerr << "double" << endl;
+
+			return get_size(t);
+
+		} else if (type_str == "FloatTyID"){
+			//cerr << "float" << endl;
+
+			return get_size(t);
+
+		} else {
+
+			//cerr << "----" << endl;
+			//cerr << "otro" << endl;
+			//t->dump();
+			//cerr << type_str << endl;
+			assert(0 && "Unknown Type");
+
+		}
+
+	}
+
 	string get_offset_tree( const Type* t, int* base){
 
 		const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
@@ -1558,7 +1622,7 @@ struct GetelementPtr: public ModulePass {
 		if(type_str == "PointerTyID"){
 			//cerr << "pointer" << endl;
 
-			return "(" + get_offset_tree(t_sequential->getElementType(), base) + "," + itos(get_size(t)) + ")";
+			return "(" + get_offset_tree(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
 
 		//} else if(type_str.find(",") != string::npos ){
 		} else if( type_str == "StructTyID"){
@@ -1570,7 +1634,7 @@ struct GetelementPtr: public ModulePass {
 				//cerr << "element " << i << endl;
 				aux += get_offset_tree(t_struct->getElementType(i),base);
 			}
-			aux += "," + itos(get_size(t));
+			aux += "," + itos(get_offset(t));
 			aux += ")";
 			return aux;
 
@@ -1583,7 +1647,7 @@ struct GetelementPtr: public ModulePass {
 			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
 				aux += get_offset_tree(t_composite->getTypeAtIndex(i),base);
 			}
-			aux += "," + itos(get_size(t));
+			aux += "," + itos(get_offset(t));
 			aux += ")";
 			return aux;
 
@@ -1596,28 +1660,28 @@ struct GetelementPtr: public ModulePass {
 		} else if( type_str == "IntegerTyID32"){
 
 			//cerr << "integer32 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if( type_str == "IntegerTyID8"){
 
 			//cerr << "integer8 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "DoubleTyID"){
 
 			//cerr << "double " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
 		} else if (type_str == "FloatTyID"){
 
 			//cerr << "float " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_size(t)) + ")";
+			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
 			(*base) = (*base) + primary_size(t);
 			return ret;
 
