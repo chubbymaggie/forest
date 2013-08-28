@@ -34,10 +34,14 @@ test:
 	@forest ./test/simple/shift/config.xml
 	@forest ./test/simple/wired_bool/config.xml
 	@forest ./test/simple/array2d/config.xml
-	#@forest ./test/SNU-real-time/insertsort/config.xml
 	@forest ./test/simple/array_struct/config.xml
 	@forest ./test/simple/array_struct_global/config.xml
 	@forest ./test/simple/pointerincrement/config.xml
 	@forest ./test/simple/force_free/config.xml
 	@forest ./test/simple/random_init/config.xml
 
+test-complex:
+	@forest ./test/SNU-real-time/bs/config.xml
+	@forest ./test/SNU-real-time/jfdctint/config.xml
+	@forest ./test/SNU-real-time/matmul/config.xml
+	@forest ./test/SNU-real-time/insertsort/config.xml
