@@ -598,7 +598,7 @@ void view_dfg(){
 
 	// Crea el bc
 	cmd.str("");
-	cmd << "llvm-gcc --emit-llvm -c " << cmd_option_string_vector("file")[0] << "-o /tmp/file.bc";
+	cmd << "llvm-gcc --emit-llvm -c " << cmd_option_string_vector("file")[0] << " -o /tmp/file.bc";
 	systm(cmd.str().c_str());
 
 	// paso de optimización dot
