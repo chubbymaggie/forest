@@ -1,5 +1,5 @@
 
-all: ../lib/forest.a ../lib/measurement.a
+all: ../lib/forest.a ../lib/measurement.a ../lib/concurrency.a
 
 ../lib/forest.a: ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o
 	ar rcs ../lib/forest.a ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o
@@ -25,4 +25,9 @@ all: ../lib/forest.a ../lib/measurement.a
 ../build/database_measurement.o: database_measurement.cpp
 	g++ -c database_measurement.cpp -o ../build/database_measurement.o
 
+../build/concurrency.o: concurrency.cpp 
+	g++ -c concurrency.cpp -o ../build/concurrency.o 
+
+../lib/concurrency.a: ../build/concurrency.o 
+	ar rcs ../lib/concurrency.a ../build/concurrency.o
 

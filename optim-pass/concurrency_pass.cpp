@@ -50,6 +50,38 @@ string itos(int n){
 	return ss.str();
 }
 
+GlobalVariable* make_global_str(Module& M, string name){
+
+	uint64_t length = (uint64_t) name.length()+1;
+	//cerr << "---------------------" << name << "---------" << length << endl;
+	ArrayType* ArrayTy_0 = ArrayType::get(IntegerType::get(M.getContext(), 8), length );
+
+	GlobalVariable* gvar_array_a = new GlobalVariable(/*Module=*/M,
+			/*Type=*/ArrayTy_0,
+			/*isConstant=*/false,
+			/*Linkage=*/GlobalValue::ExternalLinkage,
+			/*Initializer=*/0, // has initializer, specified below
+			/*Name=*/"a");
+
+	Constant* const_array_2 = ConstantArray::get(M.getContext(), name.c_str(), true);
+
+	// Global Variable Definitions
+	gvar_array_a->setInitializer(const_array_2);
+
+	return gvar_array_a;
+
+}
+
+Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
+	ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+	std::vector<Constant*> const_ptr_9_indices;
+	const_ptr_9_indices.push_back(const_int64_10);
+	const_ptr_9_indices.push_back(const_int64_10);
+
+	Constant* const_ptr_9 = ConstantExpr::getGetElementPtr(global_var, &const_ptr_9_indices[0], const_ptr_9_indices.size());
+	return const_ptr_9;
+}
+
 struct SeparateSync: public ModulePass {
 
 	static char ID;
@@ -157,7 +189,65 @@ struct ChangePthreadC: public ModulePass {
 	}
 };
 
+struct ChangeSync: public ModulePass {
 
+	static char ID;
+	ChangeSync() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> instr_to_rm;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if(fnname == "pthread_mutex_lock" || fnname == "pthread_mutex_unlock"){
+
+					instr_to_rm.push_back(in);
+					//in_c->dump();
+					
+					string mutexname = in_c->getArgOperand(0)->getName().str();
+
+					GlobalVariable* c1 = make_global_str(M, mutexname);
+
+
+					Value* InitFn = cast<Value> ( M.getOrInsertFunction(
+								fnname == "pthread_mutex_lock"?"mutex_lock":"mutex_unlock" ,
+								Type::getVoidTy( M.getContext() ),
+								Type::getInt8PtrTy( M.getContext() ),
+								(Type *)0
+								));
+
+
+					BasicBlock::iterator insertpos = in; insertpos++;
+
+					std::vector<Value*> params;
+					params.push_back(pointerToArray(M,c1));
+					CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
+				}
+
+			}
+
+
+		}}}
+
+
+		for( vector<Instruction*>::iterator it = instr_to_rm.begin(); it != instr_to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+
+
+		return false;
+	}
+};
 
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -166,7 +256,8 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		//{SeparateSync     pass;   pass.runOnModule(M);}
-		{ChangePthreadC   pass;   pass.runOnModule(M);}
+		//{ChangePthreadC   pass;   pass.runOnModule(M);}
+		{ChangeSync       pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -181,4 +272,7 @@ static RegisterPass<ChangePthreadC> ChangePthreadC( "conc_pthread_c", "Annotate 
 
 char All::ID = 0;
 static RegisterPass<All> All( "conc_all", "change calls to pthread_create");
+
+char ChangeSync::ID = 0;
+static RegisterPass<ChangeSync> ChangeSync( "conc_changesync", "change calls to mutex get/lock");
 

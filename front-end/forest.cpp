@@ -1522,7 +1522,7 @@ void gen_final_for_concurrency(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-2.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ /tmp/file-2.o " << base_path << "/lib/concurrency.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 }
