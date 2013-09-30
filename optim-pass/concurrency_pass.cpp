@@ -90,8 +90,95 @@ struct SeparateSync: public ModulePass {
 	}
 };
 
+struct ChangePthreadC: public ModulePass {
+
+	static char ID;
+	ChangePthreadC() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if( fnname == "pthread_create" ){
+
+					Function* fnc = cast<Function>(in_c->getArgOperand(2));
+					Value* arg = in_c->getArgOperand(3);
+					
+					BasicBlock::iterator insertpos = in; insertpos++;
+
+					std::vector<Value*> params;
+					params.push_back(arg);
+					CallInst::Create(fnc, params.begin(), params.end(), "", insertpos);
+					
+					
+					
+					
+
+				}
+			}
+		}}}
+
+		vector<Instruction*> instr_to_rm;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if( fnname == "pthread_create" ){
+					instr_to_rm.push_back(in_c);
+				}
+
+
+
+			}
+
+
+		}}}
+
+		for( vector<Instruction*>::iterator it = instr_to_rm.begin(); it != instr_to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+		
+
+
+		return false;
+	}
+};
+
+
+
+struct All: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	All() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		//{SeparateSync     pass;   pass.runOnModule(M);}
+		{ChangePthreadC   pass;   pass.runOnModule(M);}
+
+		return false;
+	}
+};
+
 
 char SeparateSync::ID = 0;
 static RegisterPass<SeparateSync> SeparateSync( "conc_sep", "Separate Concurrent accesses" );
 
+char ChangePthreadC::ID = 0;
+static RegisterPass<ChangePthreadC> ChangePthreadC( "conc_pthread_c", "Annotate pthread_create calls");
+
+char All::ID = 0;
+static RegisterPass<All> All( "conc_all", "change calls to pthread_create");
 

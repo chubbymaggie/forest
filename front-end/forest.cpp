@@ -1507,7 +1507,7 @@ void gen_final_for_concurrency(){
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_sep < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Pasa de .bc a .s
@@ -1555,7 +1555,7 @@ void compare_concurrency(){
 
 	// Paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_sep < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
