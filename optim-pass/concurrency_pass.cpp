@@ -45,6 +45,11 @@ using namespace llvm;
 using namespace std;
 
 
+string itos(int n){
+	stringstream ss; ss << n;
+	return ss.str();
+}
+
 struct SeparateSync: public ModulePass {
 
 	static char ID;
@@ -52,14 +57,30 @@ struct SeparateSync: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fun){
+			int n_sync = 0;
 		fun_iterator(fun,bb){
 		blk_iterator(bb, in){
 
 			if( CallInst::classof(in) ){
-				in->dump();
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if(fnname == "pthread_mutex_lock" || fnname == "pthread_mutex_unlock"){
+
+					if( in == bb->begin() ){
+						BasicBlock::iterator it_split = bb->begin(); it_split++;
+						bb->splitBasicBlock(it_split);
+						break;
+					} else {
+						n_sync++;
+						BasicBlock::iterator it_split = in;
+						bb->splitBasicBlock(it_split, fun->getName().str() + "_sync_" + itos(n_sync));
+						break;
+					}
+				}
+
 			}
-
-
 
 
 		}}}

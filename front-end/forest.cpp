@@ -1527,6 +1527,50 @@ void gen_final_for_concurrency(){
 
 }
 
+void compare_concurrency(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file.bc > /tmp/salida1.txt";
+	systm(cmd.str().c_str());
+
+	// Paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_sep < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+	// Comparación
+	cmd.str("");
+	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	systm(cmd.str().c_str());
+
+
+}
+
 void extract_concurrency(){
 
 	gen_final_for_concurrency();
@@ -1578,6 +1622,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("count_branches")) count_branches();
 	if(cmd_option_bool("klee")) do_klee();
 	if(cmd_option_bool("concurrency")) extract_concurrency();
+	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
 
 
 	return 0;
