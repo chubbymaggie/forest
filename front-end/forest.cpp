@@ -1479,12 +1479,66 @@ void do_klee(){
 	cmd.str("");
 	cmd << "insert into klee values('" << time_ms_int << "','" << completed_paths << "');";
 	db_command(cmd.str());
+
+}
+
+
+void gen_final_for_concurrency(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
 	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_sep < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Pasa de .bc a .s
+	cmd.str("");
+	cmd << "llc /tmp/file-2.bc -o /tmp/file-2.s";
+	systm(cmd.str().c_str());
+
+	// Pasa de .s a .o
+	cmd.str("");
+	cmd << "gcc -c /tmp/file-2.s -o /tmp/file-2.o";
+	systm(cmd.str().c_str());
+
+	// linka
+	cmd.str("");
+	cmd << "g++ /tmp/file-2.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	systm(cmd.str().c_str());
+
+}
+
+void extract_concurrency(){
+
+	gen_final_for_concurrency();
 
 
-
+	// Ejecuta
 	
-
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+	cmd.str("");
+	cmd << "./" + output_file;
+	systm(cmd.str().c_str());
 }
 
 int main(int argc, const char *argv[]) {
@@ -1523,6 +1577,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("random_testing")) random_testing();
 	if(cmd_option_bool("count_branches")) count_branches();
 	if(cmd_option_bool("klee")) do_klee();
+	if(cmd_option_bool("concurrency")) extract_concurrency();
 
 
 	return 0;

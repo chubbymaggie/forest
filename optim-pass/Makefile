@@ -1,4 +1,4 @@
-all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
+all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so /llvm-2.9/install/lib/ForestConcurrency.so
 
 /llvm-2.9/install/lib/ForestInstr.so: instrumentation_pass.cpp 
 	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_instr/
@@ -16,6 +16,15 @@ all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
 	cd /llvm-2.9/lib/Transforms/Forest_measure/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Forest_measure/; sudo make install;
 
+/llvm-2.9/install/lib/ForestConcurrency.so: concurrency_pass.cpp
+	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_concurrency/
+	sudo touch /llvm-2.9/lib/Transforms/Forest_concurrency/Forest_concurrency.exports
+	sudo cp make_concurrency /llvm-2.9/lib/Transforms/Forest_concurrency/Makefile
+	sudo cp concurrency_pass.cpp /llvm-2.9/lib/Transforms/Forest_concurrency/Forest_concurrency.cpp 
+	cd /llvm-2.9/lib/Transforms/Forest_concurrency/; sudo make;
+	cd /llvm-2.9/lib/Transforms/Forest_concurrency/; sudo make install;
+
 clean:
 	sudo rm -rf /llvm-2.9/install/lib/ForestInstr.so
 	sudo rm -rf /llvm-2.9/install/lib/ForestMeasure.so
+	sudo rm -rf /llvm-2.9/install/lib/ForestConcurrency.so
