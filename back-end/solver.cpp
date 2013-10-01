@@ -138,6 +138,7 @@ int minval(string type){
 	if(type == "Int16") return 0;
 	if(type == "Int8")  return 0;
 	if(type == "Int") return 0;
+	if(type == "Pointer") return 0;
 
 	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -149,6 +150,7 @@ int maxval(string type){
 	if(type == "Int16") return (1 << 15);
 	if(type == "Int8") return (1 << 8);
 	if(type == "Int") return (1 << 30);
+	if(type == "Pointer") return (1 << 30);
 
 	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
 	assert(0 && "Unknown type");
@@ -667,6 +669,10 @@ string get_sized_type(string name){
 
 	if (variables[name].type == "Int")
 		return "Int";
+
+	if (variables[name].type == "PointerTyID")
+		return "Pointer";
+
 
 	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 

@@ -1505,27 +1505,83 @@ void gen_final_for_concurrency(){
 	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
 	systm(cmd.str().c_str());
 
-	// Primer paso de optimización
+	// Primer paso de optimización (concurrencia)
 	cmd.str("");
 	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
 	systm(cmd.str().c_str());
 
+
+	// Segundo paso de optimización (exploración)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	systm(cmd.str().c_str());
+
+
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc /tmp/file-2.bc -o /tmp/file-2.s";
+	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c /tmp/file-2.s -o /tmp/file-2.o";
+	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-2.o " << base_path << "/lib/concurrency.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/concurrency.a " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 }
+
+void view_bc_concurrency(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << *it << " ";
+	}
+	cmd << "> /tmp/file.cpp";
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	systm(cmd.str().c_str());
+
+	// Primer paso de optimización (concurrencia)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
+	systm(cmd.str().c_str());
+
+
+	// Segundo paso de optimización (exploración)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	systm(cmd.str().c_str());
+
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida1.txt";
+	systm(cmd.str().c_str());
+
+	// Visualizar
+	cmd.str("");
+	cmd << "gedit /tmp/salida1.txt &";
+	systm(cmd.str().c_str());
+
+
+}
+
+
 
 void compare_concurrency(){
 
@@ -1604,7 +1660,7 @@ int main(int argc, const char *argv[]) {
 		set_option("measure_coverage", "true");
 	}
 
-
+	//cmd_option_bool("verbose")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
@@ -1623,6 +1679,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("klee")) do_klee();
 	if(cmd_option_bool("concurrency")) extract_concurrency();
 	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
+	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();
 
 
 	return 0;

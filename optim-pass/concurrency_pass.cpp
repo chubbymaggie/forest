@@ -249,15 +249,54 @@ struct ChangeSync: public ModulePass {
 	}
 };
 
+struct RmJoin: public ModulePass {
+
+	static char ID;
+	RmJoin() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> instr_to_rm;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if(fnname == "pthread_join"){
+					instr_to_rm.push_back(in);
+				}
+
+			}
+
+
+		}}}
+
+
+		for( vector<Instruction*>::iterator it = instr_to_rm.begin(); it != instr_to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+
+
+		return false;
+	}
+};
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
 
-		//{SeparateSync     pass;   pass.runOnModule(M);}
-		//{ChangePthreadC   pass;   pass.runOnModule(M);}
+		{SeparateSync     pass;   pass.runOnModule(M);}
+		{ChangePthreadC   pass;   pass.runOnModule(M);}
 		{ChangeSync       pass;   pass.runOnModule(M);}
+		{RmJoin           pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -275,4 +314,7 @@ static RegisterPass<All> All( "conc_all", "change calls to pthread_create");
 
 char ChangeSync::ID = 0;
 static RegisterPass<ChangeSync> ChangeSync( "conc_changesync", "change calls to mutex get/lock");
+
+char RmJoin::ID = 0;
+static RegisterPass<RmJoin> RmJoin( "conc_rmjoin", "remove pthread_join");
 

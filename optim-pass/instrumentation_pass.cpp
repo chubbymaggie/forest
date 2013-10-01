@@ -2002,6 +2002,7 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
 		{CallInstr        pass;   pass.runOnModule(M);}
