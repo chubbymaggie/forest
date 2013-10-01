@@ -63,7 +63,7 @@ void* fn2(void * args){
 		signal(&b);
 	} else {
 		j = 0;
-		signal(&b);
+		signal(&c);
 	}
 
 

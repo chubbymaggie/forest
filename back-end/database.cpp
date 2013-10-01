@@ -20,7 +20,7 @@
 
 #include "database.h"
 
-#define debug true 
+#define debug true
 #define DATABASE_VALUES false
 
 sqlite3 *db;

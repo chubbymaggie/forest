@@ -23,10 +23,10 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
+#define see_each_problem true
 #define SIZE_STR 512
 #define UNDERSCORE "_"
-#define PROPAGATE_CONSTANTS true
+#define PROPAGATE_CONSTANTS false
 #define EXIT_ON_INSERT false
 
 int alloca_pointer = 0;
@@ -69,7 +69,7 @@ void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
 	set_name_hint(name(ret_to), "return of " + fn_name );
 	settype(name(ret_to), ret_type );
 
-	printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
+	debug && printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
 }
 
 void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){

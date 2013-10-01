@@ -89,7 +89,7 @@ struct SeparateSync: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		mod_iterator(M, fun){
-			int n_sync = 0;
+			int n_sync = -1;
 		fun_iterator(fun,bb){
 		blk_iterator(bb, in){
 
@@ -100,14 +100,16 @@ struct SeparateSync: public ModulePass {
 				string fnname = in_c->getCalledFunction()->getName().str();
 				if(fnname == "pthread_mutex_lock" || fnname == "pthread_mutex_unlock"){
 
+					n_sync++;
+
 					if( in == bb->begin() ){
+						bb->setName(fun->getName().str() + "_sync_" + itos(n_sync));
 						BasicBlock::iterator it_split = bb->begin(); it_split++;
 						bb->splitBasicBlock(it_split);
 						break;
 					} else {
-						n_sync++;
 						BasicBlock::iterator it_split = in;
-						bb->splitBasicBlock(it_split, fun->getName().str() + "_sync_" + itos(n_sync));
+						bb->splitBasicBlock(it_split, fun->getName().str() + "" + itos(n_sync));
 						break;
 					}
 				}
@@ -213,13 +215,16 @@ struct ChangeSync: public ModulePass {
 					//in_c->dump();
 					
 					string mutexname = in_c->getArgOperand(0)->getName().str();
+					string syncname  = bb->getName().str();
 
 					GlobalVariable* c1 = make_global_str(M, mutexname);
+					GlobalVariable* c2 = make_global_str(M, syncname);
 
 
 					Value* InitFn = cast<Value> ( M.getOrInsertFunction(
 								fnname == "pthread_mutex_lock"?"mutex_lock":"mutex_unlock" ,
 								Type::getVoidTy( M.getContext() ),
+								Type::getInt8PtrTy( M.getContext() ),
 								Type::getInt8PtrTy( M.getContext() ),
 								(Type *)0
 								));
@@ -229,6 +234,7 @@ struct ChangeSync: public ModulePass {
 
 					std::vector<Value*> params;
 					params.push_back(pointerToArray(M,c1));
+					params.push_back(pointerToArray(M,c2));
 					CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 
