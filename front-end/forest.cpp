@@ -444,7 +444,7 @@ void dump_forced_free_vars(){
 
 void run(){
 
-	if( !done_final ) final();
+	//if( !done_final ) final();
 
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
