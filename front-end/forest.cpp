@@ -1631,14 +1631,8 @@ void extract_concurrency(){
 
 	gen_final_for_concurrency();
 
+	run();
 
-	// Ejecuta
-	
-	string output_file = cmd_option_str("output_file");
-	stringstream cmd;
-	cmd.str("");
-	cmd << "./" + output_file;
-	systm(cmd.str().c_str());
 }
 
 int main(int argc, const char *argv[]) {

@@ -930,6 +930,7 @@ void assign_instruction(string src, string dst, string fn_name){
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
 
 	if( is_forced_free(name(src)) ){
+		debug && printf("\e[32m Source is forced_free\e[0m\n");
 		setcontent(name(src), "");
 	}
 
