@@ -114,25 +114,12 @@ void dump_variables(FILE* file){
 
 void dump_conditions(FILE* file){
 
-	printf("dump_conditions\n");
-
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if(!it->fuzzme)
 			fprintf(file,"(assert %s)\n", it->cond.c_str() );
 	}
 	
 }
-
-
-void dump_conditions(stringstream& ss){
-
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		printf("(assert %s)\n", it->cond.c_str() );
-		ss << "(assert " << it->cond << ");" << endl;
-	}
-	
-}
-
 
 void dump_check_sat(FILE* file){
 

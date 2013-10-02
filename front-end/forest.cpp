@@ -444,7 +444,7 @@ void dump_forced_free_vars(){
 
 void run(){
 
-	//if( !done_final ) final();
+	if( !done_final ) final();
 
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
@@ -1531,6 +1531,8 @@ void gen_final_for_concurrency(){
 	cmd.str("");
 	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/concurrency.a " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
+
+	done_final = true;
 
 }
 

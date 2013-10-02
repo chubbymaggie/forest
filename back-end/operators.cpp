@@ -23,10 +23,10 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem true
+#define see_each_problem false
 #define SIZE_STR 512
 #define UNDERSCORE "_"
-#define PROPAGATE_CONSTANTS false
+#define PROPAGATE_CONSTANTS true
 #define EXIT_ON_INSERT false
 
 int alloca_pointer = 0;
