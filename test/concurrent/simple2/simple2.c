@@ -79,6 +79,7 @@ int main() {
 	pthread_t thread2;
 
 	pthread_create(&thread1, NULL, &fn1, NULL);
+	printf("========================================================\n");
 	pthread_create(&thread2, NULL, &fn2, NULL);
 
 	pthread_join(thread1, NULL);
