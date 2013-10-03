@@ -293,16 +293,81 @@ struct RmJoin: public ModulePass {
 };
 
 
+struct ExtractFn: public ModulePass {
+
+	static char ID;
+	ExtractFn() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+		string seed = "_Z3fn1Pv";
+
+		map<string, set<string> > calls;
+		set<Function*> all_funcs;
+
+		mod_iterator(M, fun){
+			all_funcs.insert(fun);
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+				CallInst* in_c = cast<CallInst>(in);
+				calls[fun->getName().str()].insert( in_c->getCalledFunction()->getName().str() );
+
+			}
+
+
+		}}}
+
+		set<string> functions;
+		set<string> functions2;
+		functions.insert(seed);
+
+		while(functions2 != functions ){
+
+			functions2 = functions;
+			for( set<string>::iterator it = functions.begin(); it != functions.end(); it++ ){
+				string currentfunction = *it;
+				set<string> current_calls_to = calls[currentfunction];
+				for( set<string>::iterator it2 = current_calls_to.begin(); it2 != current_calls_to.end(); it2++ ){
+					functions.insert(*it2);
+				}
+
+
+			}
+		}
+
+
+		for( set<Function*>::iterator it = all_funcs.begin(); it != all_funcs.end(); it++ ){
+			Function* fn = *it;
+			string fnname = fn->getName().str();
+
+			if(functions.find(fnname) == functions.end()){
+				fn->eraseFromParent();
+			}
+		}
+		
+
+		Function* fnseed = M.getFunction(seed);
+
+
+
+		return false;
+	}
+};
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
 
-		{SeparateSync     pass;   pass.runOnModule(M);}
-		{ChangePthreadC   pass;   pass.runOnModule(M);}
-		{ChangeSync       pass;   pass.runOnModule(M);}
-		{RmJoin           pass;   pass.runOnModule(M);}
+		//{SeparateSync     pass;   pass.runOnModule(M);}
+		//{ChangePthreadC   pass;   pass.runOnModule(M);}
+		//{ChangeSync       pass;   pass.runOnModule(M);}
+		//{RmJoin           pass;   pass.runOnModule(M);}
+		{ExtractFn        pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -323,4 +388,8 @@ static RegisterPass<ChangeSync> ChangeSync( "conc_changesync", "change calls to 
 
 char RmJoin::ID = 0;
 static RegisterPass<RmJoin> RmJoin( "conc_rmjoin", "remove pthread_join");
+
+char ExtractFn::ID = 0;
+static RegisterPass<ExtractFn> ExtractFn( "conc_extractfn", "Extract a function and its dependencies");
+
 
