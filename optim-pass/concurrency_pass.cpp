@@ -350,7 +350,43 @@ struct ExtractFn: public ModulePass {
 
 		Function* fnseed = M.getFunction(seed);
 
+		Function::arg_iterator arg_begin = fnseed->arg_begin();
+		Function::arg_iterator arg_end   = fnseed->arg_end();
+		vector<string> argNames;
+		vector<const Type*>   argTypes;
+		for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
+			argNames.push_back(it->getName().str());
+			const Type* t = it->getType();
+			argTypes.push_back(t);
+		}
 
+		for ( unsigned int i = 0; i < argNames.size(); i++) {
+			string name = argNames[i];
+			const Type* type = argTypes[i];
+			BasicBlock*  bb_ini = fnseed->begin();
+			Instruction* in_ini = bb_ini->begin();
+
+			AllocaInst* ai = new AllocaInst(type, 0, (name+"_aux").c_str(), in_ini );
+
+
+
+			fun_iterator(fnseed,bb){
+			blk_iterator(bb, in){
+
+				for ( unsigned int k = 0; k < in->getNumOperands(); k++) {
+
+					if( in->getOperand(k)->hasName() && (in->getOperand(k)->getName().str() == name) ){
+						LoadInst* ai_ptr = new LoadInst(ai,"",in);
+						in->setOperand(k, ai_ptr);
+					}
+				}
+			}}
+
+
+		}
+
+		fnseed->setName("main");
+		
 
 		return false;
 	}
