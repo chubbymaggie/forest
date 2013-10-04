@@ -400,33 +400,29 @@ struct ExtractFn: public ModulePass {
 			argTypes.push_back(t);
 		}
 
+		
+		Function* func_main = cast<Function> ( M.getOrInsertFunction( "main" ,
+					Type::getVoidTy( M.getContext() ),
+					(Type *)0
+					));
+
+		BasicBlock* entry = BasicBlock::Create(M.getContext(), "entry",func_main,0);
+
+		std::vector<Value*> params;
 		for ( unsigned int i = 0; i < argNames.size(); i++) {
 			string name = argNames[i];
 			const Type* type = argTypes[i];
-			BasicBlock*  bb_ini = fnseed->begin();
-			Instruction* in_ini = bb_ini->begin();
 
-			AllocaInst* ai = new AllocaInst(type, 0, (name+"_aux").c_str(), in_ini );
+			AllocaInst* ai = new AllocaInst(type, 0, name.c_str(), entry );
+			LoadInst* ai_ptr = new LoadInst(ai,"",entry);
 
-
-
-			fun_iterator(fnseed,bb){
-			blk_iterator(bb, in){
-
-				for ( unsigned int k = 0; k < in->getNumOperands(); k++) {
-
-					if( in->getOperand(k)->hasName() && (in->getOperand(k)->getName().str() == name) ){
-						LoadInst* ai_ptr = new LoadInst(ai,"",in);
-						in->setOperand(k, ai_ptr);
-					}
-				}
-			}}
-
+			params.push_back(ai_ptr);
 
 		}
 
-		fnseed->setName("main");
-		
+		CallInst::Create(fnseed, params.begin(), params.end(), "", entry);
+
+		ReturnInst::Create(M.getContext(), entry);
 
 		return false;
 	}
@@ -439,13 +435,9 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		start_database();
-		cerr << "option helloworld " << cmd_option_bool("helloworld") << endl;
-		end_database();
-
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}
-		//{ChangeSync       pass;   pass.runOnModule(M);}
+		{ChangeSync       pass;   pass.runOnModule(M);}
 		//{RmJoin           pass;   pass.runOnModule(M);}
 		{ExtractFn        pass;   pass.runOnModule(M);}
 
