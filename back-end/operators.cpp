@@ -23,11 +23,13 @@
 #include <sys/wait.h>
 
 #define debug true
-#define see_each_problem false
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 #define PROPAGATE_CONSTANTS true
 #define EXIT_ON_INSERT false
+
+
+bool see_each_problem;
 
 int alloca_pointer = 0;
 vector<pair<string, string> > callstack;
@@ -589,6 +591,9 @@ void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _off
 void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 	start_database();
+
+	see_each_problem = cmd_option_bool("see_each_problem");
+
 	create_tables();
 	load_forced_free_vars();
 }

@@ -45,4 +45,7 @@ void insert_problem();
 
 bool yet_covered();
 
+bool cmd_option_bool(string key);
+
+
 #endif /* end of include guard: _DATABASE_H_ */
