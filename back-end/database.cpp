@@ -236,7 +236,7 @@ void insert_problem(){
 			//string name = it->first;
 			//string value = realvalue(name);
 			//string hint = gethint(variables[name].name_hint);
-			//bool is_memory = (name.substr(0,4) == "mem_");
+			//bool is_memory = (name.substr(0,4) == "me_");
 			//action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
 			
 		//}
@@ -310,7 +310,7 @@ bool cmd_option_bool(string key){
 	stringstream action;
 	action << "select * from options where key='" << key << "';";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
-	return retsqlite[1].second == "true";
+	return retsqlite.size() && retsqlite[1].second == "true";
 	
 }
 
