@@ -1637,6 +1637,20 @@ void extract_concurrency(){
 
 }
 
+void options_to_db(){
+
+	db_command("drop table options;");
+	db_command( "create table options ( key varchar(50), value varchar(50));" );
+	
+	// Muestro los resultados de la base de datos
+	for( map<string,string>::iterator it = options.begin(); it != options.end(); it++ ){
+
+		db_command("insert into options values (\"" + it->first + "\",\"" + it->second + "\");");
+		
+	}
+	
+}
+
 int main(int argc, const char *argv[]) {
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -1647,6 +1661,8 @@ int main(int argc, const char *argv[]) {
 	}
 
 	parse_cmd_line(argc, argv);
+
+	options_to_db();
 
 	if( cmd_option_bool("test") ){
 		set_option("run", "true");
