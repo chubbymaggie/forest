@@ -19,6 +19,7 @@
  */
 
 
+#include "/media/disk/release/back-end/sqlite3.h"
 #include "llvm/Pass.h"
 #include "llvm/Module.h"
 #include "llvm/Support/raw_ostream.h"
@@ -49,6 +50,45 @@ string itos(int n){
 	stringstream ss; ss << n;
 	return ss.str();
 }
+
+
+sqlite3 *db;
+vector< pair<string, string> > retsqlite;
+
+void start_database(){
+	sqlite3_open("database.db", &db);
+}
+
+void end_database(){
+	sqlite3_close(db);
+}
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName){
+
+
+
+	for(int i=0; i<argc; i++){
+		string name = string(azColName[i] );
+		string value = string(argv[i]);
+		cerr << "name " << name << " value " << value << endl;
+		retsqlite.push_back( pair<string, string>(name, value) );
+	}
+
+	return 0;
+}
+
+
+bool cmd_option_bool(string key){
+	stringstream action;
+	action << "select * from options where key='" << key << "';";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+	return retsqlite.size() && retsqlite[1].second == "true";
+	
+}
+
+
+
+
 
 GlobalVariable* make_global_str(Module& M, string name){
 
@@ -398,6 +438,10 @@ struct All: public ModulePass {
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
+
+		start_database();
+		cerr << "option helloworld " << cmd_option_bool("helloworld") << endl;
+		end_database();
 
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}

@@ -21,6 +21,7 @@ all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
 	sudo touch /llvm-2.9/lib/Transforms/Forest_concurrency/Forest_concurrency.exports
 	sudo cp make_concurrency /llvm-2.9/lib/Transforms/Forest_concurrency/Makefile
 	sudo cp concurrency_pass.cpp /llvm-2.9/lib/Transforms/Forest_concurrency/Forest_concurrency.cpp 
+	sudo cp ../back-end/sqlite3.c /llvm-2.9/lib/Transforms/Forest_concurrency/
 	cd /llvm-2.9/lib/Transforms/Forest_concurrency/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Forest_concurrency/; sudo make install;
 
