@@ -52,38 +52,50 @@ string itos(int n){
 }
 
 
-sqlite3 *db;
-vector< pair<string, string> > retsqlite;
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-void start_database(){
-	sqlite3_open("database.db", &db);
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
 }
 
-void end_database(){
-	sqlite3_close(db);
-}
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName){
+map<string, string> options;
 
+void read_options(){
 
-
-	for(int i=0; i<argc; i++){
-		string name = string(azColName[i] );
-		string value = string(argv[i]);
-		cerr << "name " << name << " value " << value << endl;
-		retsqlite.push_back( pair<string, string>(name, value) );
+	FILE *file = fopen ( "options", "r" );
+	char line_c [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+		options[ tokens[0] ] = tokens[1];
+		
 	}
-
-	return 0;
+	fclose ( file );
 }
-
 
 bool cmd_option_bool(string key){
-	stringstream action;
-	action << "select * from options where key='" << key << "';";
-	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
-	return retsqlite.size() && retsqlite[1].second == "true";
-	
+	return options[key] == "true";
 }
 
 
@@ -434,6 +446,9 @@ struct All: public ModulePass {
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
+
+		read_options();
+		cerr << "Option HW " << cmd_option_bool("hello_world") << endl;
 
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}

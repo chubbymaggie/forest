@@ -1642,13 +1642,22 @@ void options_to_db(){
 	db_command("drop table options;");
 	db_command( "create table options ( key varchar(50), value varchar(50));" );
 	
-	// Muestro los resultados de la base de datos
 	for( map<string,string>::iterator it = options.begin(); it != options.end(); it++ ){
 
 		db_command("insert into options values (\"" + it->first + "\",\"" + it->second + "\");");
 		
 	}
 	
+}
+
+void options_to_file(){
+
+	FILE* file = fopen("options", "w");
+
+	for( map<string,string>::iterator it = options.begin(); it != options.end(); it++ ){
+		fprintf(file, "%s %s\n", it->first.c_str(), it->second.c_str());
+	}
+	fclose(file);
 }
 
 int main(int argc, const char *argv[]) {
@@ -1663,6 +1672,7 @@ int main(int argc, const char *argv[]) {
 	parse_cmd_line(argc, argv);
 
 	options_to_db();
+	options_to_file();
 
 	if( cmd_option_bool("test") ){
 		set_option("run", "true");
