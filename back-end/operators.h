@@ -148,6 +148,7 @@ extern "C" void getelementptr_struct(char*, char*, char*, char*);
 
 extern "C" void global_var_init(char* _name,char* _type, char* _value);
 extern "C" void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to );
+extern "C" void Free_fn( char* _fn_name );
 
 extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );
 

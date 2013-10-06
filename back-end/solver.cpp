@@ -41,6 +41,16 @@ void push_path_stack(bool step){
 	path_stack.push_back(step);
 }
 
+set<string> forced_free_vars;
+
+void free_var(string var){
+
+	//printf("free_var %s prev_value %s\n", var.c_str(), variables[name(var)].content.c_str() );
+	stringstream mem_name; mem_name << "mem_" << variables[name(var)].content;
+	forced_free_vars.insert( mem_name.str() );
+
+}
+
 string content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
@@ -897,7 +907,6 @@ void setcontent(string varname, string content){
 	variables[varname].content = content;
 }
 
-set<string> forced_free_vars;
 
 bool is_forced_free(string position){
 	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");

@@ -259,6 +259,7 @@ string get_offset_tree( string varname );
 
 void load_forced_free_vars();
 
+void free_var(string name);
 
 #endif /* end of include guard: _SOLVER_H_ */
 

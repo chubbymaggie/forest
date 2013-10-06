@@ -101,6 +101,21 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 }
 
+void force_free(int* a){
+
+}
+
+void Free_fn( char* _oplist ){
+
+	string oplist = string(_oplist).substr(0, strlen(_oplist) - 1);
+
+	free_var(oplist);
+	debug && printf("\e[31m FreeFn %s\e[0m\n", _oplist );
+
+}
+
+
+
 void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 	string dest = string(_dest);
@@ -627,6 +642,7 @@ void end_sim(){
 	//get_values();
 	
 }
+
 
 bool br_instr_cond(char* _cmp, char* _joints){
 
