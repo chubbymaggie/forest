@@ -429,10 +429,7 @@ void dump_forced_free_vars(){
 
 	stringstream filepath;
 
-	if(cd_path == "")
-		filepath << "/tmp/free_vars";
-	else
-		filepath << cd_path << "/tmp/free_vars";
+	filepath << "/tmp/free_vars";
 
 	FILE* file = fopen(filepath.str().c_str(), "w");
 	for( vector<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
