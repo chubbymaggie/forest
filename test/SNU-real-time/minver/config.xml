@@ -7,7 +7,7 @@
 	<option key="file" value="minver.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
-	<option key="output_file" value="final"/> 
+	<option key="output_file" value="/tmp/final"/> 
 	<option key="output_file" value="mem_296"/>
 	<option key="output_file" value="mem_304"/>
 	<option key="output_file" value="mem_312"/>

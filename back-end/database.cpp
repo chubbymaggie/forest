@@ -47,7 +47,7 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 
 void start_database(){
 	debug && printf("\e[31m start_database \e[0m\n"); fflush(stdout);
-	sqlite3_open("database.db", &db);
+	sqlite3_open("/tmp/database.db", &db);
 }
 
 void end_database(){

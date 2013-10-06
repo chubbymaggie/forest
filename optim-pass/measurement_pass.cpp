@@ -111,7 +111,7 @@ vector<FreeVariable> load_variables(){
 
 	vector<FreeVariable> ret;
 
-	FILE *file = fopen ( "free_variables", "r" );
+	FILE *file = fopen ( "/tmp/free_variables", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 
@@ -142,7 +142,7 @@ set<vector<string> > load_values(){
 
 	set<vector<string> > ret;
 
-	FILE *file = fopen ( "vectors", "r" );
+	FILE *file = fopen ( "/tmp/vectors", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
@@ -166,7 +166,7 @@ map<string, string> load_names_from_pos(){
 
 	map<string, string> ret;
 
-	FILE *file = fopen ( "free_variables", "r" );
+	FILE *file = fopen ( "/tmp/free_variables", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){

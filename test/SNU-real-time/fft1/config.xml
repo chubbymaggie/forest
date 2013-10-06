@@ -7,5 +7,5 @@
 	<option key="file" value="fft1.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
-	<option key="output_file" value="final"/> 
+	<option key="output_file" value="/tmp/final"/> 
 </options>

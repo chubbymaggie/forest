@@ -8,7 +8,7 @@
 	<option key="file" value="uniform_test.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
-	<option key="output_file" value="final"/> 
+	<option key="output_file" value="/tmp/final"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 
 	<option key="random_variable" value="mem_12 Int32 main_register_b"/> 

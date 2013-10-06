@@ -919,7 +919,7 @@ bool is_forced_free(string position){
 }
 
 void load_forced_free_vars(){
-	FILE *file = fopen ( "free_vars", "r" );
+	FILE *file = fopen ( "/tmp/free_vars", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){

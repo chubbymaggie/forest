@@ -7,7 +7,7 @@
 	<option key="file" value="force_free_fn.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
-	<option key="output_file" value="final"/> 
+	<option key="output_file" value="/tmp/final"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 

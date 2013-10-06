@@ -430,9 +430,9 @@ void dump_forced_free_vars(){
 	stringstream filepath;
 
 	if(cd_path == "")
-		filepath << "free_vars";
+		filepath << "/tmp/free_vars";
 	else
-		filepath << cd_path << "free_vars";
+		filepath << cd_path << "/tmp/free_vars";
 
 	FILE* file = fopen(filepath.str().c_str(), "w");
 	for( vector<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
@@ -456,7 +456,7 @@ void run(){
 
 	// Ejecuta el fichero resultante
 	cmd.str("");
-	cmd << "./" << output_file;
+	cmd << output_file;
 	systm(cmd.str().c_str());
 
 	done_run = true;
@@ -466,7 +466,7 @@ void run(){
 void db_command(string command){
 
 	stringstream cmd;
-	cmd << "echo '" << command << "' | sqlite3 database.db";
+	cmd << "echo '" << command << "' | sqlite3 /tmp/database.db";
 	system(cmd.str().c_str());
 
 }
@@ -557,8 +557,8 @@ void test(){
 	// Muestro los resultados de la base de datos
 	cmd.str("");
 	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
-	cmd << " | sqlite3 database.db ";
-	cmd << "> results";
+	cmd << " | sqlite3 /tmp/database.db ";
+	cmd << "> /tmp/results";
 	systm(cmd.str().c_str());
 
 
@@ -566,7 +566,7 @@ void test(){
 	if( cd_path != "" ){
 		cmd << "cd " << cd_path << ";";
 	}
-	cmd << "diff results gold_result > /dev/null";
+	cmd << "diff /tmp/results gold_result > /dev/null";
 	int result = system(cmd.str().c_str());
 
 	if( result )
@@ -737,7 +737,7 @@ set<vector<string> > minimal_vectors(){
 		command << "cd " << cd_path << ";";
 
 
-	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 database.db";
+	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 /tmp/database.db";
 	fp = popen(command.str().c_str(), "r");
 	while (fgets(ret,SIZE_STR, fp) != NULL)
 		ret_vector.push_back(ret);
@@ -931,7 +931,7 @@ vector<FreeVariableInfo> get_free_variables(){
 	if(cd_path != "")
 		cmd << "cd " << cd_path << ";";
 
-	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 database.db";
+	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 /tmp/database.db";
 
 	FILE *fp;
 	stringstream command;
@@ -973,10 +973,7 @@ void gen_file_free_variables(){
 
 	string filename;
 
-	if(cd_path == "")
-		filename = "free_variables";
-	else
-		filename = cd_path + "/free_variables";
+	filename = "/tmp/free_variables";
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1028,10 +1025,7 @@ void gen_file_vectors(){
 
 	string filename;
 
-	if(cd_path == "")
-		filename = "vectors";
-	else
-		filename = cd_path + "/vectors";
+	filename = "/tmp/vectors";
 
 	FILE* file = fopen( filename.c_str(), "w");
 	for( vector<string>::iterator it = output_file.begin(); it != output_file.end(); it++ ){
@@ -1104,7 +1098,7 @@ void measure_coverage(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 	cmd.str("");
-	cmd << "./" + output_file;
+	cmd << output_file;
 	systm(cmd.str().c_str());
 	
 
@@ -1192,7 +1186,7 @@ void check_coverage(){
 		cmd.str("");
 		if(cd_path != "")
 			cmd << "cd " << cd_path << ";";
-		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 database.db";
+		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 /tmp/database.db";
 
 
 
@@ -1242,10 +1236,7 @@ void gen_file_free_variables_from_xml(){
 
 	string filename;
 
-	if(cd_path == "")
-		filename = "free_variables";
-	else
-		filename = cd_path + "/free_variables";
+	filename = "/tmp/free_variables";
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1285,10 +1276,7 @@ void gen_file_vectors_random(){
 
 	string filename;
 
-	if(cd_path == "")
-		filename = "vectors";
-	else
-		filename = cd_path + "/vectors";
+	filename = "/tmp/vectors";
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1652,7 +1640,7 @@ void options_to_db(){
 
 void options_to_file(){
 
-	FILE* file = fopen("options", "w");
+	FILE* file = fopen("/tmp/options", "w");
 
 	for( map<string,string>::iterator it = options.begin(); it != options.end(); it++ ){
 		fprintf(file, "%s %s\n", it->first.c_str(), it->second.c_str());
