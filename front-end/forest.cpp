@@ -123,7 +123,9 @@ int cmd_option_int(string option){
 }
 
 string cmd_option_str(string option){
-	return options[option];
+	vector<string> tokens = tokenize(options[option].c_str(),"@" );
+	string ret = tokens[tokens.size()-1];
+	return ret;
 }
 
 bool cmd_option_bool(string option){
