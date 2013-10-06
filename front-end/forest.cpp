@@ -45,7 +45,8 @@ typedef struct FreeVariableInfo{
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
-string cd_path;
+string project_path;
+string current_path;
 
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
@@ -232,8 +233,8 @@ void systm( string cmd ){
 
 	stringstream command;
 
-	if( cd_path != "" ){
-		command << "cd " << cd_path << ";";
+	if( project_path != "" ){
+		command << "cd " << project_path << ";";
 	}
 	
 	if( cmd_option_bool("verbose") )
@@ -568,8 +569,8 @@ void test(){
 
 
 	cmd.str("");
-	if( cd_path != "" ){
-		cmd << "cd " << cd_path << ";";
+	if( project_path != "" ){
+		cmd << "cd " << project_path << ";";
 	}
 	cmd << "diff /tmp/results gold_result > /dev/null";
 	int result = system(cmd.str().c_str());
@@ -581,7 +582,13 @@ void test(){
 
 }
 
-void set_path( string file ){
+void set_current_path(){
+	char current_path_c[SIZE_STR];
+	strcpy(current_path_c, getenv("PWD"));
+	current_path = string(current_path_c);
+}
+
+void set_project_path( string file ){
 
 	vector<string> tokens = tokenize(file, "/");
 
@@ -591,7 +598,7 @@ void set_path( string file ){
 		path_aux += tokens[i] + "/";
 	}
 
-	cd_path = path_aux;
+	project_path = path_aux;
 	
 
 }
@@ -738,8 +745,8 @@ set<vector<string> > minimal_vectors(){
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
 
-	if(cd_path != "")
-		command << "cd " << cd_path << ";";
+	if(project_path != "")
+		command << "cd " << project_path << ";";
 
 
 	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 /tmp/database.db";
@@ -933,8 +940,8 @@ vector<FreeVariableInfo> get_free_variables(){
 
 	cmd.str("");
 
-	if(cd_path != "")
-		cmd << "cd " << cd_path << ";";
+	if(project_path != "")
+		cmd << "cd " << project_path << ";";
 
 	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 /tmp/database.db";
 
@@ -1189,8 +1196,8 @@ void check_coverage(){
 
 		// Muestro los resultados de la base de datos
 		cmd.str("");
-		if(cd_path != "")
-			cmd << "cd " << cd_path << ";";
+		if(project_path != "")
+			cmd << "cd " << project_path << ";";
 		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 /tmp/database.db";
 
 
@@ -1657,9 +1664,10 @@ int main(int argc, const char *argv[]) {
 
 
 	load_default_options();
+	set_current_path();
 	if( argc >= 2 && argv[1][0] != '-' ){
 		load_file_options( string(argv[1]) );
-		set_path( string(argv[1]) );
+		set_project_path( string(argv[1]) );
 	} else {
 		load_file_options();
 	}
