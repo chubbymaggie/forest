@@ -75,7 +75,7 @@ void set_option( string key, string value ){
 	options[key] = value;
 }
 
-void parse_cmd_line(int argc, const char** argv ){
+void load_cmd_options(int argc, const char** argv ){
 
 
 	if( argc >= 2 && argv[1][0] != '-' ){
@@ -158,9 +158,8 @@ vector<float> cmd_option_float_vector(string option){
 	return vector_float;
 }
 
-void load_default_options(string file){
+void load_file_options(string file){
 
-	options.clear();
 
 	TiXmlDocument doc(file.c_str()); // documento xml
 	doc.LoadFile();
@@ -205,7 +204,14 @@ void load_default_options(string file){
 }
 
 void load_default_options(){
-	load_default_options(string("config.xml"));
+	options["verbose"] = "false";
+	options["base_path"] = "/media/disk/release";
+	options["llvm_path"] = "/llvm-2.9";
+	options["output_file"] = "/tmp/final";
+}
+
+void load_file_options(){
+	load_file_options(string("config.xml"));
 }
 
 void cmd_option_set(string key, string value ){
@@ -1647,14 +1653,16 @@ void options_to_file(){
 
 int main(int argc, const char *argv[]) {
 
+
+	load_default_options();
 	if( argc >= 2 && argv[1][0] != '-' ){
-		load_default_options( string(argv[1]) );
+		load_file_options( string(argv[1]) );
 		set_path( string(argv[1]) );
 	} else {
-		load_default_options();
+		load_file_options();
 	}
 
-	parse_cmd_line(argc, argv);
+	load_cmd_options(argc, argv);
 
 	options_to_db();
 	options_to_file();
