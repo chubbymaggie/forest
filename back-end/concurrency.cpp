@@ -26,9 +26,14 @@
 
 using namespace std;
 
-void mutex_lock(char* mutex_name, char* sync_name){
+set<string> sync_points;
 
-	printf("mutex_lock %s %s\n", mutex_name, sync_name);
+void mutex_lock(char* _mutex_name, char* _sync_name){
+
+	printf("mutex_lock %s %s\n", _mutex_name, _sync_name);
+
+	string mutex_name = string(_mutex_name);
+	string sync_name = string(_sync_name);
 
 	stringstream conds;
 	dump_conditions(conds);
@@ -39,12 +44,18 @@ void mutex_lock(char* mutex_name, char* sync_name){
 
 	database_insert_concurrency("lock", mutex_name, sync_name, conds.str());
 
+	sync_points.insert(sync_name);
+
+	insert_sync_points(sync_name, sync_points);
 
 }
 
-void mutex_unlock(char* mutex_name, char* sync_name){
+void mutex_unlock(char* _mutex_name, char* _sync_name){
 
-	printf("mutex_unlock %s %s\n", mutex_name, sync_name);
+	printf("mutex_unlock %s %s\n", _mutex_name, _sync_name);
+
+	string mutex_name = string(_mutex_name);
+	string sync_name = string(_sync_name);
 
 	stringstream conds;
 	dump_conditions(conds);
@@ -54,6 +65,10 @@ void mutex_unlock(char* mutex_name, char* sync_name){
 	printf("-----------------------------------\n");
 
 	database_insert_concurrency("unlock", mutex_name, sync_name, conds.str());
+
+	sync_points.insert(sync_name);
+
+	insert_sync_points(sync_name, sync_points);
 
 }
 

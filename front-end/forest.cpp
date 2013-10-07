@@ -1692,6 +1692,7 @@ void show_concurrency_table(){
 
 	db_command(".mode columns\\n.width 15 5 10 35\\n.headers on\\nselect * from concurrency;");
 	db_command(".mode columns\\n.width 15 10 35\\n.headers on\\nselect * from stores;");
+	db_command(".mode columns\\n.width 15 20\\n.headers on\\nselect * from sync;");
 	
 }
 

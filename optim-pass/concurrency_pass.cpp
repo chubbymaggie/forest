@@ -351,7 +351,7 @@ struct ExtractFn: public ModulePass {
 	ExtractFn() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
-		string seed = "_Z3fn2Pv";
+		string seed = "_Z3fn1Pv";
 
 
 		Function* fnseed = M.getFunction(seed);

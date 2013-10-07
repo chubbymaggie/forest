@@ -314,6 +314,7 @@ void drop_concurrency_tables(){
 	action << "drop table concurrency;";
 	action << "drop table loads;";
 	action << "drop table stores;";
+	action << "drop table sync;";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
@@ -335,6 +336,10 @@ void create_concurrency_tables(){
 	action << "create table stores(";
 	action << "pos varchar(50),";
 	action << "value varchar(50),";
+	action << "stack varchar(50)";
+	action << ");";
+	action << "create table sync(";
+	action << "pos varchar(50),";
 	action << "stack varchar(50)";
 	action << ");";
 
@@ -375,3 +380,22 @@ void insert_store(string pos, string content, string stack){
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
+
+
+void insert_sync_points(string sync_name, set<string> sync_points){
+
+	debug && printf("\e[31m insert sync\e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "insert into sync values ('" << sync_name << "','";
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		action << *it << ",";
+	}
+	action << "');";
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+
+}
+
+

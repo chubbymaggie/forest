@@ -52,4 +52,6 @@ void database_insert_concurrency(string lockunlock, string mutex_name, string sy
 void insert_load(string pos);
 void insert_store(string pos, string content, string stack);
 
+void insert_sync_points(string sync_name, set<string> sync_points);
+
 #endif /* end of include guard: _DATABASE_H_ */
