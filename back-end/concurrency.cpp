@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include "concurrency.h"
+#include "database.h"
 #include "solver.h"
 #include <sstream>
 
@@ -29,12 +30,14 @@ void mutex_lock(char* mutex_name, char* sync_name){
 
 	printf("mutex_lock %s %s\n", mutex_name, sync_name);
 
-	//stringstream conds;
-	//dump_conditions(conds);
-	//printf("-----------------------------------\n");
-	dump_conditions();
-	//printf("conds %s\n", conds.str().c_str() );
-	//printf("-----------------------------------\n");
+	stringstream conds;
+	dump_conditions(conds);
+	printf("-----------------------------------\n");
+	//dump_conditions();
+	printf("conds %s\n", conds.str().c_str() );
+	printf("-----------------------------------\n");
+
+	database_insert_concurrency("lock", mutex_name, sync_name, conds.str());
 
 
 }
@@ -43,12 +46,18 @@ void mutex_unlock(char* mutex_name, char* sync_name){
 
 	printf("mutex_unlock %s %s\n", mutex_name, sync_name);
 
-	//stringstream conds;
-	//dump_conditions(conds);
-	//printf("-----------------------------------\n");
-	dump_conditions();
-	//printf("conds %s\n", conds.str().c_str() );
-	//printf("-----------------------------------\n");
+	stringstream conds;
+	dump_conditions(conds);
+	printf("-----------------------------------\n");
+	//dump_conditions();
+	printf("conds %s\n", conds.str().c_str() );
+	printf("-----------------------------------\n");
 
+	database_insert_concurrency("unlock", mutex_name, sync_name, conds.str());
+
+}
+
+void begin_concurrency(){
+	create_concurrency_table();
 }
 

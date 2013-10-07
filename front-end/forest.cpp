@@ -1688,6 +1688,12 @@ void options_to_file(){
 	fclose(file);
 }
 
+void show_concurrency_table(){
+
+	db_command(".mode columns\\n.width 15 5 10 35\\n.headers on\\nselect * from concurrency;");
+	
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -1734,6 +1740,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("concurrency")) extract_concurrency();
 	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
 	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();
+	if(cmd_option_bool("show_concurrency_table")) show_concurrency_table();
 
 
 	return 0;

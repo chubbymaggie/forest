@@ -440,6 +440,26 @@ struct ExtractFn: public ModulePass {
 	}
 };
 
+struct BeginConcurrency: public ModulePass {
+
+	static char ID;
+	BeginConcurrency() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+
+		BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
+
+		Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_concurrency" ,
+					Type::getVoidTy( M.getContext() ),
+					(Type *)0
+					));
+
+		std::vector<Value*> params;
+		CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+	}
+};
+
 
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -455,6 +475,7 @@ struct All: public ModulePass {
 		{ChangeSync       pass;   pass.runOnModule(M);}
 		//{RmJoin           pass;   pass.runOnModule(M);}
 		{ExtractFn        pass;   pass.runOnModule(M);}
+		{BeginConcurrency pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -479,4 +500,6 @@ static RegisterPass<RmJoin> RmJoin( "conc_rmjoin", "remove pthread_join");
 char ExtractFn::ID = 0;
 static RegisterPass<ExtractFn> ExtractFn( "conc_extractfn", "Extract a function and its dependencies");
 
+char BeginConcurrency::ID = 0;
+static RegisterPass<BeginConcurrency> BeginConcurrency( "begin_concurrency", "Insert the function to begin concurrency analysis");
 

@@ -314,6 +314,31 @@ bool cmd_option_bool(string key){
 	
 }
 
+void create_concurrency_table(){
 
+	debug && printf("\e[31m create table concurrency \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "create table concurrency(";
+	action << "lockunlock varchar(50),";
+	action << "mutex_name varchar(50),";
+	action << "sync_name  varchar(50),";
+	action << "conds      varchar(50)";
+	action << ");";
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+
+}
+
+void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
+
+	debug && printf("\e[31m insert into concurrency \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "insert into concurrency values (\"" << lockunlock << "\",\"" << mutex_name << "\",\"" << sync_name << "\",\"" << conds << "\");";
+	printf("%s\n", action.str().c_str());
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+}
 
 

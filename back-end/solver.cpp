@@ -131,6 +131,15 @@ void dump_conditions(FILE* file){
 	
 }
 
+void dump_conditions( stringstream& sstr ){
+
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		if(!it->fuzzme)
+			sstr << it->cond;
+	}
+
+}
+
 void dump_check_sat(FILE* file){
 
 	fprintf(file,"(check-sat)\n");

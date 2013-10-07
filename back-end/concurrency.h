@@ -24,6 +24,7 @@
 
 extern "C" void mutex_lock(char* mutex_name, char* sync_name);
 extern "C" void mutex_unlock(char* mutex_name, char* sync_name);
+extern "C" void begin_concurrency();
 
 #endif /* end of include guard: _CONCURRENCY_H_ */
 

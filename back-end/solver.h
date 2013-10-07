@@ -60,6 +60,7 @@ void dump_variables(FILE* file = stdout);
  * @param FILE: file to dump
  */
 void dump_conditions(FILE* file = stdout);
+void dump_conditions( stringstream& sstr );
 void dump_check_sat(FILE* file = stdout);
 void dump_exclusions(FILE* file = stdout);
 
