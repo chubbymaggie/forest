@@ -58,7 +58,7 @@ void mutex_unlock(char* mutex_name, char* sync_name){
 }
 
 void begin_concurrency(){
-	drop_concurrency_table();
-	create_concurrency_table();
+	drop_concurrency_tables();
+	create_concurrency_tables();
 }
 

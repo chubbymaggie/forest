@@ -306,17 +306,19 @@ bool yet_covered(){
 
 }
 
-void drop_concurrency_table(){
+void drop_concurrency_tables(){
 
 	debug && printf("\e[31m drop concurrency_table \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "drop table concurrency;";
+	action << "drop table loads;";
+	action << "drop table stores;";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
 
-void create_concurrency_table(){
+void create_concurrency_tables(){
 
 	debug && printf("\e[31m create table concurrency \e[0m\n"); fflush(stdout);
 
@@ -326,6 +328,12 @@ void create_concurrency_table(){
 	action << "mutex_name varchar(50),";
 	action << "sync_name  varchar(50),";
 	action << "conds      varchar(50)";
+	action << ");";
+	action << "create table loads(";
+	action << "pos varchar(50)";
+	action << ");";
+	action << "create table stores(";
+	action << "pos varchar(50)";
 	action << ");";
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
@@ -343,4 +351,22 @@ void database_insert_concurrency(string lockunlock, string mutex_name, string sy
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }
 
+void insert_load(string pos){
 
+	debug && printf("\e[31m insert load\e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "insert into loads values ('" << pos << "');";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+	
+}
+
+void insert_store(string pos){
+
+	debug && printf("\e[31m insert store\e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "insert into stores values ('" << pos << "');";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+}

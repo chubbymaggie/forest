@@ -225,6 +225,8 @@ void load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
+	insert_load(src);
+
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
@@ -246,6 +248,7 @@ void store_instr(char* _src, char* _addr){
 	string addr = string(_addr);
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
+	insert_store(dst);
 
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
