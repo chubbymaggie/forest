@@ -1,12 +1,9 @@
 <?xml version="1.0" ?>
 
 <options>
-	<option key="verbose" value="false"/> 
 	<option key="test" value="true"/> 
 	<option key="explanation" value="Force a variable to be free"/> 
 	<option key="file" value="force_free.c"/> 
-	<option key="base_path" value="/media/disk/release"/> 
-	<option key="llvm_path" value="/llvm-2.9"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 

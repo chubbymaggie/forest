@@ -1,12 +1,9 @@
 <?xml version="1.0" ?>
 
 <options>
-	<option key="verbose" value="false"/> 
 	<option key="test" value="true"/> 
 	<option key="explanation" value="jfdctint example"/> 
 	<option key="file" value="jfdctint.c"/> 
-	<option key="base_path" value="/media/disk/release"/> 
-	<option key="llvm_path" value="/llvm-2.9"/> 
 	<option key="forced_free_var" value="mem_0"/>
 	<option key="forced_free_var" value="mem_4"/>
 	<option key="forced_free_var" value="mem_8"/>
