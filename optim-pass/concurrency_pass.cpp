@@ -351,56 +351,11 @@ struct ExtractFn: public ModulePass {
 	ExtractFn() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
-		string seed = "_Z3fn1Pv";
+		string seed = "_Z3fn2Pv";
 
-		map<string, set<string> > calls;
-		set<Function*> all_funcs;
-
-		mod_iterator(M, fun){
-			all_funcs.insert(fun);
-		fun_iterator(fun,bb){
-		blk_iterator(bb, in){
-
-			if( CallInst::classof(in) ){
-
-				CallInst* in_c = cast<CallInst>(in);
-				calls[fun->getName().str()].insert( in_c->getCalledFunction()->getName().str() );
-
-			}
-
-
-		}}}
-
-		set<string> functions;
-		set<string> functions2;
-		functions.insert(seed);
-
-		while(functions2 != functions ){
-
-			functions2 = functions;
-			for( set<string>::iterator it = functions.begin(); it != functions.end(); it++ ){
-				string currentfunction = *it;
-				set<string> current_calls_to = calls[currentfunction];
-				for( set<string>::iterator it2 = current_calls_to.begin(); it2 != current_calls_to.end(); it2++ ){
-					functions.insert(*it2);
-				}
-
-
-			}
-		}
-
-
-		for( set<Function*>::iterator it = all_funcs.begin(); it != all_funcs.end(); it++ ){
-			Function* fn = *it;
-			string fnname = fn->getName().str();
-
-			if(functions.find(fnname) == functions.end()){
-				fn->eraseFromParent();
-			}
-		}
-		
 
 		Function* fnseed = M.getFunction(seed);
+
 
 		Function::arg_iterator arg_begin = fnseed->arg_begin();
 		Function::arg_iterator arg_end   = fnseed->arg_end();
@@ -412,6 +367,7 @@ struct ExtractFn: public ModulePass {
 			argTypes.push_back(t);
 		}
 
+		M.getFunction("main")->eraseFromParent();
 		
 		Function* func_main = cast<Function> ( M.getOrInsertFunction( "main" ,
 					Type::getVoidTy( M.getContext() ),

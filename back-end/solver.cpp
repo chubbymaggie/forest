@@ -138,6 +138,8 @@ void dump_conditions( stringstream& sstr ){
 			sstr << it->cond;
 	}
 
+
+
 }
 
 void dump_check_sat(FILE* file){
