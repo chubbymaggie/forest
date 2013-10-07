@@ -45,8 +45,6 @@ void insert_problem();
 
 bool yet_covered();
 
-bool cmd_option_bool(string key);
-
 void create_concurrency_table();
 void drop_concurrency_table();
 void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);

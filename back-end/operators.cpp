@@ -37,6 +37,30 @@ vector<pair<string, string> > callstack;
 string actual_function;
 string actual_bb;
 
+
+
+
+map<string, string> options;
+
+void read_options(){
+
+	FILE *file = fopen ( "/tmp/options", "r" );
+	char line_c [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+		options[ tokens[0] ] = tokens[1];
+		
+	}
+	fclose ( file );
+}
+
+bool cmd_option_bool(string key){
+	return options[key] == "true";
+}
+
 void cast_instruction(char* _dst, char* _src, char* _type){
 
 	string dst = string(_dst);
@@ -607,6 +631,7 @@ void begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
 	start_database();
 
+	read_options();
 	see_each_problem = cmd_option_bool("see_each_problem");
 
 	create_tables();

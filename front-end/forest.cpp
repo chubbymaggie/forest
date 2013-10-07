@@ -1721,6 +1721,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 	//cmd_option_bool("verbose")
+	//cmd_option_bool("see_each_problem")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();

@@ -306,14 +306,6 @@ bool yet_covered(){
 
 }
 
-bool cmd_option_bool(string key){
-	stringstream action;
-	action << "select * from options where key='" << key << "';";
-	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
-	return retsqlite.size() && retsqlite[1].second == "true";
-	
-}
-
 void drop_concurrency_table(){
 
 	debug && printf("\e[31m drop concurrency_table \e[0m\n"); fflush(stdout);
