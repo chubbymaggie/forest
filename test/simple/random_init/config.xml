@@ -7,6 +7,5 @@
 	<option key="file" value="random_init.c"/> 
 	<option key="base_path" value="/media/disk/release"/> 
 	<option key="llvm_path" value="/llvm-2.9"/> 
-	<option key="output_file" value="/tmp/final"/> 
 	<option key="forced_free_var" value="mem_4"/>
 </options>
