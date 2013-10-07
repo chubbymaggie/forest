@@ -86,7 +86,7 @@ map<string, vector<string> > load_test_vectors(){
 
 	debug && printf("loading free_variables\n"); fflush(stdout);
 
-	file = fopen ( "/tmp/free_variables", "r" );
+	file = fopen ( "free_variables", "r" );
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
 		line[strlen(line)-1] = 0;
@@ -100,7 +100,7 @@ map<string, vector<string> > load_test_vectors(){
 
 	debug && printf("loading test_vectors\n"); fflush(stdout);
 
-	file = fopen ( "/tmp/vectors", "r" );
+	file = fopen ( "vectors", "r" );
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
 		line[strlen(line)-1] = 0;

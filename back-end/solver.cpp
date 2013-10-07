@@ -332,7 +332,7 @@ char* fgetln(register FILE* fp, size_t *lenp) {
 void get_values(){
 
 	stringstream filename;
-	filename << "/tmp/z3_" << getpid() << ".smt2";
+	filename << "z3_" << getpid() << ".smt2";
 
 	debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
 
@@ -353,7 +353,7 @@ void get_values(){
 
 	stringstream command;
 	
-	command << "z3 " << filename.str() << " > /tmp/z3-getvalues";
+	command << "z3 " << filename.str() << " > z3-getvalues";
 
 	system(command.str().c_str());
 
@@ -362,7 +362,7 @@ void get_values(){
 	size_t len;
 	char *line;
  
-	f = fopen("/tmp/z3-getvalues", "r");
+	f = fopen("z3-getvalues", "r");
 
 	while (line = fgetln(f, &len)) {
 		line[len-1] = 0;
@@ -496,7 +496,7 @@ bool solvable_problem(){
 	for ( unsigned int i = 0; i < FUZZ_LIMIT; i++) {
 	
 		stringstream filename;
-		filename << "/tmp/z3_" << rand() << ".smt2";
+		filename << "z3_" << rand() << ".smt2";
 
 		debug && printf("\e[31m filename solvable_problem \e[0m %s\n", filename.str().c_str() );
 
@@ -919,7 +919,7 @@ bool is_forced_free(string position){
 }
 
 void load_forced_free_vars(){
-	FILE *file = fopen ( "/tmp/free_vars", "r" );
+	FILE *file = fopen ( "free_vars", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
@@ -1317,7 +1317,7 @@ int show_problem(){
 	dump_get_fuzz();
 	dump_tail();
 
-	stringstream filename; filename << "/tmp/z3-" << rand() << ".smt2";
+	stringstream filename; filename << "z3-" << rand() << ".smt2";
 
 	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
 

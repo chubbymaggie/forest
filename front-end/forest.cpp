@@ -210,7 +210,8 @@ void load_default_options(){
 	options["verbose"] = "false";
 	options["base_path"] = "/media/disk/release";
 	options["llvm_path"] = "/llvm-2.9";
-	options["output_file"] = "/tmp/final";
+	options["output_file"] = "final";
+	options["tmp_dir"] = "/tmp/forest";
 }
 
 void load_file_options(){
@@ -226,26 +227,41 @@ void cmd_option_set(string key, string value ){
 
 void systm( string cmd ){
 
-	if( cmd_option_bool("verbose") ){
-		printf("\e[31m %s \e[0m\n", cmd.c_str() );
-		fflush(stdout);
-	}
+	//if( cmd_option_bool("verbose") ){
+		//printf("\e[31m %s \e[0m\n", cmd.c_str() );
+		//fflush(stdout);
+	//}
 
 	stringstream command;
 
-	if( project_path != "" ){
-		command << "cd " << project_path << ";";
-	}
+	command << "(";
+
+	command << "cd " << cmd_option_str("tmp_dir") << "; ";
 	
 	if( cmd_option_bool("verbose") )
 		command << cmd;
 	else
 		command << "(" << cmd << ") >/dev/null 2>/dev/null";
 
+	command << ")";
+
+	if( cmd_option_bool("verbose") ){
+		printf("\e[31m %s \e[0m\n", command.str().c_str() );
+		fflush(stdout);
+	}
+
 	int ret = system(command.str().c_str() );
 
 	//if(ret != 0) exit(0);
 
+}
+
+string tmp_file(string file){
+	return cmd_option_str("tmp_dir") + "/" + file;
+}
+
+string prj_file(string file){
+	return project_path + "/" + file;
 }
 
 void make_bc(){
@@ -254,29 +270,35 @@ void make_bc(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
+	// Crea y limpia la carpeta temporal
+	cmd.str("");
+	cmd << "rm -rf " << cmd_option_str("tmp_dir") << ";";
+	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
+	systm(cmd.str().c_str());
+
 	// Junta todos los .c en uno
 	cmd.str("");
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> " << tmp_file("file.cpp");
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -D NO_INIT -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 	done_bc = true;
@@ -295,41 +317,41 @@ void compare_bc(){
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> " << tmp_file("file.cpp");
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	cmd << "llvm-dis < file-2.bc > salida1.txt";
 	systm(cmd.str().c_str());
 
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida2.txt";
+	cmd << "llvm-dis < file-3.bc > salida2.txt";
 	systm(cmd.str().c_str());
 
 
 	// Comparación
 	cmd.str("");
-	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	cmd << "meld salida1.txt salida2.txt";
 	systm(cmd.str().c_str());
 
 
@@ -348,41 +370,41 @@ void compare_measure_bc(){
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> " << tmp_file("file.cpp");
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	cmd << "llvm-dis < file-2.bc > salida1.txt";
 	systm(cmd.str().c_str());
 
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida2.txt";
+	cmd << "llvm-dis < file-3.bc > salida2.txt";
 	systm(cmd.str().c_str());
 
 
 	// Comparación
 	cmd.str("");
-	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	cmd << "meld salida1.txt salida2.txt";
 	systm(cmd.str().c_str());
 
 
@@ -395,12 +417,12 @@ void view_bc(){
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida1.txt";
+	cmd << "llvm-dis < file-2.bc > salida1.txt";
 	systm(cmd.str().c_str());
 
 	// Visualizar
 	cmd.str("");
-	cmd << "gedit /tmp/salida1.txt &";
+	cmd << "gedit salida1.txt &";
 	systm(cmd.str().c_str());
 
 }
@@ -417,17 +439,17 @@ void final(){
 
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
+	cmd << "llc file-3.bc -o file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
+	cmd << "gcc -c file-3.s -o file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -lrt -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 	done_final = true;
@@ -438,7 +460,7 @@ void dump_forced_free_vars(){
 
 	stringstream filepath;
 
-	filepath << "/tmp/free_vars";
+	filepath << tmp_file("free_vars");
 
 	FILE* file = fopen(filepath.str().c_str(), "w");
 	for( vector<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
@@ -462,7 +484,7 @@ void run(){
 
 	// Ejecuta el fichero resultante
 	cmd.str("");
-	cmd << output_file;
+	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
 
 	done_run = true;
@@ -471,9 +493,11 @@ void run(){
 
 void db_command(string command){
 
+	cmd_option_bool("verbose") && printf("\e[32m db_command %s \e[0m\n", command.c_str());
+
 	stringstream cmd;
-	cmd << "echo '" << command << "' | sqlite3 /tmp/database.db";
-	system(cmd.str().c_str());
+	cmd << "echo '" << command << "' | sqlite3 " << tmp_file("database.db");
+	systm(cmd.str().c_str());
 
 }
 
@@ -563,16 +587,14 @@ void test(){
 	// Muestro los resultados de la base de datos
 	cmd.str("");
 	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
-	cmd << " | sqlite3 /tmp/database.db ";
-	cmd << "> /tmp/results";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << "> " << tmp_file("results");
 	systm(cmd.str().c_str());
 
 
 	cmd.str("");
-	if( project_path != "" ){
-		cmd << "cd " << project_path << ";";
-	}
-	cmd << "diff /tmp/results gold_result > /dev/null";
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "diff results " << prj_file("gold_result") << " > /dev/null";
 	int result = system(cmd.str().c_str());
 
 	if( result )
@@ -592,13 +614,18 @@ void set_project_path( string file ){
 
 	vector<string> tokens = tokenize(file, "/");
 
-	string path_aux;
+	string path_aux = "/";
 
 	for ( unsigned int i = 0; i < tokens.size() - 1; i++) {
 		path_aux += tokens[i] + "/";
 	}
 
 	project_path = path_aux;
+	if(project_path == ""){
+		project_path = current_path;
+	} else {
+		project_path = project_path.substr(0, project_path.length()-1);
+	}
 	
 
 }
@@ -610,7 +637,7 @@ void view_dfg(){
 
 	// Crea el bc
 	cmd.str("");
-	cmd << "llvm-gcc --emit-llvm -c " << cmd_option_string_vector("file")[0] << " -o /tmp/file.bc";
+	cmd << "llvm-gcc --emit-llvm -c " << prj_file(cmd_option_string_vector("file")[0]) << " -o file.bc";
 	systm(cmd.str().c_str());
 
 	// paso de optimización dot
@@ -619,7 +646,8 @@ void view_dfg(){
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
 	
-	command << "opt -dot-cfg < /tmp/file.bc 2>&1 | grep Writing";
+	command << "cd " << cmd_option_str("tmp_dir") << "; ";
+	command << "opt -dot-cfg < file.bc 2>&1 | grep Writing";
 	
 	fp = popen(command.str().c_str(), "r");
 	
@@ -749,7 +777,7 @@ set<vector<string> > minimal_vectors(){
 		command << "cd " << project_path << ";";
 
 
-	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 /tmp/database.db";
+	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 " << tmp_file("database.db");
 	fp = popen(command.str().c_str(), "r");
 	while (fgets(ret,SIZE_STR, fp) != NULL)
 		ret_vector.push_back(ret);
@@ -943,7 +971,7 @@ vector<FreeVariableInfo> get_free_variables(){
 	if(project_path != "")
 		cmd << "cd " << project_path << ";";
 
-	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 /tmp/database.db";
+	cmd << "echo 'select name,type,position from variables group by name;' | sqlite3 " << tmp_file("database.db");
 
 	FILE *fp;
 	stringstream command;
@@ -985,7 +1013,7 @@ void gen_file_free_variables(){
 
 	string filename;
 
-	filename = "/tmp/free_variables";
+	filename = tmp_file("free_variables");
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1037,7 +1065,7 @@ void gen_file_vectors(){
 
 	string filename;
 
-	filename = "/tmp/vectors";
+	filename = tmp_file("vectors");
 
 	FILE* file = fopen( filename.c_str(), "w");
 	for( vector<string>::iterator it = output_file.begin(); it != output_file.end(); it++ ){
@@ -1061,39 +1089,39 @@ void gen_final_for_measurement(){
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> file.cpp";
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
+	cmd << "llc file-3.bc -o file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
+	cmd << "gcc -c file-3.s -o file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 }
@@ -1110,7 +1138,7 @@ void measure_coverage(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 	cmd.str("");
-	cmd << output_file;
+	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
 	
 
@@ -1156,10 +1184,10 @@ void minimal_test_vectors_to_db(){
 			string value = it2->second;
 
 			stringstream cmd;
-			cmd << "insert into minimal_vectors values (" << vect << ",'" << name << "','" << value << "');";
+			cmd << "insert into minimal_vectors values (" << vect << ",\"" << name << "\",\"" << value << "\");";
 			db_command(cmd.str());
 
-			systm( cmd.str() );
+			//systm( cmd.str() );
 
 			//printf("%s\n", cmd.str().c_str() );
 
@@ -1179,7 +1207,6 @@ int stoi(string str){
 
 void check_coverage(){
 
-	//printf("check_coverage\n");
 
 	vector<string> coverages;
 
@@ -1198,7 +1225,7 @@ void check_coverage(){
 		cmd.str("");
 		if(project_path != "")
 			cmd << "cd " << project_path << ";";
-		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 /tmp/database.db";
+		cmd << "echo 'select value from measurements where key = \"visited_" + cov + "s\";' | sqlite3 " << tmp_file("database.db");
 
 
 
@@ -1248,7 +1275,7 @@ void gen_file_free_variables_from_xml(){
 
 	string filename;
 
-	filename = "/tmp/free_variables";
+	filename = tmp_file("free_variables");
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1288,7 +1315,7 @@ void gen_file_vectors_random(){
 
 	string filename;
 
-	filename = "/tmp/vectors";
+	filename = tmp_file("vectors");
 
 	FILE* file = fopen(filename.c_str(), "w");
 
@@ -1376,39 +1403,39 @@ void count_branches(){
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> " << tmp_file("file.cpp");
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Segundo paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_countbr < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_countbr < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
+	cmd << "llc file-3.bc -o file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
+	cmd << "gcc -c file-3.s -o file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 	// ejecuta
@@ -1431,7 +1458,7 @@ void do_klee(){
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
 		cmd << *it << " ";
 	}
-	cmd << "> /tmp/file.c";
+	cmd << "> file.c";
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
@@ -1495,41 +1522,41 @@ void gen_final_for_concurrency(){
 	cmd << "cat ";
 	vector<string> files = cmd_option_string_vector("file");
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
+		cmd << prj_file(*it) << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> file.cpp";
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización (concurrencia)
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 
 	// Segundo paso de optimización (exploración)
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc /tmp/file-3.bc -o /tmp/file-3.s";
+	cmd << "llc file-3.bc -o file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c /tmp/file-3.s -o /tmp/file-3.o";
+	cmd << "gcc -c file-3.s -o file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ /tmp/file-3.o " << base_path << "/lib/concurrency.a " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/concurrency.a " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 	done_final = true;
@@ -1550,34 +1577,34 @@ void view_bc_concurrency(){
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
 		cmd << *it << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> file.cpp";
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización (concurrencia)
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 
 	// Segundo paso de optimización (exploración)
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < /tmp/file-2.bc > /tmp/file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-3.bc > /tmp/salida1.txt";
+	cmd << "llvm-dis < file-3.bc > salida1.txt";
 	systm(cmd.str().c_str());
 
 	// Visualizar
 	cmd.str("");
-	cmd << "gedit /tmp/salida1.txt &";
+	cmd << "gedit salida1.txt &";
 	systm(cmd.str().c_str());
 
 
@@ -1598,32 +1625,32 @@ void compare_concurrency(){
 	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
 		cmd << *it << " ";
 	}
-	cmd << "> /tmp/file.cpp";
+	cmd << "> file.cpp";
 	systm(cmd.str().c_str());
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c /tmp/file.cpp -o /tmp/file.bc";
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file.bc > /tmp/salida1.txt";
+	cmd << "llvm-dis < file.bc > salida1.txt";
 	systm(cmd.str().c_str());
 
 	// Paso de optimización
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < /tmp/file.bc > /tmp/file-2.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -conc_all < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
-	cmd << "llvm-dis < /tmp/file-2.bc > /tmp/salida2.txt";
+	cmd << "llvm-dis < file-2.bc > salida2.txt";
 	systm(cmd.str().c_str());
 
 	// Comparación
 	cmd.str("");
-	cmd << "meld /tmp/salida1.txt /tmp/salida2.txt";
+	cmd << "meld salida1.txt salida2.txt";
 	systm(cmd.str().c_str());
 
 
@@ -1635,19 +1662,6 @@ void extract_concurrency(){
 
 	run();
 
-}
-
-void options_to_db(){
-
-	db_command("drop table options;");
-	db_command( "create table options ( key varchar(50), value varchar(50));" );
-	
-	for( map<string,string>::iterator it = options.begin(); it != options.end(); it++ ){
-
-		db_command("insert into options values (\"" + it->first + "\",\"" + it->second + "\");");
-		
-	}
-	
 }
 
 void options_to_file(){
@@ -1665,16 +1679,17 @@ int main(int argc, const char *argv[]) {
 
 	load_default_options();
 	set_current_path();
+
 	if( argc >= 2 && argv[1][0] != '-' ){
-		load_file_options( string(argv[1]) );
 		set_project_path( string(argv[1]) );
+		load_file_options( string(argv[1]) );
 	} else {
+		set_project_path( current_path + "/config.xml" );
 		load_file_options();
 	}
 
 	load_cmd_options(argc, argv);
 
-	options_to_db();
 	options_to_file();
 
 	if( cmd_option_bool("test") ){

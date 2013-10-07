@@ -51,6 +51,60 @@ typedef struct FreeVariable{
 
 // Helper Functions
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
+map<string, string> options;
+
+void read_options(){
+
+	FILE *file = fopen ( "/tmp/options", "r" );
+	char line_c [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+		options[ tokens[0] ] = tokens[1];
+		
+	}
+	fclose ( file );
+}
+
+bool cmd_option_bool(string key){
+	return options[key] == "true";
+}
+
+string cmd_option_str(string key){
+	return options[key];
+}
+
+string tmp_file(string name){
+	return cmd_option_str("tmp_dir") + "/" + name;
+}
+
 GlobalVariable* make_global_str(Module& M, string name){
 
 	uint64_t length = (uint64_t) name.length()+1;
@@ -83,35 +137,11 @@ Constant* pointerToArray( Module& M, GlobalVariable* global_var ){
 	return const_ptr_9;
 }
 
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
-
 vector<FreeVariable> load_variables(){
 
 	vector<FreeVariable> ret;
 
-	FILE *file = fopen ( "/tmp/free_variables", "r" );
+	FILE *file = fopen ( tmp_file("free_variables").c_str(), "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 
@@ -142,7 +172,7 @@ set<vector<string> > load_values(){
 
 	set<vector<string> > ret;
 
-	FILE *file = fopen ( "/tmp/vectors", "r" );
+	FILE *file = fopen ( tmp_file("vectors").c_str(), "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
@@ -166,7 +196,7 @@ map<string, string> load_names_from_pos(){
 
 	map<string, string> ret;
 
-	FILE *file = fopen ( "/tmp/free_variables", "r" );
+	FILE *file = fopen ( tmp_file("free_variables").c_str(), "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
@@ -770,6 +800,8 @@ struct All: public ModulePass {
 	All() : ModulePass(ID) {}
 
 	virtual bool runOnModule(Module &M) {
+
+		read_options();
 
 		{BbMarks        pass;   pass.runOnModule(M);}
 		{BrInstr        pass;   pass.runOnModule(M);}
