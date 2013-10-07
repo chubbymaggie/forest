@@ -608,6 +608,17 @@ void set_current_path(){
 	char current_path_c[SIZE_STR];
 	strcpy(current_path_c, getenv("PWD"));
 	current_path = string(current_path_c);
+
+	cmd_option_bool("verbose") && printf("current_path %s\n", current_path.c_str());
+}
+
+
+void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
+	size_t pos = 0;
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
 }
 
 void set_project_path( string file ){
@@ -625,7 +636,10 @@ void set_project_path( string file ){
 		project_path = current_path;
 	} else {
 		project_path = project_path.substr(0, project_path.length()-1);
+		myReplace(project_path, "/./", current_path + "/");
 	}
+
+	cmd_option_bool("verbose") && printf("project_path %s\n", project_path.c_str());
 	
 
 }
