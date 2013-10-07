@@ -448,7 +448,7 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		read_options();
-		cerr << "Option HW " << cmd_option_bool("hello_world") << endl;
+		//cerr << "Option HW " << cmd_option_bool("hello_world") << endl;
 
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}

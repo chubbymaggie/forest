@@ -680,6 +680,14 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		insert_problem();
 
+		if( realvalue(cmp) == "true" ){
+			push_condition( content( name(cmp) ) , actual_function, joints, get_fuzz_constr(name(cmp)));
+		} else if (realvalue(cmp) == "false" ){
+			push_condition( negation(content( name(cmp) )), actual_function, joints, get_fuzz_constr(name(cmp)) );
+		} else {
+			assert(0 && "Non-boolean value for condition");
+		}
+
 		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
 
 		return real_value_prev == "true";
