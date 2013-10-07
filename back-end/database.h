@@ -50,6 +50,6 @@ void drop_concurrency_tables();
 void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
 
 void insert_load(string pos);
-void insert_store(string pos);
+void insert_store(string pos, string content, string stack);
 
 #endif /* end of include guard: _DATABASE_H_ */

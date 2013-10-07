@@ -333,7 +333,9 @@ void create_concurrency_tables(){
 	action << "pos varchar(50)";
 	action << ");";
 	action << "create table stores(";
-	action << "pos varchar(50)";
+	action << "pos varchar(50),";
+	action << "value varchar(50),";
+	action << "stack varchar(50)";
 	action << ");";
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
@@ -361,12 +363,15 @@ void insert_load(string pos){
 	
 }
 
-void insert_store(string pos){
+void insert_store(string pos, string content, string stack){
 
 	debug && printf("\e[31m insert store\e[0m\n"); fflush(stdout);
 
+
+
+
 	stringstream action;
-	action << "insert into stores values ('" << pos << "');";
+	action << "insert into stores values ('" << pos << "','" << content << "','" << stack << "');";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 }
