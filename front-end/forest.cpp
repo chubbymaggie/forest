@@ -1756,6 +1756,52 @@ void secuencialize(){
 	cmd.str("");
 	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -secuencialize < file.bc > file-2.bc";
 	systm(cmd.str().c_str());
+
+	// paso de optimización (fillnames)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file-2.bc > file-3.bc";
+	systm(cmd.str().c_str());
+
+	// paso de optimización (exploracion)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-3.bc > file-4.bc";
+	systm(cmd.str().c_str());
+
+	
+	// Pasa de .bc a .s
+	cmd.str("");
+	cmd << "llc file-4.bc -o file-4.s";
+	systm(cmd.str().c_str());
+
+	// Pasa de .s a .o
+	cmd.str("");
+	cmd << "gcc -c file-4.s -o file-4.o";
+	systm(cmd.str().c_str());
+
+	string output_file = cmd_option_str("output_file");
+
+	// linka
+	cmd.str("");
+	cmd << "g++ file-4.o " << base_path << "/lib/forest.a " << base_path << "/lib/concurrency.a "<< "-lpthread -ldl -lrt -o " << output_file;
+	systm(cmd.str().c_str());
+
+
+	dump_forced_free_vars();
+
+	// Ejecuta el fichero resultante
+	cmd.str("");
+	cmd << "./" << output_file;
+	systm(cmd.str().c_str());
+
+
+
+
+
+
+
+
+
+
 }
 
 void compare_secuencialize(){
