@@ -1727,6 +1727,79 @@ void clean_concurrency(){
 	db_command( action.str() );
 }
 
+void secuencialize(){
+
+	string fn_seq = cmd_option_str("seq_name");
+	cmd_option_bool("verbose") && printf("secuencializing function %s\n", fn_seq.c_str());
+
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << prj_file(*it) << " ";
+	}
+	cmd << "> " << tmp_file("file.cpp");
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	systm(cmd.str().c_str());
+
+	// Paso de optimización secuencialización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -secuencialize < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+}
+
+void compare_secuencialize(){
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << prj_file(*it) << " ";
+	}
+	cmd << "> " << tmp_file("file.cpp");
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < file.bc > salida1.txt";
+	systm(cmd.str().c_str());
+
+	// Paso de optimización (secuencialización)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -secuencialize < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Desensamblado
+	cmd.str("");
+	cmd << "llvm-dis < file-2.bc > salida2.txt";
+	systm(cmd.str().c_str());
+
+	// Comparación
+	cmd.str("");
+	cmd << "meld salida1.txt salida2.txt";
+	systm(cmd.str().c_str());
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -1755,6 +1828,7 @@ int main(int argc, const char *argv[]) {
 
 	//cmd_option_bool("verbose")
 	//cmd_option_bool("see_each_problem")
+	//cmd_option_bool("seq_name")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
@@ -1776,6 +1850,8 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
 	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();
 	if(cmd_option_bool("show_concurrency_table")) show_concurrency_table();
+	if(cmd_option_bool("secuencialize")) secuencialize();
+	if(cmd_option_bool("compare_secuencialize")) compare_secuencialize();
 
 
 	return 0;

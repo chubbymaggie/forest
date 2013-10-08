@@ -421,6 +421,59 @@ struct BeginConcurrency: public ModulePass {
 };
 
 
+struct RmCalls: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	RmCalls() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> instr_to_rm;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if( fnname == "pthread_create" ){
+					Function* fnc = cast<Function>(in_c->getArgOperand(2));
+
+					if( fnc->getName() != cmd_option_str("seq_name"))
+						instr_to_rm.push_back(in_c);
+				}
+			}
+		}}}
+
+		for( vector<Instruction*>::iterator it = instr_to_rm.begin(); it != instr_to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+		
+		return false;
+	}
+};
+
+
+struct Secuencialize: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	Secuencialize() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		read_options();
+		
+		{RmCalls          pass;   pass.runOnModule(M);}
+		{ChangePthreadC   pass;   pass.runOnModule(M);}
+		{ChangeSync       pass;   pass.runOnModule(M);}
+		{RmJoin           pass;   pass.runOnModule(M);}
+
+		return false;
+	}
+};
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -462,4 +515,11 @@ static RegisterPass<ExtractFn> ExtractFn( "conc_extractfn", "Extract a function 
 
 char BeginConcurrency::ID = 0;
 static RegisterPass<BeginConcurrency> BeginConcurrency( "begin_concurrency", "Insert the function to begin concurrency analysis");
+
+char RmCalls::ID = 0;
+static RegisterPass<RmCalls> RmCalls( "rm_calls", "remove non-wanted thread creations");
+
+char Secuencialize::ID = 0;
+static RegisterPass<Secuencialize> Secuencialize( "secuencialize", "Secuentialize a call to seq_name");
+
 
