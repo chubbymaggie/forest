@@ -155,10 +155,10 @@ void dump_header(FILE* file){
 }
 
 int minval(string type){
-	if(type == "Int32") return 0;
-	if(type == "Int16") return 0;
-	if(type == "Int8")  return 0;
-	if(type == "Int") return 0;
+	if(type == "Int32") return -(1 << 30);
+	if(type == "Int16") return -(1 << 15);
+	if(type == "Int8")  return -(1 << 8);
+	if(type == "Int") return   -(1 << 30);
 	if(type == "Pointer") return 0;
 
 	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
@@ -408,6 +408,8 @@ bool sat;
 
 void solve_problem(){
 
+	vector<string> ret_vector;
+
 	{
 
 	sat = 0;
@@ -423,7 +425,6 @@ void solve_problem(){
 		debug && printf("\e[31m filename solvable problem \e[0m %s\n", filename.str().c_str() );
 
 		FILE* file = fopen(filename.str().c_str(), "w");
-		vector<string> ret_vector;
 
 		dump_header(file);
 		dump_variables(file);
@@ -431,6 +432,7 @@ void solve_problem(){
 		dump_conditions(file);
 		dump_exclusions(file);
 		dump_check_sat(file);
+		dump_get(file);
 		dump_get_fuzz(file);
 		dump_get_free(file);
 		dump_tail(file);
@@ -496,48 +498,6 @@ void solve_problem(){
 
 	if(sat){
 
-
-
-	stringstream filename;
-	filename << "z3_" << getpid() << ".smt2";
-
-	debug && printf("\e[31m filename get values \e[0m %s\n", filename.str().c_str() );
-
-	FILE* file = fopen(filename.str().c_str(), "w");
-	vector<string> ret_vector;
-
-	dump_header(file);
-	dump_variables(file);
-	dump_type_limits(file);
-	dump_conditions(file);
-	dump_exclusions(file);
-	dump_check_sat(file);
-	dump_get(file);
-	dump_get_fuzz(file);
-	dump_tail(file);
-
-	fclose(file);
-
-	stringstream command;
-	
-	command << "z3 " << filename.str() << " > z3-getvalues";
-
-	system(command.str().c_str());
-
-
-	FILE *f;
-	size_t len;
-	char *line;
- 
-	f = fopen("z3-getvalues", "r");
-
-	while (line = fgetln(f, &len)) {
-		line[len-1] = 0;
-		ret_vector.push_back(line);
-	}
-
-	fclose(f);
-
 	bool sat = 0;
 
 
@@ -571,22 +531,6 @@ void solve_problem(){
 
 		it_ret++;
 	}
-
-	//map<string,Variable>::iterator it_var = variables.begin();
-	//vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
-
-	//for( map<string,Variable>::iterator it = it_var; it != variables.end(); it++ ){
-
-		//if( it->second.content == "" ) continue;
-	
-		//string name = it->first;
-		//string value = result_get(*it_ret);
-
-		//printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
-
-		//it_ret++;
-
-	//}
 
 	}
 
