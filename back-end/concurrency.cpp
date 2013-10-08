@@ -77,3 +77,20 @@ void begin_concurrency(){
 	//create_concurrency_tables();
 }
 
+
+void mutex_lock_2(char* _mutex_name, char* _sync_name){
+
+	printf("mutex_lock_2 %s %s\n", _mutex_name, _sync_name);
+
+
+}
+
+void mutex_unlock_2(char* _mutex_name, char* _sync_name){
+
+	printf("mutex_unlock_2 %s %s\n", _mutex_name, _sync_name);
+
+
+}
+
+
+

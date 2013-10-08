@@ -310,6 +310,73 @@ struct ChangeSync: public ModulePass {
 	}
 };
 
+
+struct ChangeSync2: public ModulePass {
+
+	static char ID;
+	ChangeSync2() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> instr_to_rm;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if(fnname == "pthread_mutex_lock" || fnname == "pthread_mutex_unlock"){
+
+					instr_to_rm.push_back(in);
+					//in_c->dump();
+					
+					string mutexname = in_c->getArgOperand(0)->getName().str();
+					string syncname  = bb->getName().str();
+
+					GlobalVariable* c1 = make_global_str(M, mutexname);
+					GlobalVariable* c2 = make_global_str(M, syncname);
+
+
+					Value* InitFn = cast<Value> ( M.getOrInsertFunction(
+								fnname == "pthread_mutex_lock"?"mutex_lock_2":"mutex_unlock_2" ,
+								Type::getVoidTy( M.getContext() ),
+								Type::getInt8PtrTy( M.getContext() ),
+								Type::getInt8PtrTy( M.getContext() ),
+								(Type *)0
+								));
+
+
+					BasicBlock::iterator insertpos = in; insertpos++;
+
+					std::vector<Value*> params;
+					params.push_back(pointerToArray(M,c1));
+					params.push_back(pointerToArray(M,c2));
+					CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
+				}
+
+			}
+
+
+		}}}
+
+
+		for( vector<Instruction*>::iterator it = instr_to_rm.begin(); it != instr_to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+
+
+		return false;
+	}
+};
+
+
+
 struct RmJoin: public ModulePass {
 
 	static char ID;
@@ -466,7 +533,7 @@ struct Secuencialize: public ModulePass {
 		
 		{RmCalls          pass;   pass.runOnModule(M);}
 		{ChangePthreadC   pass;   pass.runOnModule(M);}
-		{ChangeSync       pass;   pass.runOnModule(M);}
+		{ChangeSync2      pass;   pass.runOnModule(M);}
 		{RmJoin           pass;   pass.runOnModule(M);}
 
 		return false;
@@ -506,6 +573,9 @@ static RegisterPass<All> All( "conc_all", "change calls to pthread_create");
 
 char ChangeSync::ID = 0;
 static RegisterPass<ChangeSync> ChangeSync( "conc_changesync", "change calls to mutex get/lock");
+
+char ChangeSync2::ID = 0;
+static RegisterPass<ChangeSync2> ChangeSync2( "conc_changesync_2", "change calls to mutex get/lock");
 
 char RmJoin::ID = 0;
 static RegisterPass<RmJoin> RmJoin( "conc_rmjoin", "remove pthread_join");
