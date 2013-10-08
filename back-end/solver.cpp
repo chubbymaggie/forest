@@ -131,6 +131,27 @@ void dump_conditions(FILE* file){
 	
 }
 
+set<string> sync_points_and_locks;
+
+void solver_insert_sync_point(string lockunlock, string sync_name){
+	sync_points_and_locks.insert( "(" + lockunlock + "_" + sync_name + ")" );
+}
+
+void dump_concurrency_constraints(FILE* file){
+	
+	stringstream condition;
+	condition << "(and ";
+	for( set<string>::iterator it = sync_points_and_locks.begin(); it != sync_points_and_locks.end(); it++ ){
+		//printf("%s\n", it->c_str());
+		condition << *it << " ";
+	}
+	condition << ")";
+
+	printf("%s\n", condition.str().c_str());
+	
+
+}
+
 void dump_conditions( stringstream& sstr ){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
@@ -430,6 +451,7 @@ void solve_problem(){
 		dump_variables(file);
 		dump_type_limits(file);
 		dump_conditions(file);
+		dump_concurrency_constraints(file);
 		dump_exclusions(file);
 		dump_check_sat(file);
 		dump_get(file);

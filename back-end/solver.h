@@ -60,6 +60,7 @@ void dump_variables(FILE* file = stdout);
  * @param FILE: file to dump
  */
 void dump_conditions(FILE* file = stdout);
+void dump_concurrency_constraints(FILE* file = stdout);
 void dump_conditions( stringstream& sstr );
 void dump_check_sat(FILE* file = stdout);
 void dump_exclusions(FILE* file = stdout);
@@ -260,6 +261,11 @@ string get_offset_tree( string varname );
 void load_forced_free_vars();
 
 void free_var(string name);
+
+
+void solver_insert_sync_point(string lockunlock, string sync_name);
+
+
 
 #endif /* end of include guard: _SOLVER_H_ */
 
