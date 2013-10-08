@@ -658,7 +658,7 @@ struct All: public ModulePass {
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}
 		{ChangeSync       pass;   pass.runOnModule(M);}
-		{LoadStore        pass;   pass.runOnModule(M);}
+		//{LoadStore        pass;   pass.runOnModule(M);}
 		//{RmJoin           pass;   pass.runOnModule(M);}
 		{ExtractFn        pass;   pass.runOnModule(M);}
 		{BeginConcurrency pass;   pass.runOnModule(M);}

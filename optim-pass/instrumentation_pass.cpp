@@ -2044,6 +2044,34 @@ struct All: public ModulePass {
 	}
 };
 
+
+struct AllExceptLS: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	AllExceptLS() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		{FillNames        pass;   pass.runOnModule(M);}
+		{SeparateGetElm   pass;   pass.runOnModule(M);}
+		{GlobalInit       pass;   pass.runOnModule(M);}
+		{CallInstr        pass;   pass.runOnModule(M);}
+		{SelectInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp         pass;   pass.runOnModule(M);}
+		{CastInstr        pass;   pass.runOnModule(M);}
+		//{LoadStore        pass;   pass.runOnModule(M);}
+		{IcmpInstr        pass;   pass.runOnModule(M);}
+		{BrInstr          pass;   pass.runOnModule(M);}
+		{BbMarks          pass;   pass.runOnModule(M);}
+		{AllocaInstr      pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
+		{GetelementPtr    pass;   pass.runOnModule(M);}
+
+		return false;
+	}
+};
+
+
+
 // Identifiers
 
 char FillNames::ID = 0;
@@ -2090,4 +2118,8 @@ static RegisterPass<GlobalInit> GlobalInit(         "instr_globalinit"      , "I
 
 char All::ID = 0;
 static RegisterPass<All> All(                        "instr_all"            , "Instrument all operations" );
+
+char AllExceptLS::ID = 0;
+static RegisterPass<AllExceptLS> AllExceptLS(        "instr_all_except_ls"            , "Instrument all operations" );
+
 
