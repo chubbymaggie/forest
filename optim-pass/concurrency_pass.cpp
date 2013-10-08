@@ -540,6 +540,111 @@ struct Secuencialize: public ModulePass {
 	}
 };
 
+string floatvalue( ConstantFP * CF ){
+
+	stringstream ret_ss;
+	ret_ss.setf( std::ios::fixed, std:: ios::floatfield );
+	ret_ss.precision(5);
+
+	if( CF->getType()->getTypeID() == 1)
+		ret_ss << CF->getValueAPF().convertToFloat();
+	else
+		ret_ss << CF->getValueAPF().convertToDouble();
+
+	return ret_ss.str();
+
+}
+
+string operandname( Value* operand ){
+
+	if( ConstantInt::classof(operand) ){
+		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
+		int64_t val = CI->getSExtValue();
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+		return nameop1_ss.str();
+	} else if( ConstantFP::classof(operand) ){
+		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
+
+		stringstream nameop1_ss;
+		nameop1_ss << "constant" UNDERSCORE << floatvalue(CF);
+
+		return nameop1_ss.str();
+	} else if ( ConstantPointerNull::classof(operand) ){
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE "0";
+		return nameop1_ss.str();
+	} else if(GlobalVariable::classof(operand)){
+		return "global" UNDERSCORE + operand->getName().str();
+	} else {
+		return "register" UNDERSCORE + operand->getName().str();
+	}
+
+}
+
+
+struct LoadStore: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	LoadStore() : ModulePass(ID) {}
+
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( LoadInst::classof(in) ){
+
+						string nameres = "register" UNDERSCORE + in->getName().str();
+						string nameop1 = operandname( in->getOperand(0) );
+
+						GlobalVariable* c1 = make_global_str(M, nameres);
+						GlobalVariable* c2 = make_global_str(M, nameop1);
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "load_instr_2" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+
+					if( StoreInst::classof(in) ){
+
+						string nameop1 = operandname( in->getOperand(0) );
+						string nameop2 = operandname( in->getOperand(1) );
+
+						GlobalVariable* c1 = make_global_str(M, nameop1);
+						GlobalVariable* c2 = make_global_str(M, nameop2);
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "store_instr_2" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in; insertpos++;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						params.push_back(pointerToArray(M,c2));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
 
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -553,6 +658,7 @@ struct All: public ModulePass {
 		//{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}
 		{ChangeSync       pass;   pass.runOnModule(M);}
+		{LoadStore        pass;   pass.runOnModule(M);}
 		//{RmJoin           pass;   pass.runOnModule(M);}
 		{ExtractFn        pass;   pass.runOnModule(M);}
 		{BeginConcurrency pass;   pass.runOnModule(M);}
@@ -591,5 +697,8 @@ static RegisterPass<RmCalls> RmCalls( "rm_calls", "remove non-wanted thread crea
 
 char Secuencialize::ID = 0;
 static RegisterPass<Secuencialize> Secuencialize( "secuencialize", "Secuentialize a call to seq_name");
+
+char LoadStore::ID = 0;
+static RegisterPass<LoadStore> LoadStore( "loadstore", "annotate load and stores");
 
 

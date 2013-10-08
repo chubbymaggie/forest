@@ -225,7 +225,7 @@ void load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
-	insert_load(src);
+	//insert_load(src);
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
@@ -249,10 +249,10 @@ void store_instr(char* _src, char* _addr){
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
-	stringstream stack;
-	dump_conditions(stack);
+	//stringstream stack;
+	//dump_conditions(stack);
 
-	insert_store(dst, content(name(src)), stack.str() );
+	//insert_store(dst, content(name(src)), stack.str() );
 
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
@@ -266,6 +266,26 @@ void store_instr(char* _src, char* _addr){
 								   name(addr).c_str(), realvalue(addr).c_str(),
 								   name(dst).c_str(), realvalue(dst).c_str() );
 
+}
+
+void store_instr_2(char* _src, char* _addr){
+
+	string src = string(_src);
+	string addr = string(_addr);
+	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
+
+	stringstream stack;
+	dump_conditions(stack);
+
+	insert_store(dst, content(name(src)), stack.str() );
+}
+
+void load_instr_2(char* _dst, char* _addr){
+
+	string addr = string(_addr);
+	string src = "mem" UNDERSCORE + realvalue(addr);
+
+	insert_load(src);
 }
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){

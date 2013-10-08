@@ -87,6 +87,14 @@ extern "C" void load_instr(char*, char*);
  */
 extern "C" void store_instr(char*, char*);
 
+
+
+extern "C" void store_instr_2(char* _src, char* _addr);
+extern "C" void load_instr_2(char* _dst, char* _addr);
+
+
+
+
 /**
  * @brief Comparison instruction
  *
