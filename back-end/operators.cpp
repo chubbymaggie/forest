@@ -664,14 +664,6 @@ void end_sim(){
 
 	end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
-	//dump_header();
-	//dump_variables();
-	//dump_assigns();
-	//dump_conditions();
-	//dump_tail();
-	
-	//printf("solvable_problem %d\n", solvable_problem() );
-	//get_values();
 	
 }
 
@@ -691,10 +683,6 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 	string real_value_prev = realvalue(cmp);
 
-	//if(solvable_problem())
-		//get_values();
-	//insert_problem();
-	
 
 
 	if( int pid = fork() ){
@@ -710,6 +698,8 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		if(yet_covered()) exit(0);
 
+		//solve_problem();
+		set_sat(true);
 		insert_problem();
 
 		if( realvalue(cmp) == "true" ){
@@ -744,16 +734,17 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 		see_each_problem && show_problem();
 
+		solve_problem();
 
 		if( solvable_problem() ){
 			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
-			get_values();
 
 			push_path_stack( real_value_prev != "true");
 			print_path_stack();
 
 			if(yet_covered()) exit(0);
 
+			solve_problem();
 			insert_problem();
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";

@@ -96,16 +96,15 @@ void dump_get_fuzz(FILE* file = stdout);
 void dump_assigns(FILE* file = stdout);
 
 /**
- * @brief Assigns variables real-values according to smt solution
- */
-void get_values();
-
-/**
  * @brief Returs true if the current problem is solvable (SAT)
  *
  * @return 
  */
 bool solvable_problem();
+
+void set_sat(bool);
+
+void solve_problem();
 
 void flat_problem();
 

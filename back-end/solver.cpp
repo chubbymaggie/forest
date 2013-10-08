@@ -340,12 +340,168 @@ char* fgetln(register FILE* fp, size_t *lenp) {
 	return (buf);
 }
 
-void get_values(){
+bool get_is_sat(string is_sat){
+	if( is_sat == "sat" ) return true;
+	else return false;
+}
+
+bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
+
+	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
+		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
+		if( result_get(*it) == "false" ){
+			return false;
+		}
+	}
+	
+	return true;
+
+}
+
+string get_exclusion( vector<string> excluded_values ){
+
+	string ret;
+	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
+
+		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get(*it).c_str() );
+		//printf("get_exclusion %s\n", it->c_str());
+
+		vector<string> tokens = tokenize(*it, "() ");
+		string name = tokens[0];
+		string value = result_get(*it);
+		ret += "(= " + name + " " + value + ") ";
+	}
+
+	ret = "(not (and " + ret + "))";
+
+	//printf("excl %s\n", ret.c_str() );
+
+	return ret;
+}
+
+void insert_exclusion(string exclusion){
+
+	exclusions.push_back(exclusion);
+}
+
+void clean_exclusions(){
+	exclusions.clear();
+}
+
+void dump_exclusions(FILE* file){
+
+	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
+		fprintf(file,"(assert %s)\n", it->c_str() );
+	}
+	
+	//fprintf(file,"(assert (> mem_8   0))\n" );
+	//fprintf(file,"(assert (> mem_12  0))\n" );
+	//fprintf(file,"(assert (< mem_8  16))\n" );
+	//fprintf(file,"(assert (< mem_12 16))\n" );
+
+
+
+}
+
+
+bool sat;
+
+void solve_problem(){
+
+	{
+
+	sat = 0;
+
+
+	clean_exclusions();
+
+	for ( unsigned int i = 0; i < FUZZ_LIMIT; i++) {
+	
+		stringstream filename;
+		filename << "z3_" << rand() << ".smt2";
+
+		debug && printf("\e[31m filename solvable problem \e[0m %s\n", filename.str().c_str() );
+
+		FILE* file = fopen(filename.str().c_str(), "w");
+		vector<string> ret_vector;
+
+		dump_header(file);
+		dump_variables(file);
+		dump_type_limits(file);
+		dump_conditions(file);
+		dump_exclusions(file);
+		dump_check_sat(file);
+		dump_get_fuzz(file);
+		dump_get_free(file);
+		dump_tail(file);
+
+		fclose(file);
+
+		FILE *fp;
+		stringstream command;
+		char ret[SIZE_STR];
+		
+		command << "z3 " << filename.str();
+
+		fp = popen(command.str().c_str(), "r");
+		
+		while (fgets(ret,SIZE_STR, fp) != NULL){
+			ret[strlen(ret)-1] = 0;
+			ret_vector.push_back(ret);
+		}
+		
+		pclose(fp);
+
+		int n_fuzzs = get_num_fuzzs();
+		int n_fvars = get_num_fvars();
+
+
+		string         sat_str       = ret_vector[0];
+		vector<string> vect_for_fuzz = vector<string>(ret_vector.begin()+1, ret_vector.begin()+1+n_fuzzs);
+		vector<string> vect_for_fvar = vector<string>(ret_vector.begin()+1+n_fuzzs, ret_vector.begin()+1+n_fuzzs+n_fvars);
+
+
+		sat = 1;
+
+		if( n_fuzzs == 0 ){
+			sat = get_is_sat(sat_str);
+			break;
+		}
+
+		if( !get_is_sat(sat_str) ){
+			sat = 0;
+			break;
+		}
+
+		if( !get_is_sat_with_fuzz(vect_for_fuzz) ){
+			sat = 0;
+		}
+
+		if( !sat ){
+			string exclusion = get_exclusion(vect_for_fvar);
+			insert_exclusion(exclusion);
+		} else {
+			break;
+		}
+
+		if( i == FUZZ_LIMIT - 1 )
+			debug && printf("\e[33m FUZZ_LIMIT exceeded \e[0m\n");
+
+	}
+
+
+
+
+	}
+
+	if(sat){
+
+
 
 	stringstream filename;
 	filename << "z3_" << getpid() << ".smt2";
 
-	debug && printf("\e[31m filename get_values \e[0m %s\n", filename.str().c_str() );
+	debug && printf("\e[31m filename get values \e[0m %s\n", filename.str().c_str() );
 
 	FILE* file = fopen(filename.str().c_str(), "w");
 	vector<string> ret_vector;
@@ -432,162 +588,18 @@ void get_values(){
 
 	//}
 
-}
-
-bool get_is_sat(string is_sat){
-	if( is_sat == "sat" ) return true;
-	else return false;
-}
-
-bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
-
-	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
-		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
-		if( result_get(*it) == "false" ){
-			return false;
-		}
 	}
-	
-	return true;
-
-}
-
-string get_exclusion( vector<string> excluded_values ){
-
-	string ret;
-	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
-
-		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get(*it).c_str() );
-		//printf("get_exclusion %s\n", it->c_str());
-
-		vector<string> tokens = tokenize(*it, "() ");
-		string name = tokens[0];
-		string value = result_get(*it);
-		ret += "(= " + name + " " + value + ") ";
-	}
-
-	ret = "(not (and " + ret + "))";
-
-	//printf("excl %s\n", ret.c_str() );
-
-	return ret;
-}
-
-void insert_exclusion(string exclusion){
-
-	exclusions.push_back(exclusion);
-}
-
-void clean_exclusions(){
-	exclusions.clear();
-}
-
-void dump_exclusions(FILE* file){
-
-	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", it->c_str() );
-	}
-	
-	//fprintf(file,"(assert (> mem_8   0))\n" );
-	//fprintf(file,"(assert (> mem_12  0))\n" );
-	//fprintf(file,"(assert (< mem_8  16))\n" );
-	//fprintf(file,"(assert (< mem_12 16))\n" );
-
-
 
 }
 
 bool solvable_problem(){
 
-	bool sat = 0;
-
-
-	clean_exclusions();
-
-	for ( unsigned int i = 0; i < FUZZ_LIMIT; i++) {
-	
-		stringstream filename;
-		filename << "z3_" << rand() << ".smt2";
-
-		debug && printf("\e[31m filename solvable_problem \e[0m %s\n", filename.str().c_str() );
-
-		FILE* file = fopen(filename.str().c_str(), "w");
-		vector<string> ret_vector;
-
-		dump_header(file);
-		dump_variables(file);
-		dump_type_limits(file);
-		dump_conditions(file);
-		dump_exclusions(file);
-		dump_check_sat(file);
-		dump_get_fuzz(file);
-		dump_get_free(file);
-		dump_tail(file);
-
-		fclose(file);
-
-		FILE *fp;
-		stringstream command;
-		char ret[SIZE_STR];
-		
-		command << "z3 " << filename.str();
-
-		fp = popen(command.str().c_str(), "r");
-		
-		while (fgets(ret,SIZE_STR, fp) != NULL){
-			ret[strlen(ret)-1] = 0;
-			ret_vector.push_back(ret);
-		}
-		
-		pclose(fp);
-
-		int n_fuzzs = get_num_fuzzs();
-		int n_fvars = get_num_fvars();
-
-
-		string         sat_str       = ret_vector[0];
-		vector<string> vect_for_fuzz = vector<string>(ret_vector.begin()+1, ret_vector.begin()+1+n_fuzzs);
-		vector<string> vect_for_fvar = vector<string>(ret_vector.begin()+1+n_fuzzs, ret_vector.begin()+1+n_fuzzs+n_fvars);
-
-		//debug && printf("\e[31m sat_str \e[0m %s\n", sat_str.c_str());
-		//for( vector<string>::iterator it = vect_for_fuzz.begin(); it != vect_for_fuzz.end(); it++ ){
-			//debug && printf("\e[31m vect_for_fuzz \e[0m %s\n", it->c_str());
-		//}
-		//for( vector<string>::iterator it = vect_for_fvar.begin(); it != vect_for_fvar.end(); it++ ){
-			//debug && printf("\e[31m vect_for_pvar \e[0m %s\n", it->c_str());
-		//}
-
-		sat = 1;
-
-		if( n_fuzzs == 0 )
-			return get_is_sat(sat_str);
-
-		if( !get_is_sat(sat_str) ){
-			sat = 0;
-			break;
-		}
-
-		if( !get_is_sat_with_fuzz(vect_for_fuzz) ){
-			sat = 0;
-		}
-
-		if( !sat ){
-			string exclusion = get_exclusion(vect_for_fvar);
-			insert_exclusion(exclusion);
-		} else {
-			break;
-		}
-
-		if( i == FUZZ_LIMIT - 1 )
-			debug && printf("\e[33m FUZZ_LIMIT exceeded \e[0m\n");
-
-	}
-
-	//printf("sat %d\n", sat);
-	//exit(0);
-
 	return sat;
 	
+}
+
+void set_sat(bool _sat){
+	sat = _sat;
 }
 
 void insert_variable(string name, string position){

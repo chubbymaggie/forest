@@ -200,7 +200,6 @@ void insert_problem(){
 	}
 	
 	if( solvable_problem() ){
-		//get_values();
 
 
 		for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -247,34 +246,6 @@ void insert_problem(){
 	}
 
 
-	{
-		struct timespec ping_time;
-		struct timespec pong_time;
-		
-		clock_gettime(CLOCK_MONOTONIC, &ping_time);
-		solvable_problem();
-		clock_gettime(CLOCK_MONOTONIC, &pong_time);
-		
-		float spent_time = 0;
-		spent_time += pong_time.tv_sec - ping_time.tv_sec;
-		spent_time *= 1e9;
-		spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
-		spent_time /= 1e9;
-		spent_time *= 1000;
-	
-
-
-		action << "insert into statistics values (" << id                  << "," <<
-						    num_of_assertions() << "," <<
-						    num_of_variables()  << "," <<
-						    num_of_mults()      << "," <<
-						    num_of_divs()       << "," <<
-						    num_of_sums()       << "," <<
-						    num_of_subs()       << "," <<
-						    spent_time          << ");";
-
-
-	}
 
 
 
