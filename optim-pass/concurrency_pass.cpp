@@ -99,6 +99,9 @@ bool cmd_option_bool(string key){
 }
 
 
+string cmd_option_str(string key){
+	return options[key];
+}
 
 
 
@@ -351,7 +354,8 @@ struct ExtractFn: public ModulePass {
 	ExtractFn() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
-		string seed = "_Z3fn1Pv";
+		//string seed = "_Z3fn1Pv";
+		string seed = cmd_option_str("seedfn");
 
 
 		Function* fnseed = M.getFunction(seed);

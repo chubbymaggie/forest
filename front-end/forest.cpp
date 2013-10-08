@@ -1696,6 +1696,37 @@ void show_concurrency_table(){
 	
 }
 
+void clean_concurrency(){
+
+	db_command("drop table concurrency;");
+	db_command("drop table loads;");
+	db_command("drop table stores;");
+	db_command("drop table sync;");
+
+	stringstream action;
+	action << "create table concurrency(";
+	action << "lockunlock varchar(50),";
+	action << "mutex_name varchar(50),";
+	action << "sync_name  varchar(50),";
+	action << "conds      varchar(50)";
+	action << ");";
+	action << "create table loads(";
+	action << "pos varchar(50)";
+	action << ");";
+	action << "create table stores(";
+	action << "pos varchar(50),";
+	action << "value varchar(50),";
+	action << "stack varchar(50)";
+	action << ");";
+	action << "create table sync(";
+	action << "pos varchar(50),";
+	action << "stack varchar(50)";
+	action << ");";
+
+
+	db_command( action.str() );
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -1740,6 +1771,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("random_testing")) random_testing();
 	if(cmd_option_bool("count_branches")) count_branches();
 	if(cmd_option_bool("klee")) do_klee();
+	if(cmd_option_bool("clean_concurrency")) clean_concurrency();
 	if(cmd_option_bool("concurrency")) extract_concurrency();
 	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
 	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();
