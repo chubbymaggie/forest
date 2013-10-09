@@ -138,22 +138,27 @@ void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_
 }
 
 
-void load_concurrency_table(){
-
-}
-
+map<string, set<string> > concurrency_table;
 
 set<string> unlock_points(string mutex){
 
-	set<string> set_a; set_a.insert("d");
-	set<string> set_b; set_b.insert("e"); set_b.insert("f");
-
-	if(mutex == "a")
-		return set_a;
-	if(mutex == "b")
-		return set_b;
-
-	return set_a;
+	printf("listing_unlock %s\n", mutex.c_str());
+	set<string> ret = concurrency_table[mutex];
+	//for( set<string>::iterator it = ret.begin(); it != ret.end(); it++ )
+		//printf("%s \n", it->c_str());
+	//printf("\n");
+	if(!ret.size()){
+		printf("mutex %s\n", mutex.c_str() ); fflush(stdout);
+		assert(0 && "empty set");
+	}
+	return ret;
+	//set<string> set_a; set_a.insert("d");
+	//set<string> set_b; set_b.insert("e"); set_b.insert("f");
+	//if(mutex == "a")
+		//return set_a;
+	//if(mutex == "b")
+		//return set_b;
+	//return set_a;
 
 }
 
@@ -169,7 +174,6 @@ string or_unlocking(string condition, string mutex){
 	for( set<string>::iterator it = unlocks.begin(); it != unlocks.end(); it++ ){
 		ret << "(" << "unlock_" << (*it) << ") ";
 	}
-	//ret << "(" << "unlock_" << "a" << ")";
 
 	if(unlocks.size() > 1)
 		ret << ")";
@@ -189,7 +193,6 @@ void substitute_locks(string& condition){
 	for( set<string>::iterator it = mutexes.begin(); it != mutexes.end(); it++ ){
 		string expr_find = string("(lock_") + (*it) + string(")");
 		string expr_subs = or_unlocking(condition, *it);
-		//string expr_subs = (*it); //or_unlocking(condition, *it);
 		myReplace(condition, expr_find, expr_subs);
 	}
 	
@@ -204,7 +207,7 @@ void substitute_sync(string& condition){
 void dump_concurrency_constraints(FILE* file){
 	
 
-	load_concurrency_table();
+	load_concurrency_table(concurrency_table);
 
 	stringstream condition;
 

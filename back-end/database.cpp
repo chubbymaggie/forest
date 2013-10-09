@@ -369,4 +369,58 @@ void insert_sync_points(string sync_name, set<string> sync_points){
 
 }
 
+set<string> list_semaphores(){
+
+	//debug && printf("\e[31m list_semaphores \e[0m\n"); fflush(stdout);
+
+	//stringstream action;
+	//action << "select mutex_name from concurrency;";
+
+	//sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<string> ret;
+	//for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		//ret.insert(it->second);
+	//}
+	ret.insert("a"); ret.insert("b"); ret.insert("c");
+
+	return ret;
+}
+
+void load_concurrency_table(map<string, set<string> >& ret){
+
+	//ret["a"].insert("d");
+	//ret["b"].insert("e"); ret["b"].insert("f");
+	//ret["c"].insert("x");
+	debug && printf("\e[31m load_concurrency_table \e[0m\n"); fflush(stdout);
+
+	set<string> all_semaphores = list_semaphores();
+
+	for( set<string>::iterator it = all_semaphores.begin(); it != all_semaphores.end(); it++ ){
+		stringstream action;
+		action << "select sync_name from concurrency where mutex_name=\"" << (*it) << "\" and lockunlock=\"unlock\";";
+
+		retsqlite.clear();
+		sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+		assert(retsqlite.size() && "no unlocking of semaphore");
+
+		for( vector<pair<string, string> >::iterator it2 = retsqlite.begin(); it2 != retsqlite.end(); it2++ ){
+			ret[(*it)].insert(it2->second);
+		}
+	}
+
+
+	
+	//for( map<string,set<string> >::iterator it = ret.begin(); it != ret.end(); it++ ){
+		//printf("%s: ", it->first.c_str());
+		//set<string> sec = it->second;
+		//for( set<string>::iterator it2 = sec.begin(); it2 != sec.end(); it2++ ){
+			//printf("%s ", it2->c_str());
+		//}
+		//printf("\n");
+	//}
+	
+
+}
 

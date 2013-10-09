@@ -787,7 +787,7 @@ bool br_instr_cond(char* _cmp, char* _joints){
 			push_path_stack( real_value_prev != "true");
 			print_path_stack();
 
-			if(yet_covered()) exit(0);
+			//if(yet_covered()) exit(0);
 
 			solve_problem();
 			insert_problem();
