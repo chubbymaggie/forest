@@ -427,3 +427,58 @@ void load_concurrency_table(map<string, set<string> >& ret){
 
 }
 
+
+set<string> list_unlock_points(){
+
+	debug && printf("\e[31m list_unlock_points \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "select pos from sync;";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<string> ret;
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		ret.insert(it->second);
+	}
+	//ret.insert("a"); ret.insert("b"); ret.insert("c");
+	//
+	
+	printf("list_unlock_points.size %lu\n", ret.size()); fflush(stdout);
+
+	return ret;
+
+}
+
+set<vector<string> > get_paths_to(string dest){
+
+
+	debug && printf("\e[31m get_paths_to \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "select stack from sync where pos=\"" << dest << "\";";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<vector<string> > ret;
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		string tokens = it->second;
+		vector<string> path = tokenize(tokens, ",");
+		//vector<string> tokens = tokenize(*it, ",");
+		//for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ){
+			//if(*it2 != dest)
+				//path.push_back(*it2);
+		//}
+		ret.insert(path);
+	}
+	//ret.insert("a"); ret.insert("b"); ret.insert("c");
+
+	return ret;
+
+}
+
+
+

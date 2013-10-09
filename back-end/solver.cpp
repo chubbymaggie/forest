@@ -200,8 +200,63 @@ void substitute_locks(string& condition){
 
 }
 
+string or_paths(string dest){
+
+	printf("or_paths %s\n", dest.c_str());
+
+	//if(dest == "bb")    return "(de)";
+	//if(dest == "bb1")   return "(df)";
+	//if(dest == "bb2")   return "(deg o dfg)";
+	//if(dest == "bb4")   return "(bb4)";
+	//if(dest == "entry") return "(1)";
+	//return "()";
+
+	set<vector<string> > paths = get_paths_to(dest);
+
+	printf("dest %s path num %lu\n",dest.c_str(), paths.size());
+
+	stringstream ret;
+	if(paths.size() > 1)
+		ret << "(or ";
+	for( set<vector<string> >::iterator it = paths.begin(); it != paths.end(); it++ ){
+		vector<string> path = (*it);
+		if(path.size() > 1)
+			ret << "(and ";
+		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
+			ret << "(" << (*it2) << ")" << " ";
+		}
+		if(path.size() > 1)
+			ret << ") ";
+	}
+	if(paths.size() > 1)
+		ret << ")";
+
+	//return "(" + dest + ")";
+	return ret.str();
+	
+}
+
+void substitute_unlocks(string& condition){
+
+	printf("substitute_unlocks\n");
+
+	set<string> unlock_points = list_unlock_points();
+
+	printf("unlock_points.size %lu\n", unlock_points.size());
+	
+	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
+		printf("unlock_point %s\n", it->c_str());
+		string expr_find = string("(unlock_") + (*it) + string(")");
+		string expr_subs = or_paths(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+	
+
+}
+
 void substitute_sync(string& condition){
 	substitute_locks(condition);
+	substitute_unlocks(condition);
 }
 
 

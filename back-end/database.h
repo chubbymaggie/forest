@@ -57,4 +57,7 @@ void insert_sync_points(string sync_name, set<string> sync_points);
 void load_concurrency_table(map<string, set<string> >& ret);
 set<string> list_semaphores();
 
+set<string> list_unlock_points();
+set<vector<string> > get_paths_to(string dest);
+
 #endif /* end of include guard: _DATABASE_H_ */
