@@ -85,7 +85,7 @@ void mutex_lock_2(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver_insert_sync_point("lock", sync_name);
+	solver_insert_sync_point("lock", sync_name, mutex_name);
 }
 
 void mutex_unlock_2(char* _mutex_name, char* _sync_name){
@@ -95,7 +95,7 @@ void mutex_unlock_2(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver_insert_sync_point("unlock", sync_name);
+	solver_insert_sync_point("unlock", sync_name, mutex_name);
 
 }
 

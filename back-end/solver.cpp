@@ -133,21 +133,98 @@ void dump_conditions(FILE* file){
 
 set<string> sync_points_and_locks;
 
-void solver_insert_sync_point(string lockunlock, string sync_name){
-	sync_points_and_locks.insert( "(" + lockunlock + "_" + sync_name + ")" );
+void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name){
+	sync_points_and_locks.insert( "(" + lockunlock + "_" + mutex_name + ")" );
+}
+
+
+void load_concurrency_table(){
+
+}
+
+
+set<string> unlock_points(string mutex){
+
+	set<string> set_a; set_a.insert("d");
+	set<string> set_b; set_b.insert("e"); set_b.insert("f");
+
+	if(mutex == "a")
+		return set_a;
+	if(mutex == "b")
+		return set_b;
+
+	return set_a;
+
+}
+
+string or_unlocking(string condition, string mutex){
+
+	stringstream ret;
+	set<string> unlocks = unlock_points(mutex);
+
+	if(unlocks.size() > 1)
+		ret << "(or ";
+
+
+	for( set<string>::iterator it = unlocks.begin(); it != unlocks.end(); it++ ){
+		ret << "(" << "unlock_" << (*it) << ") ";
+	}
+	//ret << "(" << "unlock_" << "a" << ")";
+
+	if(unlocks.size() > 1)
+		ret << ")";
+
+	return ret.str();
+
+
+}
+
+void substitute_locks(string& condition){
+
+	set<string> mutexes;
+	mutexes.insert("a");
+	mutexes.insert("b");
+	mutexes.insert("c");
+
+	for( set<string>::iterator it = mutexes.begin(); it != mutexes.end(); it++ ){
+		string expr_find = string("(lock_") + (*it) + string(")");
+		string expr_subs = or_unlocking(condition, *it);
+		//string expr_subs = (*it); //or_unlocking(condition, *it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+	
+	
+
+}
+
+void substitute_sync(string& condition){
+	substitute_locks(condition);
 }
 
 void dump_concurrency_constraints(FILE* file){
 	
+
+	load_concurrency_table();
+
 	stringstream condition;
-	condition << "(and ";
+
+	if(sync_points_and_locks.size() > 1)
+		condition << "(and ";
+
 	for( set<string>::iterator it = sync_points_and_locks.begin(); it != sync_points_and_locks.end(); it++ ){
 		//printf("%s\n", it->c_str());
 		condition << *it << " ";
 	}
-	condition << ")";
 
-	printf("%s\n", condition.str().c_str());
+	if(sync_points_and_locks.size() > 1)
+		condition << ")";
+
+	string condition_s = condition.str();
+
+	printf("Concurrency_constraints_1::::::::::::::::::::  %s\n", condition_s.c_str());
+	substitute_sync(condition_s);
+	printf("Concurrency_constraints_2::::::::::::::::::::  %s\n", condition_s.c_str());
+
 	
 
 }

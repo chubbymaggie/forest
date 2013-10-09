@@ -71,9 +71,9 @@ void* fn2(void * args){
 
 int main() {
 
-	pthread_mutex_lock(&a);
-	pthread_mutex_lock(&b);
-	pthread_mutex_lock(&c);
+	/*pthread_mutex_lock(&a);*/
+	/*pthread_mutex_lock(&b);*/
+	/*pthread_mutex_lock(&c);*/
 
 	pthread_t thread1;
 	pthread_t thread2;

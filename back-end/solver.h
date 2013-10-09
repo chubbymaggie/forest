@@ -263,7 +263,7 @@ void load_forced_free_vars();
 void free_var(string name);
 
 
-void solver_insert_sync_point(string lockunlock, string sync_name);
+void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name);
 
 
 
