@@ -55,5 +55,6 @@ void insert_store(string pos, string content, string stack);
 void insert_sync_points(string sync_name, set<string> sync_points);
 //std::map<std::string, std::set<std::string> > load_concurrency_table();
 void load_concurrency_table(map<string, set<string> >& ret);
+set<string> list_semaphores();
 
 #endif /* end of include guard: _DATABASE_H_ */

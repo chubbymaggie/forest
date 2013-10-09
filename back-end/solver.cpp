@@ -185,10 +185,10 @@ string or_unlocking(string condition, string mutex){
 
 void substitute_locks(string& condition){
 
-	set<string> mutexes;
-	mutexes.insert("a");
-	mutexes.insert("b");
-	mutexes.insert("c");
+	set<string> mutexes = list_semaphores();
+	//mutexes.insert("a");
+	//mutexes.insert("b");
+	//mutexes.insert("c");
 
 	for( set<string>::iterator it = mutexes.begin(); it != mutexes.end(); it++ ){
 		string expr_find = string("(lock_") + (*it) + string(")");
