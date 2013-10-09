@@ -403,7 +403,10 @@ void load_concurrency_table(map<string, set<string> >& ret){
 		retsqlite.clear();
 		sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-		assert(retsqlite.size() && "no unlocking of semaphore");
+		if(!retsqlite.size()){
+			printf("mutex %s\n", it->c_str());
+			assert( 0 && "no unlocking of semaphore");
+		}
 
 		for( vector<pair<string, string> >::iterator it2 = retsqlite.begin(); it2 != retsqlite.end(); it2++ ){
 			ret[(*it)].insert(it2->second);

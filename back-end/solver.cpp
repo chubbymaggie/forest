@@ -204,8 +204,33 @@ void substitute_sync(string& condition){
 	substitute_locks(condition);
 }
 
+
+map<string, string> options_2;
+void read_options_2(){
+
+	FILE *file = fopen ( "/tmp/options", "r" );
+	char line_c [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+		options_2[ tokens[0] ] = tokens[1];
+		
+	}
+	fclose ( file );
+}
+
+bool cmd_option_bool_2(string key){
+	return options_2[key] == "true";
+}
+
+
 void dump_concurrency_constraints(FILE* file){
 	
+	read_options_2();
+	if(cmd_option_bool_2("concurrency")) return;
+	if(!cmd_option_bool_2("secuencialize")) return;
 
 	load_concurrency_table(concurrency_table);
 
