@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="false"/> 
+	<option key="explanation" value="Concurrent Simple Example 7"/> 
+	<option key="file" value="simple7.c"/> 
+	<option key="forced_free_var" value="mem_119"/> 
+	<option key="forced_free_var" value="mem_123"/> 
+</options>
