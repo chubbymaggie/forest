@@ -1721,7 +1721,7 @@ void clean_concurrency(){
 	action << "create table stores(";
 	action << "pos varchar(50),";
 	action << "value varchar(50),";
-	action << "stack varchar(50)";
+	action << "sync_point varchar(50)";
 	action << ");";
 	action << "create table sync(";
 	action << "pos varchar(50),";

@@ -28,12 +28,21 @@ using namespace std;
 
 set<string> sync_points;
 
+extern map<string, string> map_pos_to_last_store;
+
 void mutex_lock(char* _mutex_name, char* _sync_name){
 
 	printf("mutex_lock %s %s\n", _mutex_name, _sync_name);
 
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
+
+	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
+		printf("%s %s\n", it->first.c_str(), it->second.c_str());
+		insert_store(it->first, it->second, sync_name );
+	}
+	map_pos_to_last_store.clear();
+
 
 	stringstream conds;
 	dump_conditions(conds);
@@ -52,10 +61,24 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 
 void mutex_unlock(char* _mutex_name, char* _sync_name){
 
+
+	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
+		printf("%s %s\n", it->first.c_str(), it->second.c_str());
+	}
+
+
 	printf("mutex_unlock %s %s\n", _mutex_name, _sync_name);
 
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
+
+
+	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
+		printf("%s %s\n", it->first.c_str(), it->second.c_str());
+		insert_store(it->first, it->second, sync_name );
+	}
+	map_pos_to_last_store.clear();
+
 
 	stringstream conds;
 	dump_conditions(conds);

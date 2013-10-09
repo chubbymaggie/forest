@@ -267,6 +267,9 @@ void store_instr(char* _src, char* _addr){
 
 }
 
+
+map<string, string> map_pos_to_last_store;
+
 void store_instr_2(char* _src, char* _addr){
 
 	string src = string(_src);
@@ -276,7 +279,8 @@ void store_instr_2(char* _src, char* _addr){
 
 	stringstream stack;
 	dump_conditions(stack);
-	insert_store(dst, content(name(src)), stack.str() );
+	map_pos_to_last_store[dst] = content(name(src));
+	//insert_store(dst, content(name(src)), stack.str() );
 
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
