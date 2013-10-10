@@ -315,10 +315,50 @@ void substitute_stores(string& condition){
 	}
 }
 
+map<string, string> stacks;
+
+string stack(string sync_point){
+
+	load_stacks(stacks);
+	return stacks[sync_point];
+
+	//if(sync_point == "entry") return "(true)";
+	//if(sync_point == "bb")    return "(= mem_123 25)";
+	//if(sync_point == "bb4")   return "(not (= mem_123 25))";
+	//if(sync_point == "bb2")   return "(true)";
+	//if(sync_point == "bb1")   return "(not (= mem_123 12))";
+	//return "";
+	
+}
+
+void substitute_conds(string& condition){
+
+	printf("substitute_conds\n");
+
+	set<string> sync_points = list_sync_points();
+
+	printf("sync_points.size %lu\n", sync_points.size());
+	
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		printf("sync_point %s\n", it->c_str());
+		string expr_find = string("(conds_") + (*it) + string(")");
+		string expr_subs = stack(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+}
+
+
 void substitute_sync(string& condition){
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_locks(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_unlocks(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_stores(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_conds(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs-----\n");
 }
 
 
