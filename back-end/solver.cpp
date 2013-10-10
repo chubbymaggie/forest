@@ -223,7 +223,7 @@ string or_paths(string dest){
 		if(path.size() > 1)
 			ret << "(and ";
 		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
-			ret << "(and (stores_" << (*it2) << ") " << "(conds_" << (*it2) << "))" << " ";
+			ret << "(statepath_" << (*it2) << ")" << " ";
 		}
 		if(path.size() > 1)
 			ret << ") ";
@@ -251,6 +251,23 @@ void substitute_unlocks(string& condition){
 		myReplace(condition, expr_find, expr_subs);
 	}
 	
+
+}
+
+void substitute_paths(string& condition){
+
+	printf("substitute_unlocks\n");
+
+	set<string> unlock_points = list_unlock_points();
+
+	printf("unlock_points.size %lu\n", unlock_points.size());
+	
+	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
+		printf("unlock_point %s\n", it->c_str());
+		string expr_find = string("(statepath_") + (*it) + string(")");
+		string expr_subs = "(and (stores_" + (*it) + ") (conds_" + (*it) + "))";
+		myReplace(condition, expr_find, expr_subs);
+	}
 
 }
 
@@ -353,6 +370,8 @@ void substitute_sync(string& condition){
 	substitute_locks(condition);
 	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_unlocks(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_paths(condition);
 	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_stores(condition);
 	printf("Substitute_syncs %s\n", condition.c_str());
