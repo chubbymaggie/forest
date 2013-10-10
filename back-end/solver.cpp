@@ -223,7 +223,7 @@ string or_paths(string dest){
 		if(path.size() > 1)
 			ret << "(and ";
 		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
-			ret << "(" << (*it2) << ")" << " ";
+			ret << "(and (stores_" << (*it2) << ") " << "(conds_" << (*it2) << "))" << " ";
 		}
 		if(path.size() > 1)
 			ret << ") ";
