@@ -254,9 +254,71 @@ void substitute_unlocks(string& condition){
 
 }
 
+map<string, set<pair<string, string> > > stores;
+
+string and_stores(string sync_point){
+
+	load_stores(stores);
+	//stores["entry"].insert(pair<string, string>("mem_220","mem_216"));
+	//stores["bb"].insert(pair<string, string>("mem_119","1"));
+	//stores["bb1"].insert(pair<string, string>("mem_119","0"));
+
+	printf("and_stores %s\n", sync_point.c_str());
+
+	set<pair<string, string> > stores_of_sync_point = stores[sync_point];
+	
+	stringstream ret;
+
+	if(stores_of_sync_point.size() > 1)
+		ret << "(and ";
+	for( set<pair<string, string> >::iterator it = stores_of_sync_point.begin(); it != stores_of_sync_point.end(); it++ ){
+		ret << "(= " << it->first << " " << it->second << ")";
+	}
+	if(stores_of_sync_point.size() > 1)
+		ret << ")";
+	
+
+	return ret.str();
+
+
+	//if(sync_point == "entry")  return "(= mem_220 mem_216)";
+	//if(sync_point == "bb")     return "(= mem_119 1)";
+	//if(sync_point == "bb1")    return "(= mem_119 0)";
+	//return "()";
+
+
+
+}
+
+set<string> list_store_sync_points(){
+	
+	set<string> ret;
+	ret.insert("entry");
+	ret.insert("bb");
+	ret.insert("bb1");
+	return ret;
+}
+
+void substitute_stores(string& condition){
+
+	printf("substitute_stores\n");
+
+	set<string> sync_points = list_store_sync_points();
+
+	printf("sync_points.size %lu\n", sync_points.size());
+	
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		printf("sync_store_point %s\n", it->c_str());
+		string expr_find = string("(stores_") + (*it) + string(")");
+		string expr_subs = and_stores(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+}
+
 void substitute_sync(string& condition){
 	substitute_locks(condition);
 	substitute_unlocks(condition);
+	substitute_stores(condition);
 }
 
 

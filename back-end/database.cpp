@@ -481,4 +481,39 @@ set<vector<string> > get_paths_to(string dest){
 }
 
 
+void load_stores(map<string, set<pair<string, string> > >& stores){
+
+	debug && printf("\e[31m load_stores\e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "select pos,value,sync_point from stores;";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	printf("load_stores_num %lu\n", retsqlite.size());
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
+		
+		string pos = it->second;          it++;
+		string value = it->second;        it++;
+		string sync_point = it->second;   it++;
+		
+		pair<string, string> pos_and_value(pos, value);
+
+		stores[sync_point].insert(pos_and_value);
+
+
+		//printf("storesss %s\n", tokens.c_str());
+		//vector<string> path = tokenize(tokens, ",");
+		//vector<string> tokens = tokenize(*it, ",");
+		//for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ){
+			//if(*it2 != dest)
+				//path.push_back(*it2);
+		//}
+		//ret.insert(path);
+	}
+	//ret.insert("a"); ret.insert("b"); ret.insert("c");
+
+}
 

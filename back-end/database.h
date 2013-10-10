@@ -59,5 +59,6 @@ set<string> list_semaphores();
 
 set<string> list_unlock_points();
 set<vector<string> > get_paths_to(string dest);
+void load_stores(map<string, set<pair<string, string> > >& stores);
 
 #endif /* end of include guard: _DATABASE_H_ */
