@@ -579,4 +579,38 @@ void load_stacks(map<string, string>& stacks){
 }
 
 
+set<string> list_store_sync_points(){
+	
+
+
+	debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
+
+	set<string> ret;
+
+	stringstream action;
+	action << "select sync_name from concurrency;";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	printf("list_store_sync_points %lu\n", retsqlite.size());
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
+		
+		string sync_name = it->second;          it++;
+
+		ret.insert(sync_name);
+
+	}
+
+
+	return ret;
+
+	//set<string> ret;
+	//ret.insert("entry");
+	//ret.insert("bb");
+	//ret.insert("bb1");
+	//ret.insert("bb2");
+	//return ret;
+}
 

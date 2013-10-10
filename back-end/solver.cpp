@@ -307,14 +307,6 @@ string and_stores(string sync_point){
 
 }
 
-set<string> list_store_sync_points(){
-	
-	set<string> ret;
-	ret.insert("entry");
-	ret.insert("bb");
-	ret.insert("bb1");
-	return ret;
-}
 
 void substitute_stores(string& condition){
 
@@ -425,9 +417,11 @@ void dump_concurrency_constraints(FILE* file){
 
 	string condition_s = condition.str();
 
-	printf("Concurrency_constraints_1::::::::::::::::::::  %s\n", condition_s.c_str());
+	//printf("Concurrency_constraints_1::::::::::::::::::::  %s\n", condition_s.c_str());
 	substitute_sync(condition_s);
-	printf("Concurrency_constraints_2::::::::::::::::::::  %s\n", condition_s.c_str());
+	substitute_sync(condition_s);
+	substitute_sync(condition_s);
+	//printf("Concurrency_constraints_2::::::::::::::::::::  %s\n", condition_s.c_str());
 
 	
 
