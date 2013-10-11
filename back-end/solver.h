@@ -64,6 +64,7 @@ void dump_concurrency_constraints(FILE* file = stdout);
 void dump_conditions( stringstream& sstr );
 void dump_check_sat(FILE* file = stdout);
 void dump_exclusions(FILE* file = stdout);
+void dump_sync_variables(FILE* file = stdout);
 
 /**
  * @brief Dumps smtlib header

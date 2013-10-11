@@ -570,7 +570,7 @@ void load_stacks(map<string, string>& stacks){
 		string sync_name = it->second;          it++;
 		string conds     = it->second;        it++;
 
-		if(conds == "") conds = "(true)";
+		if(conds == "") conds = " true ";
 		
 		stacks[sync_name] = conds;
 
@@ -625,3 +625,27 @@ void insert_global_type(string name, string type){
 
 }
 
+
+set<pair<string, string> > get_sync_global_types(){
+
+	set<pair<string, string> > ret;
+
+	stringstream action;
+	action << "select pos,type from global_types;";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
+		
+		string pos = it->second;          it++;
+		string type = it->second;          it++;
+
+		pair<string, string> pos_and_type = pair<string, string>(pos, type);
+		ret.insert(pos_and_type);
+
+	}
+
+
+	return ret;
+}

@@ -122,6 +122,32 @@ void dump_variables(FILE* file){
 
 }
 
+void dump_sync_variables(FILE* file){
+
+	set<pair<string, string> > vars_and_types = get_sync_global_types();
+
+	for( set<pair<string, string> >::iterator it = vars_and_types.begin(); it != vars_and_types.end(); it++ ){
+		stringstream decl; decl << "(declare-fun " << it->first << " () " << it->second << ")";
+
+		bool found = false;
+
+		for( set<NameAndPosition>::iterator it2 = variable_names.begin(); it2 != variable_names.end(); it2++ ){
+
+			vector<string> tokens = tokenize(it2->name, " ");
+
+			string name = tokens[0];
+
+			if(name == it->first)
+				found = true;
+		}
+		
+
+		if(!found)
+			fprintf(file, "%s\n", decl.str().c_str() );
+	}
+	
+}
+
 void dump_conditions(FILE* file){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
@@ -725,8 +751,13 @@ void solve_problem(){
 
 		FILE* file = fopen(filename.str().c_str(), "w");
 
+
+		read_options_2();
+
 		dump_header(file);
 		dump_variables(file);
+		if(cmd_option_bool_2("secuencialize"))
+			dump_sync_variables(file);
 		dump_type_limits(file);
 		dump_conditions(file);
 		dump_concurrency_constraints(file);
@@ -1575,8 +1606,12 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 int show_problem(){
 
+	read_options_2();
+	
 	dump_header();
 	dump_variables();
+	if(cmd_option_bool_2("secuencialize"))
+		dump_sync_variables();
 	dump_type_limits();
 	dump_conditions();
 	dump_concurrency_constraints();

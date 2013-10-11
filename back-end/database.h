@@ -64,5 +64,6 @@ set<string> list_sync_points();
 void load_stacks(map<string, string>& stacks);
 set<string> list_store_sync_points();
 void insert_global_type(string name, string type);
+set<pair<string, string> > get_sync_global_types();
 
 #endif /* end of include guard: _DATABASE_H_ */
