@@ -277,6 +277,9 @@ void store_instr_2(char* _src, char* _addr){
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
+	printf("source_value %s\n", name(dst).c_str() );
+	content(name(dst));
+
 	stringstream stack;
 	dump_conditions(stack);
 	map_pos_to_last_store[dst] = content(name(src));

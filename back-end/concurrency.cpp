@@ -30,6 +30,26 @@ set<string> sync_points;
 
 extern map<string, string> map_pos_to_last_store;
 
+extern set<NameAndPosition> variable_names;
+
+void insert_global_types(){
+	
+	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+
+		vector<string> tokens = tokenize(it->name, " ");
+
+		string name = tokens[0];
+		string type = get_type(it->name);
+
+		insert_global_type(name, type);
+
+		//fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
+		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+		
+	}
+	
+}
+
 void mutex_lock(char* _mutex_name, char* _sync_name){
 
 	printf("mutex_lock %s %s\n", _mutex_name, _sync_name);
@@ -42,6 +62,8 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 		insert_store(it->first, it->second, sync_name );
 	}
 	map_pos_to_last_store.clear();
+
+	insert_global_types();
 
 
 	stringstream conds;
@@ -78,6 +100,8 @@ void mutex_unlock(char* _mutex_name, char* _sync_name){
 		insert_store(it->first, it->second, sync_name );
 	}
 	map_pos_to_last_store.clear();
+
+	insert_global_types();
 
 
 	stringstream conds;

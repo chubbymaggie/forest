@@ -1698,6 +1698,7 @@ void show_concurrency_table(){
 	db_command(".mode columns\\n.width 15 5 10 35\\n.headers on\\nselect * from concurrency;");
 	db_command(".mode columns\\n.width 15 10 35\\n.headers on\\nselect * from stores;");
 	db_command(".mode columns\\n.width 15 20\\n.headers on\\nselect * from sync;");
+	db_command(".mode columns\\n.width 15 20\\n.headers on\\nselect * from global_types;");
 	
 }
 
@@ -1707,6 +1708,7 @@ void clean_concurrency(){
 	db_command("drop table loads;");
 	db_command("drop table stores;");
 	db_command("drop table sync;");
+	db_command("drop table global_types;");
 
 	stringstream action;
 	action << "create table concurrency(";
@@ -1726,6 +1728,10 @@ void clean_concurrency(){
 	action << "create table sync(";
 	action << "pos varchar(50),";
 	action << "stack varchar(50)";
+	action << ");";
+	action << "create table global_types(";
+	action << "pos varchar(50),";
+	action << "type varchar(50)";
 	action << ");";
 
 
