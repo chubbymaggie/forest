@@ -325,7 +325,7 @@ void database_insert_concurrency(string lockunlock, string mutex_name, string sy
 
 	stringstream action;
 	action << "insert into concurrency values (\"" << lockunlock << "\",\"" << mutex_name << "\",\"" << sync_name << "\",\"" << conds << "\");";
-	printf("%s\n", action.str().c_str());
+	//printf("%s\n", action.str().c_str());
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }
 
@@ -392,7 +392,7 @@ void load_concurrency_table(map<string, set<string> >& ret){
 	//ret["a"].insert("d");
 	//ret["b"].insert("e"); ret["b"].insert("f");
 	//ret["c"].insert("x");
-	debug && printf("\e[31m load_concurrency_table \e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m load_concurrency_table \e[0m\n"); fflush(stdout);
 
 	set<string> all_semaphores = list_semaphores();
 
@@ -430,7 +430,7 @@ void load_concurrency_table(map<string, set<string> >& ret){
 
 set<string> list_unlock_points(){
 
-	debug && printf("\e[31m list_unlock_points \e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m list_unlock_points \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select pos from sync;";
@@ -445,7 +445,7 @@ set<string> list_unlock_points(){
 	//ret.insert("a"); ret.insert("b"); ret.insert("c");
 	//
 	
-	printf("list_unlock_points.size %lu\n", ret.size()); fflush(stdout);
+	//printf("list_unlock_points.size %lu\n", ret.size()); fflush(stdout);
 
 	return ret;
 
@@ -454,7 +454,7 @@ set<string> list_unlock_points(){
 set<vector<string> > get_paths_to(string dest){
 
 
-	debug && printf("\e[31m get_paths_to \e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m get_paths_to \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select stack from sync where pos=\"" << dest << "\";";
@@ -483,7 +483,7 @@ set<vector<string> > get_paths_to(string dest){
 
 void load_stores(map<string, set<pair<string, string> > >& stores){
 
-	debug && printf("\e[31m load_stores\e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m load_stores\e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select pos,value,sync_point from stores;";
@@ -491,7 +491,7 @@ void load_stores(map<string, set<pair<string, string> > >& stores){
 	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-	printf("load_stores_num %lu\n", retsqlite.size());
+	//printf("load_stores_num %lu\n", retsqlite.size());
 
 	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
 		
@@ -523,7 +523,7 @@ set<string> list_sync_points(){
 
 	set<string> ret;
 
-	debug && printf("\e[31m list_sync_points\e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m list_sync_points\e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select sync_name from concurrency;";
@@ -531,7 +531,7 @@ set<string> list_sync_points(){
 	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-	printf("list_sync_points.size %lu\n", retsqlite.size());
+	//printf("list_sync_points.size %lu\n", retsqlite.size());
 
 	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++){
 		
@@ -555,7 +555,7 @@ set<string> list_sync_points(){
 
 void load_stacks(map<string, string>& stacks){
 
-	debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select sync_name,conds from concurrency;";
@@ -563,7 +563,7 @@ void load_stacks(map<string, string>& stacks){
 	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-	printf("load_stacks_num %lu\n", retsqlite.size());
+	//printf("load_stacks_num %lu\n", retsqlite.size());
 
 	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
 		
@@ -583,7 +583,7 @@ set<string> list_store_sync_points(){
 	
 
 
-	debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
 
 	set<string> ret;
 
@@ -593,7 +593,7 @@ set<string> list_store_sync_points(){
 	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
-	printf("list_store_sync_points %lu\n", retsqlite.size());
+	//printf("list_store_sync_points %lu\n", retsqlite.size());
 
 	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
 		

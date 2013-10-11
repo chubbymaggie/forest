@@ -142,13 +142,13 @@ map<string, set<string> > concurrency_table;
 
 set<string> unlock_points(string mutex){
 
-	printf("listing_unlock %s\n", mutex.c_str());
+	//printf("listing_unlock %s\n", mutex.c_str());
 	set<string> ret = concurrency_table[mutex];
 	//for( set<string>::iterator it = ret.begin(); it != ret.end(); it++ )
 		//printf("%s \n", it->c_str());
 	//printf("\n");
 	if(!ret.size()){
-		printf("mutex %s\n", mutex.c_str() ); fflush(stdout);
+		//printf("mutex %s\n", mutex.c_str() ); fflush(stdout);
 		assert(0 && "empty set");
 	}
 	return ret;
@@ -202,7 +202,7 @@ void substitute_locks(string& condition){
 
 string or_paths(string dest){
 
-	printf("or_paths %s\n", dest.c_str());
+	//printf("or_paths %s\n", dest.c_str());
 
 	//if(dest == "bb")    return "(de)";
 	//if(dest == "bb1")   return "(df)";
@@ -213,7 +213,7 @@ string or_paths(string dest){
 
 	set<vector<string> > paths = get_paths_to(dest);
 
-	printf("dest %s path num %lu\n",dest.c_str(), paths.size());
+	//printf("dest %s path num %lu\n",dest.c_str(), paths.size());
 
 	stringstream ret;
 	if(paths.size() > 1)
@@ -238,14 +238,14 @@ string or_paths(string dest){
 
 void substitute_unlocks(string& condition){
 
-	printf("substitute_unlocks\n");
+	//printf("substitute_unlocks\n");
 
 	set<string> unlock_points = list_unlock_points();
 
-	printf("unlock_points.size %lu\n", unlock_points.size());
+	//printf("unlock_points.size %lu\n", unlock_points.size());
 	
 	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
-		printf("unlock_point %s\n", it->c_str());
+		//printf("unlock_point %s\n", it->c_str());
 		string expr_find = string("(unlock_") + (*it) + string(")");
 		string expr_subs = or_paths(*it);
 		myReplace(condition, expr_find, expr_subs);
@@ -256,14 +256,14 @@ void substitute_unlocks(string& condition){
 
 void substitute_paths(string& condition){
 
-	printf("substitute_unlocks\n");
+	//printf("substitute_unlocks\n");
 
 	set<string> unlock_points = list_unlock_points();
 
-	printf("unlock_points.size %lu\n", unlock_points.size());
+	//printf("unlock_points.size %lu\n", unlock_points.size());
 	
 	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
-		printf("unlock_point %s\n", it->c_str());
+		//printf("unlock_point %s\n", it->c_str());
 		string expr_find = string("(statepath_") + (*it) + string(")");
 		string expr_subs = "(and (stores_" + (*it) + ") (conds_" + (*it) + "))";
 		myReplace(condition, expr_find, expr_subs);
@@ -280,7 +280,7 @@ string and_stores(string sync_point){
 	//stores["bb"].insert(pair<string, string>("mem_119","1"));
 	//stores["bb1"].insert(pair<string, string>("mem_119","0"));
 
-	printf("and_stores %s\n", sync_point.c_str());
+	//printf("and_stores %s\n", sync_point.c_str());
 
 	set<pair<string, string> > stores_of_sync_point = stores[sync_point];
 	
@@ -310,14 +310,14 @@ string and_stores(string sync_point){
 
 void substitute_stores(string& condition){
 
-	printf("substitute_stores\n");
+	//printf("substitute_stores\n");
 
 	set<string> sync_points = list_store_sync_points();
 
-	printf("sync_points.size %lu\n", sync_points.size());
+	//printf("sync_points.size %lu\n", sync_points.size());
 	
 	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
-		printf("sync_store_point %s\n", it->c_str());
+		//printf("sync_store_point %s\n", it->c_str());
 		string expr_find = string("(stores_") + (*it) + string(")");
 		string expr_subs = and_stores(*it);
 		myReplace(condition, expr_find, expr_subs);
@@ -342,14 +342,14 @@ string stack(string sync_point){
 
 void substitute_conds(string& condition){
 
-	printf("substitute_conds\n");
+	//printf("substitute_conds\n");
 
 	set<string> sync_points = list_sync_points();
 
-	printf("sync_points.size %lu\n", sync_points.size());
+	//printf("sync_points.size %lu\n", sync_points.size());
 	
 	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
-		printf("sync_point %s\n", it->c_str());
+		//printf("sync_point %s\n", it->c_str());
 		string expr_find = string("(conds_") + (*it) + string(")");
 		string expr_subs = stack(*it);
 		myReplace(condition, expr_find, expr_subs);
@@ -358,18 +358,18 @@ void substitute_conds(string& condition){
 
 
 void substitute_sync(string& condition){
-	printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_locks(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_unlocks(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_paths(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_stores(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_conds(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
-	printf("Substitute_syncs-----\n");
+	//printf("Substitute_syncs %s\n", condition.c_str());
+	//printf("Substitute_syncs-----\n");
 }
 
 
@@ -419,11 +419,14 @@ void dump_concurrency_constraints(FILE* file){
 
 	//printf("Concurrency_constraints_1::::::::::::::::::::  %s\n", condition_s.c_str());
 	substitute_sync(condition_s);
-	substitute_sync(condition_s);
-	substitute_sync(condition_s);
+	//substitute_sync(condition_s);
+	//substitute_sync(condition_s);
 	//printf("Concurrency_constraints_2::::::::::::::::::::  %s\n", condition_s.c_str());
-
 	
+
+	condition_s = "(assert " + condition_s + ")\n";
+
+	fprintf(file, "%s", condition_s.c_str());
 
 }
 
@@ -1576,10 +1579,31 @@ int show_problem(){
 	dump_variables();
 	dump_type_limits();
 	dump_conditions();
+	dump_concurrency_constraints();
 	dump_check_sat();
 	dump_get();
 	dump_get_fuzz();
 	dump_tail();
+
+
+		//dump_header(file);
+		//dump_variables(file);
+		//dump_type_limits(file);
+		//dump_conditions(file);
+		//dump_concurrency_constraints(file);
+		//dump_exclusions(file);
+		//dump_check_sat(file);
+		//dump_get(file);
+		//dump_get_fuzz(file);
+		//dump_get_free(file);
+		//dump_tail(file);
+
+
+
+
+
+
+
 
 	stringstream filename; filename << "z3-" << rand() << ".smt2";
 
