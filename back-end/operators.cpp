@@ -83,7 +83,7 @@ void Operators::CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char
 
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
-		solver->assign_instruction( name(oplist[i], fn_name), name(fn_oplist[i], fn_name) );
+		solver->assign_instruction( name(oplist[i]), name(fn_oplist[i], fn_name) );
 
 	}
 
@@ -141,7 +141,7 @@ void Operators::ReturnInstr(char* _retname ){
 	string last_rg_callstack = callstack[ callstack.size() - 1].first;
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
-	solver->assign_instruction( name(retname, last_fn_callstack), name(last_rg_callstack, last_fn_callstack) );
+	solver->assign_instruction( name(retname), name(last_rg_callstack, last_fn_callstack) );
 
 	callstack.erase( callstack.end() - 1 );
 	actual_function = last_fn_callstack;
