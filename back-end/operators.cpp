@@ -696,7 +696,7 @@ void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){operators->s
 void ReturnInstr(char* _retname ){operators->ReturnInstr(_retname);}
 void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){operators->binary_op(_dst, _op1, _op2,_operation);}
 void load_instr(char* _dst, char* _addr){operators->load_instr(_dst, _addr);}
-void store_instr(char* _src, char* _addr){operators->load_instr(_src, _addr);}
+void store_instr(char* _src, char* _addr){operators->store_instr(_src, _addr);}
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){operators->cmp_instr(_dst, _cmp1, _cmp2, _type);}
 void br_instr_incond(){operators->br_instr_incond();}
 void begin_bb(char* name){operators->begin_bb(name);}
