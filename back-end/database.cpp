@@ -20,15 +20,15 @@
 
 #include "database.h"
 
+extern Solver* solver;
+
 #define debug true
 #define DATABASE_VALUES false
 
 sqlite3 *db;
 
-extern map<string, Variable> variables;
 extern set<NameAndPosition> variable_names;
 extern vector<Condition> conditions;
-extern vector<bool> path_stack;
 
 vector< pair<string, string> > retsqlite;
 
@@ -186,39 +186,42 @@ void insert_problem(){
 	string id = "(select count() from problems)";
 
 	string path;
+	vector<bool> path_stack = solver->get_path_stack();
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
 		path += (*it)?"T":"F";
 	}
 	
-	action << "insert into problems (sat, path) values (" << (solvable_problem()?1:0) << ",'" << path << "');";
+	action << "insert into problems (sat, path) values (" << (solver->solvable_problem()?1:0) << ",'" << path << "');";
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = it->name;
-		string type = get_sized_type(name);
+		string type = solver->get_sized_type(name);
 		string position = it->position;
 		action << "insert into variables values ('" << name << "','" << type << "','" << position << "'," << id << ");";
 	}
 	
-	if( solvable_problem() ){
+	if( solver->solvable_problem() ){
 
 
 		for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 			string name = it->name;
-			string value = (variables[name].real_value == "")?string("0"):variables[name].real_value;
+			string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
 			//string value = variables[name].real_value;
-			string hint = gethint(variables[name].name_hint);
+			string hint = gethint(solver->get_name_hint(name));
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
 
 		}
 
+		map<string, Variable> variables = solver->get_map_variables();
+
 		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
 			if( it->second.content == "" ) continue;
 
 			string name = it->first;
-			string value = realvalue_mangled(name);
+			string value = solver->realvalue_mangled(name);
 			string hint = gethint(variables[name].name_hint);
 
 			if(DATABASE_VALUES)
@@ -264,6 +267,7 @@ bool yet_covered(){
 
 
 	string path;
+	vector<bool> path_stack = solver->get_path_stack();
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
 		path += (*it)?"T":"F";
 	}

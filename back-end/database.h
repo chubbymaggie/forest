@@ -30,6 +30,7 @@
 #include <vector>
 #include "operators.h"
 #include "solver.h"
+#include "utils.h"
 
 using namespace std;
 

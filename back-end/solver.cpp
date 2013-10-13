@@ -28,35 +28,37 @@
 #define EXIT_ON_INSERT false
 #define FUZZ_LIMIT 500
 
-map<string, Variable> variables;
+
+extern Options* options;
+extern Operators* operators;
+
 set<NameAndPosition> variable_names;
 vector<string> flatened_conditions;
 set<string> flatened_variables;
-extern string actual_function;
 vector<Condition> conditions;
-vector<bool> path_stack;
 vector<string> exclusions;
-
-void push_path_stack(bool step){
-	path_stack.push_back(step);
-}
 
 set<string> forced_free_vars;
 
-void free_var(string var){
+Solver::Solver(){}
+Solver::~Solver(){}
 
-	//printf("free_var %s prev_value %s\n", var.c_str(), variables[name(var)].content.c_str() );
-	stringstream mem_name; mem_name << "mem_" << variables[name(var)].content;
+
+void Solver::free_var(string var){
+
+	if(!check_mangled_name(var)) assert(0 && "Wrong name for content");
+
+	stringstream mem_name; mem_name << "mem_" << variables[var].content;
 	forced_free_vars.insert( mem_name.str() );
 
 }
 
-string content( string name ){
+string Solver::content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if( variables[name].content == "" ){
-		insert_variable(name, actual_function + UNDERSCORE + variables[name].name_hint );
+		insert_variable(name, operators->get_actual_function() + UNDERSCORE + variables[name].name_hint );
 		return name;
 
 	} else {
@@ -64,48 +66,9 @@ string content( string name ){
 	}
 }
 
-int count(string name, string character){
-
-    int n = 0;
-    string::size_type sz = 0;
-
-    while ( (sz = name.find (character,sz) ) != string::npos  ){
-        sz++; /*otherwise you start searching at your previous match*/
-        n++;
-    }
-    return n;
-
-}
-
-bool check_mangled_name(string name){
-
-	//printf("check mangled name %s\n", name.c_str());
-	int number_of_underscore = count(name, UNDERSCORE);
-	if(
-			number_of_underscore != 1 && // main_registerunderscoreval mem_9
-			number_of_underscore != 0    // 0
-	)
-		return false;
-
-	if( number_of_underscore == 1 ){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[1].substr(0,8) != "register" &&
-		   tokens[0].substr(0,3) != "mem"      &&
-		   tokens[0].substr(0,6) != "global"
-		  ) return false;
-	}
-
-	if( number_of_underscore  == 0 ){
-		if( !is_number(name) )
-			return false;
-	}
 
 
-	return true;
-
-}
-
-void dump_variables(FILE* file){
+void Solver::dump_variables(FILE* file){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
@@ -122,7 +85,7 @@ void dump_variables(FILE* file){
 
 }
 
-void dump_sync_variables(FILE* file){
+void Solver::dump_sync_variables(FILE* file){
 
 	set<pair<string, string> > vars_and_types = get_sync_global_types();
 
@@ -148,7 +111,7 @@ void dump_sync_variables(FILE* file){
 	
 }
 
-void dump_conditions(FILE* file){
+void Solver::dump_conditions(FILE* file){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if(!it->fuzzme)
@@ -159,14 +122,14 @@ void dump_conditions(FILE* file){
 
 set<string> sync_points_and_locks;
 
-void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name){
+void Solver::solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name){
 	sync_points_and_locks.insert( "(" + lockunlock + "_" + mutex_name + ")" );
 }
 
 
 map<string, set<string> > concurrency_table;
 
-set<string> unlock_points(string mutex){
+set<string> Solver::unlock_points(string mutex){
 
 	//printf("listing_unlock %s\n", mutex.c_str());
 	set<string> ret = concurrency_table[mutex];
@@ -188,7 +151,7 @@ set<string> unlock_points(string mutex){
 
 }
 
-string or_unlocking(string condition, string mutex){
+string Solver::or_unlocking(string condition, string mutex){
 
 	stringstream ret;
 	set<string> unlocks = unlock_points(mutex);
@@ -209,7 +172,7 @@ string or_unlocking(string condition, string mutex){
 
 }
 
-void substitute_locks(string& condition){
+void Solver::substitute_locks(string& condition){
 
 	set<string> mutexes = list_semaphores();
 	//mutexes.insert("a");
@@ -226,7 +189,7 @@ void substitute_locks(string& condition){
 
 }
 
-string or_paths(string dest){
+string Solver::or_paths(string dest){
 
 	//printf("or_paths %s\n", dest.c_str());
 
@@ -262,7 +225,7 @@ string or_paths(string dest){
 	
 }
 
-void substitute_unlocks(string& condition){
+void Solver::substitute_unlocks(string& condition){
 
 	//printf("substitute_unlocks\n");
 
@@ -280,7 +243,7 @@ void substitute_unlocks(string& condition){
 
 }
 
-void substitute_paths(string& condition){
+void Solver::substitute_paths(string& condition){
 
 	//printf("substitute_unlocks\n");
 
@@ -299,7 +262,7 @@ void substitute_paths(string& condition){
 
 map<string, set<pair<string, string> > > stores;
 
-string and_stores(string sync_point){
+string Solver::and_stores(string sync_point){
 
 	load_stores(stores);
 	//stores["entry"].insert(pair<string, string>("mem_220","mem_216"));
@@ -334,7 +297,7 @@ string and_stores(string sync_point){
 }
 
 
-void substitute_stores(string& condition){
+void Solver::substitute_stores(string& condition){
 
 	//printf("substitute_stores\n");
 
@@ -352,7 +315,7 @@ void substitute_stores(string& condition){
 
 map<string, string> stacks;
 
-string stack(string sync_point){
+string Solver::stack(string sync_point){
 
 	load_stacks(stacks);
 	return stacks[sync_point];
@@ -366,7 +329,7 @@ string stack(string sync_point){
 	
 }
 
-void substitute_conds(string& condition){
+void Solver::substitute_conds(string& condition){
 
 	//printf("substitute_conds\n");
 
@@ -383,7 +346,7 @@ void substitute_conds(string& condition){
 }
 
 
-void substitute_sync(string& condition){
+void Solver::substitute_sync(string& condition){
 	//printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_locks(condition);
 	//printf("Substitute_syncs %s\n", condition.c_str());
@@ -399,32 +362,12 @@ void substitute_sync(string& condition){
 }
 
 
-map<string, string> options_2;
-void read_options_2(){
 
-	FILE *file = fopen ( "/tmp/options", "r" );
-	char line_c [ 128 ]; /* or other suitable maximum line size */
+void Solver::dump_concurrency_constraints(FILE* file){
 	
-	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
-		line_c[strlen(line_c)-1] = 0;
-		string line = string(line_c);
-		vector<string> tokens = tokenize(line, " ");
-		options_2[ tokens[0] ] = tokens[1];
-		
-	}
-	fclose ( file );
-}
-
-bool cmd_option_bool_2(string key){
-	return options_2[key] == "true";
-}
-
-
-void dump_concurrency_constraints(FILE* file){
-	
-	read_options_2();
-	if(cmd_option_bool_2("concurrency")) return;
-	if(!cmd_option_bool_2("secuencialize")) return;
+	options->read_options();
+	if(options->cmd_option_bool("concurrency")) return;
+	if(!options->cmd_option_bool("secuencialize")) return;
 
 	load_concurrency_table(concurrency_table);
 
@@ -456,7 +399,7 @@ void dump_concurrency_constraints(FILE* file){
 
 }
 
-void dump_conditions( stringstream& sstr ){
+void Solver::dump_conditions( stringstream& sstr ){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if(!it->fuzzme)
@@ -467,19 +410,19 @@ void dump_conditions( stringstream& sstr ){
 
 }
 
-void dump_check_sat(FILE* file){
+void Solver::dump_check_sat(FILE* file){
 
 	fprintf(file,"(check-sat)\n");
 
 }
 
-void dump_header(FILE* file){
+void Solver::dump_header(FILE* file){
 	fprintf(file,"(set-option :produce-models true)\n");
 	fprintf(file,"(set-logic AUFNIRA)\n");
 
 }
 
-int minval(string type){
+int Solver::minval(string type){
 	if(type == "Int32") return -(1 << 30);
 	if(type == "Int16") return -(1 << 15);
 	if(type == "Int8")  return -(1 << 8);
@@ -491,7 +434,7 @@ int minval(string type){
 	return 0;
 }
 
-int maxval(string type){
+int Solver::maxval(string type){
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
 	if(type == "Int8") return (1 << 8);
@@ -504,7 +447,7 @@ int maxval(string type){
 
 }
 
-void dump_type_limits(FILE* file){
+void Solver::dump_type_limits(FILE* file){
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
@@ -519,11 +462,11 @@ void dump_type_limits(FILE* file){
 	}
 }
 
-void dump_tail(FILE* file){
+void Solver::dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
 }
 
-void dump_get_fuzz(FILE* file){
+void Solver::dump_get_fuzz(FILE* file){
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if(it->fuzzme)
 			fprintf(file,"(get-value (%s)); \e[33m fuzzme \e[0m\n", it->cond.c_str() );
@@ -531,7 +474,7 @@ void dump_get_fuzz(FILE* file){
 
 }
 
-int get_num_fuzzs(){
+int Solver::get_num_fuzzs(){
 
 	int ret = 0;
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
@@ -543,7 +486,7 @@ int get_num_fuzzs(){
 
 }
 
-void dump_get(FILE* file){
+void Solver::dump_get(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -557,7 +500,7 @@ void dump_get(FILE* file){
 	
 }
 
-void dump_get_free(FILE* file){
+void Solver::dump_get_free(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
@@ -565,13 +508,13 @@ void dump_get_free(FILE* file){
 	}
 }
 
-int get_num_fvars(){
+int Solver::get_num_fvars(){
 
 	return variable_names.size();
 
 }
 
-string result_get(string get_str){
+string Solver::result_get(string get_str){
 
 	get_str.erase(get_str.find_last_not_of(" \n\r\t")+1);
 
@@ -594,31 +537,20 @@ string result_get(string get_str){
 	return ret;
 }
 
-void set_real_value(string varname, string value, string fn_name ){
+void Solver::set_real_value(string varname, string value){
 
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for set_real_value");
+	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
-	variables[ name(varname, fn_name) ].real_value = value;
+	//printf("set_real_value %s %s\n", varname.c_str(), value.c_str());
+	variables[varname].real_value = value;
 }
 
-void set_real_value_mangled(string varname, string value ){
+void Solver::set_real_value_mangled(string varname, string value ){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
 	variables[varname].real_value = value;
 }
-
-void set_real_value(string varname, string value ){
-
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for set_real_value");
-
-	variables[ name(varname) ].real_value = value;
-}
-
-
-
-
-
 
 #define INITIAL_LINE_LENGTH	256
 char* fgetln(register FILE* fp, size_t *lenp) {
@@ -665,12 +597,12 @@ char* fgetln(register FILE* fp, size_t *lenp) {
 	return (buf);
 }
 
-bool get_is_sat(string is_sat){
+bool Solver::get_is_sat(string is_sat){
 	if( is_sat == "sat" ) return true;
 	else return false;
 }
 
-bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
+bool Solver::get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
 
 	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
 		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
@@ -683,7 +615,7 @@ bool get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
 
 }
 
-string get_exclusion( vector<string> excluded_values ){
+string Solver::get_exclusion( vector<string> excluded_values ){
 
 	string ret;
 	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
@@ -704,16 +636,16 @@ string get_exclusion( vector<string> excluded_values ){
 	return ret;
 }
 
-void insert_exclusion(string exclusion){
+void Solver::insert_exclusion(string exclusion){
 
 	exclusions.push_back(exclusion);
 }
 
-void clean_exclusions(){
+void Solver::clean_exclusions(){
 	exclusions.clear();
 }
 
-void dump_exclusions(FILE* file){
+void Solver::dump_exclusions(FILE* file){
 
 	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
 		fprintf(file,"(assert %s)\n", it->c_str() );
@@ -731,7 +663,7 @@ void dump_exclusions(FILE* file){
 
 bool sat;
 
-void solve_problem(){
+void Solver::solve_problem(){
 
 	vector<string> ret_vector;
 
@@ -752,11 +684,11 @@ void solve_problem(){
 		FILE* file = fopen(filename.str().c_str(), "w");
 
 
-		read_options_2();
+		options->read_options();
 
 		dump_header(file);
 		dump_variables(file);
-		if(cmd_option_bool_2("secuencialize"))
+		if(options->cmd_option_bool("secuencialize"))
 			dump_sync_variables(file);
 		dump_type_limits(file);
 		dump_conditions(file);
@@ -867,17 +799,17 @@ void solve_problem(){
 
 }
 
-bool solvable_problem(){
+bool Solver::solvable_problem(){
 
 	return sat;
 	
 }
 
-void set_sat(bool _sat){
+void Solver::set_sat(bool _sat){
 	sat = _sat;
 }
 
-void insert_variable(string name, string position){
+void Solver::insert_variable(string name, string position){
 
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
@@ -905,11 +837,6 @@ void insert_variable(string name, string position){
 
 }
 
-int stoi(string str){
-	int ret;
-	sscanf(str.c_str(), "%d", &ret);
-	return ret;
-}
 
 float stof(string str){
 	float ret;
@@ -917,7 +844,7 @@ float stof(string str){
 	return ret;
 }
 
-void push_condition(string cond, string fn, vector<string> joints, bool fuzzme ){
+void Solver::push_condition(string cond, string fn, vector<string> joints, bool fuzzme ){
 
 	set<string> joints_set = set<string>(joints.begin(), joints.end());
 
@@ -925,7 +852,7 @@ void push_condition(string cond, string fn, vector<string> joints, bool fuzzme )
 	conditions.push_back( condition );
 }
 
-string negation(string condition){
+string Solver::negation(string condition){
 
 	stringstream negation_ss;
 	negation_ss << "(not " << string(condition) << ")";
@@ -933,21 +860,9 @@ string negation(string condition){
 	return negation_ss.str();
 }
 
-void settype(string name, string type){
 
-	if( !check_mangled_name(name) ) assert(0 && "Wrong name for settype");
-	variables[name].type = type;
 
-}
-
-void set_name_hint(string name, string hint){
-
-	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_name_hint");
-	variables[name].name_hint = hint;
-
-}
-
-string name_without_suffix( string name ){
+string Solver::name_without_suffix( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for name_without_suffix");
 
@@ -956,7 +871,7 @@ string name_without_suffix( string name ){
 	return name.substr(0,s2);
 }
 
-string get_sized_type(string name){
+string Solver::get_sized_type(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for sized type");
 
@@ -990,130 +905,10 @@ string get_sized_type(string name){
 
 }
 
-string get_type(string name){
-
-	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
-
-	if(name.substr(0,9) == "constant" UNDERSCORE) return "IntegerTyID32";
-	if( is_number(name) ){
-
-		if( name.find(".") != string::npos )
-			return "FloatTyID";
-		else
-			return "IntegerTyID32";
-	}
-
-	if (variables[name].type == "IntegerTyID32")
-		return "Int";
-
-	if (variables[name].type == "DoubleTyID")
-		return "Real";
-
-	if (variables[name].type == "IntegerTyID64")
-		return "Int";
-
-	if (variables[name].type == "IntegerTyID8")
-		return "Int";
-
-	if (variables[name].type == "IntegerTyID16")
-		return "Int";
-
-	if (variables[name].type == "PointerTyID")
-		return "Int";
-
-	if (variables[name].type == "Int")
-		return "Int";
-
-	if (variables[name].type == "FloatTyID")
-		return "Real";
-
-	if (variables[name].type == "Real")
-		return "Real";
-
-	if (variables[name].type == "bool")
-		return "bool";
-
-	if (variables[name].type == "Pointer")
-		return "Pointer";
 
 
-	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 
-	assert(0 && "Unknown Type");
-
-	return "Int";
-
-}
-
-bool is_number(const std::string& s) {
-
-	//printf("\e[33m is_number \e[0m %s\n", s.c_str() );
-
-	if( s== "true" || s== "false") return true;
-
-	if(s.substr(0,1) == "-") return is_number(s.substr(1));
-
-	//printf("%s\n", s.substr(0,s.find(".")).c_str() );
-	//printf("%s\n", s.substr(s.find(".")+1).c_str() );
-	if( s.find(".") != string::npos ) return 
-		is_number(s.substr(0,s.find("."))) &&
-		is_number(s.substr(s.find(".")+1));
-
-
-	if( s.find("e") != string::npos ) return 
-		is_number(s.substr(0,s.find("e"))) &&
-		is_number(s.substr(s.find("e")+1));
-
-	std::string::const_iterator it = s.begin();
-	while (it != s.end() && std::isdigit(*it)) ++it;
-	return !s.empty() && it == s.end();
-}
-
-void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
-	size_t pos = 0;
-	while((pos = str.find(oldStr, pos)) != std::string::npos){
-		str.replace(pos, oldStr.length(), newStr);
-		pos += newStr.length();
-	}
-}
-
-string name( string input, string fn_name ){
-
-	if(input.substr(0,9) != "constant" UNDERSCORE &&
-			input.substr(0,4) != "mem" UNDERSCORE &&
-	 		input.substr(0,7) != "global" UNDERSCORE )
-		myReplace(input, UNDERSCORE, "underscore" );
-
-
-	if( input.substr(0,7) == "global" UNDERSCORE ){
-		string postfix = input.substr(7);
-		//printf("postfix %s\n", postfix.c_str() );
-		myReplace(postfix, UNDERSCORE, "underscore");
-		input = string("global") + UNDERSCORE + postfix;
-
-		//printf("globalname %s\n", input.c_str());
-	}
-
-	if(input.find("constant") != string::npos ){
-		int ini = 9;
-		string interm = input.substr(ini);
-		int len = interm.find(UNDERSCORE);
-		string final = interm.substr(0, len);
-
-		return final;
-	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
-		return input;
-	} else if (input.substr(0,7) == "global" UNDERSCORE ){
-		return input;
-	} else {
-		return ((fn_name == "")?actual_function:fn_name) + UNDERSCORE + input;
-		//return input;
-	}
-
-
-}
-
-void clean_conditions_stack(string name){
+void Solver::clean_conditions_stack(string name){
 	
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if( it->joints.find(name) != it->joints.end() ){
@@ -1125,35 +920,43 @@ void clean_conditions_stack(string name){
 
 }
 
-string realvalue_mangled(string varname){
+string Solver::realvalue_mangled(string varname){
 
 	//printf("\e[33m realvalue_mangled \e[0m %s\n", varname.c_str() );
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for realvalue_mangled");
 
 
-	if( varname.find("constant") != string::npos )
+	if( varname.find("constant") != string::npos ){
 		return varname.substr(9);
-	else if( variables[varname].real_value == "" )
+	} else if( variables[varname].real_value == "" ){
 		return "0";
-	else
+	} else {
 		return variables[varname].real_value;
+	}
 }
 
-string realvalue(string varname){
+string Solver::realvalue(string varname){
 
 	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
 
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for realvalue");
+	if(!check_mangled_name(varname)) assert(0 && "Wrong name for realvalue");
 
-
-
-	if( varname.find("constant") != string::npos )
+	if(is_number(varname)){
+		return varname;
+	} else if( varname.find("constant") != string::npos ){
+		//printf("constant\n");
 		return varname.substr(9);
-	else if( variables[name(varname)].real_value == "" )
+	} else if( variables[varname].real_value == "" ){
+		//printf("empty\n");
 		return "0";
-	else
-		return variables[name(varname)].real_value;
+	}else{
+		//printf("else\n");
+		if( variables.find(varname) == variables.end() ){
+			assert(0 && "Variable not found");
+		}
+		return variables[varname].real_value;
+	}
 
 }
 
@@ -1181,32 +984,28 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-bool get_is_propagated_constant(string varname){
-	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
-	return variables[varname].is_propagated_constant;
-}
 
-void set_is_propagated_constant(string varname){
+void Solver::set_is_propagated_constant(string varname){
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for set_is_propagated_constant");
 
 	variables[varname].is_propagated_constant = true;
 
 }
 
-bool is_constant(string varname){
-	if(!check_mangled_name(name(varname))) assert(0 && "Wrong src for is_constant");
+bool Solver::is_constant(string varname){
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for is_constant");
 
 	return varname.substr(0,9) == "constant" UNDERSCORE;
 
 }
 
-void setcontent(string varname, string content){
+void Solver::setcontent(string varname, string content){
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for setcontent");
 	variables[varname].content = content;
 }
 
 
-bool is_forced_free(string position){
+bool Solver::is_forced_free(string position){
 	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
 
 	if( forced_free_vars.find(position) != forced_free_vars.end() )
@@ -1216,7 +1015,7 @@ bool is_forced_free(string position){
 
 }
 
-void load_forced_free_vars(){
+void Solver::load_forced_free_vars(){
 	FILE *file = fopen ( "free_vars", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	
@@ -1228,49 +1027,50 @@ void load_forced_free_vars(){
 	
 }
 
-void assign_instruction(string src, string dst, string fn_name){
+void Solver::assign_instruction(string src, string dst, string fn_name){
 
-	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for assign");
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for assign");
+	if(!check_mangled_name(src)) assert(0 && "Wrong src for assign");
+	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for assign");
 
 
-	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n", name(dst, fn_name).c_str(), name(src).c_str() );
+	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
-	if( is_forced_free(name(src)) ){
+	if( is_forced_free(src) ){
 		debug && printf("\e[32m Source is forced_free\e[0m\n");
-		setcontent(name(src), "");
+		setcontent(src, "");
 	}
 
-	variables[ name(dst, fn_name) ].content = content( name(src) );
+	variables[dst].content = content(src);
 
-	//if( variables[name(dst)].type == "" ) assert(0 && "No type in dst");
-	settype(name(dst, fn_name), get_type(name(src)));
+	//if( variables[dst].type == "" ) assert(0 && "No type in dst");
+	settype(dst, get_type(src));
 
-	set_real_value( dst, realvalue(src), fn_name );
-
-
-	if( (get_is_propagated_constant(name(src)) || is_constant(src)) && !is_forced_free(name(src)) )
-		set_is_propagated_constant(name(dst, fn_name));
-
-	if( get_fuzz_constr(name(src)) )
-		set_fuzz_constr(name(dst, fn_name));
+	//printf("set_real_value inside assign %s %s %s\n", dst.c_str(), src.c_str(), realvalue(src).c_str() );
+	set_real_value( dst, realvalue(src) );
 
 
-	//printf("srctree %s\n", get_offset_tree(name(src)).c_str());
+	if( (get_is_propagated_constant(src) || is_constant(src)) && !is_forced_free(src) )
+		set_is_propagated_constant(dst);
 
-	set_offset_tree(name(dst, fn_name), get_offset_tree(name(src)));
+	if( get_fuzz_constr(src) )
+		set_fuzz_constr(dst);
 
 
-	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str() );
+	//printf("srctree %s\n", get_offset_tree(src).c_str());
+
+	set_offset_tree(dst, get_offset_tree(src));
+
+
+	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d\n",
-                 variables[ name(dst, fn_name) ].content.c_str(), variables[name(dst, fn_name)].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(name(src)), get_is_propagated_constant(name(dst, fn_name)) );
+                 variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
+		 get_is_propagated_constant(src), get_is_propagated_constant(dst));
 
 
 
 }
 
-bool implemented_operation(string operation){
+bool Solver::implemented_operation(string operation){
 	if(operation == "+" ) return true;
 	if(operation == "<=") return true;
 	if(operation == ">=") return true;
@@ -1292,13 +1092,8 @@ bool implemented_operation(string operation){
 	return false;
 }
 
-string itos(int i){
-	stringstream i_ss;
-	i_ss << i;
-	return i_ss.str();
-}
 
-string wired_and( string op1, string op2, int nbits ){
+string Solver::wired_and( string op1, string op2, int nbits ){
 
 	vector<string> z_bits;
 
@@ -1306,8 +1101,8 @@ string wired_and( string op1, string op2, int nbits ){
 		int mod1 = ( 1 << i+1 );
 		int mod2 = ( 1 << i   );
 
-		string content1 = content(name(op1));
-		string content2 = content(name(op2));
+		string content1 = content(op1);
+		string content2 = content(op2);
 		
 		//printf("content %s %s\n", content1.c_str(), content2.c_str() );
 
@@ -1339,7 +1134,7 @@ string wired_and( string op1, string op2, int nbits ){
 
 }
 
-string wired_xor( string op1, string op2, int nbits ){
+string Solver::wired_xor( string op1, string op2, int nbits ){
 
 	vector<string> z_bits;
 
@@ -1347,8 +1142,8 @@ string wired_xor( string op1, string op2, int nbits ){
 		int mod1 = ( 1 << i+1 );
 		int mod2 = ( 1 << i   );
 
-		string content1 = content(name(op1));
-		string content2 = content(name(op2));
+		string content1 = content(op1);
+		string content2 = content(op2);
 		
 		//printf("content %s %s\n", content1.c_str(), content2.c_str() );
 
@@ -1380,46 +1175,46 @@ string wired_xor( string op1, string op2, int nbits ){
 
 }
 
-void set_fuzz_constr(string name){
+void Solver::set_fuzz_constr(string name){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong dst for set_fuzz_constr");
 	variables[name].fuzzme = true;
 
 }
 
-bool get_fuzz_constr(string name){
+bool Solver::get_fuzz_constr(string name){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong dst for get_fuzz_constr");
 	return variables[name].fuzzme;
 
 }
 
-void binary_instruction(string dst, string op1, string op2, string operation){
+void Solver::binary_instruction(string dst, string op1, string op2, string operation){
 
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for binary_instruction");
-	if(!check_mangled_name(name(op1))) assert(0 && "Wrong op1 for binary_instruction");
-	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_instruction");
+	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
+	if(!check_mangled_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
+	if(!check_mangled_name(op2)) assert(0 && "Wrong op2 for binary_instruction");
 	if(!implemented_operation(operation)) assert(0 && "Not implemented operation");
 
 	debug && printf("\n\e[32m Binary_instruction %s = %s %s %s (%s %s)\e[0m\n",
-			name(dst).c_str(), name(op1).c_str(), operation.c_str(), name(op2).c_str(),
-		        get_type(name(op1)).c_str(), get_type(name(op2)).c_str() );
+			dst.c_str(),op1.c_str(), operation.c_str(),op2.c_str(),
+		        get_type(op1).c_str(), get_type(op2).c_str() );
 
 
 	stringstream content_ss;
 
 
 	if( operation == "#" ){
-		content_ss << "(not (= " << content( name(op1) ) << " " <<  content( name(op2) ) << "))";
+		content_ss << "(not (= " << content(op1 ) << " " <<  content(op2 ) << "))";
 	} else if (operation == "%") {
-		content_ss << "(mod " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+		content_ss << "(mod " << content(op1 ) << " " <<  content(op2 ) << ")";
 	} else if (operation == "R" ) {
 
 		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
 		int exponent = stoi( op2.substr(9) );
 		int factor = 1 << exponent;
 
-		content_ss << "(/ " << content(name(op1)) << " " << factor << ")";
+		content_ss << "(/ " << content(op1) << " " << factor << ")";
 
 	} else if (operation == "L" ) {
 
@@ -1427,43 +1222,43 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 		int exponent = stoi( op2.substr(9) );
 		int factor = 1 << exponent;
 
-		content_ss << "(* " << content(name(op1)) << " " << factor << ")";
+		content_ss << "(* " << content(op1) << " " << factor << ")";
 
 	} else if (operation == "Y" ) {
 		content_ss << wired_and(op1, op2, 4);
-		set_fuzz_constr(name(dst));
+		set_fuzz_constr(dst);
 	} else if (operation == "X" ) {
 		content_ss << wired_xor(op1, op2, 4);
-		set_fuzz_constr(name(dst));
+		set_fuzz_constr(dst);
 	} else {
-		content_ss << "(" << operation << " " << content( name(op1) ) << " " <<  content( name(op2) ) << ")";
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 	}
 
-	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[name(op1)].type.c_str(), op2.c_str(), operation.c_str() );
+	//debug && printf("\e[31m type \e[0m %s \e[31m op2 \e[0m %s \e[31m operation \e[0m %s\n", variables[op1].type.c_str(), op2.c_str(), operation.c_str() );
 	
 
-	variables[name(dst)].content = content_ss.str();
+	variables[dst].content = content_ss.str();
 
-	if( variables[name(op1)].type != "" )
-		settype(name(dst), get_type(name(op1)));
+	if( variables[op1].type != "" )
+		settype(dst, get_type(op1));
 	else
-		settype(name(dst), get_type(name(op2)));
+		settype(dst, get_type(op2));
 
 
-	if( get_fuzz_constr(name(op1)) || get_fuzz_constr(name(op2)) ){
-		set_fuzz_constr(name(dst));
+	if( get_fuzz_constr(op1) || get_fuzz_constr(op2) ){
+		set_fuzz_constr(dst);
 	}
 
-	if( get_is_propagated_constant(name(op1)) && get_is_propagated_constant(name(op2)) ){
-		set_is_propagated_constant(name(dst));
+	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
 	}
 
-	if( get_is_propagated_constant(name(op1)) && is_constant(op2) ){
-		set_is_propagated_constant(name(dst));
+	if( get_is_propagated_constant(op1) && is_constant(op2) ){
+		set_is_propagated_constant(dst);
 	}
 
-	if( is_constant(op1) && get_is_propagated_constant(name(op2)) ){
-		set_is_propagated_constant(name(dst));
+	if( is_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
 	}
 
 
@@ -1498,9 +1293,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	if(operation == "+"){
 
 		stringstream result;
-		if( get_type(name(dst)) == "Real" )
+		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
-		else if (get_type(name(dst)) == "Int")
+		else if (get_type(dst) == "Int")
 			result << stoi(realvalue(op1)) + stoi(realvalue(op2));
 		else
 			assert(0 && "Unknown type");
@@ -1512,9 +1307,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 		stringstream result;
-		if( get_type(name(dst)) == "Real" )
+		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) - stof(realvalue(op2));
-		else if (get_type(name(dst)) == "Int")
+		else if (get_type(dst) == "Int")
 			result << stoi(realvalue(op1)) - stoi(realvalue(op2));
 		else
 			assert(0 && "Unknown type");
@@ -1526,9 +1321,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	if(operation == "*"){
 
 		stringstream result;
-		if( get_type(name(dst)) == "Real" )
+		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) * stof(realvalue(op2));
-		else if (get_type(name(dst)) == "Int")
+		else if (get_type(dst) == "Int")
 			result << stoi(realvalue(op1)) * stoi(realvalue(op2));
 		else
 			assert(0 && "Unknown type");
@@ -1542,9 +1337,9 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 		stringstream result;
-		if( get_type(name(dst)) == "Real" )
+		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) / stof(realvalue(op2));
-		else if (get_type(name(dst)) == "Int")
+		else if (get_type(dst) == "Int")
 			result << stoi(realvalue(op1)) / stoi(realvalue(op2));
 		else
 			assert(0 && "Unknown type");
@@ -1580,16 +1375,16 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 	}
 
 
-	if( variables[name(op1)].type != "" ) variables[name(dst)].type = variables[name(op1)].type;
-	if( variables[name(op2)].type != "" ) variables[name(dst)].type = variables[name(op2)].type;
+	if( variables[op1].type != "" ) variables[dst].type = variables[op1].type;
+	if( variables[op2].type != "" ) variables[dst].type = variables[op2].type;
 
 
-	if( variables[name(op1)].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
+	if( variables[op1].type == "bool" && op2 == "constant" UNDERSCORE "0" && operation == "#" ){
 		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
 
 		content_ss.str("");
-		content_ss << content(name(op1));
-		variables[name(dst)].content = content_ss.str();
+		content_ss << content(op1);
+		variables[dst].content = content_ss.str();
 
 		set_real_value(dst, realvalue(op1) );
 	}
@@ -1598,27 +1393,27 @@ void binary_instruction(string dst, string op1, string op2, string operation){
 
 
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",
-                 variables[ name(dst) ].content.c_str(), variables[name(dst)].type.c_str(), realvalue(dst).c_str(),
-		get_is_propagated_constant(name(dst)) );
+                 variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
+		get_is_propagated_constant(dst) );
 
 
 }
 
-int show_problem(){
+int Solver::show_problem(){
 
-	read_options_2();
+	options->read_options();
 	
 	dump_header();
 	dump_variables();
-	if(cmd_option_bool_2("secuencialize"))
+	if(options->cmd_option_bool("secuencialize"))
 		dump_sync_variables();
 	dump_type_limits();
 	dump_conditions();
 	dump_concurrency_constraints();
 	dump_check_sat();
-	dump_get();
-	dump_get_fuzz();
-	dump_tail();
+	//dump_get();
+	//dump_get_fuzz();
+	//dump_tail();
 
 
 		//dump_header(file);
@@ -1664,19 +1459,137 @@ int show_problem(){
 	getchar();
 }
 
-void set_offset_tree( string varname, string tree ){
-	//assert(check_mangled_name(varname) && "Incorrect name for set_offset_tree");
-	//printf("set_offset_tree %s %s\n", varname.c_str(), tree.c_str() );
-	variables[varname].tree = tree;
-}
 
-string get_offset_tree( string varname ){
+string Solver::get_offset_tree( string varname ){
 	//assert(check_mangled_name(varname) && "Incorrect name for get_offset_tree");
 	//printf("get_offset_tree %s %s\n", varname.c_str(), variables[varname].tree.c_str() );
 	return variables[varname].tree;
 }
 
-void print_path_stack(){
+bool Solver::check_mangled_name(string name){
+
+	int number_of_underscore = count(name, UNDERSCORE);
+	if(
+			number_of_underscore != 1 && // main_registerunderscoreval mem_9
+			number_of_underscore != 0    // 0
+	)
+		return false;
+
+	if( number_of_underscore == 1 ){
+		vector<string> tokens = tokenize(name, UNDERSCORE);
+		if(tokens[1].substr(0,8) != "register" &&
+		   tokens[0].substr(0,3) != "mem"      &&
+		   tokens[0].substr(0,6) != "global"
+		  ) return false;
+	}
+
+	if( number_of_underscore  == 0 ){
+		if( !is_number(name) )
+			return false;
+	}
+
+
+	return true;
+
+}
+
+bool Solver::get_is_propagated_constant(string varname){
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
+	return variables[varname].is_propagated_constant;
+}
+
+string Solver::gettype(string name){
+	return variables[name].type;
+}
+
+void Solver::set_name_hint(string name, string hint){
+	variables[name].name_hint = hint;
+}
+
+string Solver::get_name_hint(string name){
+	return variables[name].name_hint;
+}
+
+void Solver::set_offset_tree( string varname, string tree ){
+	//assert(check_mangled_name(varname) && "Incorrect name for set_offset_tree");
+	//printf("set_offset_tree %s %s\n", varname.c_str(), tree.c_str() );
+	variables[varname].tree = tree;
+}
+
+
+void Solver::settype(string name, string type){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for settype");
+	variables[name].type = type;
+
+}
+
+
+string Solver::get_type(string name){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
+
+	if(name.substr(0,9) == "constant" UNDERSCORE) return "IntegerTyID32";
+	if( is_number(name) ){
+
+		if( name.find(".") != string::npos )
+			return "FloatTyID";
+		else
+			return "IntegerTyID32";
+	}
+
+	if (gettype(name) == "IntegerTyID32")
+		return "Int";
+
+	if (gettype(name) == "DoubleTyID")
+		return "Real";
+
+	if (gettype(name) == "IntegerTyID64")
+		return "Int";
+
+	if (gettype(name) == "IntegerTyID8")
+		return "Int";
+
+	if (gettype(name) == "IntegerTyID16")
+		return "Int";
+
+	if (gettype(name) == "PointerTyID")
+		return "Int";
+
+	if (gettype(name) == "Int")
+		return "Int";
+
+	if (gettype(name) == "FloatTyID")
+		return "Real";
+
+	if (gettype(name) == "Real")
+		return "Real";
+
+	if (gettype(name) == "bool")
+		return "bool";
+
+	if (gettype(name) == "Pointer")
+		return "Pointer";
+
+
+	printf("name %s type %s\n", name.c_str(), gettype(name).c_str() );
+
+	assert(0 && "Unknown Type");
+
+	return "Int";
+
+}
+
+vector<bool> Solver::get_path_stack(){
+	return path_stack;
+}
+
+
+void Solver::push_path_stack(bool step){
+	path_stack.push_back(step);
+}
+
+void Solver::print_path_stack(){
 
 
 	printf("\e[33m Path_stack \e[0m");
@@ -1688,5 +1601,9 @@ void print_path_stack(){
 	printf("\e[33m Depth \e[0m %lu\n", path_stack.size());
 	
 
+}
+
+map<string, Variable> Solver::get_map_variables(){
+	return variables;
 }
 

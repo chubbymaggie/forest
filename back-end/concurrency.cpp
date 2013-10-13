@@ -24,7 +24,11 @@
 #include "solver.h"
 #include <sstream>
 
+#include "solver.h"
+
 using namespace std;
+
+extern Solver* solver;
 
 set<string> sync_points;
 
@@ -39,7 +43,7 @@ void insert_global_types(){
 		vector<string> tokens = tokenize(it->name, " ");
 
 		string name = tokens[0];
-		string type = get_type(it->name);
+		string type = solver->get_type(it->name);
 
 		insert_global_type(name, type);
 
@@ -67,7 +71,7 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 
 
 	stringstream conds;
-	dump_conditions(conds);
+	solver->dump_conditions(conds);
 	printf("-----------------------------------\n");
 	//dump_conditions();
 	printf("conds %s\n", conds.str().c_str() );
@@ -105,7 +109,7 @@ void mutex_unlock(char* _mutex_name, char* _sync_name){
 
 
 	stringstream conds;
-	dump_conditions(conds);
+	solver->dump_conditions(conds);
 	printf("-----------------------------------\n");
 	//dump_conditions();
 	printf("conds %s\n", conds.str().c_str() );
@@ -132,7 +136,7 @@ void mutex_lock_2(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver_insert_sync_point("lock", sync_name, mutex_name);
+	solver->solver_insert_sync_point("lock", sync_name, mutex_name);
 }
 
 void mutex_unlock_2(char* _mutex_name, char* _sync_name){
@@ -142,7 +146,7 @@ void mutex_unlock_2(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver_insert_sync_point("unlock", sync_name, mutex_name);
+	solver->solver_insert_sync_point("unlock", sync_name, mutex_name);
 
 }
 

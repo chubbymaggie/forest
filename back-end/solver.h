@@ -43,228 +43,137 @@ typedef struct Condition {
 
 
 
-
-void clean_conditions_stack(string name);
-
-
-/**
- * @brief dumps smtlib variable declarations
- *
- * @param FILE file to dump
- */
-void dump_variables(FILE* file = stdout);
-
-/**
- * @brief Dumps smtlib constraints to file
- *
- * @param FILE: file to dump
- */
-void dump_conditions(FILE* file = stdout);
-void dump_concurrency_constraints(FILE* file = stdout);
-void dump_conditions( stringstream& sstr );
-void dump_check_sat(FILE* file = stdout);
-void dump_exclusions(FILE* file = stdout);
-void dump_sync_variables(FILE* file = stdout);
-
-/**
- * @brief Dumps smtlib header
- *
- * @param file
- */
-void dump_header(FILE* file = stdout);
-
-void dump_type_limits(FILE* file = stdout);
-
-/**
- * @brief Dumps smtlib tail
- *
- * @param file
- */
-void dump_tail(FILE* file = stdout);
-
-/**
- * @brief Dumps smtlib instructions to get variable values
- *
- * @param file
- */
-void dump_get(FILE* file = stdout);
-void dump_get_fuzz(FILE* file = stdout);
-
-/**
- * @brief Dumps smtlib assigns
- *
- * @param file
- */
-void dump_assigns(FILE* file = stdout);
-
-/**
- * @brief Returs true if the current problem is solvable (SAT)
- *
- * @return 
- */
-bool solvable_problem();
-
-void set_sat(bool);
-
-void solve_problem();
-
-void flat_problem();
-
-/**
- * @brief Inserts variable name in the list of variables
- *
- * @param name
- */
-void insert_variable(string name, string position);
-
-/**
- * @brief String to integer
- *
- * @param str
- *
- * @return 
- */
-int stoi(string str);
-
-/**
- * @brief Extracts the condition from a boolean assign ( extract_condition(bool a = (b>2)) gives b>2 )
- *
- * @param content assign sentence to analyse
- *
- * @return 
- */
-string extract_condition(string content);
-
-/**
- * @brief push a condition in the stack of conditions
- *
- * @param condition
- */
-void push_condition(string condition, string function, vector<string> joints, bool fuzzme);
-
-/**
- * @brief Negates a condition
- *
- * @param condition
- *
- * @return 
- */
-string negation(string condition);
-
-/**
- * @brief Return the last condition assigned to a variable
- *
- * @param name
- *
- * @return 
- */
-string get_last_condition(string name);
-
-/**
- * @brief Actual name of a variable
- *
- * @param name
- *
- * @return 
- */
-string actual(string name);
-
-/**
- * @brief Past name of a variable 
- *
- * @param name
- *
- * @return 
- */
-string past(string name);
-
-/**
- * @brief Type of a variable
- *
- * @param name
- *
- * @return 
- */
-string get_type(string name);
-
-string get_sized_type(string name);
-
-string name_without_suffix(string name);
-
-
-void set_name_hint(string name, string hint);
-
-
-int count(string name, string character);
-
-void dump_flatened_variables(FILE* file = stdout );
-
-void dump_flatened_conditions(FILE* file = stdout );
-
-bool is_number(const std::string& s) ;
-
-
-bool check_name(string name);
-bool check_mangled_name(string name);
-bool check_unmangled_name(string name);
-void settype(string name, string type);
-
-/**
- * @brief Name of a variable
- *
- * @param input
- *
- * @return 
- */
-string name( string input, string fn_name = "" );
+typedef struct Variable {
+	string real_value;
+	string type;
+	string name_hint;
+	string content;
+	string tree;
+	bool is_propagated_constant;
+	bool fuzzme;
+} Variable;
 
 
 
-void set_real_value(string varname, string value, string fn_name );
 
-void set_real_value(string varname, string value );
+class Solver {
+public:
+	Solver ();
+	virtual ~Solver ();
+	void assign_instruction(string src, string dst, string fn_name = "");
+	void binary_instruction(string dst, string op1, string op2, string operation);
+	string content( string name );
+	void clean_conditions_stack(string name);
+	void set_sat(bool);
+	bool get_fuzz_constr(string name);
+	void push_condition(string condition, string function, vector<string> joints, bool fuzzme);
+	string negation(string condition);
+	int show_problem();
+	void solve_problem();
+	void free_var(string name);
+	bool solvable_problem();
+	bool get_is_propagated_constant(string varname);
+	string gettype(string name);
+	void set_name_hint(string name, string hint);
+	string get_name_hint(string name);
+	void set_offset_tree( string varname, string tree );
+	string get_sized_type(string name);
+	void dump_conditions( stringstream& sstr );
+	void load_forced_free_vars();
+	string get_type(string name);
+	void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name);
+	string realvalue_mangled(string varname);
+	string realvalue(string varname);
+	void settype(string name, string type);
+	vector<bool> get_path_stack();
+	void push_path_stack(bool step);
+	void print_path_stack();
+	map<string, Variable> get_map_variables();
 
-string content( string name );
+private:
 
-
-string realvalue(string varname);
-
-
-vector<string> tokenize(const string& str,const string& delimiters);
-
-
-void assign_instruction(string src, string dst, string fn_name);
-
-
-void binary_instruction(string dst, string op1, string op2, string operation);
-
-
-int show_problem();
-
-
-void print_path_stack();
-void push_path_stack(bool step);
-
-bool get_is_propagated_constant(string varname);
-
-
-void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr);
-
-string itos(int i);
-
-
-void set_fuzz_constr(string name);
-bool get_fuzz_constr(string name);
-
-void set_offset_tree( string varname, string tree );
-string get_offset_tree( string varname );
-
-void load_forced_free_vars();
-
-void free_var(string name);
+	map<string, Variable> variables;
 
 
-void solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name);
+
+	void dump_conditions(FILE* file = stdout);
+	void dump_variables(FILE* file = stdout);
+	void dump_concurrency_constraints(FILE* file = stdout);
+	void dump_check_sat(FILE* file = stdout);
+	void dump_exclusions(FILE* file = stdout);
+	void dump_sync_variables(FILE* file = stdout);
+	void dump_header(FILE* file = stdout);
+	void dump_type_limits(FILE* file = stdout);
+	void dump_tail(FILE* file = stdout);
+	void dump_get(FILE* file = stdout);
+	void dump_get_fuzz(FILE* file = stdout);
+	void dump_assigns(FILE* file = stdout);
+	void flat_problem();
+	void insert_variable(string name, string position);
+	string extract_condition(string content);
+	string get_last_condition(string name);
+	string actual(string name);
+	string past(string name);
+	string name_without_suffix(string name);
+	void dump_flatened_variables(FILE* file = stdout );
+	void dump_flatened_conditions(FILE* file = stdout );
+	bool check_name(string name);
+	bool check_unmangled_name(string name);
+	string name( string input, string fn_name = "" );
+	void set_real_value(string varname, string value, string fn_name );
+	void set_real_value(string varname, string value );
+	string itos(int i);
+	void set_fuzz_constr(string name);
+	string get_offset_tree( string varname );
+	bool check_mangled_name(string name);
+	set<string> unlock_points(string mutex);
+	string or_unlocking(string condition, string mutex);
+	void substitute_locks(string& condition);
+	string or_paths(string dest);
+	void substitute_unlocks(string& condition);
+	void substitute_paths(string& condition);
+	string and_stores(string sync_point);
+	void substitute_stores(string& condition);
+	void substitute_conds(string& condition);
+	string stack(string sync_point);
+	void substitute_sync(string& condition);
+	int minval(string type);
+	int maxval(string type);
+	int get_num_fuzzs();
+	void dump_get_free(FILE* file);
+	void set_real_value_mangled(string varname, string value );
+	bool get_is_sat(string is_sat);
+	bool get_is_sat_with_fuzz( vector<string> fuzz_constraints );
+	string get_exclusion( vector<string> excluded_values );
+	void insert_exclusion(string exclusion);
+	void clean_exclusions();
+	int get_num_fvars();
+	void set_is_propagated_constant(string varname);
+	bool is_constant(string varname);
+	void setcontent(string varname, string content);
+	bool is_forced_free(string position);
+	string result_get(string get_str);
+	bool implemented_operation(string operation);
+	string wired_and( string op1, string op2, int nbits );
+	string wired_xor( string op1, string op2, int nbits );
+	vector<bool> path_stack;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

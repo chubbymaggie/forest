@@ -22,46 +22,17 @@
 #include "solver.h"
 #include <sys/wait.h>
 
-#define debug true
 #define SIZE_STR 512
 #define UNDERSCORE "_"
-#define PROPAGATE_CONSTANTS true
-#define EXIT_ON_INSERT false
 
+Options* options = new Options();
+Operators* operators = new Operators();
+Solver* solver = new Solver();
 
-bool see_each_problem;
+Operators::Operators(){}
+Operators::~Operators(){}
 
-int alloca_pointer = 0;
-vector<pair<string, string> > callstack;
-
-string actual_function;
-string actual_bb;
-
-
-
-
-map<string, string> options;
-
-void read_options(){
-
-	FILE *file = fopen ( "/tmp/options", "r" );
-	char line_c [ 128 ]; /* or other suitable maximum line size */
-	
-	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
-		line_c[strlen(line_c)-1] = 0;
-		string line = string(line_c);
-		vector<string> tokens = tokenize(line, " ");
-		options[ tokens[0] ] = tokens[1];
-		
-	}
-	fclose ( file );
-}
-
-bool cmd_option_bool(string key){
-	return options[key] == "true";
-}
-
-void cast_instruction(char* _dst, char* _src, char* _type){
+void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 
 	string dst = string(_dst);
 	string src = string(_src);
@@ -72,12 +43,12 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for cast_instruction");
 
 
-	assign_instruction(src,dst);
+	solver->assign_instruction(name(src),name(dst));
 
-	if( get_type(name(src)) != "bool" )
-		settype(name(dst), type);
+	if( solver->get_type(name(src)) != "bool" )
+		solver->settype(name(dst), type);
 	else
-		settype(name(dst), "bool");
+		solver->settype(name(dst), "bool");
 
 	debug && printf("\e[31m Cast_instruction %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(), type.c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
@@ -86,19 +57,19 @@ void cast_instruction(char* _dst, char* _src, char* _type){
 
 }
 
-void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
+void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
 
 	string fn_name           = string(_fn_name);
 	string ret_to            = string(_ret_to);
 	string ret_type          = string(_ret_type);
 
 	set_name_hint(name(ret_to), "return of " + fn_name );
-	settype(name(ret_to), ret_type );
+	solver->settype(name(ret_to), ret_type );
 
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
 }
 
-void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
+void Operators::CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
 
 
 	string fn_name           = string(_fn_name);
@@ -112,7 +83,7 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
-		assign_instruction( oplist[i], fn_oplist[i], fn_name );
+		solver->assign_instruction( name(oplist[i], fn_name), name(fn_oplist[i], fn_name) );
 
 	}
 
@@ -125,22 +96,7 @@ void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to )
 
 }
 
-void force_free(int* a){
-
-}
-
-void Free_fn( char* _oplist ){
-
-	string oplist = string(_oplist).substr(0, strlen(_oplist) - 1);
-
-	free_var(oplist);
-	debug && printf("\e[31m FreeFn %s\e[0m\n", _oplist );
-
-}
-
-
-
-void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
+void Operators::select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 	string dest = string(_dest);
 	string cond = string(_cond);
@@ -149,22 +105,21 @@ void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 	if( realvalue(cond) == "true" ){
 
-		assign_instruction( sel1, dest  );
+		solver->assign_instruction( name(sel1), name(dest)  );
 
 	} else if( realvalue(cond) == "false" ){
 
-		assign_instruction( sel2, dest  );
+		solver->assign_instruction( name(sel2), name(dest)  );
 
 	} else {
 		assert(0 && "Not binary condition");
 	}
 
 	debug && printf("\e[31m select_op %s %s %s %s\e[0m\n", _dest, _cond, _sel1, _sel2);
-	//exit(0);
 
 }
 
-void ReturnInstr(char* _retname ){
+void Operators::ReturnInstr(char* _retname ){
 
 	string retname = string(_retname);
 
@@ -186,7 +141,7 @@ void ReturnInstr(char* _retname ){
 	string last_rg_callstack = callstack[ callstack.size() - 1].first;
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
-	assign_instruction( retname, last_rg_callstack, last_fn_callstack );
+	solver->assign_instruction( name(retname, last_fn_callstack), name(last_rg_callstack, last_fn_callstack) );
 
 	callstack.erase( callstack.end() - 1 );
 	actual_function = last_fn_callstack;
@@ -197,7 +152,7 @@ void ReturnInstr(char* _retname ){
 
 }
 
-void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
+void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 	string dst = string(_dst);
 	string op1 = string(_op1);
@@ -210,7 +165,7 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_op");
 
 
-	binary_instruction(dst, op1, op2, operation);
+	solver->binary_instruction(name(dst),name(op1),name(op2),operation);
 
 	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
 			                                                        op1.c_str(), realvalue(op1).c_str(),
@@ -219,46 +174,57 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 }
 
-void load_instr(char* _dst, char* _addr){
+void Operators::load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
-	//insert_load(src);
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
+	if(options->cmd_option_bool("secuencialize")){
+		insert_load(src);
+	}
 
-
-	assign_instruction(src, dst);
+	solver->assign_instruction(name(src),name(dst));
 
 	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
 								    name(addr).c_str(), realvalue(addr).c_str(),
 								    name(src).c_str(), realvalue(src).c_str(),
 							            name(dst).c_str(), realvalue(dst).c_str()
 								    );
+	//exit(0);
 
 }
 
-void store_instr(char* _src, char* _addr){
+void Operators::store_instr(char* _src, char* _addr){
 
 	string src = string(_src);
 	string addr = string(_addr);
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
-	//stringstream stack;
-	//dump_conditions(stack);
-	//insert_store(dst, content(name(src)), stack.str() );
+
 
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
 
 
-	assign_instruction(src, dst);
+	if(options->cmd_option_bool("secuencialize")){
+		solver->content(name(dst));
+	
+		stringstream stack;
+		solver->dump_conditions(stack);
+		map_pos_to_last_store[dst] = solver->content(name(src));
+	}
+
+
+
+
+	solver->assign_instruction(name(src),name(dst));
 
 	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
 			                                           name(src).c_str(), realvalue(src).c_str(),
@@ -267,60 +233,7 @@ void store_instr(char* _src, char* _addr){
 
 }
 
-
-map<string, string> map_pos_to_last_store;
-
-void store_instr_2(char* _src, char* _addr){
-
-	string src = string(_src);
-	string addr = string(_addr);
-	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
-
-
-	printf("source_value %s\n", name(dst).c_str() );
-	content(name(dst));
-
-	stringstream stack;
-	dump_conditions(stack);
-	map_pos_to_last_store[dst] = content(name(src));
-	//insert_store(dst, content(name(src)), stack.str() );
-
-	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
-	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
-
-
-	assign_instruction(src, dst);
-
-	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
-			                                           name(src).c_str(), realvalue(src).c_str(),
-								   name(addr).c_str(), realvalue(addr).c_str(),
-								   name(dst).c_str(), realvalue(dst).c_str() );
-}
-
-void load_instr_2(char* _dst, char* _addr){
-
-	string dst = string(_dst);
-	string addr = string(_addr);
-	string src = "mem" UNDERSCORE + realvalue(addr);
-
-	insert_load(src);
-
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
-	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
-
-
-
-	assign_instruction(src, dst);
-
-	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
-								    name(addr).c_str(), realvalue(addr).c_str(),
-								    name(src).c_str(), realvalue(src).c_str(),
-							            name(dst).c_str(), realvalue(dst).c_str()
-								    );
-}
-
-void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
+void Operators::cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 
 	string dst  = string(_dst);
 	string cmp1 = string(_cmp1);
@@ -332,87 +245,45 @@ void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	if(!check_mangled_name(name(cmp2))) assert(0 && "Wrong cmp2 for compare");
 
 
-	binary_instruction(dst, cmp1, cmp2, type);
+	solver->binary_instruction(name(dst),name(cmp1),name(cmp2), type);
 
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
 			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
 									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
 									 name(dst).c_str(), realvalue(dst).c_str() );
 
-	settype(name(dst), "bool");
+	solver->settype(name(dst), "bool");
 
 	assert( (realvalue(dst) == "true" || realvalue(dst) == "false") && "Invalid result for a comparison operation" );
 }
 
-void br_instr_incond(){
+void Operators::br_instr_incond(){
 
 	debug && printf("\e[31m inconditional_branch_instr\e[0m\n" );
 
 }
 
-void begin_bb(char* name){
+void Operators::begin_bb(char* name){
 	actual_bb = string(name);
 
-	clean_conditions_stack(actual_bb);
+	solver->clean_conditions_stack(actual_bb);
 
 	debug && printf("\e[36m begin_bb %s (fn %s)\e[0m\n", name, actual_function.c_str() );
 }
 
-void end_bb(char* name){
+void Operators::end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
-int get_size(string type){
 
-	if( type == "IntegerTyID32" )
-		return 4;
-
-	if( type == "DoubleTyID" )
-		return 8;
-
-	if( type == "FloatTyID" )
-		return 8;
-
-	if( type == "IntegerTyID8" )
-		return 1;
-
-	if( type == "IntegerTyID16" )
-		return 2;
-
-	if( type == "IntegerTyID64" )
-		return 8;
-
-	if( type == "int" )
-		return 4;
-
-	if( type == "PointerTyID")
-		return 4;
-
-
-	if( type.find(",") != string::npos ){
-		int sum = 0;
-		vector<string> tokens = tokenize(type,",");
-		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-			sum += get_size(*it);
-		}
-		return sum;
-	}
-
-
-	printf("get_size type %s\n", type.c_str());
-
-	assert(0 && "Unknown type");
-
-}
-
-void global_var_init(char* _varname, char* _type, char* _values){
+void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 	string varname        = string(_varname);
 	string type           = string(_type);
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
-	//debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
+	debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
 
 
 	if( types.size() != values.size() ){
@@ -424,8 +295,8 @@ void global_var_init(char* _varname, char* _type, char* _values){
 
 
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
-	settype( name(varname), "Pointer");
-	assign_instruction(rvalue.str(), name(varname));
+	solver->settype( name(varname), "Pointer");
+	solver->assign_instruction(name(rvalue.str()), name(varname));
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 	int prev_alloca_pointer = alloca_pointer;
@@ -434,12 +305,12 @@ void global_var_init(char* _varname, char* _type, char* _values){
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		settype(mem_var.str(), types[i]);
+		solver->settype(mem_var.str(), types[i]);
 
 		if(values[i] != "X"){
 			stringstream constant_name; constant_name << values[i];
 
-			assign_instruction( constant_name.str(), mem_var.str());
+			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
 		}
 
 		stringstream hint;
@@ -460,25 +331,22 @@ void global_var_init(char* _varname, char* _type, char* _values){
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
 }
 
-void alloca_instr(char* _reg, char* _subtype){
+void Operators::alloca_instr(char* _reg, char* _subtype){
 
 	string reg = string(_reg);
 	string subtypes = string(_subtype);
 	vector<string> subtype = tokenize(string(_subtype), ",");
 
-	//printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype );
-
-	//exit(0);
-
+	//printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype ); fflush(stdout);
 
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
 
 
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
-	settype( name(reg), "Pointer");
-	assign_instruction(rvalue.str(), reg );
+	solver->settype( name(reg), "Pointer");
+	solver->assign_instruction(name(rvalue.str()), name(reg) );
 
-	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
+	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE;// << itos(alloca_pointer);
 	int initial_alloca_pointer = alloca_pointer;
 
 	for ( unsigned int i = 0; i < subtype.size(); i++) {
@@ -486,7 +354,7 @@ void alloca_instr(char* _reg, char* _subtype){
 		stringstream mem_hint;
 		stringstream mem_name; mem_name << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		settype(mem_name.str(), subtype[i]);
+		solver->settype(mem_name.str(), subtype[i]);
 
 		if(subtype.size() == 1)
 			mem_hint << reg;
@@ -498,74 +366,283 @@ void alloca_instr(char* _reg, char* _subtype){
 	}
 
 	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer);
+}
+
+
+void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
+
+	string dst     = string(_dst);
+	string pointer = string(_pointer);
+	vector<string> indexes = tokenize(string(_indexes), ",");
+	string offset_tree = string(_offset_tree);
+
+	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree, 
+		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
+									  name(dst).c_str(), realvalue(dst).c_str() );
+
+	//printf("srctree %s\n", get_offset_tree(pointer).c_str() );
+
+
+	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
+	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
+	}
+
+	//if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
+		//printf("\e[35m Using source offset_tree \e[0m %s\n", get_offset_tree(name(pointer)).c_str() );
+		//offset_tree = get_offset_tree(name(pointer));
+	//}
+	
+
+	string remaining_tree;
+	int offset = get_offset(indexes, offset_tree, &remaining_tree);
+	solver->set_offset_tree(name(dst), remaining_tree);
+	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
+
+	
+	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
+	string offset_constant_s = offset_ss.str();
+	
+	solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
+	//exit(0);
+
+
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
+		                                                          name(dst).c_str(), realvalue(dst).c_str() );
 
 }
 
-int get_ini_elem(int nelem_target, string offset_tree){
 
-	int depth = -1;
-	int nelem = -1;
-	for ( unsigned int i = 1; i < offset_tree.size(); i++) {
-		if(offset_tree[i] == '(') depth++;
-		if(offset_tree[i] == ')') depth--;
-		if(depth == 0 && offset_tree[i] == '(' ){
-			nelem++;
-			//printf("elem %d at %d\n", nelem, i);
+void Operators::begin_sim(){
+	debug && printf("\e[31m Begin Simulation\e[0m\n" );
+	start_database();
+
+	options->read_options();
+	see_each_problem = options->cmd_option_bool("see_each_problem");
+	propagate_constants = options->cmd_option_bool("propagate_constants");
+	exit_on_insert = options->cmd_option_bool("exit_on_insert");
+
+
+	create_tables();
+	solver->load_forced_free_vars();
+
+	debug = true;//options->cmd_option_bool("debug");
+
+	//alloca_pointer = 0;
+}
+
+void Operators::BeginFn(char* _fn_name){
+
+	string fn_name = string(_fn_name);
+
+	myReplace(fn_name, UNDERSCORE, "");
+	actual_function = fn_name;
+
+	myReplace(actual_function, UNDERSCORE, "underscore");
+
+
+	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
+
+
+}
+
+void Operators::end_sim(){
+
+	end_database();
+	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
+	
+}
+
+bool Operators::br_instr_cond(char* _cmp, char* _joints){
+
+	string cmp = string(_cmp);
+	vector<string> joints = tokenize(string(_joints), ",");
+
+	if(!check_mangled_name(name(cmp))) assert(0 && "Wrong comparison for break");
+
+	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
+
+	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)) );
+
+
+
+	string real_value_prev = realvalue(cmp);
+
+
+
+	if( int pid = fork() ){
+
+		//debug && printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
+
+		
+		int status;
+		waitpid(pid, &status, 0);
+
+		solver->push_path_stack( real_value_prev == "true");
+		solver->print_path_stack();
+
+		if(yet_covered()) exit(0);
+
+		//solve_problem();
+		solver->set_sat(true);
+		insert_problem();
+
+		if( realvalue(cmp) == "true" ){
+			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints, solver->get_fuzz_constr(name(cmp)));
+		} else if (realvalue(cmp) == "false" ){
+			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints, solver->get_fuzz_constr(name(cmp)) );
+		} else {
+			assert(0 && "Non-boolean value for condition");
 		}
-		if(nelem == nelem_target){
-			//printf("get_ini_elem %d %s : %d\n", nelem_target, offset_tree.c_str(), i);
-			return i;
 
+		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
+
+		return real_value_prev == "true";
+	} else {
+
+		if( solver->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
+
+		if( exit_on_insert ){
+			system("killall final");
+			assert(0 && "exit_on_insert");
+		}
+
+
+		if( realvalue(cmp) == "true" ){
+			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints, solver->get_fuzz_constr(name(cmp)) );
+		} else if (realvalue(cmp) == "false" ){
+			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints, solver->get_fuzz_constr(name(cmp)));
+		} else {
+			assert(0 && "Non-boolean value for condition");
+		}
+
+
+		see_each_problem && solver->show_problem();
+
+		solver->solve_problem();
+
+		if( solver->solvable_problem() ){
+			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
+
+			solver->push_path_stack( real_value_prev != "true");
+			solver->print_path_stack();
+
+			//if(yet_covered()) exit(0);
+
+			solver->solve_problem();
+			insert_problem();
+			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
+			return real_value_prev != "true";
+		} else {
+			debug && printf("\e[31m hijo unsat \e[0m\n"); fflush(stdout);
+			//insert_problem();
+			exit(0);
 		}
 	}
 
-	assert(0 && "Unbalanced tree");
 
 }
 
-string close_str(string offset_tree){
+void force_free(int* a){
 
-	int depth = 0;
-	for ( unsigned int i = 0; i < offset_tree.size(); i++) {
-		if(offset_tree[i] == '(') depth++;
-		if(offset_tree[i] == ')') depth--;
-		if(depth == 0) return offset_tree.substr(0,i+1);
+}
+
+void Operators::Free_fn( char* _oplist ){
+
+	string oplist = string(_oplist).substr(0, strlen(_oplist) - 1);
+
+	solver->free_var(name(oplist));
+	debug && printf("\e[31m FreeFn %s\e[0m\n", _oplist );
+
+}
+
+
+string Operators::name( string input, string fn_name ){
+
+	if(input.substr(0,9) != "constant" UNDERSCORE &&
+			input.substr(0,4) != "mem" UNDERSCORE &&
+	 		input.substr(0,7) != "global" UNDERSCORE )
+		myReplace(input, UNDERSCORE, "underscore" );
+
+
+	if( input.substr(0,7) == "global" UNDERSCORE ){
+		string postfix = input.substr(7);
+		//printf("postfix %s\n", postfix.c_str() );
+		myReplace(postfix, UNDERSCORE, "underscore");
+		input = string("global") + UNDERSCORE + postfix;
+
+		//printf("globalname %s\n", input.c_str());
 	}
 
-	assert(0 && "Unbalanced tree");
+	if(input.find("constant") != string::npos ){
+		int ini = 9;
+		string interm = input.substr(ini);
+		int len = interm.find(UNDERSCORE);
+		string final = interm.substr(0, len);
 
-}
-
-string trimpar(string str){
-
-	int n1 = str.find_first_not_of("()");
-	int n2 = str.substr(n1).find_first_not_of("0123456789-");
-	string firstnum = str.substr(n1).substr(0,n2);
-	//printf("trimpar %s %s %d %d %s\n", str.c_str(), str.substr(n1).c_str(),  n1, n2, str.substr(n1).substr(0,n2).c_str() );
-	assert( is_number(firstnum) && "ret is not a number");
-	return firstnum;
-}
-
-bool has_index(string offset_tree, int index){
-
-	int depth = -1;
-	int nelem = -1;
-	for ( unsigned int i = 1; i < offset_tree.size(); i++) {
-		if(offset_tree[i] == '(') depth++;
-		if(offset_tree[i] == ')') depth--;
-		if(depth == 0 && offset_tree[i] == '(' ){
-			nelem++;
-		}
-		if(nelem == index){
-			return true;
-
-		}
+		return final;
+	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
+		return input;
+	} else if (input.substr(0,7) == "global" UNDERSCORE ){
+		return input;
+	} else {
+		return ((fn_name == "")?actual_function:fn_name) + UNDERSCORE + input;
+		//return input;
 	}
 
-	return false;
+
 }
 
-int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
+
+
+
+
+void Operators::set_name_hint(string name, string hint){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_name_hint");
+	solver->set_name_hint(name, hint);
+
+}
+
+
+
+
+
+bool Operators::check_mangled_name(string name){
+
+	//printf("check mangled name %s\n", name.c_str());
+	int number_of_underscore = count(name, UNDERSCORE);
+	if(
+			number_of_underscore != 1 && // main_registerunderscoreval mem_9
+			number_of_underscore != 0    // 0
+	)
+		return false;
+
+	if( number_of_underscore == 1 ){
+		vector<string> tokens = tokenize(name, UNDERSCORE);
+		if(tokens[1].substr(0,8) != "register" &&
+		   tokens[0].substr(0,3) != "mem"      &&
+		   tokens[0].substr(0,6) != "global"
+		  ) return false;
+	}
+
+	if( number_of_underscore  == 0 ){
+		if( !is_number(name) )
+			return false;
+	}
+
+
+	return true;
+
+}
+
+
+string Operators::realvalue(string varname){
+	return solver->realvalue(name(varname));
+}
+
+int Operators::get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
 
 
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
@@ -608,205 +685,29 @@ int get_offset(vector<string> indexes, string offset_tree, string* remaining_tre
 
 }
 
-void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
-
-	string dst     = string(_dst);
-	string pointer = string(_pointer);
-	vector<string> indexes = tokenize(string(_indexes), ",");
-	string offset_tree = string(_offset_tree);
-
-	debug && printf("\e[33m getelementptr %s %s %s %s\e[0m. %s %s %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree, 
-		                                                          name(pointer).c_str(), realvalue(pointer).c_str(), 
-									  name(dst).c_str(), realvalue(dst).c_str() );
-
-	//printf("srctree %s\n", get_offset_tree(pointer).c_str() );
-
-
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
-	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
-	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
-	}
-
-	//if( get_offset_tree(name(pointer)) != "" && offset_tree == "((0))" ){
-		//printf("\e[35m Using source offset_tree \e[0m %s\n", get_offset_tree(name(pointer)).c_str() );
-		//offset_tree = get_offset_tree(name(pointer));
-	//}
-	
-
-	string remaining_tree;
-	int offset = get_offset(indexes, offset_tree, &remaining_tree);
-	set_offset_tree(name(dst), remaining_tree);
-	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
-
-	
-	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
-	string offset_constant_s = offset_ss.str();
-	
-	binary_instruction(dst, pointer, offset_constant_s, "+");
-	//exit(0);
-
-
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
-		                                                          name(dst).c_str(), realvalue(dst).c_str() );
-
+string Operators::get_actual_function(){
+	return actual_function;
 }
 
-void getelementptr_struct(char* _dst, char* _pointer, char* _indexes, char* _offsets){
-
-	string dst     = string(_dst);
-	string pointer = string(_pointer);
-	vector<string> indexes = tokenize(string(_indexes), ",");
-	vector<string> offsets = tokenize(string(_offsets), ",");
-
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for getelementptr");
-	if(!check_mangled_name(name(pointer))) assert(0 && "Wrong dst for getelementptr");
-	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		if(!check_mangled_name(name(*it))) assert(0 && "Wrong index for getelementptr");
-	}
-	for( vector<string>::iterator it = offsets.begin(); it != offsets.end(); it++ ){
-		if(!check_mangled_name(name(*it))) assert(0 && "Wrong size for getelementptr");
-	}
-	
-	assert( indexes[0] == "constant_0" );
-	assert( indexes[1].substr(0,9) == "constant_" );
-
-
-	int index;
-	sscanf( indexes[1].substr(9).c_str(), "%d", &index);
-
-	//printf("%d %s %s\n", index, indexes[index].c_str(), _indexes );
-
-	binary_instruction(dst, pointer, offsets[index], "+");
+void cast_instruction(char* _dst, char* _src, char* _type){ operators->cast_instruction(_dst, _src, _type); }
+void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){operators->NonAnnotatedCallInstr(_fn_name, _ret_to, _ret_type);}
+void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){operators->CallInstr(  _fn_name,  _oplist,  _fn_oplist,  _ret_to );}
+void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){operators->select_op(_dest, _cond, _sel1, _sel2);}
+void ReturnInstr(char* _retname ){operators->ReturnInstr(_retname);}
+void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){operators->binary_op(_dst, _op1, _op2,_operation);}
+void load_instr(char* _dst, char* _addr){operators->load_instr(_dst, _addr);}
+void store_instr(char* _src, char* _addr){operators->load_instr(_src, _addr);}
+void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){operators->cmp_instr(_dst, _cmp1, _cmp2, _type);}
+void br_instr_incond(){operators->br_instr_incond();}
+void begin_bb(char* name){operators->begin_bb(name);}
+void end_bb(char* name){operators->end_bb(name);}
+void global_var_init(char* _varname, char* _type, char* _values){operators->global_var_init(_varname, _type,_values);}
+void alloca_instr(char* _reg, char* _subtype){operators->alloca_instr(_reg, _subtype);}
+void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){operators->getelementptr(_dst, _pointer, _indexes,_offset_tree);}
+void begin_sim(){operators->begin_sim();}
+void BeginFn(char* _fn_name){operators->BeginFn(_fn_name);}
+void end_sim(){operators->end_sim();}
+bool br_instr_cond(char* _cmp, char* _joints){return operators->br_instr_cond(_cmp, _joints);}
 
 
-	
-	debug && printf("\e[31m getelementptr_struct %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes, _offsets,
-		                                                          name(dst).c_str(), realvalue(dst).c_str() );
-
-}
-
-void begin_sim(){
-	debug && printf("\e[31m Begin Simulation\e[0m\n" );
-	start_database();
-
-	read_options();
-	see_each_problem = cmd_option_bool("see_each_problem");
-
-	create_tables();
-	load_forced_free_vars();
-}
-
-void BeginFn(char* _fn_name){
-
-	string fn_name = string(_fn_name);
-
-	myReplace(fn_name, UNDERSCORE, "");
-	actual_function = fn_name;
-
-	myReplace(actual_function, UNDERSCORE, "underscore");
-
-
-	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
-
-
-}
-
-void end_sim(){
-
-	end_database();
-	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
-	
-}
-
-
-bool br_instr_cond(char* _cmp, char* _joints){
-
-	string cmp = string(_cmp);
-	vector<string> joints = tokenize(string(_joints), ",");
-
-	if(!check_mangled_name(name(cmp))) assert(0 && "Wrong comparison for break");
-
-	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
-
-	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d\n", content( name(cmp) ).c_str(), get_is_propagated_constant(name(cmp)) );
-
-
-
-	string real_value_prev = realvalue(cmp);
-
-
-
-	if( int pid = fork() ){
-
-		//debug && printf("padre pid %d pidhijo %d\n", getpid(), pid); fflush(stdout);
-
-		
-		int status;
-		waitpid(pid, &status, 0);
-
-		push_path_stack( real_value_prev == "true");
-		print_path_stack();
-
-		if(yet_covered()) exit(0);
-
-		//solve_problem();
-		set_sat(true);
-		insert_problem();
-
-		if( realvalue(cmp) == "true" ){
-			push_condition( content( name(cmp) ) , actual_function, joints, get_fuzz_constr(name(cmp)));
-		} else if (realvalue(cmp) == "false" ){
-			push_condition( negation(content( name(cmp) )), actual_function, joints, get_fuzz_constr(name(cmp)) );
-		} else {
-			assert(0 && "Non-boolean value for condition");
-		}
-
-		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
-
-		return real_value_prev == "true";
-	} else {
-
-		if( get_is_propagated_constant(name(cmp)) && PROPAGATE_CONSTANTS ) exit(0);
-
-		if( EXIT_ON_INSERT ){
-			system("killall final");
-			assert(0 && "EXIT_ON_INSERT");
-		}
-
-
-		if( realvalue(cmp) == "true" ){
-			push_condition( negation(content( name(cmp) )), actual_function, joints, get_fuzz_constr(name(cmp)) );
-		} else if (realvalue(cmp) == "false" ){
-			push_condition( content( name(cmp) ) , actual_function, joints, get_fuzz_constr(name(cmp)));
-		} else {
-			assert(0 && "Non-boolean value for condition");
-		}
-
-
-		see_each_problem && show_problem();
-
-		solve_problem();
-
-		if( solvable_problem() ){
-			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
-
-			push_path_stack( real_value_prev != "true");
-			print_path_stack();
-
-			//if(yet_covered()) exit(0);
-
-			solve_problem();
-			insert_problem();
-			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
-			return real_value_prev != "true";
-		} else {
-			debug && printf("\e[31m hijo unsat \e[0m\n"); fflush(stdout);
-			//insert_problem();
-			exit(0);
-		}
-	}
-
-
-}
 
