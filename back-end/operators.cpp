@@ -401,7 +401,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
 
 	
-	stringstream offset_ss; offset_ss << "constant" UNDERSCORE << offset;
+	stringstream offset_ss; offset_ss << offset;
 	string offset_constant_s = offset_ss.str();
 	
 	solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
