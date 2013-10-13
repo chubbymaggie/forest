@@ -1210,16 +1210,18 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		content_ss << "(mod " << content(op1 ) << " " <<  content(op2 ) << ")";
 	} else if (operation == "R" ) {
 
-		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_number(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2 );
 		int factor = 1 << exponent;
 
 		content_ss << "(/ " << content(op1) << " " << factor << ")";
 
 	} else if (operation == "L" ) {
 
-		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_number(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2 );
 		int factor = 1 << exponent;
 
 		content_ss << "(* " << content(op1) << " " << factor << ")";
@@ -1260,7 +1262,6 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	if( is_constant(op1) && get_is_propagated_constant(op2) ){
 		set_is_propagated_constant(dst);
 	}
-
 
 
 
@@ -1354,8 +1355,9 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	}
 
 	if(operation == "R"){
-		if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		int places = stoi( op2.substr(9) );
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_number(op2)) assert(0 && "Rotate non-constant");
+		int places = stoi( op2 );
 
 		int result_i = stoi(realvalue(op1)) >> places;
 
