@@ -54,7 +54,16 @@ typedef struct Variable {
 } Variable;
 
 
+typedef struct NameAndPosition{
+	string name;
+	string position;
+} NameAndPosition;
 
+
+inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
+{
+  return lhs.name > rhs.name;
+}
 
 class Solver {
 public:
@@ -89,6 +98,8 @@ public:
 	void push_path_stack(bool step);
 	void print_path_stack();
 	map<string, Variable> get_map_variables();
+	vector<Condition> get_stack_conditions();
+	set<NameAndPosition> get_variable_names();
 
 private:
 

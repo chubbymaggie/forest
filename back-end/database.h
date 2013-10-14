@@ -34,37 +34,60 @@
 
 using namespace std;
 
-static int callback(void *NotUsed, int argc, char **argv, char **azColName);
 
-void start_database();
+class Database {
+public:
+	Database ();
+	virtual ~Database ();
+	void insert_load(string pos);
+	void start_database();
 
-void end_database();
+	void end_database();
 
-void create_tables();
+	void create_tables();
 
-void insert_problem();
+	void insert_problem();
+	set<pair<string, string> > get_sync_global_types();
+	set<string> list_semaphores();
+	set<vector<string> > get_paths_to(string dest);
+	set<string> list_unlock_points();
+	void load_stores(map<string, set<pair<string, string> > >& stores);
+	void load_stacks(map<string, string>& stacks);
+	set<string> list_sync_points();
+	void load_concurrency_table(map<string, set<string> >& ret);
+	set<string> list_store_sync_points();
+	void insert_global_type(string name, string type);
+	void insert_store(string pos, string content, string sync_name);
 
-bool yet_covered();
+	void insert_sync_points(string sync_name, set<string> sync_points);
+	void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
 
-void create_concurrency_tables();
-void drop_concurrency_tables();
-void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
+private:
+	sqlite3 *db;
 
-void insert_load(string pos);
-void insert_store(string pos, string content, string sync_name);
 
-void insert_sync_points(string sync_name, set<string> sync_points);
-//std::map<std::string, std::set<std::string> > load_concurrency_table();
-void load_concurrency_table(map<string, set<string> >& ret);
-set<string> list_semaphores();
+	void drop_tables();
+	string gethint(string name);
+	int num_of_assertions() ;
+	int num_of_variables() ;
+	int num_of_mults();
+	int num_of_divs();
+	int num_of_sums();
+	int num_of_subs();
 
-set<string> list_unlock_points();
-set<vector<string> > get_paths_to(string dest);
-void load_stores(map<string, set<pair<string, string> > >& stores);
-set<string> list_sync_points();
-void load_stacks(map<string, string>& stacks);
-set<string> list_store_sync_points();
-void insert_global_type(string name, string type);
-set<pair<string, string> > get_sync_global_types();
+	//static int callback(void *NotUsed, int argc, char **argv, char **azColName);
+
+
+	bool yet_covered();
+
+	void create_concurrency_tables();
+	void drop_concurrency_tables();
+
+
+	
+};
+
+
+
 
 #endif /* end of include guard: _DATABASE_H_ */

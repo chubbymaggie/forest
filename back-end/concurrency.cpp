@@ -29,6 +29,7 @@
 using namespace std;
 
 extern Solver* solver;
+extern Database* database;
 
 set<string> sync_points;
 
@@ -45,7 +46,7 @@ void insert_global_types(){
 		string name = tokens[0];
 		string type = solver->get_type(it->name);
 
-		insert_global_type(name, type);
+		database->insert_global_type(name, type);
 
 		//fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
 		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
@@ -63,7 +64,7 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 
 	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
 		printf("%s %s\n", it->first.c_str(), it->second.c_str());
-		insert_store(it->first, it->second, sync_name );
+		database->insert_store(it->first, it->second, sync_name );
 	}
 	map_pos_to_last_store.clear();
 
@@ -77,11 +78,11 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 	printf("conds %s\n", conds.str().c_str() );
 	printf("-----------------------------------\n");
 
-	database_insert_concurrency("lock", mutex_name, sync_name, conds.str());
+	database->database_insert_concurrency("lock", mutex_name, sync_name, conds.str());
 
 	sync_points.insert(sync_name);
 
-	insert_sync_points(sync_name, sync_points);
+	database->insert_sync_points(sync_name, sync_points);
 
 }
 
@@ -101,7 +102,7 @@ void mutex_unlock(char* _mutex_name, char* _sync_name){
 
 	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
 		printf("%s %s\n", it->first.c_str(), it->second.c_str());
-		insert_store(it->first, it->second, sync_name );
+		database->insert_store(it->first, it->second, sync_name );
 	}
 	map_pos_to_last_store.clear();
 
@@ -115,11 +116,11 @@ void mutex_unlock(char* _mutex_name, char* _sync_name){
 	printf("conds %s\n", conds.str().c_str() );
 	printf("-----------------------------------\n");
 
-	database_insert_concurrency("unlock", mutex_name, sync_name, conds.str());
+	database->database_insert_concurrency("unlock", mutex_name, sync_name, conds.str());
 
 	sync_points.insert(sync_name);
 
-	insert_sync_points(sync_name, sync_points);
+	database->insert_sync_points(sync_name, sync_points);
 
 }
 

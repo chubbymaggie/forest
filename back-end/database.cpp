@@ -25,12 +25,11 @@ extern Solver* solver;
 #define debug true
 #define DATABASE_VALUES false
 
-sqlite3 *db;
-
-extern set<NameAndPosition> variable_names;
-extern vector<Condition> conditions;
 
 vector< pair<string, string> > retsqlite;
+
+Database::Database(){;}
+Database::~Database(){;}
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 
@@ -45,17 +44,17 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 	return 0;
 }
 
-void start_database(){
+void Database::start_database(){
 	debug && printf("\e[31m start_database \e[0m\n"); fflush(stdout);
 	sqlite3_open("database.db", &db);
 }
 
-void end_database(){
+void Database::end_database(){
 	debug && printf("\e[31m end_database \e[0m\n"); fflush(stdout);
 	sqlite3_close(db);
 }
 
-void drop_tables(){
+void Database::drop_tables(){
 
 	debug && printf("\e[31m drop_tables \e[0m\n"); fflush(stdout);
 
@@ -70,7 +69,7 @@ void drop_tables(){
 
 }
 
-void create_tables(){
+void Database::create_tables(){
 
 	drop_tables();
 
@@ -122,7 +121,7 @@ void create_tables(){
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
 }
 
-string gethint(string name){
+string Database::gethint(string name){
 
 
 	string str = name;
@@ -139,47 +138,51 @@ string gethint(string name){
 
 }
 
-int num_of_assertions() {
-	return conditions.size();
+int Database::num_of_assertions() {
+	return solver->get_stack_conditions().size();
 }
 
-int num_of_variables() {
-	return variable_names.size();
+int Database::num_of_variables() {
+	return solver->get_variable_names().size();
 }
 
-int num_of_mults(){
+int Database::num_of_mults(){
 	int ret = 0;
+	vector<Condition> conditions = solver->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		ret += count(it->cond, "*");
 	}
 	return ret;
 }
 
-int num_of_divs(){
+int Database::num_of_divs(){
 	int ret = 0;
+	vector<Condition> conditions = solver->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		ret += count(it->cond, "/");
 	}
 	return ret;
 }
 
-int num_of_sums(){
+int Database::num_of_sums(){
 	int ret = 0;
+	vector<Condition> conditions = solver->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		ret += count(it->cond, "+");
 	}
 	return ret;
 }
 
-int num_of_subs(){
+int Database::num_of_subs(){
 	int ret = 0;
+	vector<Condition> conditions = solver->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		ret += count(it->cond, "-");
 	}
 	return ret;
 }
 
-void insert_problem(){
+void Database::insert_problem(){
 
 	stringstream action;
 	//string id = "(select max(problem_id) from problems)";
@@ -193,6 +196,7 @@ void insert_problem(){
 	
 	action << "insert into problems (sat, path) values (" << (solver->solvable_problem()?1:0) << ",'" << path << "');";
 
+	set<NameAndPosition> variable_names = solver->get_variable_names();
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = it->name;
 		string type = solver->get_sized_type(name);
@@ -262,7 +266,7 @@ void insert_problem(){
 
 }
 
-bool yet_covered(){
+bool Database::yet_covered(){
 
 
 
@@ -281,7 +285,7 @@ bool yet_covered(){
 
 }
 
-void drop_concurrency_tables(){
+void Database::drop_concurrency_tables(){
 
 	debug && printf("\e[31m drop concurrency_table \e[0m\n"); fflush(stdout);
 
@@ -294,7 +298,7 @@ void drop_concurrency_tables(){
 
 }
 
-void create_concurrency_tables(){
+void Database::create_concurrency_tables(){
 
 	debug && printf("\e[31m create table concurrency \e[0m\n"); fflush(stdout);
 
@@ -323,7 +327,7 @@ void create_concurrency_tables(){
 
 }
 
-void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
+void Database::database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
 
 	debug && printf("\e[31m insert into concurrency \e[0m\n"); fflush(stdout);
 
@@ -333,7 +337,7 @@ void database_insert_concurrency(string lockunlock, string mutex_name, string sy
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }
 
-void insert_load(string pos){
+void Database::insert_load(string pos){
 
 	debug && printf("\e[31m insert load\e[0m\n"); fflush(stdout);
 
@@ -343,7 +347,7 @@ void insert_load(string pos){
 	
 }
 
-void insert_store(string pos, string content, string sync_name){
+void Database::insert_store(string pos, string content, string sync_name){
 
 	debug && printf("\e[31m insert store\e[0m\n"); fflush(stdout);
 
@@ -356,8 +360,7 @@ void insert_store(string pos, string content, string sync_name){
 
 }
 
-
-void insert_sync_points(string sync_name, set<string> sync_points){
+void Database::insert_sync_points(string sync_name, set<string> sync_points){
 
 	debug && printf("\e[31m insert sync\e[0m\n"); fflush(stdout);
 
@@ -373,7 +376,7 @@ void insert_sync_points(string sync_name, set<string> sync_points){
 
 }
 
-set<string> list_semaphores(){
+set<string> Database::list_semaphores(){
 
 	//debug && printf("\e[31m list_semaphores \e[0m\n"); fflush(stdout);
 
@@ -391,7 +394,7 @@ set<string> list_semaphores(){
 	return ret;
 }
 
-void load_concurrency_table(map<string, set<string> >& ret){
+void Database::load_concurrency_table(map<string, set<string> >& ret){
 
 	//ret["a"].insert("d");
 	//ret["b"].insert("e"); ret["b"].insert("f");
@@ -431,8 +434,7 @@ void load_concurrency_table(map<string, set<string> >& ret){
 
 }
 
-
-set<string> list_unlock_points(){
+set<string> Database::list_unlock_points(){
 
 	//debug && printf("\e[31m list_unlock_points \e[0m\n"); fflush(stdout);
 
@@ -455,7 +457,7 @@ set<string> list_unlock_points(){
 
 }
 
-set<vector<string> > get_paths_to(string dest){
+set<vector<string> > Database::get_paths_to(string dest){
 
 
 	//debug && printf("\e[31m get_paths_to \e[0m\n"); fflush(stdout);
@@ -484,8 +486,7 @@ set<vector<string> > get_paths_to(string dest){
 
 }
 
-
-void load_stores(map<string, set<pair<string, string> > >& stores){
+void Database::load_stores(map<string, set<pair<string, string> > >& stores){
 
 	//debug && printf("\e[31m load_stores\e[0m\n"); fflush(stdout);
 
@@ -521,8 +522,7 @@ void load_stores(map<string, set<pair<string, string> > >& stores){
 
 }
 
-
-set<string> list_sync_points(){
+set<string> Database::list_sync_points(){
 
 
 	set<string> ret;
@@ -556,8 +556,7 @@ set<string> list_sync_points(){
 	return ret;
 }
 
-
-void load_stacks(map<string, string>& stacks){
+void Database::load_stacks(map<string, string>& stacks){
 
 	//debug && printf("\e[31m load_stacks\e[0m\n"); fflush(stdout);
 
@@ -582,8 +581,7 @@ void load_stacks(map<string, string>& stacks){
 	}
 }
 
-
-set<string> list_store_sync_points(){
+set<string> Database::list_store_sync_points(){
 	
 
 
@@ -618,7 +616,7 @@ set<string> list_store_sync_points(){
 	//return ret;
 }
 
-void insert_global_type(string name, string type){
+void Database::insert_global_type(string name, string type){
 
 	debug && printf("\e[31m insert global type %s %s\e[0m\n", name.c_str(), type.c_str()); fflush(stdout);
 
@@ -629,8 +627,7 @@ void insert_global_type(string name, string type){
 
 }
 
-
-set<pair<string, string> > get_sync_global_types(){
+set<pair<string, string> > Database::get_sync_global_types(){
 
 	set<pair<string, string> > ret;
 
@@ -653,3 +650,6 @@ set<pair<string, string> > get_sync_global_types(){
 
 	return ret;
 }
+
+
+

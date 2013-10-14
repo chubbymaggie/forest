@@ -28,6 +28,7 @@
 extern Options* options;
 extern Operators* operators;
 extern Solver* solver;
+extern Database* database;
 
 Operators::Operators(){}
 Operators::~Operators(){}
@@ -185,7 +186,7 @@ void Operators::load_instr(char* _dst, char* _addr){
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
 	if(options->cmd_option_bool("secuencialize")){
-		insert_load(src);
+		database->insert_load(src);
 	}
 
 	solver->assign_instruction(name(src),name(dst));
@@ -413,7 +414,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 void Operators::begin_sim(){
 	debug && printf("\e[31m Begin Simulation\e[0m\n" );
-	start_database();
+	database->start_database();
 
 	options->read_options();
 	see_each_problem = options->cmd_option_bool("see_each_problem");
@@ -421,7 +422,7 @@ void Operators::begin_sim(){
 	exit_on_insert = options->cmd_option_bool("exit_on_insert");
 
 
-	create_tables();
+	database->create_tables();
 	solver->load_forced_free_vars();
 
 	debug = true;//options->cmd_option_bool("debug");
@@ -446,7 +447,7 @@ void Operators::BeginFn(char* _fn_name){
 
 void Operators::end_sim(){
 
-	end_database();
+	database->end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	
 }
@@ -479,11 +480,11 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		solver->push_path_stack( real_value_prev == "true");
 		solver->print_path_stack();
 
-		if(yet_covered()) exit(0);
+		//if(yet_covered()) exit(0);
 
 		//solve_problem();
 		solver->set_sat(true);
-		insert_problem();
+		database->insert_problem();
 
 		if( realvalue(cmp) == "true" ){
 			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints, solver->get_fuzz_constr(name(cmp)));
@@ -528,7 +529,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			//if(yet_covered()) exit(0);
 
 			solver->solve_problem();
-			insert_problem();
+			database->insert_problem();
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {

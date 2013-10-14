@@ -40,16 +40,7 @@ using namespace std;
 
 
 
-typedef struct NameAndPosition{
-	string name;
-	string position;
-} NameAndPosition;
 
-
-inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
-{
-  return lhs.name > rhs.name;
-}
 
 
 

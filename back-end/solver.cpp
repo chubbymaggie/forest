@@ -31,6 +31,7 @@
 
 extern Options* options;
 extern Operators* operators;
+extern Database* database;
 
 set<NameAndPosition> variable_names;
 vector<string> flatened_conditions;
@@ -87,7 +88,7 @@ void Solver::dump_variables(FILE* file){
 
 void Solver::dump_sync_variables(FILE* file){
 
-	set<pair<string, string> > vars_and_types = get_sync_global_types();
+	set<pair<string, string> > vars_and_types = database->get_sync_global_types();
 
 	for( set<pair<string, string> >::iterator it = vars_and_types.begin(); it != vars_and_types.end(); it++ ){
 		stringstream decl; decl << "(declare-fun " << it->first << " () " << it->second << ")";
@@ -174,7 +175,7 @@ string Solver::or_unlocking(string condition, string mutex){
 
 void Solver::substitute_locks(string& condition){
 
-	set<string> mutexes = list_semaphores();
+	set<string> mutexes = database->list_semaphores();
 	//mutexes.insert("a");
 	//mutexes.insert("b");
 	//mutexes.insert("c");
@@ -200,7 +201,7 @@ string Solver::or_paths(string dest){
 	//if(dest == "entry") return "(1)";
 	//return "()";
 
-	set<vector<string> > paths = get_paths_to(dest);
+	set<vector<string> > paths = database->get_paths_to(dest);
 
 	//printf("dest %s path num %lu\n",dest.c_str(), paths.size());
 
@@ -229,7 +230,7 @@ void Solver::substitute_unlocks(string& condition){
 
 	//printf("substitute_unlocks\n");
 
-	set<string> unlock_points = list_unlock_points();
+	set<string> unlock_points = database->list_unlock_points();
 
 	//printf("unlock_points.size %lu\n", unlock_points.size());
 	
@@ -247,7 +248,7 @@ void Solver::substitute_paths(string& condition){
 
 	//printf("substitute_unlocks\n");
 
-	set<string> unlock_points = list_unlock_points();
+	set<string> unlock_points = database->list_unlock_points();
 
 	//printf("unlock_points.size %lu\n", unlock_points.size());
 	
@@ -264,7 +265,7 @@ map<string, set<pair<string, string> > > stores;
 
 string Solver::and_stores(string sync_point){
 
-	load_stores(stores);
+	database->load_stores(stores);
 	//stores["entry"].insert(pair<string, string>("mem_220","mem_216"));
 	//stores["bb"].insert(pair<string, string>("mem_119","1"));
 	//stores["bb1"].insert(pair<string, string>("mem_119","0"));
@@ -301,7 +302,7 @@ void Solver::substitute_stores(string& condition){
 
 	//printf("substitute_stores\n");
 
-	set<string> sync_points = list_store_sync_points();
+	set<string> sync_points = database->list_store_sync_points();
 
 	//printf("sync_points.size %lu\n", sync_points.size());
 	
@@ -317,7 +318,7 @@ map<string, string> stacks;
 
 string Solver::stack(string sync_point){
 
-	load_stacks(stacks);
+	database->load_stacks(stacks);
 	return stacks[sync_point];
 
 	//if(sync_point == "entry") return "(true)";
@@ -333,7 +334,7 @@ void Solver::substitute_conds(string& condition){
 
 	//printf("substitute_conds\n");
 
-	set<string> sync_points = list_sync_points();
+	set<string> sync_points = database->list_sync_points();
 
 	//printf("sync_points.size %lu\n", sync_points.size());
 	
@@ -369,7 +370,7 @@ void Solver::dump_concurrency_constraints(FILE* file){
 	if(options->cmd_option_bool("concurrency")) return;
 	if(!options->cmd_option_bool("secuencialize")) return;
 
-	load_concurrency_table(concurrency_table);
+	database->load_concurrency_table(concurrency_table);
 
 	stringstream condition;
 
@@ -1607,5 +1608,14 @@ void Solver::print_path_stack(){
 
 map<string, Variable> Solver::get_map_variables(){
 	return variables;
+}
+
+
+vector<Condition> Solver::get_stack_conditions(){
+	return conditions;
+}
+
+set<NameAndPosition> Solver::get_variable_names(){
+	return variable_names;
 }
 
