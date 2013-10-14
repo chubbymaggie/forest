@@ -85,6 +85,7 @@ private:
 	void drop_concurrency_tables();
 
 	bool exists_in_global_types(string name);
+	bool exists_in_sync(string syncname);
 
 	
 };

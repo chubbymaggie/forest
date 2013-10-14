@@ -362,7 +362,27 @@ void Database::insert_store(string pos, string content, string sync_name){
 
 }
 
+
+bool Database::exists_in_sync(string syncname){
+
+	stringstream action;
+	action << "select * from sync where ";
+	action << "pos = \"" << syncname << "\";";
+
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	//printf("accion %s %lu\n", action.str().c_str(), retsqlite.size());
+
+	return retsqlite.size() > 0;
+
+
+}
+
 void Database::insert_sync_points(string sync_name, set<string> sync_points){
+
+	if(exists_in_sync(sync_name)) return;
 
 	debug && printf("\e[31m insert sync\e[0m\n"); fflush(stdout);
 
