@@ -86,6 +86,7 @@ private:
 
 	bool exists_in_global_types(string name);
 	bool exists_in_sync(string syncname);
+	bool exists_in_stores(string pos, string content, string sync_name);
 
 	
 };

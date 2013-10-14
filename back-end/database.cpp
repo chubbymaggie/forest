@@ -351,6 +351,8 @@ void Database::insert_load(string pos){
 
 void Database::insert_store(string pos, string content, string sync_name){
 
+	if(exists_in_stores(pos, content, sync_name)) return;
+
 	debug && printf("\e[31m insert store\e[0m\n"); fflush(stdout);
 
 
@@ -359,6 +361,26 @@ void Database::insert_store(string pos, string content, string sync_name){
 	stringstream action;
 	action << "insert into stores values ('" << pos << "','" << content << "','" << sync_name << "');";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+}
+
+
+bool Database::exists_in_stores(string pos, string content, string sync_name){
+
+	stringstream action;
+	action << "select * from stores where ";
+	action << "pos        = \"" << pos << "\" and ";
+	action << "value      = \"" << content << "\" and ";
+	action << "sync_point = \"" << sync_name << "\";";
+
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	printf("accion %s %lu\n", action.str().c_str(), retsqlite.size());
+
+	return retsqlite.size() > 0;
+
 
 }
 

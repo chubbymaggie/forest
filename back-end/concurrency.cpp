@@ -115,7 +115,7 @@ void Concurrency::mutex_unlock(char* _mutex_name, char* _sync_name){
 	printf("conds %s\n", conds.str().c_str() );
 	printf("-----------------------------------\n");
 
-	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, conds.str()};
+	MutexInfo mutexinfo = {"unlock", mutex_name, sync_name, conds.str()};
 
 	mutexinfos.insert(mutexinfo);
 
