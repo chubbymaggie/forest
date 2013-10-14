@@ -703,7 +703,7 @@ struct All: public ModulePass {
 		read_options();
 		//cerr << "Option HW " << cmd_option_bool("hello_world") << endl;
 
-		//{SeparateSync     pass;   pass.runOnModule(M);}
+		{SeparateSync     pass;   pass.runOnModule(M);}
 		//{ChangePthreadC   pass;   pass.runOnModule(M);}
 		{ChangeSync       pass;   pass.runOnModule(M);}
 		//{LoadStore        pass;   pass.runOnModule(M);}

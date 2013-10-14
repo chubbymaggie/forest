@@ -1870,7 +1870,7 @@ void check_sync_tables(){
 	stringstream cmd;
 
 	cmd.str("");
-	cmd << "echo '.mode columns\\n.width 15 5 10 35\\n.headers on\\nselect * from concurrency;'";
+	cmd << "echo '.mode columns\\n.width 15 5 20 35\\n.headers on\\nselect * from concurrency;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << "> " << tmp_file("results_sync");
 	cmd << "; echo >> " << tmp_file("results_sync");
@@ -1884,7 +1884,7 @@ void check_sync_tables(){
 	systm(cmd.str().c_str());
 
 	cmd.str("");
-	cmd << "echo '.mode columns\\n.width 15 20\\n.headers on\\nselect * from sync;'";
+	cmd << "echo '.mode columns\\n.width 15 60\\n.headers on\\nselect * from sync;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
 	cmd << "; echo >> " << tmp_file("results_sync");

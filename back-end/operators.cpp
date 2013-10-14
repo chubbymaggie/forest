@@ -30,6 +30,8 @@ extern Operators* operators;
 extern Solver* solver;
 extern Database* database;
 
+extern map<string, string> map_pos_to_last_store;
+
 Operators::Operators(){}
 Operators::~Operators(){}
 
@@ -219,9 +221,11 @@ void Operators::store_instr(char* _src, char* _addr){
 	
 		stringstream stack;
 		solver->dump_conditions(stack);
-		map_pos_to_last_store[dst] = solver->content(name(src));
 	}
 
+	if(options->cmd_option_bool("concurrency")){
+		map_pos_to_last_store[dst] = solver->content(name(src));
+	}
 
 
 
