@@ -599,7 +599,7 @@ struct LoadStore: public ModulePass {
 						GlobalVariable* c1 = make_global_str(M, nameres);
 						GlobalVariable* c2 = make_global_str(M, nameop1);
 
-						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "load_instr_2" ,
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "load_instr" ,
 									Type::getVoidTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
@@ -623,7 +623,7 @@ struct LoadStore: public ModulePass {
 						GlobalVariable* c1 = make_global_str(M, nameop1);
 						GlobalVariable* c2 = make_global_str(M, nameop2);
 
-						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "store_instr_2" ,
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "store_instr" ,
 									Type::getVoidTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),

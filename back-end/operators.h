@@ -84,7 +84,7 @@ private:
 
 	bool propagate_constants;
 	bool exit_on_insert;
-	map<string, string> map_pos_to_last_store;
+	//map<string, string> map_pos_to_last_store;
 	int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree);
 
 	

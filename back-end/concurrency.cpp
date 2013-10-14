@@ -33,7 +33,7 @@ extern Database* database;
 
 set<string> sync_points;
 
-extern map<string, string> map_pos_to_last_store;
+map<string, string> map_pos_to_last_store;
 
 extern set<NameAndPosition> variable_names;
 
