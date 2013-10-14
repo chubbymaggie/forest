@@ -348,18 +348,18 @@ void Solver::substitute_conds(string& condition){
 
 
 void Solver::substitute_sync(string& condition){
-	//printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_locks(condition);
-	//printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_unlocks(condition);
-	//printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_paths(condition);
-	//printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_stores(condition);
-	//printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_conds(condition);
-	//printf("Substitute_syncs %s\n", condition.c_str());
-	//printf("Substitute_syncs-----\n");
+	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs-----\n");
 }
 
 

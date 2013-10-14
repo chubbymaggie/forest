@@ -1858,6 +1858,60 @@ void compare_secuencialize(){
 	systm(cmd.str().c_str());
 }
 
+void check_sync_tables(){
+
+	string explanation = cmd_option_str("explanation") + " ";
+
+	while( explanation.length() < 50 )
+		explanation = explanation + ".";
+
+	printf("* Concurrency %s", explanation.c_str() );
+
+	stringstream cmd;
+
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 15 5 10 35\\n.headers on\\nselect * from concurrency;'";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << "> " << tmp_file("results_sync");
+	cmd << "; echo >> " << tmp_file("results_sync");
+	systm(cmd.str().c_str());
+
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 15 10 35\\n.headers on\\nselect * from stores;'";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << ">> " << tmp_file("results_sync");
+	cmd << "; echo >> " << tmp_file("results_sync");
+	systm(cmd.str().c_str());
+
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 15 20\\n.headers on\\nselect * from sync;'";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << ">> " << tmp_file("results_sync");
+	cmd << "; echo >> " << tmp_file("results_sync");
+	systm(cmd.str().c_str());
+
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 15 20\\n.headers on\\nselect * from global_types;'";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << ">> " << tmp_file("results_sync");
+	cmd << "; echo >> " << tmp_file("results_sync");
+	systm(cmd.str().c_str());
+
+
+	cmd.str("");
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "diff results_sync " << prj_file("sync_result") << " > /dev/null";
+	int result = system(cmd.str().c_str());
+
+	if( result )
+		printf("\e[31m Concurrency Failed :( \e[0m\n");
+	else
+		printf("\e[32m Concurrency Passed :) \e[0m\n");
+
+
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -1910,6 +1964,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("show_concurrency_table")) show_concurrency_table();
 	if(cmd_option_bool("secuencialize")) secuencialize();
 	if(cmd_option_bool("compare_secuencialize")) compare_secuencialize();
+	if(cmd_option_bool("check_sync_tables")) check_sync_tables();
 
 
 	return 0;
