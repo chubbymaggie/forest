@@ -1,8 +1,11 @@
 
-all: ../lib/forest.a ../lib/measurement.a ../lib/concurrency.a
+all: ../lib/forest.a ../lib/measurement.a ../lib/concurrency.a 
 
-../lib/forest.a: ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o ../build/utils.o ../build/options.o
-	ar rcs ../lib/forest.a ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o ../build/utils.o ../build/options.o
+../lib/forest.a: ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o
+	ar rcs ../lib/forest.a ../build/database.o ../build/operators.o ../build/solver.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o
+
+../build/wrapper.o: wrapper.cpp
+	g++ -c wrapper.cpp -o ../build/wrapper.o
 
 ../build/options.o: options.cpp
 	g++ -c options.cpp -o ../build/options.o
