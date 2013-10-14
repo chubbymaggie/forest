@@ -115,5 +115,9 @@ void begin_concurrency(){
 	concurrency->begin_concurrency();
 }
 
+void end_concurrency(){
+	concurrency->end_concurrency();
+}
+
 
 

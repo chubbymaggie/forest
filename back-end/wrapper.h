@@ -162,5 +162,6 @@ extern "C" void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 extern "C" void mutex_lock(char* _mutex_name, char* _sync_name);
 extern "C" void mutex_unlock(char* _mutex_name, char* _sync_name);
 extern "C" void begin_concurrency();
+extern "C" void end_concurrency();
 
 #endif /* end of include guard: _WRAPPER_H_ */

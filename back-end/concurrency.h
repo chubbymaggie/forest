@@ -22,6 +22,28 @@
 #ifndef _CONCURRENCY_H_
 #define _CONCURRENCY_H_
 
+#include <stdio.h>
+#include "database.h"
+#include "solver.h"
+#include <sstream>
+
+#include "solver.h"
+
+using namespace std;
+
+
+typedef struct MutexInfo {
+	string lockunlock;
+	string mutex_name;
+	string sync_name;
+	string conds;
+} MutexInfo;
+
+
+inline bool operator<(const MutexInfo& lhs, const MutexInfo& rhs) {
+  return (lhs.lockunlock + lhs.mutex_name + lhs.sync_name + lhs.conds) < (rhs.lockunlock + rhs.mutex_name + rhs.sync_name + rhs.conds);
+}
+
 
 class Concurrency {
 public:
@@ -33,8 +55,11 @@ public:
 
 	void begin_concurrency();
 	void insert_global_types();
+	void dump_sync_table();
+	void end_concurrency();
 
 private:
+set<MutexInfo> mutexinfos;
 	
 };
 

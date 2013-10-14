@@ -61,6 +61,7 @@ public:
 
 	void insert_sync_points(string sync_name, set<string> sync_points);
 	void database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
+	bool exists_in_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
 
 private:
 	sqlite3 *db;

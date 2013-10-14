@@ -18,13 +18,7 @@
  * =====================================================================================
  */
 
-#include <stdio.h>
 #include "concurrency.h"
-#include "database.h"
-#include "solver.h"
-#include <sstream>
-
-#include "solver.h"
 
 using namespace std;
 
@@ -81,7 +75,9 @@ void Concurrency::mutex_lock(char* _mutex_name, char* _sync_name){
 	printf("conds %s\n", conds.str().c_str() );
 	printf("-----------------------------------\n");
 
-	database->database_insert_concurrency("lock", mutex_name, sync_name, conds.str());
+	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, conds.str()};
+
+	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
 
@@ -119,7 +115,9 @@ void Concurrency::mutex_unlock(char* _mutex_name, char* _sync_name){
 	printf("conds %s\n", conds.str().c_str() );
 	printf("-----------------------------------\n");
 
-	database->database_insert_concurrency("unlock", mutex_name, sync_name, conds.str());
+	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, conds.str()};
+
+	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
 
@@ -127,12 +125,27 @@ void Concurrency::mutex_unlock(char* _mutex_name, char* _sync_name){
 
 }
 
+void Concurrency::dump_sync_table(){
+
+	for( set<MutexInfo>::iterator it = mutexinfos.begin(); it != mutexinfos.end(); it++ ){
+		//string lockunlock = it->lockunlock;
+		//string mutex_name = it->mutex_name;
+		//printf("mutex_to_insert %s %s\n", lockunlock.c_str(), mutex_name.c_str());
+		database->database_insert_concurrency(it->lockunlock, it->mutex_name, it->sync_name, it->conds);
+	}
+	
+}
+
+
 void Concurrency::begin_concurrency(){
 	//drop_concurrency_tables();
 	//create_concurrency_tables();
 }
 
 
+void Concurrency::end_concurrency(){
+	dump_sync_table();
+}
 
 
 

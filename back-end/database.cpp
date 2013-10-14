@@ -329,6 +329,8 @@ void Database::create_concurrency_tables(){
 
 void Database::database_insert_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
 
+	if( exists_in_concurrency(lockunlock, mutex_name, sync_name, conds) ) return;
+
 	debug && printf("\e[31m insert into concurrency \e[0m\n"); fflush(stdout);
 
 	stringstream action;
@@ -652,4 +654,22 @@ set<pair<string, string> > Database::get_sync_global_types(){
 }
 
 
+bool Database::exists_in_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
 
+	stringstream action;
+	action << "select * from concurrency where ";
+	action << "lockunlock = \"" << lockunlock << "\" and ";
+	action << "mutex_name = \"" << mutex_name << "\" and ";
+	action << "sync_name  = \"" << sync_name  << "\" and ";
+	action << "conds      = \"" << conds << "\";";
+
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	//printf("accion %s %lu\n", action.str().c_str(), retsqlite.size());
+
+	return retsqlite.size() > 0;
+
+
+}

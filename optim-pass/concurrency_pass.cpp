@@ -487,6 +487,43 @@ struct BeginConcurrency: public ModulePass {
 	}
 };
 
+struct BeginEnd: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	BeginEnd() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		{
+			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_concurrency" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+		}
+
+		{
+			Function::iterator insertpos_f = M.getFunction("main")->end();
+			insertpos_f--;
+			BasicBlock::iterator insertpos_b = insertpos_f->end();
+			insertpos_b--;
+
+	
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "end_concurrency" ,
+						Type::getVoidTy( M.getContext() ),
+						(Type *)0
+						));
+	
+			std::vector<Value*> params;
+			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos_b);
+		}
+
+		return false;
+	}
+};
 
 struct RmCalls: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -709,7 +746,8 @@ struct All: public ModulePass {
 		//{LoadStore        pass;   pass.runOnModule(M);}
 		//{RmJoin           pass;   pass.runOnModule(M);}
 		{ExtractFn        pass;   pass.runOnModule(M);}
-		{BeginConcurrency pass;   pass.runOnModule(M);}
+		//{BeginConcurrency pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -738,7 +776,10 @@ char ExtractFn::ID = 0;
 static RegisterPass<ExtractFn> ExtractFn( "conc_extractfn", "Extract a function and its dependencies");
 
 char BeginConcurrency::ID = 0;
-static RegisterPass<BeginConcurrency> BeginConcurrency( "begin_concurrency", "Insert the function to begin concurrency analysis");
+static RegisterPass<BeginConcurrency> BeginConcurrency( "begin_concurrency_delme", "Insert the function to begin concurrency analysis");
+
+char BeginEnd::ID = 0;
+static RegisterPass<BeginEnd> BeginEnd( "begin_concurrency", "Insert the function to begin concurrency analysis");
 
 char RmCalls::ID = 0;
 static RegisterPass<RmCalls> RmCalls( "rm_calls", "remove non-wanted thread creations");
