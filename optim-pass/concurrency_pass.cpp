@@ -646,6 +646,54 @@ struct LoadStore: public ModulePass {
 	}
 };
 
+struct GetConcurrentFunctions: public ModulePass {
+
+	static char ID;
+	GetConcurrentFunctions() : ModulePass(ID) {}
+	virtual bool runOnModule(Module &M) {
+
+		set<string> fn_names;
+
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+
+			if( CallInst::classof(in) ){
+
+				CallInst* in_c = cast<CallInst>(in);
+				
+				string fnname = in_c->getCalledFunction()->getName().str();
+				if(fnname == "pthread_create" ){
+
+					//in_c->dump();
+					Value* arg = in_c->getArgOperand(2);
+					//Function* arg_f = cast<Function> arg;
+					fn_names.insert(arg->getName().str());
+					//cerr << arg->getName().str() << endl;
+
+
+
+				}
+
+			}
+
+
+		}}}
+
+		FILE* file = fopen("concurrent_functions", "w");
+		for( set<string>::iterator it = fn_names.begin(); it != fn_names.end(); it++ ){
+			fprintf(file, "%s\n", it->c_str());
+		}
+		fclose(file);
+
+		return false;
+	}
+};
+
+
+
+
+
 struct All: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	All() : ModulePass(ID) {}
@@ -701,4 +749,6 @@ static RegisterPass<Secuencialize> Secuencialize( "secuencialize", "Secuentializ
 char LoadStore::ID = 0;
 static RegisterPass<LoadStore> LoadStore( "loadstore", "annotate load and stores");
 
+char GetConcurrentFunctions::ID = 0;
+static RegisterPass<GetConcurrentFunctions> GetConcurrentFunctions( "get_concurrent", "list all concurrent functions");
 

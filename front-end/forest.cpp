@@ -1912,6 +1912,83 @@ void check_sync_tables(){
 
 }
 
+void get_concurrent_functions(){
+
+
+	string base_path = cmd_option_str("base_path");
+	string llvm_path = cmd_option_str("llvm_path");
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << prj_file(*it) << " ";
+	}
+	cmd << "> " << tmp_file("file.cpp");
+	systm(cmd.str().c_str());
+	
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	systm(cmd.str().c_str());
+
+	// Paso de optimización (get_concurrent_functions)
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -get_concurrent < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+
+}
+
+void get_concurrent_info(){
+
+	get_concurrent_functions();
+
+	string filename = tmp_file("concurrent_functions");
+	//printf("filename %s\n", filename.c_str());
+	FILE *file = fopen ( filename.c_str(), "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	vector<string> concurrent_functions;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		concurrent_functions.push_back(string(line));
+	}
+	fclose ( file );
+	
+	for( vector<string>::iterator it = concurrent_functions.begin(); it != concurrent_functions.end(); it++ ){
+		set_option("seedfn", it->c_str());
+		set_option("concurrency", "true");
+		options_to_file();
+		gen_final_for_concurrency();
+		run();
+
+	}
+	
+
+
+}
+
+void clean(){
+	
+	stringstream cmd;
+	cmd.str("");
+	cmd << "rm -rf " << cmd_option_str("tmp_dir") << "/*;";
+	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
+	systm(cmd.str().c_str());
+
+}
+
+void check_concurrency(){
+	clean();
+	clean_concurrency();
+	get_concurrent_info();
+	check_sync_tables();
+
+}
+
+
 int main(int argc, const char *argv[]) {
 
 
@@ -1965,6 +2042,10 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("secuencialize")) secuencialize();
 	if(cmd_option_bool("compare_secuencialize")) compare_secuencialize();
 	if(cmd_option_bool("check_sync_tables")) check_sync_tables();
+	if(cmd_option_bool("check_concurrency")) check_concurrency();
+	if(cmd_option_bool("clean")) clean();
+	if(cmd_option_bool("get_concurrent_functions")) get_concurrent_functions();
+	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
 
 
 	return 0;
