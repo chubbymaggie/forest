@@ -1870,13 +1870,15 @@ void check_sync_tables(){
 	stringstream cmd;
 
 	cmd.str("");
+	cmd << "echo === Concurrency: === >> " << tmp_file("results_sync") << ";";
 	cmd << "echo '.mode columns\\n.width 15 5 20 35\\n.headers on\\nselect * from concurrency;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
-	cmd << "> " << tmp_file("results_sync");
+	cmd << ">> " << tmp_file("results_sync");
 	cmd << "; echo >> " << tmp_file("results_sync");
 	systm(cmd.str().c_str());
 
 	cmd.str("");
+	cmd << "echo === Stores: === >> " << tmp_file("results_sync") << ";";
 	cmd << "echo '.mode columns\\n.width 15 10 35\\n.headers on\\nselect * from stores;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
@@ -1884,6 +1886,7 @@ void check_sync_tables(){
 	systm(cmd.str().c_str());
 
 	cmd.str("");
+	cmd << "echo === Sync: === >> " << tmp_file("results_sync") << ";";
 	cmd << "echo '.mode columns\\n.width 15 60\\n.headers on\\nselect * from sync;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
@@ -1891,6 +1894,7 @@ void check_sync_tables(){
 	systm(cmd.str().c_str());
 
 	cmd.str("");
+	cmd << "echo === Global_Types: === >> " << tmp_file("results_sync") << ";";
 	cmd << "echo '.mode columns\\n.width 15 20\\n.headers on\\nselect * from global_types;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
@@ -1900,8 +1904,10 @@ void check_sync_tables(){
 
 	cmd.str("");
 	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
-	cmd << "diff results_sync " << prj_file("sync_result") << " > /dev/null";
+	cmd << "diff results_sync " << prj_file("gold_sync") << " > /dev/null";
 	int result = system(cmd.str().c_str());
+
+	//printf("check_sync_tables %s\n", cmd.str().c_str());
 
 	if( result )
 		printf("\e[31m Concurrency Failed :( \e[0m\n");

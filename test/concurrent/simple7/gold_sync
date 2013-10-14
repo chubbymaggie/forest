@@ -1,0 +1,36 @@
+=== Concurrency: ===
+lockunlock       mutex  sync_name             conds                              
+---------------  -----  --------------------  -----------------------------------
+lock             a      _Z3fn1Pv_sync_1                                          
+lock             b      _Z3fn1Pv_sync_2       (= mem_205 25)                     
+lock             c      _Z3fn1Pv_sync_3       (not (= mem_205 25))               
+unlock           a      _Z3fn2Pv_sync_1                                          
+unlock           b      _Z3fn2Pv_sync_6                                          
+unlock           c      _Z3fn2Pv_sync_3       (= mem_205 12)                     
+unlock           c      _Z3fn2Pv_sync_5       (not (= mem_205 12))               
+
+=== Stores: ===
+pos              value       sync_point                         
+---------------  ----------  -----------------------------------
+mem_302          mem_298     _Z3fn1Pv_sync_1                    
+mem_302          mem_298     _Z3fn2Pv_sync_1                    
+mem_201          1           _Z3fn2Pv_sync_3                    
+mem_201          0           _Z3fn2Pv_sync_5                    
+
+=== Sync: ===
+pos              stack                                                       
+---------------  ------------------------------------------------------------
+_Z3fn1Pv_sync_1  _Z3fn1Pv_sync_1,                                            
+_Z3fn1Pv_sync_2  _Z3fn1Pv_sync_1,_Z3fn1Pv_sync_2,                            
+_Z3fn1Pv_sync_3  _Z3fn1Pv_sync_1,_Z3fn1Pv_sync_3,                            
+_Z3fn2Pv_sync_1  _Z3fn2Pv_sync_1,                                            
+_Z3fn2Pv_sync_3  _Z3fn2Pv_sync_1,_Z3fn2Pv_sync_3,                            
+_Z3fn2Pv_sync_6  _Z3fn2Pv_sync_1,_Z3fn2Pv_sync_3,_Z3fn2Pv_sync_6,            
+_Z3fn2Pv_sync_5  _Z3fn2Pv_sync_1,_Z3fn2Pv_sync_5,                            
+
+=== Global_Types: ===
+pos              type                
+---------------  --------------------
+mem_298          Int                 
+mem_205          Int                 
+

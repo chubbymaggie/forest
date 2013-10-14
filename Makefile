@@ -40,6 +40,13 @@ test:
 	@forest ./test/simple/force_free/config.xml
 	@forest ./test/simple/random_init/config.xml
 
+test_concurrency:
+	@forest ./test/concurrent/simple/config.xml
+	@forest ./test/concurrent/simple2/config.xml
+	@forest ./test/concurrent/simple5/config.xml
+	@forest ./test/concurrent/simple7/config.xml
+
+
 test-complex:
 	@forest ./test/SNU-real-time/bs/config.xml
 	@forest ./test/SNU-real-time/jfdctint/config.xml

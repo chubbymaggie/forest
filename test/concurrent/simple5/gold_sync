@@ -1,0 +1,32 @@
+=== Concurrency: ===
+lockunlock       mutex  sync_name             conds                              
+---------------  -----  --------------------  -----------------------------------
+lock             a      _Z3fn1Pv_sync_1                                          
+lock             c      _Z3fn1Pv_sync_3       (not (= 0 25))                     
+lock             g      _Z3fn1Pv_sync_4                                          
+lock             f      _Z3fn2Pv_sync_5       (not (= 0 12))                     
+unlock           a      _Z3fn2Pv_sync_1                                          
+unlock           g      _Z3fn2Pv_sync_6       (not (= 0 12))                     
+
+=== Stores: ===
+pos              value       sync_point                         
+---------------  ----------  -----------------------------------
+mem_386          mem_382     _Z3fn1Pv_sync_1                    
+mem_386          mem_382     _Z3fn2Pv_sync_1                    
+mem_214          0           _Z3fn2Pv_sync_5                    
+
+=== Sync: ===
+pos              stack                                                       
+---------------  ------------------------------------------------------------
+_Z3fn1Pv_sync_1  _Z3fn1Pv_sync_1,                                            
+_Z3fn1Pv_sync_3  _Z3fn1Pv_sync_1,_Z3fn1Pv_sync_3,                            
+_Z3fn1Pv_sync_4  _Z3fn1Pv_sync_1,_Z3fn1Pv_sync_3,_Z3fn1Pv_sync_4,            
+_Z3fn2Pv_sync_1  _Z3fn2Pv_sync_1,                                            
+_Z3fn2Pv_sync_5  _Z3fn2Pv_sync_1,_Z3fn2Pv_sync_5,                            
+_Z3fn2Pv_sync_6  _Z3fn2Pv_sync_1,_Z3fn2Pv_sync_5,_Z3fn2Pv_sync_6,            
+
+=== Global_Types: ===
+pos              type                
+---------------  --------------------
+mem_382          Int                 
+
