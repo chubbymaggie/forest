@@ -25,6 +25,7 @@
 #include "operators.h"
 #include "solver.h"
 #include "operators.h"
+#include "concurrency.h"
 
 /**
  * @brief Called when a binary operation is performed among two variables
@@ -158,5 +159,8 @@ extern "C" void BeginFn(char* _fn_name);
 
 extern "C" void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 
+extern "C" void mutex_lock(char* _mutex_name, char* _sync_name);
+extern "C" void mutex_unlock(char* _mutex_name, char* _sync_name);
+extern "C" void begin_concurrency();
 
 #endif /* end of include guard: _WRAPPER_H_ */

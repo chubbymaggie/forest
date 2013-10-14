@@ -24,6 +24,7 @@ Options* options = new Options();
 Operators* operators = new Operators();
 Solver* solver = new Solver();
 Database* database = new Database();
+Concurrency* concurrency = new Concurrency();
 
 void cast_instruction(char* _dst, char* _src, char* _type){
        	operators->cast_instruction(_dst, _src, _type); 
@@ -99,6 +100,19 @@ void end_sim(){
 
 bool br_instr_cond(char* _cmp, char* _joints){
 	return operators->br_instr_cond(_cmp, _joints);
+}
+
+
+void mutex_lock(char* _mutex_name, char* _sync_name){
+	concurrency->mutex_lock(_mutex_name, _sync_name);
+}
+
+void mutex_unlock(char* _mutex_name, char* _sync_name){
+	concurrency->mutex_unlock(_mutex_name, _sync_name);
+}
+
+void begin_concurrency(){
+	concurrency->begin_concurrency();
 }
 
 

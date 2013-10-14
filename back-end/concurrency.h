@@ -22,13 +22,22 @@
 #ifndef _CONCURRENCY_H_
 #define _CONCURRENCY_H_
 
-extern "C" void mutex_lock(char* mutex_name, char* sync_name);
-extern "C" void mutex_unlock(char* mutex_name, char* sync_name);
 
-extern "C" void mutex_lock_2(char* mutex_name, char* sync_name);
-extern "C" void mutex_unlock_2(char* mutex_name, char* sync_name);
+class Concurrency {
+public:
+	Concurrency ();
+	virtual ~Concurrency ();
 
-extern "C" void begin_concurrency();
+	void mutex_lock(char* mutex_name, char* sync_name);
+	void mutex_unlock(char* mutex_name, char* sync_name);
+
+	void begin_concurrency();
+	void insert_global_types();
+
+private:
+	
+};
+
 
 #endif /* end of include guard: _CONCURRENCY_H_ */
 

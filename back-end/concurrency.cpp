@@ -37,7 +37,10 @@ map<string, string> map_pos_to_last_store;
 
 extern set<NameAndPosition> variable_names;
 
-void insert_global_types(){
+Concurrency::Concurrency(){;}
+Concurrency::~Concurrency(){;}
+
+void Concurrency::insert_global_types(){
 	
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
@@ -55,7 +58,7 @@ void insert_global_types(){
 	
 }
 
-void mutex_lock(char* _mutex_name, char* _sync_name){
+void Concurrency::mutex_lock(char* _mutex_name, char* _sync_name){
 
 	printf("mutex_lock %s %s\n", _mutex_name, _sync_name);
 
@@ -86,7 +89,7 @@ void mutex_lock(char* _mutex_name, char* _sync_name){
 
 }
 
-void mutex_unlock(char* _mutex_name, char* _sync_name){
+void Concurrency::mutex_unlock(char* _mutex_name, char* _sync_name){
 
 
 	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
@@ -124,32 +127,12 @@ void mutex_unlock(char* _mutex_name, char* _sync_name){
 
 }
 
-void begin_concurrency(){
+void Concurrency::begin_concurrency(){
 	//drop_concurrency_tables();
 	//create_concurrency_tables();
 }
 
 
-void mutex_lock_2(char* _mutex_name, char* _sync_name){
-
-	printf("mutex_lock_2 %s %s\n", _mutex_name, _sync_name);
-
-	string mutex_name = string(_mutex_name);
-	string sync_name = string(_sync_name);
-
-	solver->solver_insert_sync_point("lock", sync_name, mutex_name);
-}
-
-void mutex_unlock_2(char* _mutex_name, char* _sync_name){
-
-	printf("mutex_unlock_2 %s %s\n", _mutex_name, _sync_name);
-
-	string mutex_name = string(_mutex_name);
-	string sync_name = string(_sync_name);
-
-	solver->solver_insert_sync_point("unlock", sync_name, mutex_name);
-
-}
 
 
 
