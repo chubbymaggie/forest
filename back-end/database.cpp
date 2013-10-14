@@ -620,6 +620,8 @@ set<string> Database::list_store_sync_points(){
 
 void Database::insert_global_type(string name, string type){
 
+	if( exists_in_global_types(name) ) return;
+
 	debug && printf("\e[31m insert global type %s %s\e[0m\n", name.c_str(), type.c_str()); fflush(stdout);
 
 	stringstream action;
@@ -627,6 +629,19 @@ void Database::insert_global_type(string name, string type){
 	//printf("%s\n", action.str().c_str());
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
+}
+
+bool Database::exists_in_global_types(string name){
+
+	stringstream action;
+	action << "select * from global_types where ";
+	action << "pos = \"" << name << "\";";
+
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	return retsqlite.size() > 0;
 }
 
 set<pair<string, string> > Database::get_sync_global_types(){

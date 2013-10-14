@@ -84,6 +84,7 @@ private:
 	void create_concurrency_tables();
 	void drop_concurrency_tables();
 
+	bool exists_in_global_types(string name);
 
 	
 };
