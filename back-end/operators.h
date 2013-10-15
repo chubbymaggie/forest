@@ -73,6 +73,7 @@ public:
 	void BeginFn(char* _fn_name);
 	void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 	string get_actual_function();
+	string name( string input, string fn_name = "" );
 
 private:
 	bool see_each_problem;
@@ -89,7 +90,6 @@ private:
 	int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree);
 
 	
-	string name( string input, string fn_name = "" );
 	bool check_mangled_name(string name);
 	string get_type(string name);
 	void set_name_hint(string name, string hint);

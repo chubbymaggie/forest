@@ -88,6 +88,9 @@ public:
 
 
 
+	void store_instr(char* _src, char* _addr);
+	void load_instr(char* _dst, char* _addr);
+
 
 private:
 

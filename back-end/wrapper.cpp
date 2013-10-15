@@ -51,11 +51,18 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 }
 
 void load_instr(char* _dst, char* _addr){
-	operators->load_instr(_dst, _addr);
+	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize"))
+		concurrency->load_instr(_dst, _addr);
+	else
+		operators->load_instr(_dst, _addr);
+
 }
 
 void store_instr(char* _src, char* _addr){
-	operators->store_instr(_src, _addr);
+	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize"))
+		concurrency->store_instr(_src, _addr);
+	else
+		operators->store_instr(_src, _addr);
 }
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){

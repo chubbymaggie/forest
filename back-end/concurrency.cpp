@@ -25,6 +25,7 @@ using namespace std;
 extern Solver* solver;
 extern Database* database;
 extern Options* options;
+extern Operators* operators;
 
 Concurrency::Concurrency(){;}
 Concurrency::~Concurrency(){;}
@@ -145,6 +146,73 @@ void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
 
 }
 
+#define UNDERSCORE "_"
+
+#define name(A) operators->name(A)
+#define realvalue(A) solver->realvalue(name(A))
+
+void Concurrency::load_instr(char* _dst, char* _addr){
+
+	string dst = string(_dst);
+	string addr = string(_addr);
+	string src = "mem" UNDERSCORE + realvalue(addr);
 
 
+	//if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
+	//if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
+
+	if(options->cmd_option_bool("secuencialize")){
+		database->insert_load(src);
+	}
+
+	solver->assign_instruction(name(src),name(dst));
+
+	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+								    name(addr).c_str(), realvalue(addr).c_str(),
+								    name(src).c_str(), realvalue(src).c_str(),
+							            name(dst).c_str(), realvalue(dst).c_str()
+								    );
+	//exit(0);
+
+}
+
+void Concurrency::store_instr(char* _src, char* _addr){
+
+	string src = string(_src);
+	string addr = string(_addr);
+	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
+
+
+
+
+	//if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
+	//if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
+	//if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
+
+
+	if(options->cmd_option_bool("secuencialize")){
+		solver->content(name(dst));
+	
+		stringstream stack;
+		solver->dump_conditions(stack);
+	}
+
+	if(options->cmd_option_bool("concurrency")){
+		update_store(dst, solver->content(name(src)));
+	}
+
+
+
+	solver->assign_instruction(name(src),name(dst));
+
+	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
+			                                           name(src).c_str(), realvalue(src).c_str(),
+								   name(addr).c_str(), realvalue(addr).c_str(),
+								   name(dst).c_str(), realvalue(dst).c_str() );
+
+}
+
+
+#undef name 
+#undef realvalue
 

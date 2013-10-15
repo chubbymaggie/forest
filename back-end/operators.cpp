@@ -182,6 +182,10 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 }
 
+
+#define update_store(A,B) concurrency->update_store(A,B);
+
+
 void Operators::load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
@@ -192,9 +196,9 @@ void Operators::load_instr(char* _dst, char* _addr){
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
-	if(options->cmd_option_bool("secuencialize")){
-		database->insert_load(src);
-	}
+	//if(options->cmd_option_bool("secuencialize")){
+		//database->insert_load(src);
+	//}
 
 	solver->assign_instruction(name(src),name(dst));
 
@@ -221,16 +225,16 @@ void Operators::store_instr(char* _src, char* _addr){
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
 
 
-	if(options->cmd_option_bool("secuencialize")){
-		solver->content(name(dst));
+	//if(options->cmd_option_bool("secuencialize")){
+		//solver->content(name(dst));
 	
-		stringstream stack;
-		solver->dump_conditions(stack);
-	}
+		//stringstream stack;
+		//solver->dump_conditions(stack);
+	//}
 
-	if(options->cmd_option_bool("concurrency")){
-		concurrency->update_store(dst, solver->content(name(src)));
-	}
+	//if(options->cmd_option_bool("concurrency")){
+		//update_store(dst, solver->content(name(src)));
+	//}
 
 
 
@@ -242,6 +246,8 @@ void Operators::store_instr(char* _src, char* _addr){
 								   name(dst).c_str(), realvalue(dst).c_str() );
 
 }
+
+#undef update_store
 
 void Operators::cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 
