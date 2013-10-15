@@ -1576,7 +1576,7 @@ void gen_final_for_concurrency(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ file-4.o " << base_path << "/lib/concurrency.a " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
+	cmd << "g++ file-4.o " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 	done_final = true;
@@ -1794,7 +1794,7 @@ void secuencialize(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ file-4.o " << base_path << "/lib/forest.a " << base_path << "/lib/concurrency.a "<< "-lpthread -ldl -lrt -o " << output_file;
+	cmd << "g++ file-4.o " << base_path << "/lib/forest.a " << "-lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 

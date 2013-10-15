@@ -29,10 +29,15 @@ extern Options* options;
 extern Operators* operators;
 extern Solver* solver;
 extern Database* database;
+extern Concurrency* concurrency;
 
 extern map<string, string> map_pos_to_last_store;
 
-Operators::Operators(){}
+Operators::Operators(){
+
+	alloca_pointer = 0;
+
+}
 Operators::~Operators(){}
 
 void Operators::cast_instruction(char* _dst, char* _src, char* _type){
@@ -224,7 +229,7 @@ void Operators::store_instr(char* _src, char* _addr){
 	}
 
 	if(options->cmd_option_bool("concurrency")){
-		map_pos_to_last_store[dst] = solver->content(name(src));
+		concurrency->update_store(dst, solver->content(name(src)));
 	}
 
 

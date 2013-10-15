@@ -31,7 +31,6 @@
 
 using namespace std;
 
-
 typedef struct MutexInfo {
 	string lockunlock;
 	string mutex_name;
@@ -50,16 +49,75 @@ public:
 	Concurrency ();
 	virtual ~Concurrency ();
 
+	/**
+	 * @brief called by the wrapper when a mutex is locked
+	 *
+	 * @param mutex_name name of the mutex
+	 * @param sync_name name of the synchronization point
+	 */
 	void mutex_lock(char* mutex_name, char* sync_name);
+
+	/**
+	 * @brief Called by the wrapper when a mutex is unlocked
+	 *
+	 * @param mutex_name name of the mutex
+	 * @param sync_name name of the synchronization point
+	 */
 	void mutex_unlock(char* mutex_name, char* sync_name);
 
+	/**
+	 * @brief Called by the wrapper at the beginning of the simulation
+	 */
 	void begin_concurrency();
-	void insert_global_types();
-	void dump_sync_table();
+
+	/**
+	 * @brief Called by the wrapper at the end of simulation
+	 */
 	void end_concurrency();
 
+	/**
+	 * @brief updates the store information
+	 *
+	 * @param dst memory to be written
+	 * @param content content to be written
+	 */
+	void update_store(string dst, string content);
 private:
-set<MutexInfo> mutexinfos;
+
+
+	/**
+	 * @brief Information about lock, mutex_name, sync_name and stack when a synchronization point 
+	 * is reached
+	 */
+	set<MutexInfo> mutexinfos;
+
+	/**
+	 * @brief Names of all the sync_points reached
+	 */
+	set<string> sync_points;
+
+	/**
+	 * @brief map with the content of all stores
+	 */
+	map<string, string> map_pos_to_last_store;
+
+	/**
+	 * @brief inserts all stores in the database, associated with a synchronization point
+	 *
+	 * @param sync_name
+	 */
+	void insert_stores(string sync_name);
+	bool debug;
+
+	/**
+	 * @brief Inserts types of shared variables (stores)
+	 */
+	void insert_global_types();
+
+	/**
+	 * @brief dumps the synchronization table at the end of the simulation
+	 */
+	void dump_sync_table();
 	
 };
 

@@ -34,6 +34,7 @@
 #include "database.h"
 #include "utils.h"
 #include "options.h"
+#include "concurrency.h"
 
 using namespace std;
 
@@ -76,7 +77,7 @@ public:
 private:
 	bool see_each_problem;
 
-	int alloca_pointer = 0;
+	int alloca_pointer;
 	vector<pair<string, string> > callstack;
 
 	string actual_function;

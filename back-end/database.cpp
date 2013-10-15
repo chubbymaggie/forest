@@ -21,14 +21,16 @@
 #include "database.h"
 
 extern Solver* solver;
-
-#define debug true
-#define DATABASE_VALUES false
-
+extern Options* options;
 
 vector< pair<string, string> > retsqlite;
 
-Database::Database(){;}
+Database::Database(){
+
+	options->read_options();
+	debug = options->cmd_option_bool("verbose");
+
+}
 Database::~Database(){;}
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -122,7 +124,6 @@ void Database::create_tables(){
 }
 
 string Database::gethint(string name){
-
 
 	string str = name;
 	string oldStr = "@";
@@ -228,60 +229,13 @@ void Database::insert_problem(){
 			string value = solver->realvalue_mangled(name);
 			string hint = gethint(variables[name].name_hint);
 
-			if(DATABASE_VALUES)
-			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 0 << "," << id << ");";
-			//printf("%s\n", value.c_str());
-
-			//printf("%s\n", action.str().c_str() );
 
 		}
 
-		//for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-
-			//if( it->second.content == "") continue;
-			//string name = it->first;
-			//string value = realvalue(name);
-			//string hint = gethint(variables[name].name_hint);
-			//bool is_memory = (name.substr(0,4) == "me_");
-			//action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << is_memory << "," << id << ");";
-			
-		//}
-		
-		
-
 		
 	}
 
-
-
-
-
-
-
-
-
-
-
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
-
-}
-
-bool Database::yet_covered(){
-
-
-
-	string path;
-	vector<bool> path_stack = solver->get_path_stack();
-	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
-		path += (*it)?"T":"F";
-	}
-
-	stringstream action;
-	action << "select * from problems where path='" << path << "';";
-
-	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
-
-	return retsqlite.size();
 
 }
 
