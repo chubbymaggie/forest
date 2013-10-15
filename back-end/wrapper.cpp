@@ -87,6 +87,8 @@ void global_var_init(char* _varname, char* _type, char* _values){
 
 void alloca_instr(char* _reg, char* _subtype){
 	operators->alloca_instr(_reg, _subtype);
+	if(options->cmd_option_bool("concurrency"))
+		concurrency->alloca_instr(_reg, _subtype);
 }
 
 void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){

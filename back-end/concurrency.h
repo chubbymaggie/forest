@@ -26,6 +26,7 @@
 #include "database.h"
 #include "solver.h"
 #include <sstream>
+#include "utils.h"
 
 #include "solver.h"
 
@@ -91,6 +92,7 @@ public:
 	void store_instr(char* _src, char* _addr);
 	void load_instr(char* _dst, char* _addr);
 
+	void alloca_instr(char* _reg, char* _subtype);
 
 private:
 
@@ -128,7 +130,11 @@ private:
 	 * @brief dumps the synchronization table at the end of the simulation
 	 */
 	void dump_sync_table();
-	
+
+
+	bool is_shared(string name);
+
+	set<string> locales;
 };
 
 

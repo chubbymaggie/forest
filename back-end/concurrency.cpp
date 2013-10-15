@@ -46,6 +46,34 @@ void Concurrency::insert_global_types(){
 	
 }
 
+void Concurrency::alloca_instr(char* _reg, char* _subtype){
+	debug && printf("concurrency_alloca_instr %s %s\n", _reg, _subtype);
+	string reg = string(_reg);
+	string subtype = string(_subtype);
+	string given_addr = solver->realvalue(operators->name(reg));
+	int size = get_size(subtype);
+	debug && printf("given address %s size %d\n", given_addr.c_str(), size);
+
+	int start = stoi(given_addr);
+	int end = start + size;
+
+	for ( unsigned int i = start; i < end; i++) {
+		stringstream pos; pos << "mem_" << i;
+		debug && printf("pos %s is local\n", pos.str().c_str());
+		locales.insert(pos.str());
+	}
+
+}
+
+bool Concurrency::is_shared(string name){
+
+	bool ret = locales.find(name) == locales.end();
+
+	debug && printf("is_shared %s %d\n", name.c_str(), ret);
+
+	return ret;
+}
+
 void Concurrency::insert_stores(string sync_name){
 
 	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
@@ -127,7 +155,7 @@ void Concurrency::update_store(string dst, string content){
 
 void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
-	printf("mutex_lock_constraints %s %s\n", _mutex_name, _sync_name);
+	debug && printf("mutex_lock_constraints %s %s\n", _mutex_name, _sync_name);
 
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
@@ -137,7 +165,7 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
 
-	printf("mutex_unlock_constraints %s %s\n", _mutex_name, _sync_name);
+	debug && printf("mutex_unlock_constraints %s %s\n", _mutex_name, _sync_name);
 
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
@@ -191,14 +219,16 @@ void Concurrency::store_instr(char* _src, char* _addr){
 
 
 	if(options->cmd_option_bool("secuencialize")){
-		solver->content(name(dst));
+		//solver->insert_variable(name(dst), operators->get_actual_function() + UNDERSCORE + solver->get_name_hint(name(dst)) );
 	
 		stringstream stack;
 		solver->dump_conditions(stack);
 	}
 
 	if(options->cmd_option_bool("concurrency")){
-		update_store(dst, solver->content(name(src)));
+		debug && printf("if_concurrency dst %s src %s\n", dst.c_str(), src.c_str());
+		if(is_shared(dst))
+			update_store(dst, solver->content(name(src)));
 	}
 
 
