@@ -1995,7 +1995,7 @@ void check_concurrency(){
 }
 
 void secuencialize_fn1(){
-	//set_option("secuencialize", "true");
+	set_option("secuencialize", "true");
 	set_option("seq_name", "_Z3fn1Pv");
 	set_option("see_each_problem", "true");
 	options_to_file();

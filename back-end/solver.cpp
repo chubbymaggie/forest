@@ -88,6 +88,9 @@ void Solver::dump_variables(FILE* file){
 
 void Solver::dump_sync_variables(FILE* file){
 
+
+	printf("\e[33m dump_sync_variables \e[0m\n");
+
 	set<pair<string, string> > vars_and_types = database->get_sync_global_types();
 
 	for( set<pair<string, string> >::iterator it = vars_and_types.begin(); it != vars_and_types.end(); it++ ){
@@ -365,10 +368,12 @@ void Solver::substitute_sync(string& condition){
 
 
 void Solver::dump_concurrency_constraints(FILE* file){
+
+	printf("\e[33m dump_concurrency_constraints \e[0m\n");
 	
 	options->read_options();
-	if(options->cmd_option_bool("concurrency")) return;
-	if(!options->cmd_option_bool("secuencialize")) return;
+	//if(options->cmd_option_bool("concurrency")) return;
+	//if(!options->cmd_option_bool("secuencialize")) return;
 
 	database->load_concurrency_table(concurrency_table);
 
@@ -693,7 +698,8 @@ void Solver::solve_problem(){
 			dump_sync_variables(file);
 		dump_type_limits(file);
 		dump_conditions(file);
-		dump_concurrency_constraints(file);
+		if(options->cmd_option_bool("secuencialize"))
+			dump_concurrency_constraints(file);
 		dump_exclusions(file);
 		dump_check_sat(file);
 		dump_get(file);
@@ -1412,26 +1418,10 @@ int Solver::show_problem(){
 		dump_sync_variables();
 	dump_type_limits();
 	dump_conditions();
-	dump_concurrency_constraints();
+	if(options->cmd_option_bool("secuencialize"))
+		dump_concurrency_constraints();
 	dump_check_sat();
-	//dump_get();
-	//dump_get_fuzz();
-	//dump_tail();
-
-
-		//dump_header(file);
-		//dump_variables(file);
-		//dump_type_limits(file);
-		//dump_conditions(file);
-		//dump_concurrency_constraints(file);
-		//dump_exclusions(file);
-		//dump_check_sat(file);
-		//dump_get(file);
-		//dump_get_fuzz(file);
-		//dump_get_free(file);
-		//dump_tail(file);
-
-
+	dump_tail();
 
 
 
@@ -1446,11 +1436,13 @@ int Solver::show_problem(){
 
 	dump_header(file);
 	dump_variables(file);
+	if(options->cmd_option_bool("secuencialize"))
+		dump_sync_variables(file);
 	dump_type_limits(file);
 	dump_conditions(file);
+	if(options->cmd_option_bool("secuencialize"))
+		dump_concurrency_constraints(file);
 	dump_check_sat(file);
-	dump_get(file);
-	dump_get_fuzz(file);
 	dump_tail(file);
 
 	fclose(file);
