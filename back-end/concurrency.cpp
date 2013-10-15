@@ -54,7 +54,7 @@ void Concurrency::insert_stores(string sync_name){
 
 }
 
-void Concurrency::mutex_lock(char* _mutex_name, char* _sync_name){
+void Concurrency::mutex_lock_info(char* _mutex_name, char* _sync_name){
 
 	debug && printf("mutex_lock %s %s\n", _mutex_name, _sync_name);
 
@@ -76,7 +76,7 @@ void Concurrency::mutex_lock(char* _mutex_name, char* _sync_name){
 
 }
 
-void Concurrency::mutex_unlock(char* _mutex_name, char* _sync_name){
+void Concurrency::mutex_unlock_info(char* _mutex_name, char* _sync_name){
 
 
 	debug && printf("mutex_unlock %s %s\n", _mutex_name, _sync_name);
@@ -122,5 +122,29 @@ void Concurrency::update_store(string dst, string content){
 
 	map_pos_to_last_store[dst] = content;
 }
+
+
+void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
+
+	printf("mutex_lock_constraints %s %s\n", _mutex_name, _sync_name);
+
+	string mutex_name = string(_mutex_name);
+	string sync_name = string(_sync_name);
+
+	solver->solver_insert_sync_point("lock", sync_name, mutex_name);
+}
+
+void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
+
+	printf("mutex_unlock_constraints %s %s\n", _mutex_name, _sync_name);
+
+	string mutex_name = string(_mutex_name);
+	string sync_name = string(_sync_name);
+
+	solver->solver_insert_sync_point("unlock", sync_name, mutex_name);
+
+}
+
+
 
 

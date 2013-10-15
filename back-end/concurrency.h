@@ -55,7 +55,7 @@ public:
 	 * @param mutex_name name of the mutex
 	 * @param sync_name name of the synchronization point
 	 */
-	void mutex_lock(char* mutex_name, char* sync_name);
+	void mutex_lock_info(char* mutex_name, char* sync_name);
 
 	/**
 	 * @brief Called by the wrapper when a mutex is unlocked
@@ -63,7 +63,7 @@ public:
 	 * @param mutex_name name of the mutex
 	 * @param sync_name name of the synchronization point
 	 */
-	void mutex_unlock(char* mutex_name, char* sync_name);
+	void mutex_unlock_info(char* mutex_name, char* sync_name);
 
 	/**
 	 * @brief Called by the wrapper at the beginning of the simulation
@@ -82,6 +82,13 @@ public:
 	 * @param content content to be written
 	 */
 	void update_store(string dst, string content);
+
+	void mutex_lock_constraints(char* _mutex_name, char* _sync_name);
+	void mutex_unlock_constraints(char* _mutex_name, char* _sync_name);
+
+
+
+
 private:
 
 

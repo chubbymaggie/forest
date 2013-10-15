@@ -570,7 +570,7 @@ struct Secuencialize: public ModulePass {
 		
 		{RmCalls          pass;   pass.runOnModule(M);}
 		{ChangePthreadC   pass;   pass.runOnModule(M);}
-		{ChangeSync2      pass;   pass.runOnModule(M);}
+		{ChangeSync       pass;   pass.runOnModule(M);}
 		{RmJoin           pass;   pass.runOnModule(M);}
 
 		return false;

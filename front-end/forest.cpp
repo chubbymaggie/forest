@@ -1994,6 +1994,23 @@ void check_concurrency(){
 
 }
 
+void secuencialize_fn1(){
+	//set_option("secuencialize", "true");
+	set_option("seq_name", "_Z3fn1Pv");
+	set_option("see_each_problem", "true");
+	options_to_file();
+	//load_file_options();
+	secuencialize();
+}
+
+void check_concurrency_2(){
+	clean();
+	clean_concurrency();
+	get_concurrent_info();
+	secuencialize_fn1();
+	//run();
+}
+
 
 int main(int argc, const char *argv[]) {
 
@@ -2049,6 +2066,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_secuencialize")) compare_secuencialize();
 	if(cmd_option_bool("check_sync_tables")) check_sync_tables();
 	if(cmd_option_bool("check_concurrency")) check_concurrency();
+	if(cmd_option_bool("check_concurrency_2")) check_concurrency_2();
 	if(cmd_option_bool("clean")) clean();
 	if(cmd_option_bool("get_concurrent_functions")) get_concurrent_functions();
 	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
