@@ -18,13 +18,8 @@
  * =====================================================================================
  */
 
-#include "./tinyxml.h"
 #include "forest.h"
-#include <string>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <set>
+
 
 #define SIZE_STR 512
 
@@ -80,10 +75,15 @@ bool done(string passname){
 void start_pass(string pass){
 
 	debug && printf(" ----- Starting pass %s\n", pass.c_str());
+
+
 	set<string> needed = needed_map[pass];
 	for( set<string>::iterator it = needed.begin(); it != needed.end(); it++ ){
-		if(!done(*it))
+		if(!done(*it)){
+			//set_option(*it, "true");
+			//options_to_file();
 			do_pass(*it);
+		}
 	}
 }
 
@@ -473,6 +473,8 @@ void compare_measure_bc(){
 
 void view_bc(){
 
+	start_pass("view_bc");
+
 	stringstream cmd;
 
 	// Desensamblado
@@ -484,6 +486,8 @@ void view_bc(){
 	cmd.str("");
 	cmd << "gedit salida1.txt &";
 	systm(cmd.str().c_str());
+
+	end_pass("view_bc");
 
 }
 
@@ -2085,15 +2089,15 @@ void expand_options(){
 		}
 	}
 
-	for ( unsigned int i = 0; i < 10; i++) {
-		for( map<string,set<string> >::iterator it = needed_map.begin(); it != needed_map.end(); it++ ){
-			string a = it->first;
-			set<string> b = it->second;
-			for( set<string>::iterator it2 = b.begin(); it2 != b.end(); it2++ ){
-				if(cmd_option_bool(a)) set_option(*it2, "true");
-			}
-		}
-	}
+	//for ( unsigned int i = 0; i < 10; i++) {
+		//for( map<string,set<string> >::iterator it = needed_map.begin(); it != needed_map.end(); it++ ){
+			//string a = it->first;
+			//set<string> b = it->second;
+			//for( set<string>::iterator it2 = b.begin(); it2 != b.end(); it2++ ){
+				//if(cmd_option_bool(a)) set_option(*it2, "true");
+			//}
+		//}
+	//}
 }
 
 int main(int argc, const char *argv[]) {
@@ -2118,10 +2122,13 @@ int main(int argc, const char *argv[]) {
 	needs("run", "final");
 	needs("make_bc", "clean");
 	needs("check_coverage", "measure_coverage");
+	needs("view_bc", "make_bc");
 
 	disables("compare_bc", "test");
 	disables("view_bc", "test");
+	disables("view_bc", "check_coverage");
 	disables("dfg", "test");
+	disables("dfg", "check_coverage");
 	disables("run", "test");
 	disables("show_results", "test");
 	disables("count_branches", "test");

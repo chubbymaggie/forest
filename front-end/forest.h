@@ -19,6 +19,18 @@
  */
 
 
+#ifndef _FOREST_H_
+#define _FOREST_H_
+
+#include "./tinyxml.h"
+#include <string>
+#include <sstream>
+#include <vector>
+#include <map>
+#include <set>
+
+using namespace std;
+
 void make_bc();
 void run();
 void test();
@@ -26,3 +38,9 @@ void clean();
 void final();
 void measure_coverage();
 void check_coverage();
+void options_to_file();
+void set_option( string key, string value );
+
+
+
+#endif /* end of include guard: _FOREST_H_ */
