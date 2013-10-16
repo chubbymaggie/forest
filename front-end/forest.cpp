@@ -19,6 +19,7 @@
  */
 
 #include "./tinyxml.h"
+#include "forest.h"
 #include <string>
 #include <sstream>
 #include <vector>
@@ -31,9 +32,6 @@
 
 using namespace std;
 
-bool done_bc = false;
-bool done_final = false;
-bool done_run = false;
 
 typedef struct FreeVariableInfo{
 	string name;
@@ -45,8 +43,54 @@ typedef struct FreeVariableInfo{
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
+std::map<string, set<string> > needed_map;
+std::map<string, set<string> > disables_map;
+std::set<string> passes_done;
+
 string project_path;
 string current_path;
+
+
+void do_pass(string passname){
+
+	if(passname == "make_bc")
+		make_bc();
+	else if(passname == "run")
+		run();
+	else if(passname == "test")
+		test();
+	else if(passname == "clean")
+		clean();
+	else if(passname == "final")
+		final();
+	else if(passname == "measure_coverage")
+		measure_coverage();
+	else if(passname == "check_coverage")
+		check_coverage();
+	else {
+		printf("Pass %s\n", passname.c_str());
+		assert(0 && "Unknown pass");
+	}
+}
+
+bool done(string passname){
+	return passes_done.find(passname) != passes_done.end();
+}
+
+void start_pass(string pass){
+
+	debug && printf(" ----- Starting pass %s\n", pass.c_str());
+	set<string> needed = needed_map[pass];
+	for( set<string>::iterator it = needed.begin(); it != needed.end(); it++ ){
+		if(!done(*it))
+			do_pass(*it);
+	}
+}
+
+void end_pass(string passname){
+	debug && printf(" ----- Ending pass %s\n", passname.c_str());
+	passes_done.insert(passname);
+}
 
 vector<string> tokenize(const string& str,const string& delimiters) {
 	vector<string> tokens;
@@ -264,17 +308,30 @@ string prj_file(string file){
 	return project_path + "/" + file;
 }
 
+void clean(){
+
+	start_pass("clean");
+
+	stringstream cmd;
+
+	// Crea y limpia la carpeta temporal
+	cmd.str("");
+	cmd << "rm -rf " << cmd_option_str("tmp_dir") << "/*;";
+	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
+	systm(cmd.str().c_str());
+
+	end_pass("clean");
+
+}
+
 void make_bc(){
+
+	start_pass("make_bc");
 
 	string base_path = cmd_option_str("base_path");
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Crea y limpia la carpeta temporal
-	cmd.str("");
-	cmd << "rm -rf " << cmd_option_str("tmp_dir") << ";";
-	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
-	systm(cmd.str().c_str());
 
 	// Junta todos los .c en uno
 	cmd.str("");
@@ -301,11 +358,13 @@ void make_bc(){
 	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
 
-	done_bc = true;
+	end_pass("make_bc");
 
 }
 
 void compare_bc(){
+
+	start_pass("compare_bc");
 
 
 	string base_path = cmd_option_str("base_path");
@@ -355,6 +414,7 @@ void compare_bc(){
 	systm(cmd.str().c_str());
 
 
+	end_pass("compare_bc");
 
 }
 
@@ -429,7 +489,6 @@ void view_bc(){
 
 void final(){
 
-	if( !done_bc ) make_bc();
 
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
@@ -452,7 +511,6 @@ void final(){
 	cmd << "g++ file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
-	done_final = true;
 }
 
 void dump_forced_free_vars(){
@@ -472,7 +530,8 @@ void dump_forced_free_vars(){
 
 void run(){
 
-	if( !done_final ) final();
+	start_pass("run");
+
 
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
@@ -487,7 +546,7 @@ void run(){
 	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
 
-	done_run = true;
+	end_pass("run");
 
 }
 
@@ -503,7 +562,6 @@ void db_command(string command){
 
 void show_results(){
 
-	//if( !done_run ) run();
 
 	stringstream cmd;
 
@@ -538,7 +596,6 @@ void show_results(){
 
 void show_coverage(){
 
-	//if( !done_run ) run();
 
 	stringstream cmd;
 
@@ -575,6 +632,7 @@ void show_coverage(){
 
 void test(){
 
+	start_pass("test");
 
 	string explanation = cmd_option_str("explanation") + " ";
 
@@ -603,6 +661,7 @@ void test(){
 	else
 		printf("\e[32m Passed :) \e[0m\n");
 
+	end_pass("test");
 }
 
 void set_current_path(){
@@ -1143,6 +1202,8 @@ void gen_final_for_measurement(){
 
 void measure_coverage(){
 
+	start_pass("measure_coverage");
+
 	gen_file_free_variables();
 	gen_file_vectors();
 	gen_final_for_measurement();
@@ -1155,6 +1216,8 @@ void measure_coverage(){
 	cmd.str("");
 	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
+
+	end_pass("measure_coverage");
 	
 
 }
@@ -1222,6 +1285,7 @@ int stoi(string str){
 
 void check_coverage(){
 
+	start_pass("check_coverage");
 
 	vector<string> coverages;
 
@@ -1280,6 +1344,7 @@ void check_coverage(){
 
 	}
 
+	end_pass("check_coverage");
 
 }
 
@@ -1579,7 +1644,6 @@ void gen_final_for_concurrency(){
 	cmd << "g++ file-4.o " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
-	done_final = true;
 
 }
 
@@ -1976,16 +2040,6 @@ void get_concurrent_info(){
 
 }
 
-void clean(){
-	
-	stringstream cmd;
-	cmd.str("");
-	cmd << "rm -rf " << cmd_option_str("tmp_dir") << "/*;";
-	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
-	systm(cmd.str().c_str());
-
-}
-
 void check_concurrency(){
 	clean();
 	clean_concurrency();
@@ -2011,6 +2065,36 @@ void check_concurrency_2(){
 	//run();
 }
 
+void needs(string second, string first){
+	needed_map[second].insert(first);
+}
+
+void disables(string second, string first){
+	disables_map[second].insert(first);
+}
+
+void expand_options(){
+
+	for ( unsigned int i = 0; i < 10; i++) {
+		for( map<string,set<string> >::iterator it = disables_map.begin(); it != disables_map.end(); it++ ){
+			string a = it->first;
+			set<string> b = it->second;
+			for( set<string>::iterator it2 = b.begin(); it2 != b.end(); it2++ ){
+				if(cmd_option_bool(a)) set_option(*it2, "false");
+			}
+		}
+	}
+
+	for ( unsigned int i = 0; i < 10; i++) {
+		for( map<string,set<string> >::iterator it = needed_map.begin(); it != needed_map.end(); it++ ){
+			string a = it->first;
+			set<string> b = it->second;
+			for( set<string>::iterator it2 = b.begin(); it2 != b.end(); it2++ ){
+				if(cmd_option_bool(a)) set_option(*it2, "true");
+			}
+		}
+	}
+}
 
 int main(int argc, const char *argv[]) {
 
@@ -2027,16 +2111,24 @@ int main(int argc, const char *argv[]) {
 	}
 
 	load_cmd_options(argc, argv);
-
 	options_to_file();
 
-	if( cmd_option_bool("test") ){
-		set_option("run", "true");
-	}
+	needs("test", "run");
+	needs("final", "make_bc");
+	needs("run", "final");
+	needs("make_bc", "clean");
+	needs("check_coverage", "measure_coverage");
 
-	if( cmd_option_bool("check_coverage") ){
-		set_option("measure_coverage", "true");
-	}
+	disables("compare_bc", "test");
+	disables("view_bc", "test");
+	disables("dfg", "test");
+	disables("run", "test");
+	disables("show_results", "test");
+	disables("count_branches", "test");
+	disables("klee", "test");
+
+	expand_options();
+
 
 	//cmd_option_bool("verbose")
 	//cmd_option_bool("see_each_problem")
