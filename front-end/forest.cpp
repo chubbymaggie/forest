@@ -79,10 +79,14 @@ void start_pass(string pass){
 
 	set<string> needed = needed_map[pass];
 	for( set<string>::iterator it = needed.begin(); it != needed.end(); it++ ){
+		debug && printf("pass %s needs %s\n", pass.c_str(), it->c_str() );
 		if(!done(*it)){
+			debug && printf("Do it (%s)\n", it->c_str());
 			//set_option(*it, "true");
 			//options_to_file();
 			do_pass(*it);
+		} else {
+			debug && printf("Already done (%s)\n", it->c_str());
 		}
 	}
 }
@@ -493,6 +497,8 @@ void view_bc(){
 
 void final(){
 
+	start_pass("final");
+
 
 	string base_path   = cmd_option_str("base_path");
 	string llvm_path   = cmd_option_str("llvm_path");
@@ -514,6 +520,8 @@ void final(){
 	cmd.str("");
 	cmd << "g++ file-3.o " << base_path << "/lib/forest.a" << " -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
+
+	end_pass("final");
 
 }
 
