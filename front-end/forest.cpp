@@ -23,7 +23,7 @@
 
 #define SIZE_STR 512
 
-#define debug false
+#define debug true
 
 using namespace std;
 
@@ -2044,7 +2044,15 @@ void get_concurrent_info(){
 		set_option("concurrency", "true");
 		options_to_file();
 		gen_final_for_concurrency();
-		run();
+
+
+		dump_forced_free_vars();
+
+		stringstream cmd;
+		// Ejecuta el fichero resultante
+		cmd.str("");
+		cmd << "./" << cmd_option_str("output_file");
+		systm(cmd.str().c_str());
 
 	}
 	
@@ -2053,10 +2061,12 @@ void get_concurrent_info(){
 }
 
 void check_concurrency(){
+	//start_pass("check_concurrency");
 	clean();
 	clean_concurrency();
 	get_concurrent_info();
 	check_sync_tables();
+	//end_pass("check_concurrency");
 
 }
 
@@ -2131,6 +2141,7 @@ int main(int argc, const char *argv[]) {
 	needs("make_bc", "clean");
 	needs("check_coverage", "measure_coverage");
 	needs("view_bc", "make_bc");
+
 
 	disables("compare_bc", "test");
 	disables("view_bc", "test");
