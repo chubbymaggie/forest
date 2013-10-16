@@ -23,7 +23,7 @@
 
 #define SIZE_STR 512
 
-#define debug true
+#define debug false
 
 using namespace std;
 

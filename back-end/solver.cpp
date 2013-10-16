@@ -1614,18 +1614,7 @@ set<NameAndPosition> Solver::get_variable_names(){
 string Solver::get_position(string name){
 
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-
-		printf("NameAndPosition list %s param %s\n", it->name.c_str(), name.c_str());
-
-		//if(it->name == name){
-			//return it->position;
-		//}
-	}
-
-	//printf("name: %s\n", name.c_str());
-	//assert(0 && "Name not found");
-	return "";
+	return variables[name].name_hint;
 
 }
 
