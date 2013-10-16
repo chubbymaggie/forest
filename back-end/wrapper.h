@@ -163,5 +163,6 @@ extern "C" void mutex_lock(char* _mutex_name, char* _sync_name);
 extern "C" void mutex_unlock(char* _mutex_name, char* _sync_name);
 extern "C" void begin_concurrency();
 extern "C" void end_concurrency();
+extern "C" void Free_fn( char* _oplist );
 
 #endif /* end of include guard: _WRAPPER_H_ */
