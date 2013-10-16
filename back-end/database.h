@@ -111,8 +111,9 @@ public:
 	 *
 	 * @param name position of the shared variable
 	 * @param type type
+	 * @param position position in the information execution
 	 */
-	void insert_global_type(string name, string type);
+	void insert_global_type(string name, string type, string position);
 
 	/**
 	 * @brief Inserts a new entry in the database indicating that a shared variable has been written

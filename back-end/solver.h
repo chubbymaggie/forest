@@ -100,6 +100,7 @@ public:
 	map<string, Variable> get_map_variables();
 	vector<Condition> get_stack_conditions();
 	set<NameAndPosition> get_variable_names();
+	string get_position(string name);
 
 private:
 

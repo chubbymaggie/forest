@@ -32,16 +32,14 @@ Concurrency::~Concurrency(){;}
 
 void Concurrency::insert_global_types(){
 	
-	set<NameAndPosition> variable_names = solver->get_variable_names();
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 
-		vector<string> tokens = tokenize(it->name, " ");
+	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
 
-		string name = tokens[0];
-		string type = solver->get_type(it->name);
+		string name = it->first;
+		string type = solver->get_type(name);
+		string position = solver->get_position(name);
 
-		database->insert_global_type(name, type);
-
+		database->insert_global_type(name,type,position);
 	}
 	
 }
@@ -79,7 +77,6 @@ void Concurrency::insert_stores(string sync_name){
 	for( map<string,string>::iterator it = map_pos_to_last_store.begin(); it != map_pos_to_last_store.end(); it++ ){
 		database->insert_store(it->first, it->second, sync_name );
 	}
-	map_pos_to_last_store.clear();
 
 }
 
@@ -92,6 +89,7 @@ void Concurrency::mutex_lock_info(char* _mutex_name, char* _sync_name){
 
 	insert_stores(sync_name);
 	insert_global_types();
+	map_pos_to_last_store.clear();
 
 	stringstream conds;
 	solver->dump_conditions(conds);
@@ -115,6 +113,7 @@ void Concurrency::mutex_unlock_info(char* _mutex_name, char* _sync_name){
 
 	insert_stores(sync_name);
 	insert_global_types();
+	map_pos_to_last_store.clear();
 
 	stringstream conds;
 	solver->dump_conditions(conds);

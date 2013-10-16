@@ -1808,7 +1808,8 @@ void clean_concurrency(){
 	action << ");";
 	action << "create table global_types(";
 	action << "pos varchar(50),";
-	action << "type varchar(50)";
+	action << "type varchar(50),";
+	action << "position varchar(50)";
 	action << ");";
 
 
@@ -1971,7 +1972,7 @@ void check_sync_tables(){
 
 	cmd.str("");
 	cmd << "echo === Global_Types: === >> " << tmp_file("results_sync") << ";";
-	cmd << "echo '.mode columns\\n.width 15 20\\n.headers on\\nselect * from global_types;'";
+	cmd << "echo '.mode columns\\n.width 15 20 20\\n.headers on\\nselect * from global_types;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
 	cmd << "; echo >> " << tmp_file("results_sync");

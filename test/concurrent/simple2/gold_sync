@@ -11,8 +11,6 @@ unlock           c      _Z3fn2Pv_sync_5       (not (= mem_187 12))
 === Stores: ===
 pos              value       sync_point                         
 ---------------  ----------  -----------------------------------
-mem_284          mem_280     _Z3fn1Pv_sync_1                    
-mem_284          mem_280     _Z3fn2Pv_sync_1                    
 mem_183          1           _Z3fn2Pv_sync_3                    
 mem_183          0           _Z3fn2Pv_sync_5                    
 

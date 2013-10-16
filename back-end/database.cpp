@@ -614,14 +614,14 @@ set<string> Database::list_store_sync_points(){
 	//return ret;
 }
 
-void Database::insert_global_type(string name, string type){
+void Database::insert_global_type(string name, string type, string position){
 
 	if( exists_in_global_types(name) ) return;
 
 	debug && printf("\e[31m insert global type %s %s\e[0m\n", name.c_str(), type.c_str()); fflush(stdout);
 
 	stringstream action;
-	action << "insert into global_types values (\"" << name << "\",\"" << type << "\");";
+	action << "insert into global_types values (\"" << name << "\",\"" << type << "\",\"" << position << "\");";
 	//printf("%s\n", action.str().c_str());
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
