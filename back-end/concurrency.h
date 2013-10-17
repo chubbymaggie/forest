@@ -135,6 +135,8 @@ private:
 	bool is_shared(string name);
 
 	set<string> locales;
+
+	string translate_global(string conds);
 };
 
 

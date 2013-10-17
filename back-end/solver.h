@@ -148,6 +148,7 @@ private:
 	void substitute_stores(string& condition);
 	void substitute_conds(string& condition);
 	string stack(string sync_point);
+	void substitute_translate(string& condition);
 	void substitute_sync(string& condition);
 	int minval(string type);
 	int maxval(string type);

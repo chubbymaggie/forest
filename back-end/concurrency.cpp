@@ -93,8 +93,9 @@ void Concurrency::mutex_lock_info(char* _mutex_name, char* _sync_name){
 
 	stringstream conds;
 	solver->dump_conditions(conds);
+	string translated_conds = translate_global(conds.str());
 
-	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, conds.str()};
+	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, translated_conds};
 	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
@@ -117,8 +118,9 @@ void Concurrency::mutex_unlock_info(char* _mutex_name, char* _sync_name){
 
 	stringstream conds;
 	solver->dump_conditions(conds);
+	string translated_conds = translate_global(conds.str());
 
-	MutexInfo mutexinfo = {"unlock", mutex_name, sync_name, conds.str()};
+	MutexInfo mutexinfo = {"unlock", mutex_name, sync_name, translated_conds};
 	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
@@ -146,9 +148,21 @@ void Concurrency::end_concurrency(){
 	dump_sync_table();
 }
 
+string Concurrency::translate_global(string content){
+
+	string ret = content;
+	myReplace(ret, "mem_183", "global_j");
+	myReplace(ret, "mem_187", "global_k");
+	return ret;
+
+}
+
 void Concurrency::update_store(string dst, string content){
 
-	map_pos_to_last_store[dst] = content;
+	string translated_content = translate_global(content);
+	string translated_dst = translate_global(dst);
+
+	map_pos_to_last_store[translated_dst] = translated_content;
 }
 
 

@@ -89,6 +89,7 @@ void Solver::dump_variables(FILE* file){
 void Solver::dump_sync_variables(FILE* file){
 
 
+
 	printf("\e[33m dump_sync_variables \e[0m\n");
 
 	set<pair<string, string> > vars_and_types = database->get_sync_global_types();
@@ -349,6 +350,10 @@ void Solver::substitute_conds(string& condition){
 	}
 }
 
+void Solver::substitute_translate(string& condition){
+	//myReplace(condition,"mem_183", "global_j");
+	//myReplace(condition,"mem_187", "global_k");
+}
 
 void Solver::substitute_sync(string& condition){
 	printf("Substitute_syncs %s\n", condition.c_str());
@@ -361,6 +366,8 @@ void Solver::substitute_sync(string& condition){
 	substitute_stores(condition);
 	printf("Substitute_syncs %s\n", condition.c_str());
 	substitute_conds(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_translate(condition);
 	printf("Substitute_syncs %s\n", condition.c_str());
 	printf("Substitute_syncs-----\n");
 }
