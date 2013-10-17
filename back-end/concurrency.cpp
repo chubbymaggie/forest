@@ -150,10 +150,22 @@ void Concurrency::end_concurrency(){
 
 string Concurrency::translate_global(string content){
 
-	string ret = content;
-	myReplace(ret, "mem_183", "global_j");
-	myReplace(ret, "mem_187", "global_k");
-	return ret;
+	string copy = content;
+
+	vector<string> tokens = tokenize(content, "( ");
+
+	string trans;
+	for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		string token = *it;
+		if( token.substr(0,4) == "mem_" ){
+			trans = solver->get_name_hint(token);
+			myReplace(copy, *it, trans);
+		}
+	}
+
+
+
+	return copy;
 
 }
 

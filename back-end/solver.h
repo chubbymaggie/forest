@@ -170,6 +170,7 @@ private:
 	string wired_and( string op1, string op2, int nbits );
 	string wired_xor( string op1, string op2, int nbits );
 	vector<bool> path_stack;
+	string find_mem_of_id(string id);
 };
 
 

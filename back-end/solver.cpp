@@ -350,9 +350,38 @@ void Solver::substitute_conds(string& condition){
 	}
 }
 
+string Solver::find_mem_of_id(string id){
+
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		if(it->second.name_hint == id){
+			return it->first;
+		}
+	}
+
+	return "";
+	
+	
+
+}
+
 void Solver::substitute_translate(string& condition){
-	myReplace(condition,"global_j", "mem_113");
-	myReplace(condition,"global_k", "mem_117");
+
+	//string ret = condition;
+
+	vector<string> tokens = tokenize(condition, "( ");
+
+	for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+		string token = *it;
+		if(token.substr(0,7) == "global_"){
+			myReplace(condition, token, find_mem_of_id(token));
+		}
+	}
+
+	//return ret;
+	
+
+	//myReplace(condition,"global_j", "mem_113");
+	//myReplace(condition,"global_k", "mem_117");
 }
 
 void Solver::substitute_sync(string& condition){
