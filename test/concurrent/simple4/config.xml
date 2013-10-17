@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="false"/> 
+	<option key="check_concurrency" value="true"/>
+	<option key="explanation" value="Concurrent Simple Example 4"/> 
+	<option key="file" value="simple4.c"/> 
+	<option key="forced_free_var" value="mem_283"/> 
+	<option key="forced_free_var" value="mem_287"/> 
+</options>

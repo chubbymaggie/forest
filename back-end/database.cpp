@@ -339,11 +339,18 @@ bool Database::exists_in_stores(string pos, string content, string sync_name){
 }
 
 
-bool Database::exists_in_sync(string syncname){
+bool Database::exists_in_sync(string syncname, set<string> sync_points){
+
+	stringstream stackstr;
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		stackstr << *it << ",";
+	}
+	
 
 	stringstream action;
 	action << "select * from sync where ";
-	action << "pos = \"" << syncname << "\";";
+	action << "pos = \"" << syncname << "\" and ";
+	action << "stack = \"" << stackstr.str() << "\";";
 
 
 	retsqlite.clear();
@@ -358,9 +365,9 @@ bool Database::exists_in_sync(string syncname){
 
 void Database::insert_sync_points(string sync_name, set<string> sync_points){
 
-	if(exists_in_sync(sync_name)) return;
+	if(exists_in_sync(sync_name, sync_points)) return;
 
-	debug && printf("\e[31m insert sync\e[0m\n"); fflush(stdout);
+	printf("\e[31m insert sync\e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "insert into sync values ('" << sync_name << "','";
@@ -376,18 +383,18 @@ void Database::insert_sync_points(string sync_name, set<string> sync_points){
 
 set<string> Database::list_semaphores(){
 
-	//debug && printf("\e[31m list_semaphores \e[0m\n"); fflush(stdout);
+	debug && printf("\e[31m list_semaphores \e[0m\n"); fflush(stdout);
 
-	//stringstream action;
-	//action << "select mutex_name from concurrency;";
+	stringstream action;
+	action << "select mutex from concurrency;";
 
-	//sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	set<string> ret;
-	//for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
-		//ret.insert(it->second);
-	//}
-	ret.insert("a"); ret.insert("b"); ret.insert("c");
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		ret.insert(it->second);
+	}
+	//ret.insert("a"); ret.insert("b"); ret.insert("c");
 
 	return ret;
 }

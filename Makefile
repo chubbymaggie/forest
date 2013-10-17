@@ -45,7 +45,10 @@ test:
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
 	@forest ./test/concurrent/simple2/config.xml
+	@forest ./test/concurrent/simple3/config.xml
+	@forest ./test/concurrent/simple4/config.xml
 	@forest ./test/concurrent/simple5/config.xml
+	@forest ./test/concurrent/simple6/config.xml
 	@forest ./test/concurrent/simple7/config.xml
 
 

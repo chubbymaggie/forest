@@ -228,7 +228,7 @@ private:
 	/**
 	 * @brief Returns true if the information is already present in the database
 	 */
-	bool exists_in_sync(string syncname);
+	bool exists_in_sync(string syncname, set<string> sync_points);
 
 	/**
 	 * @brief returns true if the information is already present in the database

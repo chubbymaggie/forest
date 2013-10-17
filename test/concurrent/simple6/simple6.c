@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  * /
- * |     Filename:  simple5.c
+ * |     Filename:  simple6.c
  * |
  * |  Description:  
  * |
  * |      Version:  1.0
- * |      Created:  09/25/2013 11:41:45 AM
+ * |      Created:  10/17/2013 11:41:45 AM
  * |     Revision:  none
  * |     Compiler:  gcc
  * `-. .--------------------
@@ -27,9 +27,7 @@
 /*inline void signal(pthread_mutex_t* m){ pthread_mutex_unlock(m); }*/
 
 pthread_mutex_t a;
-pthread_mutex_t c;
-pthread_mutex_t g;
-pthread_mutex_t f;
+pthread_mutex_t b;
 
 int k;
 int j;
@@ -37,37 +35,14 @@ int j;
 void* fn1(void * args){
 
 	wait(&a);
-
-	if( k == 25 ){
-
-		signal(&f);
-
-	} else {
-
-		wait(&c);
-
-	}
-
-	wait(&g);
-
-
+	signal(&b);
 
 }
 
 void* fn2(void * args){
-
+	
+	wait(&b);
 	signal(&a);
-
-	if( k == 12 ){
-		j = 1;
-		signal(&c);
-	} else {
-		j = 0;
-		wait(&f);
-		j = 1;
-		signal(&g);
-	}
-
 
 }
 
