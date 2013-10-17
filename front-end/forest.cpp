@@ -2071,6 +2071,38 @@ void check_concurrency(){
 
 }
 
+void check_c2(){
+
+	string explanation = cmd_option_str("explanation") + " ";
+
+	while( explanation.length() < 50 )
+		explanation = explanation + ".";
+
+	printf("* Concurrency2 %s", explanation.c_str() );
+
+	stringstream cmd;
+
+	// Muestro los resultados de la base de datos
+	cmd.str("");
+	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
+	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
+	cmd << "> " << tmp_file("results");
+	systm(cmd.str().c_str());
+
+
+	cmd.str("");
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "diff results " << prj_file("gold_result") << " > /dev/null";
+	int result = system(cmd.str().c_str());
+
+	if( result )
+		printf("\e[31m Failed :( \e[0m\n");
+	else
+		printf("\e[32m Passed :) \e[0m\n");
+
+}
+
+
 void secuencialize_fn1(){
 	set_option("secuencialize", "true");
 	set_option("seq_name", "_Z3fn1Pv");
@@ -2085,7 +2117,7 @@ void check_concurrency_2(){
 	clean_concurrency();
 	get_concurrent_info();
 	secuencialize_fn1();
-	//run();
+	check_c2();
 }
 
 void needs(string second, string first){
