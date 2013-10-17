@@ -351,8 +351,8 @@ void Solver::substitute_conds(string& condition){
 }
 
 void Solver::substitute_translate(string& condition){
-	//myReplace(condition,"mem_183", "global_j");
-	//myReplace(condition,"mem_187", "global_k");
+	myReplace(condition,"global_j", "mem_113");
+	myReplace(condition,"global_k", "mem_117");
 }
 
 void Solver::substitute_sync(string& condition){
