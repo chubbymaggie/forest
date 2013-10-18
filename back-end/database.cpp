@@ -386,8 +386,9 @@ set<string> Database::list_semaphores(){
 	debug && printf("\e[31m list_semaphores \e[0m\n"); fflush(stdout);
 
 	stringstream action;
-	action << "select mutex from concurrency;";
+	action << "select mutex_name from concurrency;";
 
+	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	set<string> ret;

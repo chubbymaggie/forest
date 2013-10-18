@@ -7,4 +7,6 @@
 	<option key="file" value="simple3.c"/> 
 	<option key="forced_free_var" value="mem_161"/> 
 	<option key="forced_free_var" value="mem_165"/> 
+	<option key="forced_free_var" value="mem_73"/> 
+	<option key="forced_free_var" value="mem_77"/> 
 </options>

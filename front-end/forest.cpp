@@ -2185,6 +2185,7 @@ int main(int argc, const char *argv[]) {
 	disables("show_results", "test");
 	disables("count_branches", "test");
 	disables("klee", "test");
+	disables("check_concurrency_2", "check_concurrency");
 
 	expand_options();
 

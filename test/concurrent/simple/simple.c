@@ -55,8 +55,7 @@ void* fn2(void * args){
 
 }
 
-int main(int argc, const char *argv[])
-{
+int main() {
 
 	pthread_mutex_lock(&a);
 
