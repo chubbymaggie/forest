@@ -66,16 +66,13 @@ void* fn2(void * args){
 	} else {
 		j = 0;
 		signal(&b);
+		signal(&c);
 	}
 
 
 }
 
 int main() {
-
-	pthread_mutex_lock(&a);
-	pthread_mutex_lock(&b);
-	pthread_mutex_lock(&c);
 
 	pthread_t thread1;
 	pthread_t thread2;

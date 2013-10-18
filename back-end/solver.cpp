@@ -128,6 +128,7 @@ void Solver::dump_conditions(FILE* file){
 set<string> sync_points_and_locks;
 
 void Solver::solver_insert_sync_point(string lockunlock, string sync_name, string mutex_name){
+	printf("Insert_sync_point %s %s %s\n", lockunlock.c_str(), sync_name.c_str(), mutex_name.c_str());
 	sync_points_and_locks.insert( "(" + lockunlock + "_" + mutex_name + ")" );
 }
 
