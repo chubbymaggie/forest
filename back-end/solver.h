@@ -99,7 +99,7 @@ public:
 	void print_path_stack();
 	map<string, Variable> get_map_variables();
 	vector<Condition> get_stack_conditions();
-	set<NameAndPosition> get_variable_names();
+	set<NameAndPosition> get_free_variables();
 	string get_position(string name);
 
 private:
@@ -176,6 +176,8 @@ private:
 	string wired_xor( string op1, string op2, int nbits );
 	vector<bool> path_stack;
 	string find_mem_of_id(string id);
+
+	bool debug;
 };
 
 

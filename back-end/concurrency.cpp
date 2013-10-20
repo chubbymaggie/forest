@@ -148,33 +148,10 @@ void Concurrency::end_concurrency(){
 	dump_sync_table();
 }
 
-string Concurrency::translate_global(string content){
-
-	string copy = content;
-
-	vector<string> tokens = tokenize(content, "( ");
-
-	string trans;
-	for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-		string token = *it;
-		if( token.substr(0,4) == "mem_" ){
-			trans = solver->get_name_hint(token);
-			myReplace(copy, *it, trans);
-		}
-	}
-
-
-
-	return copy;
-
-}
-
 void Concurrency::update_store(string dst, string content){
 
-	string translated_content = translate_global(content);
-	string translated_dst = translate_global(dst);
-
-	map_pos_to_last_store[translated_dst] = translated_content;
+	string hint = solver->get_name_hint(dst);
+	map_pos_to_last_store[hint] = content;
 }
 
 

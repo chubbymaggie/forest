@@ -372,9 +372,9 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 		solver->settype(mem_name.str(), subtype[i]);
 
 		if(subtype.size() == 1)
-			mem_hint << reg;
+			mem_hint << actual_function << "_" << reg;
 		else 
-			mem_hint << reg << "+" << alloca_pointer - initial_alloca_pointer;
+			mem_hint << actual_function << "_" << reg << "+" << alloca_pointer - initial_alloca_pointer;
 		set_name_hint(mem_name.str(), mem_hint.str() );
 
 		alloca_pointer += get_size(subtype[i]);

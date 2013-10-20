@@ -170,15 +170,6 @@ private:
 	void drop_tables();
 
 	/**
-	 * @brief returns the name hint of a given variable
-	 *
-	 * @param name name of the variable
-	 *
-	 * @return 
-	 */
-	string gethint(string name);
-
-	/**
 	 * @brief Number of assertions of a given problem (for statistics)
 	 */
 	int num_of_assertions() ;

@@ -22,7 +22,6 @@
 #include "solver.h"
 
 #define SIZE_STR 32768
-#define debug true
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
@@ -32,9 +31,15 @@
 extern Options* options;
 extern Operators* operators;
 extern Database* database;
+extern Concurrency* concurrency;
 
 
-Solver::Solver(){}
+Solver::Solver(){
+
+	options->read_options();
+	debug = options->cmd_option_bool("verbose");
+
+}
 Solver::~Solver(){}
 
 
@@ -1651,7 +1656,7 @@ vector<Condition> Solver::get_stack_conditions(){
 	return conditions;
 }
 
-set<NameAndPosition> Solver::get_variable_names(){
+set<NameAndPosition> Solver::get_free_variables(){
 	return free_variables;
 }
 

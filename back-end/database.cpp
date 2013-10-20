@@ -123,28 +123,12 @@ void Database::create_tables(){
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
 }
 
-string Database::gethint(string name){
-
-	string str = name;
-	string oldStr = "@";
-	string newStr = "_";
-	size_t pos = 0;
-
-	while((pos = str.find(oldStr, pos)) != std::string::npos){
-		str.replace(pos, oldStr.length(), newStr);
-		pos += newStr.length();
-	}
-
-	return str;
-
-}
-
 int Database::num_of_assertions() {
 	return solver->get_stack_conditions().size();
 }
 
 int Database::num_of_variables() {
-	return solver->get_variable_names().size();
+	return solver->get_free_variables().size();
 }
 
 int Database::num_of_mults(){
@@ -186,7 +170,6 @@ int Database::num_of_subs(){
 void Database::insert_problem(){
 
 	stringstream action;
-	//string id = "(select max(problem_id) from problems)";
 	string id = "(select count() from problems)";
 
 	string path;
@@ -197,7 +180,7 @@ void Database::insert_problem(){
 	
 	action << "insert into problems (sat, path) values (" << (solver->solvable_problem()?1:0) << ",'" << path << "');";
 
-	set<NameAndPosition> variable_names = solver->get_variable_names();
+	set<NameAndPosition> variable_names = solver->get_free_variables();
 	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
 		string name = it->name;
 		string type = solver->get_sized_type(name);
@@ -212,7 +195,7 @@ void Database::insert_problem(){
 			string name = it->name;
 			string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
 			//string value = variables[name].real_value;
-			string hint = gethint(solver->get_name_hint(name));
+			string hint = solver->get_name_hint(name);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
@@ -227,7 +210,7 @@ void Database::insert_problem(){
 
 			string name = it->first;
 			string value = solver->realvalue_mangled(name);
-			string hint = gethint(variables[name].name_hint);
+			string hint = variables[name].name_hint;
 
 
 		}

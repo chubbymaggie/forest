@@ -136,7 +136,6 @@ private:
 
 	set<string> locales;
 
-	string translate_global(string conds);
 };
 
 
