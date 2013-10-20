@@ -52,7 +52,11 @@ string Solver::content( string name ){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if( variables[name].content == "" ){
-		string position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
+		string position;
+	        if(name.substr(0,7) == "global_")
+			position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
+		else
+			position = variables[name].name_hint;
 		insert_variable(name, position );
 
 		if(is_number(name)) return name;

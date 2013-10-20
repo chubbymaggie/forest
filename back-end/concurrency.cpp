@@ -93,9 +93,9 @@ void Concurrency::mutex_lock_info(char* _mutex_name, char* _sync_name){
 
 	stringstream conds;
 	solver->dump_conditions(conds);
-	string translated_conds = translate_global(conds.str());
+	//string translated_conds = translate_global(conds.str());
 
-	MutexInfo mutexinfo = {"lock", mutex_name, sync_name, translated_conds};
+	MutexInfo mutexinfo = {"lock", mutex_name, sync_name,conds.str()};
 	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
@@ -118,9 +118,9 @@ void Concurrency::mutex_unlock_info(char* _mutex_name, char* _sync_name){
 
 	stringstream conds;
 	solver->dump_conditions(conds);
-	string translated_conds = translate_global(conds.str());
+	//string translated_conds = translate_global(conds.str());
 
-	MutexInfo mutexinfo = {"unlock", mutex_name, sync_name, translated_conds};
+	MutexInfo mutexinfo = {"unlock", mutex_name, sync_name,conds.str()};
 	mutexinfos.insert(mutexinfo);
 
 	sync_points.insert(sync_name);
