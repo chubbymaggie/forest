@@ -33,13 +33,6 @@ extern Options* options;
 extern Operators* operators;
 extern Database* database;
 
-set<NameAndPosition> variable_names;
-vector<string> flatened_conditions;
-set<string> flatened_variables;
-vector<Condition> conditions;
-vector<string> exclusions;
-
-set<string> forced_free_vars;
 
 Solver::Solver(){}
 Solver::~Solver(){}
@@ -59,8 +52,12 @@ string Solver::content( string name ){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if( variables[name].content == "" ){
-		insert_variable(name, operators->get_actual_function() + UNDERSCORE + variables[name].name_hint );
-		return name;
+		string position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
+		insert_variable(name, position );
+
+		if(is_number(name)) return name;
+		else return position;
+		//return name;
 
 	} else {
 		return variables[name].content;
@@ -71,15 +68,12 @@ string Solver::content( string name ){
 
 void Solver::dump_variables(FILE* file){
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
-		vector<string> tokens = tokenize(it->name, " ");
-
-		string name = tokens[0];
+		string position = it->position;
 		string type = get_type(it->name);
 
-		fprintf(file,"(declare-fun %s () %s)\n", tokens[0].c_str(), type.c_str());
-		//debug && printf("\e[32m %s %s \e[0m\n", it->c_str(), get_type(*it).c_str() );
+		fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
 		
 	}
 	
@@ -99,7 +93,7 @@ void Solver::dump_sync_variables(FILE* file){
 
 		bool found = false;
 
-		for( set<NameAndPosition>::iterator it2 = variable_names.begin(); it2 != variable_names.end(); it2++ ){
+		for( set<NameAndPosition>::iterator it2 = free_variables.begin(); it2 != free_variables.end(); it2++ ){
 
 			vector<string> tokens = tokenize(it2->name, " ");
 
@@ -492,15 +486,17 @@ int Solver::maxval(string type){
 
 void Solver::dump_type_limits(FILE* file){
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 		vector<string> tokens = tokenize(it->name, " ");
 
 		string name = tokens[0];
 		string type = get_sized_type(it->name);
 
+		string position = it->position;
+
 		if( get_type(it->name) != "Real" )
-			fprintf(file,"(assert (and (>= %s %d) (< %s %d)))\n", name.c_str(), minval(type), name.c_str(), maxval(type) );
+			fprintf(file,"(assert (and (>= %s %d) (< %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
 		
 	}
 }
@@ -532,8 +528,8 @@ int Solver::get_num_fuzzs(){
 void Solver::dump_get(FILE* file){
 
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		fprintf(file,"(get-value (%s)); %s\n", it->position.c_str(), it->position.c_str() );
 	}
 	
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
@@ -546,14 +542,14 @@ void Solver::dump_get(FILE* file){
 void Solver::dump_get_free(FILE* file){
 
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		//fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
 	}
 }
 
 int Solver::get_num_fvars(){
 
-	return variable_names.size();
+	return free_variables.size();
 
 }
 
@@ -758,6 +754,13 @@ void Solver::solve_problem(){
 			ret[strlen(ret)-1] = 0;
 			ret_vector.push_back(ret);
 		}
+
+		for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+			string line = *it;
+			if(line.find("error") != string::npos )
+				assert(0 && "Error in z3 execution");
+		}
+		
 		
 		pclose(fp);
 
@@ -810,7 +813,7 @@ void Solver::solve_problem(){
 
 	vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
 
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++,it_ret++ ){
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++,it_ret++ ){
 
 		string varname = it->name;
 		string value = result_get(*it_ret);
@@ -877,7 +880,7 @@ void Solver::insert_variable(string name, string position){
 		exit(0);
 
 	NameAndPosition nandp = {name, position};
-	variable_names.insert(nandp);
+	free_variables.insert(nandp);
 
 }
 
@@ -1645,7 +1648,7 @@ vector<Condition> Solver::get_stack_conditions(){
 }
 
 set<NameAndPosition> Solver::get_variable_names(){
-	return variable_names;
+	return free_variables;
 }
 
 string Solver::get_position(string name){

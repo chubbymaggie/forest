@@ -105,7 +105,12 @@ public:
 private:
 
 	map<string, Variable> variables;
-
+	set<NameAndPosition> free_variables;
+	vector<string> flatened_conditions;
+	set<string> flatened_variables;
+	vector<Condition> conditions;
+	vector<string> exclusions;
+	set<string> forced_free_vars;
 
 
 	void dump_conditions(FILE* file = stdout);
