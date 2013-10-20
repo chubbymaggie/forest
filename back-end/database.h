@@ -231,7 +231,6 @@ private:
 	 */
 	bool exists_in_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
 
-	bool debug;
 	
 };
 

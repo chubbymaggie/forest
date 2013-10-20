@@ -20,6 +20,8 @@
 
 #include "database.h"
 
+#define debug false
+
 extern Solver* solver;
 extern Options* options;
 
@@ -27,8 +29,6 @@ vector< pair<string, string> > retsqlite;
 
 Database::Database(){
 
-	options->read_options();
-	debug = options->cmd_option_bool("verbose");
 
 }
 Database::~Database(){;}
