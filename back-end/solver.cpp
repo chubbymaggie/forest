@@ -25,7 +25,6 @@
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
-#define FUZZ_LIMIT 500
 
 
 extern Options* options;
@@ -122,8 +121,7 @@ void Solver::dump_sync_variables(FILE* file){
 void Solver::dump_conditions(FILE* file){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if(!it->fuzzme)
-			fprintf(file,"(assert %s)\n", it->cond.c_str() );
+		fprintf(file,"(assert %s)\n", it->cond.c_str() );
 	}
 	
 }
@@ -448,8 +446,7 @@ void Solver::dump_concurrency_constraints(FILE* file){
 void Solver::dump_conditions( stringstream& sstr ){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if(!it->fuzzme)
-			sstr << it->cond;
+		sstr << it->cond;
 	}
 
 
@@ -514,26 +511,6 @@ void Solver::dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
 }
 
-void Solver::dump_get_fuzz(FILE* file){
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if(it->fuzzme)
-			fprintf(file,"(get-value (%s)); \e[33m fuzzme \e[0m\n", it->cond.c_str() );
-	}
-
-}
-
-int Solver::get_num_fuzzs(){
-
-	int ret = 0;
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if(it->fuzzme)
-			ret++;
-	}
-
-	return ret;
-
-}
-
 void Solver::dump_get(FILE* file){
 
 
@@ -546,14 +523,6 @@ void Solver::dump_get(FILE* file){
 		fprintf(file,"(get-value (%s)); %s\n", it->second.content.c_str(), it->first.c_str() );
 	}
 	
-}
-
-void Solver::dump_get_free(FILE* file){
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		//fprintf(file,"(get-value (%s)); %s\n", it->name.c_str(), it->name.c_str() );
-	}
 }
 
 int Solver::get_num_fvars(){
@@ -650,172 +619,65 @@ bool Solver::get_is_sat(string is_sat){
 	else return false;
 }
 
-bool Solver::get_is_sat_with_fuzz( vector<string> fuzz_constraints ){
-
-	for( vector<string>::iterator it = fuzz_constraints.begin(); it != fuzz_constraints.end(); it++ ){
-		//printf("fuzz constraint %s \e[31m %s \e[0m\n", it->c_str(), result_get(*it).c_str() );
-		if( result_get(*it) == "false" ){
-			return false;
-		}
-	}
-	
-	return true;
-
-}
-
-string Solver::get_exclusion( vector<string> excluded_values ){
-
-	string ret;
-	for( vector<string>::iterator it = excluded_values.begin(); it != excluded_values.end(); it++ ){
-
-		//printf("get_exclusion %s ---- %s\n", it->c_str(), result_get(*it).c_str() );
-		//printf("get_exclusion %s\n", it->c_str());
-
-		vector<string> tokens = tokenize(*it, "() ");
-		string name = tokens[0];
-		string value = result_get(*it);
-		ret += "(= " + name + " " + value + ") ";
-	}
-
-	ret = "(not (and " + ret + "))";
-
-	//printf("excl %s\n", ret.c_str() );
-
-	return ret;
-}
-
-void Solver::insert_exclusion(string exclusion){
-
-	exclusions.push_back(exclusion);
-}
-
-void Solver::clean_exclusions(){
-	exclusions.clear();
-}
-
-void Solver::dump_exclusions(FILE* file){
-
-	for( vector<string>::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", it->c_str() );
-	}
-	
-	//fprintf(file,"(assert (> mem_8   0))\n" );
-	//fprintf(file,"(assert (> mem_12  0))\n" );
-	//fprintf(file,"(assert (< mem_8  16))\n" );
-	//fprintf(file,"(assert (< mem_12 16))\n" );
-
-
-
-}
-
-
 bool sat;
 
 void Solver::solve_problem(){
 
 	vector<string> ret_vector;
 
-	{
-
 	sat = 0;
 
+	stringstream filename;
+	filename << "z3_" << rand() << ".smt2";
 
-	clean_exclusions();
+	debug && printf("\e[31m filename solvable problem \e[0m %s\n", filename.str().c_str() );
 
-	for ( unsigned int i = 0; i < FUZZ_LIMIT; i++) {
-	
-		stringstream filename;
-		filename << "z3_" << rand() << ".smt2";
-
-		debug && printf("\e[31m filename solvable problem \e[0m %s\n", filename.str().c_str() );
-
-		FILE* file = fopen(filename.str().c_str(), "w");
+	FILE* file = fopen(filename.str().c_str(), "w");
 
 
-		options->read_options();
+	options->read_options();
 
-		dump_header(file);
-		dump_variables(file);
-		if(options->cmd_option_bool("secuencialize"))
-			dump_sync_variables(file);
-		dump_type_limits(file);
-		dump_conditions(file);
-		if(options->cmd_option_bool("secuencialize"))
-			dump_concurrency_constraints(file);
-		dump_exclusions(file);
-		dump_check_sat(file);
-		dump_get(file);
-		dump_get_fuzz(file);
-		dump_get_free(file);
-		dump_tail(file);
+	dump_header(file);
+	dump_variables(file);
+	if(options->cmd_option_bool("secuencialize"))
+		dump_sync_variables(file);
+	dump_type_limits(file);
+	dump_conditions(file);
+	if(options->cmd_option_bool("secuencialize"))
+		dump_concurrency_constraints(file);
+	dump_check_sat(file);
+	dump_get(file);
+	dump_tail(file);
 
-		fclose(file);
+	fclose(file);
 
-		FILE *fp;
-		stringstream command;
-		char ret[SIZE_STR];
-		
-		command << "z3 " << filename.str();
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
 
-		fp = popen(command.str().c_str(), "r");
-		
-		while (fgets(ret,SIZE_STR, fp) != NULL){
-			ret[strlen(ret)-1] = 0;
-			ret_vector.push_back(ret);
-		}
+	command << "z3 " << filename.str();
 
-		for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-			string line = *it;
-			if(line.find("error") != string::npos )
-				assert(0 && "Error in z3 execution");
-		}
-		
-		
-		pclose(fp);
+	fp = popen(command.str().c_str(), "r");
 
-		int n_fuzzs = get_num_fuzzs();
-		int n_fvars = get_num_fvars();
+	while (fgets(ret,SIZE_STR, fp) != NULL){
+		ret[strlen(ret)-1] = 0;
+		ret_vector.push_back(ret);
+	}
 
-
-		string         sat_str       = ret_vector[0];
-		vector<string> vect_for_fuzz = vector<string>(ret_vector.begin()+1, ret_vector.begin()+1+n_fuzzs);
-		vector<string> vect_for_fvar = vector<string>(ret_vector.begin()+1+n_fuzzs, ret_vector.begin()+1+n_fuzzs+n_fvars);
-
-
-		sat = 1;
-
-		if( n_fuzzs == 0 ){
-			sat = get_is_sat(sat_str);
-			break;
-		}
-
-		if( !get_is_sat(sat_str) ){
-			sat = 0;
-			break;
-		}
-
-		if( !get_is_sat_with_fuzz(vect_for_fuzz) ){
-			sat = 0;
-		}
-
-		if( !sat ){
-			string exclusion = get_exclusion(vect_for_fvar);
-			insert_exclusion(exclusion);
-		} else {
-			break;
-		}
-
-		if( i == FUZZ_LIMIT - 1 )
-			debug && printf("\e[33m FUZZ_LIMIT exceeded \e[0m\n");
-
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		string line = *it;
+		if(line.find("error") != string::npos )
+			assert(0 && "Error in z3 execution");
 	}
 
 
+	pclose(fp);
 
+	string         sat_str       = ret_vector[0];
+	sat = get_is_sat(sat_str);
 
-	}
+	if(!sat) return;
 
-	if(sat){
 
 	bool sat = 0;
 
@@ -851,7 +713,6 @@ void Solver::solve_problem(){
 		it_ret++;
 	}
 
-	}
 
 }
 
@@ -900,11 +761,11 @@ float stof(string str){
 	return ret;
 }
 
-void Solver::push_condition(string cond, string fn, vector<string> joints, bool fuzzme ){
+void Solver::push_condition(string cond, string fn, vector<string> joints ){
 
 	set<string> joints_set = set<string>(joints.begin(), joints.end());
 
-	Condition condition = { cond, fn, joints_set, fuzzme };
+	Condition condition = { cond, fn, joints_set };
 	conditions.push_back( condition );
 }
 
@@ -1108,9 +969,6 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 	if( (get_is_propagated_constant(src) || is_constant(src)) && !is_forced_free(src) )
 		set_is_propagated_constant(dst);
 
-	if( get_fuzz_constr(src) )
-		set_fuzz_constr(dst);
-
 
 	//printf("srctree %s\n", get_offset_tree(src).c_str());
 
@@ -1231,20 +1089,6 @@ string Solver::wired_xor( string op1, string op2, int nbits ){
 
 }
 
-void Solver::set_fuzz_constr(string name){
-
-	if(!check_mangled_name(name)) assert(0 && "Wrong dst for set_fuzz_constr");
-	variables[name].fuzzme = true;
-
-}
-
-bool Solver::get_fuzz_constr(string name){
-
-	if(!check_mangled_name(name)) assert(0 && "Wrong dst for get_fuzz_constr");
-	return variables[name].fuzzme;
-
-}
-
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
@@ -1283,11 +1127,9 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		content_ss << "(* " << content(op1) << " " << factor << ")";
 
 	} else if (operation == "Y" ) {
-		content_ss << wired_and(op1, op2, 4);
-		set_fuzz_constr(dst);
+		assert(0 && "Non-Supported Operation");
 	} else if (operation == "X" ) {
-		content_ss << wired_xor(op1, op2, 4);
-		set_fuzz_constr(dst);
+		assert(0 && "Non-Supported Operation");
 	} else {
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 	}
@@ -1302,10 +1144,6 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	else
 		settype(dst, get_type(op2));
 
-
-	if( get_fuzz_constr(op1) || get_fuzz_constr(op2) ){
-		set_fuzz_constr(dst);
-	}
 
 	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
 		set_is_propagated_constant(dst);

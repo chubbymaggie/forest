@@ -38,7 +38,6 @@ typedef struct Condition {
 	string cond;
 	string function;
 	set<string> joints;
-	bool fuzzme;
 } Condition;
 
 
@@ -50,7 +49,6 @@ typedef struct Variable {
 	string content;
 	string tree;
 	bool is_propagated_constant;
-	bool fuzzme;
 } Variable;
 
 
@@ -74,8 +72,7 @@ public:
 	string content( string name );
 	void clean_conditions_stack(string name);
 	void set_sat(bool);
-	bool get_fuzz_constr(string name);
-	void push_condition(string condition, string function, vector<string> joints, bool fuzzme);
+	void push_condition(string condition, string function, vector<string> joints);
 	string negation(string condition);
 	int show_problem();
 	void solve_problem();
@@ -109,7 +106,6 @@ private:
 	vector<string> flatened_conditions;
 	set<string> flatened_variables;
 	vector<Condition> conditions;
-	vector<string> exclusions;
 	set<string> forced_free_vars;
 
 
@@ -117,13 +113,11 @@ private:
 	void dump_variables(FILE* file = stdout);
 	void dump_concurrency_constraints(FILE* file = stdout);
 	void dump_check_sat(FILE* file = stdout);
-	void dump_exclusions(FILE* file = stdout);
 	void dump_sync_variables(FILE* file = stdout);
 	void dump_header(FILE* file = stdout);
 	void dump_type_limits(FILE* file = stdout);
 	void dump_tail(FILE* file = stdout);
 	void dump_get(FILE* file = stdout);
-	void dump_get_fuzz(FILE* file = stdout);
 	void dump_assigns(FILE* file = stdout);
 	void flat_problem();
 	void insert_variable(string name, string position);
@@ -140,7 +134,6 @@ private:
 	void set_real_value(string varname, string value, string fn_name );
 	void set_real_value(string varname, string value );
 	string itos(int i);
-	void set_fuzz_constr(string name);
 	string get_offset_tree( string varname );
 	bool check_mangled_name(string name);
 	set<string> unlock_points(string mutex);
@@ -157,14 +150,8 @@ private:
 	void substitute_sync(string& condition);
 	int minval(string type);
 	int maxval(string type);
-	int get_num_fuzzs();
-	void dump_get_free(FILE* file);
 	void set_real_value_mangled(string varname, string value );
 	bool get_is_sat(string is_sat);
-	bool get_is_sat_with_fuzz( vector<string> fuzz_constraints );
-	string get_exclusion( vector<string> excluded_values );
-	void insert_exclusion(string exclusion);
-	void clean_exclusions();
 	int get_num_fvars();
 	void set_is_propagated_constant(string varname);
 	bool is_constant(string varname);

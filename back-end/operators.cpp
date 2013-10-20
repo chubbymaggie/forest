@@ -502,9 +502,9 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		database->insert_problem();
 
 		if( realvalue(cmp) == "true" ){
-			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints, solver->get_fuzz_constr(name(cmp)));
+			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
 		} else if (realvalue(cmp) == "false" ){
-			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints, solver->get_fuzz_constr(name(cmp)) );
+			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}
@@ -523,9 +523,9 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 
 		if( realvalue(cmp) == "true" ){
-			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints, solver->get_fuzz_constr(name(cmp)) );
+			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
 		} else if (realvalue(cmp) == "false" ){
-			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints, solver->get_fuzz_constr(name(cmp)));
+			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}
