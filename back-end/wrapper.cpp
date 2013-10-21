@@ -171,3 +171,13 @@ short vector_short(char* _name){
 
 	return measurement->vector_short(_name);
 }
+
+int vector_int(char* _name){
+	return measurement->vector_int(_name);
+}
+
+char vector_char(char* _name){
+	return measurement->vector_char(_name);
+}
+
+

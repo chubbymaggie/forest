@@ -168,6 +168,8 @@ extern "C" void begin_concurrency();
 extern "C" void end_concurrency();
 extern "C" void Free_fn( char* _oplist );
 extern "C" short vector_short(char* _name);
+extern "C" int vector_int(char* _name);
+extern "C" char vector_char(char* _name);
 extern "C" void begin_sim_measurement(char* functions, char* bbs);
 extern "C" void br_instr_cond_measurement(bool value);
 
