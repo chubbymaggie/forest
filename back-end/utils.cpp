@@ -24,7 +24,29 @@
 
 using namespace std;
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
 
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
 
 int get_size(string type){
 
@@ -217,4 +239,10 @@ short stoc(string str){
 	return ret;
 }
 
+
+float stof(string str){
+	float ret;
+	sscanf(str.c_str(), "%f", &ret);
+	return ret;
+}
 

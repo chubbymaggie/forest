@@ -116,7 +116,6 @@ private:
 	void dump_variables(FILE* file = stdout);
 	void dump_concurrency_constraints(FILE* file = stdout);
 	void dump_check_sat(FILE* file = stdout);
-	void dump_sync_variables(FILE* file = stdout);
 	void dump_header(FILE* file = stdout);
 	void dump_type_limits(FILE* file = stdout);
 	void dump_tail(FILE* file = stdout);
@@ -141,16 +140,9 @@ private:
 	bool check_mangled_name(string name);
 	set<string> unlock_points(string mutex);
 	string or_unlocking(string condition, string mutex);
-	void substitute_locks(string& condition);
 	string or_paths(string dest);
-	void substitute_unlocks(string& condition);
-	void substitute_paths(string& condition);
 	string and_stores(string sync_point);
-	void substitute_stores(string& condition);
-	void substitute_conds(string& condition);
 	string stack(string sync_point);
-	void substitute_translate(string& condition);
-	void substitute_sync(string& condition);
 	int minval(string type);
 	int maxval(string type);
 	void set_real_value_mangled(string varname, string value );
