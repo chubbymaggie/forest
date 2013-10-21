@@ -639,12 +639,12 @@ void Solver::solve_problem(){
 
 	dump_header(file);
 	dump_variables(file);
-	if(options->cmd_option_bool("secuencialize"))
-		dump_sync_variables(file);
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_sync_variables(file);
 	dump_type_limits(file);
 	dump_conditions(file);
-	if(options->cmd_option_bool("secuencialize"))
-		dump_concurrency_constraints(file);
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_concurrency_constraints(file);
 	dump_check_sat(file);
 	dump_get(file);
 	dump_tail(file);
@@ -917,6 +917,9 @@ bool Solver::is_constant(string varname){
 }
 
 void Solver::setcontent(string varname, string content){
+
+	debug && printf("\e[31m setcontent %s %s\e[0m.\n", varname.c_str(), content.c_str() );
+
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for setcontent");
 	variables[varname].content = content;
 }
@@ -1301,12 +1304,12 @@ int Solver::show_problem(){
 	
 	dump_header();
 	dump_variables();
-	if(options->cmd_option_bool("secuencialize"))
-		dump_sync_variables();
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_sync_variables();
 	dump_type_limits();
 	dump_conditions();
-	if(options->cmd_option_bool("secuencialize"))
-		dump_concurrency_constraints();
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_concurrency_constraints();
 	dump_check_sat();
 	dump_tail();
 
@@ -1323,12 +1326,12 @@ int Solver::show_problem(){
 
 	dump_header(file);
 	dump_variables(file);
-	if(options->cmd_option_bool("secuencialize"))
-		dump_sync_variables(file);
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_sync_variables(file);
 	dump_type_limits(file);
 	dump_conditions(file);
-	if(options->cmd_option_bool("secuencialize"))
-		dump_concurrency_constraints(file);
+	//if(options->cmd_option_bool("secuencialize"))
+		//dump_concurrency_constraints(file);
 	dump_check_sat(file);
 	dump_tail(file);
 
@@ -1390,6 +1393,15 @@ void Solver::set_name_hint(string name, string hint){
 
 string Solver::get_name_hint(string name){
 	return variables[name].name_hint;
+}
+
+string Solver::find_by_name_hint(string hint){
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		if(it->second.name_hint == hint)
+			return it->first;
+	}
+	return "";
+	
 }
 
 void Solver::set_offset_tree( string varname, string tree ){

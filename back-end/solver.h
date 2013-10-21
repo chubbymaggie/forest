@@ -98,6 +98,8 @@ public:
 	vector<Condition> get_stack_conditions();
 	set<NameAndPosition> get_free_variables();
 	string get_position(string name);
+	string find_by_name_hint(string hint);
+	void setcontent(string varname, string content);
 
 private:
 
@@ -155,7 +157,6 @@ private:
 	int get_num_fvars();
 	void set_is_propagated_constant(string varname);
 	bool is_constant(string varname);
-	void setcontent(string varname, string content);
 	bool is_forced_free(string position);
 	string result_get(string get_str);
 	bool implemented_operation(string operation);

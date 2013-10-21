@@ -19,6 +19,7 @@
  */
 
 #include "concurrency.h"
+#define debug true
 
 using namespace std;
 
@@ -139,8 +140,8 @@ void Concurrency::dump_sync_table(){
 
 
 void Concurrency::begin_concurrency(){
-	options->read_options();
-	debug = options->cmd_option_bool("verbose");
+	//options->read_options();
+	//debug = options->cmd_option_bool("verbose");
 }
 
 
@@ -154,6 +155,25 @@ void Concurrency::update_store(string dst, string content){
 	map_pos_to_last_store[hint] = content;
 }
 
+void Concurrency::insert_sync_point(string lockunlock, string sync_name, string mutex_name){
+	printf("Insert_sync_point %s %s %s\n", lockunlock.c_str(), sync_name.c_str(), mutex_name.c_str());
+	sync_points_and_locks.insert( "(" + lockunlock + "_" + mutex_name + ")" );
+}
+
+void Concurrency::get_conditions_to_reach_here(string& ret){
+	
+	stringstream ret_ss;
+
+	ret_ss << "(and ";
+	for( set<string>::iterator it = sync_points_and_locks.begin(); it != sync_points_and_locks.end(); it++ ){
+		ret_ss << *it << " ";
+	}
+	ret_ss << ")";
+
+	ret = ret_ss.str();
+	
+
+}
 
 void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
@@ -162,7 +182,9 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver->solver_insert_sync_point("lock", sync_name, mutex_name);
+	insert_sync_point("lock", sync_name, mutex_name);
+	
+
 }
 
 void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
@@ -172,7 +194,7 @@ void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
-	solver->solver_insert_sync_point("unlock", sync_name, mutex_name);
+	insert_sync_point("unlock", sync_name, mutex_name);
 
 }
 

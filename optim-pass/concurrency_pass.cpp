@@ -568,6 +568,7 @@ struct Secuencialize: public ModulePass {
 
 		read_options();
 		
+		{SeparateSync     pass;   pass.runOnModule(M);}
 		{RmCalls          pass;   pass.runOnModule(M);}
 		{ChangePthreadC   pass;   pass.runOnModule(M);}
 		{ChangeSync       pass;   pass.runOnModule(M);}

@@ -95,7 +95,11 @@ public:
 	void alloca_instr(char* _reg, char* _subtype);
 
 private:
+	void get_conditions_to_reach_here(string& ret);
 
+
+	set<string> sync_points_and_locks;
+	void insert_sync_point(string lockunlock, string sync_name, string mutex_name);
 
 	/**
 	 * @brief Information about lock, mutex_name, sync_name and stack when a synchronization point 
@@ -119,7 +123,7 @@ private:
 	 * @param sync_name
 	 */
 	void insert_stores(string sync_name);
-	bool debug;
+	//bool debug;
 
 	/**
 	 * @brief Inserts types of shared variables (stores)

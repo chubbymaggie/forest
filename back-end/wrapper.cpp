@@ -140,14 +140,14 @@ void br_instr_cond_measurement(bool value){
 
 
 void mutex_lock(char* _mutex_name, char* _sync_name){
-	if(options->cmd_option_bool("concurrency"))
+	if(options->cmd_option_bool("concurrency") && !options->cmd_option_bool("secuencialize"))
 		concurrency->mutex_lock_info(_mutex_name, _sync_name);
 	if(options->cmd_option_bool("secuencialize"))
 		concurrency->mutex_lock_constraints(_mutex_name, _sync_name);
 }
 
 void mutex_unlock(char* _mutex_name, char* _sync_name){
-	if(options->cmd_option_bool("concurrency"))
+	if(options->cmd_option_bool("concurrency") && !options->cmd_option_bool("secuencialize"))
 		concurrency->mutex_unlock_info(_mutex_name, _sync_name);
 	if(options->cmd_option_bool("secuencialize"))
 		concurrency->mutex_unlock_constraints(_mutex_name, _sync_name);
