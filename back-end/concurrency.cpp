@@ -161,7 +161,12 @@ void Concurrency::insert_sync_point(string lockunlock, string sync_name, string 
 }
 
 void Concurrency::get_conditions_to_reach_here(string& ret){
-	
+
+	if(sync_points_and_locks.size() == 0){
+		ret = "true";
+		return;
+	}
+
 	stringstream ret_ss;
 
 	ret_ss << "(and ";
@@ -175,6 +180,261 @@ void Concurrency::get_conditions_to_reach_here(string& ret){
 
 }
 
+
+set<string> Concurrency::unlock_points(string mutex){
+
+	//printf("listing_unlock %s\n", mutex.c_str());
+	set<string> ret = concurrency_table[mutex];
+	//for( set<string>::iterator it = ret.begin(); it != ret.end(); it++ )
+		//printf("%s \n", it->c_str());
+	//printf("\n");
+	if(!ret.size()){
+		//printf("mutex %s\n", mutex.c_str() ); fflush(stdout);
+		assert(0 && "empty set");
+	}
+	return ret;
+	//set<string> set_a; set_a.insert("d");
+	//set<string> set_b; set_b.insert("e"); set_b.insert("f");
+	//if(mutex == "a")
+		//return set_a;
+	//if(mutex == "b")
+		//return set_b;
+	//return set_a;
+
+}
+
+
+
+string Concurrency::or_unlocking(string condition, string mutex){
+
+	stringstream ret;
+	set<string> unlocks = unlock_points(mutex);
+
+	if(unlocks.size() > 1)
+		ret << "(or ";
+
+
+	for( set<string>::iterator it = unlocks.begin(); it != unlocks.end(); it++ ){
+		ret << "(" << "unlock_" << (*it) << ") ";
+	}
+
+	if(unlocks.size() > 1)
+		ret << ")";
+
+	return ret.str();
+
+
+}
+
+void Concurrency::substitute_locks(string& condition){
+
+	set<string> mutexes = database->list_semaphores();
+	//mutexes.insert("a");
+	//mutexes.insert("b");
+	//mutexes.insert("c");
+
+	for( set<string>::iterator it = mutexes.begin(); it != mutexes.end(); it++ ){
+		string expr_find = string("(lock_") + (*it) + string(")");
+		string expr_subs = or_unlocking(condition, *it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+	
+	
+
+}
+
+
+void Concurrency::substitute_unlocks(string& condition){
+
+	//printf("substitute_unlocks\n");
+
+	set<string> unlock_points = database->list_unlock_points();
+
+	//printf("unlock_points.size %lu\n", unlock_points.size());
+	
+	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
+		//printf("unlock_point %s\n", it->c_str());
+		string expr_find = string("(unlock_") + (*it) + string(")");
+		string expr_subs = or_paths(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+	
+
+}
+
+string Concurrency::or_paths(string dest){
+
+	//printf("or_paths %s\n", dest.c_str());
+
+	//if(dest == "bb")    return "(de)";
+	//if(dest == "bb1")   return "(df)";
+	//if(dest == "bb2")   return "(deg o dfg)";
+	//if(dest == "bb4")   return "(bb4)";
+	//if(dest == "entry") return "(1)";
+	//return "()";
+
+	set<vector<string> > paths = database->get_paths_to(dest);
+
+	//printf("dest %s path num %lu\n",dest.c_str(), paths.size());
+
+	stringstream ret;
+	if(paths.size() > 1)
+		ret << "(or ";
+	for( set<vector<string> >::iterator it = paths.begin(); it != paths.end(); it++ ){
+		vector<string> path = (*it);
+		if(path.size() > 1)
+			ret << "(and ";
+		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
+			ret << "(statepath_" << (*it2) << ")" << " ";
+		}
+		if(path.size() > 1)
+			ret << ") ";
+	}
+	if(paths.size() > 1)
+		ret << ")";
+
+	//return "(" + dest + ")";
+	return ret.str();
+	
+}
+
+void Concurrency::substitute_paths(string& condition){
+
+	//printf("substitute_unlocks\n");
+
+	set<string> unlock_points = database->list_unlock_points();
+
+	//printf("unlock_points.size %lu\n", unlock_points.size());
+	
+	for( set<string>::iterator it = unlock_points.begin(); it != unlock_points.end(); it++ ){
+		//printf("unlock_point %s\n", it->c_str());
+		string expr_find = string("(statepath_") + (*it) + string(")");
+		string expr_subs = "(and (stores_" + (*it) + ") (conds_" + (*it) + "))";
+		myReplace(condition, expr_find, expr_subs);
+	}
+
+}
+
+
+void Concurrency::substitute_stores(string& condition){
+
+	//printf("substitute_stores\n");
+
+	set<string> sync_points = database->list_store_sync_points();
+
+	//printf("sync_points.size %lu\n", sync_points.size());
+	
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		//printf("sync_store_point %s\n", it->c_str());
+		string expr_find = string("(stores_") + (*it) + string(")");
+		string expr_subs = and_stores(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+}
+
+
+string Concurrency::and_stores(string sync_point){
+
+	database->load_stores(stores);
+	//stores["entry"].insert(pair<string, string>("mem_220","mem_216"));
+	//stores["bb"].insert(pair<string, string>("mem_119","1"));
+	//stores["bb1"].insert(pair<string, string>("mem_119","0"));
+
+	//printf("and_stores %s\n", sync_point.c_str());
+
+	set<pair<string, string> > stores_of_sync_point = stores[sync_point];
+	
+	stringstream ret;
+
+	if(stores_of_sync_point.size() > 1)
+		ret << "(and ";
+	for( set<pair<string, string> >::iterator it = stores_of_sync_point.begin(); it != stores_of_sync_point.end(); it++ ){
+		ret << "(= " << it->first << " " << it->second << ")";
+	}
+	if(stores_of_sync_point.size() > 1)
+		ret << ")";
+	
+
+	return ret.str();
+
+
+	//if(sync_point == "entry")  return "(= mem_220 mem_216)";
+	//if(sync_point == "bb")     return "(= mem_119 1)";
+	//if(sync_point == "bb1")    return "(= mem_119 0)";
+	//return "()";
+
+
+
+}
+
+
+void Concurrency::substitute_conds(string& condition){
+
+	//printf("substitute_conds\n");
+
+	set<string> sync_points = database->list_sync_points();
+
+	//printf("sync_points.size %lu\n", sync_points.size());
+	
+	for( set<string>::iterator it = sync_points.begin(); it != sync_points.end(); it++ ){
+		//printf("sync_point %s\n", it->c_str());
+		string expr_find = string("(conds_") + (*it) + string(")");
+		string expr_subs = stack(*it);
+		myReplace(condition, expr_find, expr_subs);
+	}
+}
+
+
+
+string Concurrency::stack(string sync_point){
+
+	database->load_stacks(stacks);
+	return stacks[sync_point];
+
+	//if(sync_point == "entry") return "(true)";
+	//if(sync_point == "bb")    return "(= mem_123 25)";
+	//if(sync_point == "bb4")   return "(not (= mem_123 25))";
+	//if(sync_point == "bb2")   return "(true)";
+	//if(sync_point == "bb1")   return "(not (= mem_123 12))";
+	//return "";
+	
+}
+
+
+void Concurrency::propagate_constraints(string& condition){
+
+	database->load_concurrency_table(concurrency_table);
+
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_locks(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_unlocks(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_paths(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_stores(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	substitute_conds(condition);
+	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs-----\n");
+
+	myReplace(condition, "(and   true )", "");
+	myReplace(condition, "(and    )","true");
+	myReplace(condition, "  "," ");
+	myReplace(condition, "  "," ");
+	myReplace(condition, "  "," ");
+
+	//myReplace(conditions, "lock_a", "unlock_d");
+	//myReplace(conditions, "(unlock_d)", "true");
+}
+
+void Concurrency::get_sync_global_var(string& sync_global_var, string sync_name){
+	if( sync_name == "_Z3fn1Pv_sync_2" )
+		sync_global_var = "(= global_j (ite (= global_k 12) 1 0))";
+	else
+		sync_global_var = "";
+}
+
 void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 	debug && printf("mutex_lock_constraints %s %s\n", _mutex_name, _sync_name);
@@ -183,7 +443,29 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	string sync_name = string(_sync_name);
 
 	insert_sync_point("lock", sync_name, mutex_name);
+
+	string sync_conditions;
+	get_conditions_to_reach_here(sync_conditions);
+
+	propagate_constraints(sync_conditions);
+
+	if( sync_conditions != "true"){
+		string actual_function = operators->get_actual_function();
+		string actual_bb = operators->get_actual_bb();
+		vector<string> empty; empty.push_back(actual_bb);
+		solver->push_condition(sync_conditions, actual_function, empty);
+
+	}
+
+
+	string sync_global_var;
+	get_sync_global_var(sync_global_var, sync_name);
 	
+	if( sync_global_var != ""){
+		string dst = solver->find_by_name_hint("global_j");
+		string content = "(ite (= global_k 12) 1 0)";
+		solver->setcontent(dst, content);
+	}
 
 }
 

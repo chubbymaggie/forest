@@ -688,6 +688,12 @@ int Operators::get_offset(vector<string> indexes, string offset_tree, string* re
 
 }
 
+string Operators::get_actual_bb(){
+
+	return actual_bb;
+
+}
+
 string Operators::get_actual_function(){
 	return actual_function;
 }

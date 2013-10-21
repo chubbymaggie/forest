@@ -5,7 +5,6 @@
 	<option key="check_concurrency" value="true"/>
 	<option key="explanation" value="Concurrent Simple Example 3"/> 
 	<option key="file" value="simple3.c"/> 
-	<option key="forced_free_var" value="mem_201"/> 
 	<option key="forced_free_var" value="mem_119"/> 
 	<option key="forced_free_var" value="mem_205"/> 
 	<option key="forced_free_var" value="mem_123"/> 

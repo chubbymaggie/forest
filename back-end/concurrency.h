@@ -95,6 +95,24 @@ public:
 	void alloca_instr(char* _reg, char* _subtype);
 
 private:
+	void get_sync_global_var(string& sync_global_var, string sync_name);
+	string stack(string sync_point);
+	map<string, set<pair<string, string> > > stores;
+	map<string, string> stacks;
+	void substitute_conds(string& condition);
+	string and_stores(string sync_point);
+	void substitute_stores(string& condition);
+	void substitute_paths(string& condition);
+	string or_paths(string dest);
+	void substitute_unlocks(string& condition);
+
+	map<string, set<string> > concurrency_table;
+
+
+	set<string> unlock_points(string mutex);
+	string or_unlocking(string condition, string mutex);
+	void substitute_locks(string& condition);
+	void propagate_constraints(string& conditions);
 	void get_conditions_to_reach_here(string& ret);
 
 

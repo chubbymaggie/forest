@@ -320,7 +320,7 @@ void Solver::substitute_stores(string& condition){
 	}
 }
 
-map<string, string> stacks;
+//map<string, string> stacks;
 
 string Solver::stack(string sync_point){
 

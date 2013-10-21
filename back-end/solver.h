@@ -103,6 +103,7 @@ public:
 
 private:
 
+	map<string, string> stacks;
 	map<string, Variable> variables;
 	set<NameAndPosition> free_variables;
 	vector<string> flatened_conditions;
