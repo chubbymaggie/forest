@@ -424,6 +424,9 @@ void Concurrency::propagate_constraints(string& condition){
 	myReplace(condition, "  "," ");
 	myReplace(condition, "  "," ");
 
+	myReplace(condition, "global_j", "global_j_pivot_b");
+	myReplace(condition, "global_k", "global_k_pivot_b");
+
 	//myReplace(conditions, "lock_a", "unlock_d");
 	//myReplace(conditions, "(unlock_d)", "true");
 }
@@ -458,13 +461,18 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	}
 
 
-	string sync_global_var;
-	get_sync_global_var(sync_global_var, sync_name);
-	
-	if( sync_global_var != ""){
-		string dst = solver->find_by_name_hint("global_j");
-		string content = "(ite (= global_k 12) 1 0)";
+	if(sync_name == "_Z3fn1Pv_sync_2"){
+
+		string dst, content;
+
+		dst = solver->find_by_name_hint("global_j");
+		content = "global_j_pivot_b";
 		solver->setcontent(dst, content);
+
+		dst = solver->find_by_name_hint("global_k");
+		content = "global_k_pivot_b";
+		solver->setcontent(dst, content);
+
 	}
 
 }
