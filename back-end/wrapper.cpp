@@ -25,6 +25,7 @@ Operators* operators = new Operators();
 Solver* solver = new Solver();
 Database* database = new Database();
 Concurrency* concurrency = new Concurrency();
+Measurement* measurement = new Measurement();
 
 void cast_instruction(char* _dst, char* _src, char* _type){
        	operators->cast_instruction(_dst, _src, _type); 
@@ -74,11 +75,17 @@ void br_instr_incond(){
 }
 
 void begin_bb(char* name){
-	operators->begin_bb(name);
+	if(options->cmd_option_bool("measurement"))
+		measurement->begin_bb(name);
+	else
+		operators->begin_bb(name);
 }
 
 void end_bb(char* name){
-	operators->end_bb(name);
+	if(options->cmd_option_bool("measurement"))
+		measurement->end_bb(name);
+	else
+		operators->end_bb(name);
 }
 
 void global_var_init(char* _varname, char* _type, char* _values){
@@ -95,20 +102,40 @@ void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tre
 	operators->getelementptr(_dst, _pointer, _indexes,_offset_tree);
 }
 
+void begin_sim_measurement(char* functions, char* bbs){
+	measurement->begin_sim_measurement(functions, bbs);
+}
+
 void begin_sim(){
 	operators->begin_sim();
 }
 
 void BeginFn(char* _fn_name){
-	operators->BeginFn(_fn_name);
+
+	if(options->cmd_option_bool("measurement"))
+		measurement->BeginFn(_fn_name);
+	else
+		operators->BeginFn(_fn_name);
+}
+
+void EndFn(){
+	measurement->EndFn();
 }
 
 void end_sim(){
-	operators->end_sim();
+	if(options->cmd_option_bool("measurement"))
+		measurement->end_sim();
+	else
+		operators->end_sim();
 }
 
 bool br_instr_cond(char* _cmp, char* _joints){
 	return operators->br_instr_cond(_cmp, _joints);
+}
+
+
+void br_instr_cond_measurement(bool value){
+	measurement->br_instr_cond_measurement(value);
 }
 
 
@@ -140,3 +167,7 @@ void Free_fn( char* _oplist ){
 	operators->Free_fn(_oplist);
 }
 
+short vector_short(char* _name){
+
+	return measurement->vector_short(_name);
+}

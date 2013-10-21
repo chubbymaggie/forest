@@ -429,7 +429,7 @@ struct BeginEnd: public ModulePass {
 			GlobalVariable* c1 = make_global_str(M,functions);
 			GlobalVariable* c2 = make_global_str(M,basic_blocks);
 
-			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_sim" ,
+			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "begin_sim_measurement" ,
 						Type::getVoidTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
@@ -720,7 +720,7 @@ struct BrInstr: public ModulePass {
 
 							//GlobalVariable* c1 = make_global_str(M, nameop1);
 
-							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_instr_cond" ,
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "br_instr_cond_measurement" ,
 										Type::getVoidTy( M.getContext() ),
 										Type::getInt1Ty( M.getContext() ),
 										(Type *)0

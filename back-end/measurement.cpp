@@ -28,6 +28,8 @@ using namespace std;
 #define UNDERSCORE "_"
 
 
+extern Database* database;
+
 set<string> visited_bbs;
 set<string> visited_fns;
 set<string> available_fns;
@@ -38,31 +40,20 @@ vector<bool> path_stack;
 
 string actual_fn_name;
 
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
+Measurement::Measurement(){
 	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
 }
 
-void begin_bb(char* _name){
+Measurement::~Measurement(){
+	
+}
+
+
+
+
+
+void Measurement::begin_bb(char* _name){
 
 	string name = string(_name);
 
@@ -71,11 +62,11 @@ void begin_bb(char* _name){
 	debug && printf("\e[31m begin_bb %s \e[0m\n", _name );
 }
 
-void end_bb(char* name){
+void Measurement::end_bb(char* name){
 	//debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
-map<string, vector<string> > load_test_vectors(){
+map<string, vector<string> > Measurement::load_test_vectors(){
 
 	debug && printf("load_test_vectors\n");
 
@@ -124,30 +115,8 @@ map<string, vector<string> > load_test_vectors(){
 	
 }
 
-int stoi(string str){
-	int ret;
-	sscanf(str.c_str(), "%d", &ret);
-	return ret;
-}
 
-short stos(string str){
-	short ret;
-	int ret_i;
-	sscanf(str.c_str(), "%d", &ret_i);
-	ret = ret_i;
-	return ret;
-}
-
-
-short stoc(string str){
-	char ret;
-	int ret_i;
-	sscanf(str.c_str(), "%d", &ret_i);
-	ret = ret_i;
-	return ret;
-}
-
-int vector_int(char* _name){
+int Measurement::vector_int(char* _name){
 	
 	string name = string(_name);
 
@@ -160,7 +129,7 @@ int vector_int(char* _name){
 	return stoi(ret);
 }
 
-short vector_short(char* _name){
+short Measurement::vector_short(char* _name){
 
 	string name = string(_name);
 
@@ -175,7 +144,7 @@ short vector_short(char* _name){
 	return ret_s;
 }
 
-char vector_char(char* _name){
+char Measurement::vector_char(char* _name){
 
 	string name = string(_name);
 
@@ -189,9 +158,9 @@ char vector_char(char* _name){
 	return ret_c;
 }
 
-void begin_sim(char* functions, char* bbs){
+void Measurement::begin_sim_measurement(char* functions, char* bbs){
 
-	start_database();
+	database->start_database_measurement();
 	test_vectors = load_test_vectors();
 
 	{
@@ -226,8 +195,9 @@ void begin_sim(char* functions, char* bbs){
 	debug && printf("\e[31m Begin Simulation\e[0m %s %s\n", functions, bbs );
 }
 
-void BeginFn(char* _fn_name){
+void Measurement::BeginFn(char* _fn_name){
 
+	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
 	string function_name = string(_fn_name);
 
 	actual_fn_name = function_name;
@@ -236,16 +206,15 @@ void BeginFn(char* _fn_name){
 
 	visited_fns.insert(function_name);
 
-	debug && printf("\e[31m begin_fn %s \e[0m\n", _fn_name);
 
 
 }
 
-void EndFn(){
-
-	assert(fn_stack.size() && "Empty stack");
+void Measurement::EndFn(){
 
 	debug && printf("\e[31m end_fn %lu \e[0m\n", fn_stack.size());
+	assert(fn_stack.size() && "Empty stack");
+
 
 	printf("size %lu\n", fn_stack.size());
 	fn_stack.erase(fn_stack.end()-1);
@@ -259,16 +228,16 @@ void EndFn(){
 
 }
 
-void br_instr_cond(bool value){
+void Measurement::br_instr_cond_measurement(bool value){
 
-	printf("br_instr_cond %d\n", value);
+	printf("br_instr_cond_measurement %d\n", value);
 
 	path_stack.push_back(value);
-	insert_problem();
+	database->insert_problem_measurement();
 
 }
 
-void end_sim(){
+void Measurement::end_sim(){
 
 	debug && printf("visited fns %lu/%lu\n", visited_fns.size(), available_fns.size() );
 	debug && printf("visited bbs %lu/%lu\n", visited_bbs.size(), available_bbs.size() );
@@ -306,15 +275,15 @@ void end_sim(){
 		(int)(100.0*(float)visited_fns.size()/(float)available_fns.size())
 		<< " % )";
 
-	insert_measurement("visited_fns", value.str());
+	database->insert_measurement("visited_fns", value.str());
 
 	value.str("");
 	value << visited_bbs.size() << "/" << available_bbs.size() << " ( " <<
 		(int)(100.0*(float)visited_bbs.size()/(float)available_bbs.size())
 		<< " % )";
-	insert_measurement("visited_bbs", value.str());
+	database->insert_measurement("visited_bbs", value.str());
 
-	end_database();
+	database->end_database_measurement();
 
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	
@@ -323,11 +292,11 @@ void end_sim(){
 
 int branches_count = 0;
 
-void br_count(){
+void Measurement::br_count(){
 	branches_count++;
 }
 
-void end_count(){
+void Measurement::end_count(){
 	printf("Number of branches %d\n", branches_count);
 }
 

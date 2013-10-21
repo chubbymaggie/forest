@@ -21,7 +21,6 @@
 #ifndef _MEASUREMENT_H_
 #define _MEASUREMENT_H_
 
-#include "database_measurement.h"
 #include <stdio.h>
 #include <set>
 #include <string>
@@ -29,43 +28,62 @@
 #include <sstream>
 #include <string.h>
 #include <assert.h>
-
-/**
- * @brief  Begin basic Block
- *
- * @param name: Name of the basic block
- */
-extern "C" void begin_bb(char* a);
-
-/**
- * @brief End basic block
- *
- * @param name
- */
-extern "C" void end_bb(char* a);
-
-/**
- * @brief Function that is called at the begining of simulation
- */
-extern "C" void begin_sim(char*, char*);
-
-/**
- * @brief Function that is called at the end of simulation
- */
-extern "C" void end_sim();
-
-extern "C" void BeginFn(char* _fn_name);
-extern "C" void EndFn();
-
-extern "C" void br_instr_cond(bool value);
-
-extern "C" int vector_int(char*);
-extern "C" char vector_char(char*);
-extern "C" short vector_short(char*);
+#include "utils.h"
+#include "database.h"
 
 
-extern "C" void br_count();
-extern "C" void end_count();
+class Measurement {
+public:
+	Measurement ();
+	virtual ~Measurement ();
+
+	/**
+	 * @brief  Begin basic Block
+	 *
+	 * @param name: Name of the basic block
+	 */
+	void begin_bb(char* a);
+
+	/**
+	 * @brief End basic block
+	 *
+	 * @param name
+	 */
+	void end_bb(char* a);
+
+	/**
+	 * @brief Function that is called at the begining of simulation
+	 */
+	void begin_sim_measurement(char*, char*);
+
+	/**
+	 * @brief Function that is called at the end of simulation
+	 */
+	void end_sim();
+
+	void BeginFn(char* _fn_name);
+	void EndFn();
+
+	void br_instr_cond_measurement(bool value);
+
+	int vector_int(char*);
+	char vector_char(char*);
+	short vector_short(char*);
+
+
+	void br_count();
+	void end_count();
+	map<string, vector<string> > load_test_vectors();
+
+private:
+	
+};
+
+
+
+
+
+
 
 
 

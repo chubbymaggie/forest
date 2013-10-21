@@ -159,6 +159,14 @@ public:
 	 */
 	set<string> list_store_sync_points();
 
+
+
+void insert_measurement(string, string);
+void start_database_measurement();
+void end_database_measurement();
+void insert_problem_measurement();
+
+
 private:
 	sqlite3 *db;
 
@@ -230,6 +238,10 @@ private:
 	 * @brief Returns one if the information is already present in the database
 	 */
 	bool exists_in_concurrency(string lockunlock, string mutex_name, string sync_name, string conds);
+
+
+
+
 
 	
 };

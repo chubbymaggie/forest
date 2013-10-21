@@ -1207,7 +1207,7 @@ void gen_final_for_measurement(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ file-3.o " << base_path << "/lib/measurement.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/forest.a -lpthread -ldl -o " << output_file;
 	systm(cmd.str().c_str());
 
 }
@@ -1220,6 +1220,8 @@ void measure_coverage(){
 	gen_file_vectors();
 	gen_final_for_measurement();
 
+	set_option("measurement", "true");
+	options_to_file();
 
 	// Ejecuta
 	
@@ -2186,6 +2188,9 @@ int main(int argc, const char *argv[]) {
 	disables("count_branches", "test");
 	disables("klee", "test");
 	disables("check_concurrency_2", "check_concurrency");
+	disables("compare_bc", "test");
+	disables("compare_measure_bc", "test");
+
 
 	expand_options();
 

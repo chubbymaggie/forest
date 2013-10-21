@@ -199,3 +199,22 @@ int stoi(string str){
 	return ret;
 }
 
+
+short stos(string str){
+	short ret;
+	int ret_i;
+	sscanf(str.c_str(), "%d", &ret_i);
+	ret = ret_i;
+	return ret;
+}
+
+
+short stoc(string str){
+	char ret;
+	int ret_i;
+	sscanf(str.c_str(), "%d", &ret_i);
+	ret = ret_i;
+	return ret;
+}
+
+

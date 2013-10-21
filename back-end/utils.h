@@ -52,5 +52,7 @@ int count(string name, string character);
 vector<string> tokenize(const string& str,const string& delimiters);
 
 int stoi(string str);
+short stos(string str);
+short stoc(string str);
 
 #endif /* end of include guard: _UTILS_H_ */

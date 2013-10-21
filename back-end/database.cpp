@@ -675,3 +675,46 @@ bool Database::exists_in_concurrency(string lockunlock, string mutex_name, strin
 
 
 }
+
+void Database::start_database_measurement(){
+	debug && printf("\e[31m start_database \e[0m\n"); fflush(stdout);
+	sqlite3_open("database.db", &db);
+}
+
+void Database::end_database_measurement(){
+	debug && printf("\e[31m end_database \e[0m\n"); fflush(stdout);
+	sqlite3_close(db);
+}
+
+void Database::insert_measurement(string name, string value){
+
+	stringstream action;
+
+	action << "insert into measurements values ('" << name << "','" << value << "');";
+
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+
+}
+
+void Database::insert_problem_measurement(){
+
+	//stringstream action;
+	//string id = "(select count() from problems)";
+
+	//string path;
+	//for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		//path += (*it)?"T":"F";
+	//}
+	
+	//action << "insert into problems (path) values (" << "'" << path << "');";
+
+	//printf("action %s\n", action.str().c_str() );
+
+	//sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+}
+
+
+
+

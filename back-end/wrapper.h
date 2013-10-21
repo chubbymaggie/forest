@@ -26,6 +26,7 @@
 #include "solver.h"
 #include "operators.h"
 #include "concurrency.h"
+#include "measurement.h"
 
 /**
  * @brief Called when a binary operation is performed among two variables
@@ -156,6 +157,8 @@ extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret
 
 extern "C" void ReturnInstr(char* _retname );
 extern "C" void BeginFn(char* _fn_name);
+extern "C" void endFn();
+extern "C" void EndFn();
 
 extern "C" void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 
@@ -164,5 +167,8 @@ extern "C" void mutex_unlock(char* _mutex_name, char* _sync_name);
 extern "C" void begin_concurrency();
 extern "C" void end_concurrency();
 extern "C" void Free_fn( char* _oplist );
+extern "C" short vector_short(char* _name);
+extern "C" void begin_sim_measurement(char* functions, char* bbs);
+extern "C" void br_instr_cond_measurement(bool value);
 
 #endif /* end of include guard: _WRAPPER_H_ */
