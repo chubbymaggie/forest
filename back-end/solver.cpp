@@ -80,7 +80,20 @@ void Solver::dump_variables(FILE* file){
 		string position = it->position;
 		string type = get_type(it->name);
 
-		fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
+		bool is_pivot = false;
+		for( map<string,string>::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+			if(it->first == position)
+				is_pivot = true;
+		}
+
+		if(is_pivot){
+			fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
+			fprintf(file,"(declare-fun %s () %s)\n", pivot_variables[position].c_str(), type.c_str());
+		} else {
+			fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
+		}
+		
+
 		
 	}
 	
@@ -603,8 +616,21 @@ void Solver::load_forced_free_vars(){
 	
 }
 
+void Solver::substitute_pivots(string src){
+
+	for( map<string,string>::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+		if( get_name_hint(src) == it->first ){
+			printf("Substitute_pivot_point %s %s\n", it->first.c_str(), it->second.c_str());
+			set_name_hint(src, it->second);
+		}
+	}
+
+}
+
 void Solver::assign_instruction(string src, string dst, string fn_name){
 
+	substitute_pivots(src);
+	
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong src for assign");
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for assign");
@@ -669,6 +695,8 @@ bool Solver::implemented_operation(string operation){
 
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){
 
+	substitute_pivots(op1);
+	substitute_pivots(op2);
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
 	if(!check_mangled_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
@@ -1093,6 +1121,26 @@ string Solver::get_position(string name){
 
 
 	return variables[name].name_hint;
+
+}
+
+void Solver::pivot_variable(string variable, string name){
+
+
+	string origname = find_by_name_hint(variable);
+	string orig_content = content(origname);
+
+	string dst = find_by_name_hint(variable);
+	string pivot_name = variable + "_pivot_" + name;
+	setcontent(dst, pivot_name);
+
+
+
+	vector<string> empty;
+	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
+	push_condition(condition.str(), "", empty);
+
+	pivot_variables[variable] = pivot_name;
 
 }
 

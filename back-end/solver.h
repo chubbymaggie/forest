@@ -65,6 +65,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void pivot_variable(string variable, string name);
 	Solver ();
 	virtual ~Solver ();
 	void assign_instruction(string src, string dst, string fn_name = "");
@@ -102,6 +103,7 @@ public:
 	void setcontent(string varname, string content);
 
 private:
+	void substitute_pivots(string src);
 
 	map<string, string> stacks;
 	map<string, Variable> variables;
@@ -110,6 +112,7 @@ private:
 	set<string> flatened_variables;
 	vector<Condition> conditions;
 	set<string> forced_free_vars;
+	map<string, string> pivot_variables;
 
 
 	void dump_conditions(FILE* file = stdout);

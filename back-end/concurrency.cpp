@@ -465,13 +465,15 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 		string dst, content;
 
-		dst = solver->find_by_name_hint("global_j");
-		content = "global_j_pivot_b";
-		solver->setcontent(dst, content);
+		solver->pivot_variable("global_j", "b");
 
-		dst = solver->find_by_name_hint("global_k");
-		content = "global_k_pivot_b";
-		solver->setcontent(dst, content);
+		//dst = solver->find_by_name_hint("global_j");
+		//content = "global_j_pivot_b";
+		//solver->setcontent(dst, content);
+
+		//dst = solver->find_by_name_hint("global_k");
+		//content = "global_k_pivot_b";
+		//solver->setcontent(dst, content);
 
 	}
 
