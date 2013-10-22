@@ -718,3 +718,35 @@ void Database::insert_problem_measurement(){
 
 
 
+
+
+
+inline bool operator<(const NameAndType& lhs, const NameAndType& rhs) {
+  return (lhs.name + lhs.type) < (rhs.name+rhs.type);
+}
+
+
+set<NameAndType> Database::get_shared_vars(){
+
+	set<NameAndType> ret;
+
+	stringstream action;
+	action << "select pos,type from global_types;";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); ){
+		string pos = it->second; it++;
+		string type = it->second; it++;
+		NameAndType elem = {pos, type};
+		ret.insert(elem);
+	}
+	
+
+	return ret;
+
+
+}
+
+

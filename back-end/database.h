@@ -35,8 +35,15 @@
 using namespace std;
 
 
+typedef struct NameAndType {
+	string name;
+	string type;
+} NameAndType;
+
+
 class Database {
 public:
+	set<NameAndType> get_shared_vars();
 	Database ();
 	virtual ~Database ();
 

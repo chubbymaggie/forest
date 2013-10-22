@@ -72,13 +72,9 @@ string Solver::content( string name ){
 	}
 }
 
-void Solver::dump_variables(FILE* file){
 
+void Solver::dump_variable(string position, string type, FILE* file){
 
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-
-		string position = it->position;
-		string type = get_type(it->name);
 
 		bool is_pivot = false;
 		for( map<string,string>::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
@@ -92,7 +88,19 @@ void Solver::dump_variables(FILE* file){
 		} else {
 			fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
 		}
-		
+
+}
+
+
+void Solver::dump_variables(FILE* file){
+
+
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+
+		string position = it->position;
+		string type = get_type(it->name);
+
+		dump_variable(position, type, file);
 
 		
 	}
@@ -335,6 +343,7 @@ void Solver::solve_problem(){
 
 	dump_header(file);
 	dump_variables(file);
+	concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
@@ -909,6 +918,7 @@ int Solver::show_problem(){
 	
 	dump_header();
 	dump_variables();
+	concurrency->dump_remaining_variables(free_variables);
 	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
@@ -927,6 +937,7 @@ int Solver::show_problem(){
 
 	dump_header(file);
 	dump_variables(file);
+	concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);

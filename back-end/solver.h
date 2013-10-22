@@ -52,7 +52,7 @@ typedef struct Variable {
 } Variable;
 
 
-typedef struct NameAndPosition{
+typedef struct NameAndPosition {
 	string name;
 	string position;
 } NameAndPosition;
@@ -65,6 +65,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
 	Solver ();
 	virtual ~Solver ();

@@ -27,6 +27,7 @@
 #include "solver.h"
 #include <sstream>
 #include "utils.h"
+#include <set>
 
 #include "solver.h"
 
@@ -39,6 +40,10 @@ typedef struct MutexInfo {
 	string conds;
 } MutexInfo;
 
+//typedef struct NameAndPosition {
+	//string name;
+	//string position;
+//} NameAndPosition;
 
 inline bool operator<(const MutexInfo& lhs, const MutexInfo& rhs) {
   return (lhs.lockunlock + lhs.mutex_name + lhs.sync_name + lhs.conds) < (rhs.lockunlock + rhs.mutex_name + rhs.sync_name + rhs.conds);
@@ -49,6 +54,8 @@ class Concurrency {
 public:
 	Concurrency ();
 	virtual ~Concurrency ();
+
+	void dump_remaining_variables( set<struct NameAndPosition> free_variables, FILE* file = stdout );
 
 	/**
 	 * @brief called by the wrapper when a mutex is locked

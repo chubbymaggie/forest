@@ -438,6 +438,34 @@ void Concurrency::get_sync_global_var(string& sync_global_var, string sync_name)
 		sync_global_var = "";
 }
 
+
+void Concurrency::dump_remaining_variables( set<NameAndPosition> free_variables, FILE* file ){
+
+	
+	set<NameAndType> shared_vars = database->get_shared_vars();
+
+
+	//printf("shared_vars.size() %lu\n", shared_vars.size() );
+
+	for( set<NameAndType>::iterator it = shared_vars.begin(); it != shared_vars.end(); it++ ){
+
+		//printf("name %s type %s\n", it->name.c_str(), it->type.c_str());
+
+		bool found = false;
+		for( set<NameAndPosition>::iterator it2 = free_variables.begin(); it2 != free_variables.end(); it2++ ){
+			if(it->name == it2->name)
+				found = true;
+		}
+
+		if(!found)
+			solver->dump_variable(it->name, it->type, file);
+		
+
+	}
+	
+
+}
+
 void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 	debug && printf("mutex_lock_constraints %s %s\n", _mutex_name, _sync_name);
@@ -466,6 +494,7 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 		string dst, content;
 
 		solver->pivot_variable("global_j", "b");
+		solver->pivot_variable("global_k", "b");
 
 		//dst = solver->find_by_name_hint("global_j");
 		//content = "global_j_pivot_b";
