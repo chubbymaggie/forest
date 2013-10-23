@@ -55,7 +55,7 @@ string Solver::content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
-	if( variables[name].content == "" ){
+	if( variables[name].content == "" || is_forced_free(name) ){
 		string position;
 	        if(name.substr(0,7) == "global_")
 			position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
@@ -1152,6 +1152,8 @@ void Solver::pivot_variable(string variable, string name){
 	push_condition(condition.str(), "", empty);
 
 	pivot_variables[variable] = pivot_name;
+
+	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str() );
 
 }
 
