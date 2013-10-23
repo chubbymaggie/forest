@@ -441,6 +441,8 @@ void Concurrency::get_sync_global_var(string& sync_global_var, string sync_name)
 
 void Concurrency::dump_remaining_variables( set<NameAndPosition> free_variables, FILE* file ){
 
+	return;
+
 	
 	set<NameAndType> shared_vars = database->get_shared_vars();
 
