@@ -2185,6 +2185,9 @@ int main(int argc, const char *argv[]) {
 	disables("dfg", "check_coverage");
 	disables("run", "test");
 	disables("show_results", "test");
+	disables("show_results", "check_concurrency");
+	disables("show_results", "check_concurrency_2");
+	disables("show_results", "check_coverage");
 	disables("count_branches", "test");
 	disables("klee", "test");
 	disables("check_concurrency_2", "check_concurrency");

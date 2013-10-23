@@ -195,7 +195,10 @@ void Database::insert_problem(){
 			string name = it->name;
 			string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
 			//string value = variables[name].real_value;
-			string hint = solver->get_name_hint(name);
+			//string hint = solver->get_name_hint(name);
+			string hint = it->position;
+
+			//myReplace(hint, "_pivot_b", "");
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
