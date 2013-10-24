@@ -449,6 +449,52 @@ set<string> Database::list_unlock_points(){
 
 }
 
+string Database::semaphore_of(string sync_point){
+
+	debug && printf("\e[31m semaphore of \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "select mutex_name from concurrency where sync_name=\"" << sync_point << "\";";
+
+	printf("action %s\n", action.str().c_str());
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<string> ret;
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		ret.insert(it->second);
+	}
+	
+	printf("semaphore_of.size %lu\n", ret.size()); fflush(stdout);
+
+	return *(ret.begin());
+}
+
+set<string> Database::list_lock_points(){
+
+	debug && printf("\e[31m list_lock_points \e[0m\n"); fflush(stdout);
+
+	stringstream action;
+	action << "select sync_name from concurrency where lockunlock=\"lock\";";
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<string> ret;
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		ret.insert(it->second);
+	}
+	//ret.insert("a"); ret.insert("b"); ret.insert("c");
+	//
+	
+	printf("list_lock_points.size %lu\n", ret.size()); fflush(stdout);
+
+	return ret;
+
+}
+
+
 set<vector<string> > Database::get_paths_to(string dest){
 
 

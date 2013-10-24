@@ -157,7 +157,7 @@ void Concurrency::update_store(string dst, string content){
 
 void Concurrency::insert_sync_point(string lockunlock, string sync_name, string mutex_name){
 	printf("Insert_sync_point %s %s %s\n", lockunlock.c_str(), sync_name.c_str(), mutex_name.c_str());
-	sync_points_and_locks.insert( "(" + lockunlock + "_" + mutex_name + ")" );
+	sync_points_and_locks.insert( "(" + lockunlock + "_" + sync_name + ")" );
 }
 
 void Concurrency::get_conditions_to_reach_here(string& ret){
@@ -228,14 +228,16 @@ string Concurrency::or_unlocking(string condition, string mutex){
 
 void Concurrency::substitute_locks(string& condition){
 
-	set<string> mutexes = database->list_semaphores();
+	//set<string> mutexes = database->list_semaphores();
+	set<string> mutexes = database->list_lock_points();
 	//mutexes.insert("a");
 	//mutexes.insert("b");
 	//mutexes.insert("c");
 
 	for( set<string>::iterator it = mutexes.begin(); it != mutexes.end(); it++ ){
 		string expr_find = string("(lock_") + (*it) + string(")");
-		string expr_subs = or_unlocking(condition, *it);
+		string semaphore = database->semaphore_of(*it);
+		string expr_subs = or_unlocking(condition, semaphore);
 		myReplace(condition, expr_find, expr_subs);
 	}
 	
@@ -424,8 +426,8 @@ void Concurrency::propagate_constraints(string& condition){
 	myReplace(condition, "  "," ");
 	myReplace(condition, "  "," ");
 
-	myReplace(condition, "global_j", "global_j_pivot_b");
-	myReplace(condition, "global_k", "global_k_pivot_b");
+	//myReplace(condition, "global_j", "global_j_pivot_b");
+	//myReplace(condition, "global_k", "global_k_pivot_b");
 
 	//myReplace(conditions, "lock_a", "unlock_d");
 	//myReplace(conditions, "(unlock_d)", "true");
@@ -491,12 +493,12 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	}
 
 
-	if(sync_name == "_Z3fn1Pv_sync_2"){
+	if(sync_name == "_Z3fn1Pv_sync_3"){
 
-		string dst, content;
+		//string dst, content;
 
-		solver->pivot_variable("global_j", "b");
-		solver->pivot_variable("global_k", "b");
+		solver->pivot_variable("global_j", "g");
+		//solver->pivot_variable("global_k", "b");
 
 		//dst = solver->find_by_name_hint("global_j");
 		//content = "global_j_pivot_b";

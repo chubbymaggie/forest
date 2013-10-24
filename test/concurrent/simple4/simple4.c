@@ -28,7 +28,6 @@
 
 pthread_mutex_t a;
 pthread_mutex_t c;
-pthread_mutex_t e;
 pthread_mutex_t f;
 pthread_mutex_t g;
 
@@ -65,18 +64,18 @@ void* fn2(void * args){
 
 	if( k == 12 ){
 		j = 1;
-		wait(&e);
+		signal(&c);
 	} else {
 		j = 0;
 		wait(&f);
+		j = 1;
 		signal(&g);
 	}
 
 
 }
 
-int main(int argc, const char *argv[])
-{
+int main() {
 
 
 	pthread_t thread1;

@@ -5,5 +5,5 @@
 	<option key="check_concurrency" value="true"/>
 	<option key="explanation" value="Simple example on concurrency"/> 
 	<option key="file" value="simple.c"/> 
-	<option key="forced_free_var" value="mem_35"/> 
+	<option key="forced_free_var" value="mem_61"/> 
 </options>

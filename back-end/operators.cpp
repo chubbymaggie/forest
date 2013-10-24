@@ -298,7 +298,7 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
-	debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
+	//debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
 
 
 	if( types.size() != values.size() ){
