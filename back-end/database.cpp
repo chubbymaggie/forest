@@ -449,6 +449,30 @@ set<string> Database::list_unlock_points(){
 
 }
 
+string Database::lockunlock(string sync_point){
+	debug && printf("\e[31m lockunlock %s \e[0m\n", sync_point.c_str()); fflush(stdout);
+
+
+	stringstream action;
+	action << "select lockunlock from concurrency where sync_name=\"" << sync_point << "\";";
+
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	set<string> ret;
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end(); it++ ){
+		ret.insert(it->second);
+	}
+
+	string ret2 = *(ret.begin());
+
+	//printf("action %s %s\n", action.str().c_str(), ret2.c_str() );
+	
+	return ret2;
+
+}
+
 string Database::semaphore_of(string sync_point){
 
 	debug && printf("\e[31m semaphore of \e[0m\n"); fflush(stdout);
@@ -456,7 +480,7 @@ string Database::semaphore_of(string sync_point){
 	stringstream action;
 	action << "select mutex_name from concurrency where sync_name=\"" << sync_point << "\";";
 
-	printf("action %s\n", action.str().c_str());
+	//printf("action %s\n", action.str().c_str());
 
 	retsqlite.clear();
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
@@ -466,14 +490,14 @@ string Database::semaphore_of(string sync_point){
 		ret.insert(it->second);
 	}
 	
-	printf("semaphore_of.size %lu\n", ret.size()); fflush(stdout);
+	//printf("semaphore_of.size %lu\n", ret.size()); fflush(stdout);
 
 	return *(ret.begin());
 }
 
 set<string> Database::list_lock_points(){
 
-	debug && printf("\e[31m list_lock_points \e[0m\n"); fflush(stdout);
+	//debug && printf("\e[31m list_lock_points \e[0m\n"); fflush(stdout);
 
 	stringstream action;
 	action << "select sync_name from concurrency where lockunlock=\"lock\";";
@@ -488,7 +512,7 @@ set<string> Database::list_lock_points(){
 	//ret.insert("a"); ret.insert("b"); ret.insert("c");
 	//
 	
-	printf("list_lock_points.size %lu\n", ret.size()); fflush(stdout);
+	//printf("list_lock_points.size %lu\n", ret.size()); fflush(stdout);
 
 	return ret;
 

@@ -171,7 +171,9 @@ void Concurrency::get_conditions_to_reach_here(string& ret){
 
 	ret_ss << "(and ";
 	for( set<string>::iterator it = sync_points_and_locks.begin(); it != sync_points_and_locks.end(); it++ ){
-		ret_ss << *it << " ";
+		string condition = *it;
+		if(condition.substr(0,6) == "(lock_")
+			ret_ss << condition << " ";
 	}
 	ret_ss << ")";
 
@@ -287,7 +289,10 @@ string Concurrency::or_paths(string dest){
 		if(path.size() > 1)
 			ret << "(and ";
 		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
-			ret << "(statepath_" << (*it2) << ")" << " ";
+			string cond = *it2;
+			string lockunlock = database->lockunlock(cond);
+			if( lockunlock == "unlock" )
+				ret << "(statepath_" << cond << ")" << " ";
 		}
 		if(path.size() > 1)
 			ret << ") ";
@@ -402,22 +407,33 @@ string Concurrency::stack(string sync_point){
 	
 }
 
+string locknames(string condition){
+	myReplace(condition, "_Z3fn1Pv_sync_1", "a");
+	myReplace(condition, "_Z3fn1Pv_sync_2", "b");
+	myReplace(condition, "_Z3fn1Pv_sync_3", "c");
+	myReplace(condition, "_Z3fn1Pv_sync_4", "g");
+	myReplace(condition, "_Z3fn2Pv_sync_1", "d");
+	myReplace(condition, "_Z3fn2Pv_sync_6", "e");
+	myReplace(condition, "_Z3fn2Pv_sync_5", "f");
+	myReplace(condition, "_Z3fn2Pv_sync_7", "h");
+	return condition;
+}
 
 void Concurrency::propagate_constraints(string& condition){
 
 	database->load_concurrency_table(concurrency_table);
 
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_locks(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_unlocks(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_paths(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_stores(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_conds(condition);
-	printf("Substitute_syncs %s\n", condition.c_str());
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	printf("Substitute_syncs-----\n");
 
 	myReplace(condition, "(and   true )", "");
@@ -425,20 +441,10 @@ void Concurrency::propagate_constraints(string& condition){
 	myReplace(condition, "  "," ");
 	myReplace(condition, "  "," ");
 	myReplace(condition, "  "," ");
+	myReplace(condition, "(and )","true");
 
-	//myReplace(condition, "global_j", "global_j_pivot_b");
-	//myReplace(condition, "global_k", "global_k_pivot_b");
-
-	//myReplace(conditions, "lock_a", "unlock_d");
-	//myReplace(conditions, "(unlock_d)", "true");
 }
 
-void Concurrency::get_sync_global_var(string& sync_global_var, string sync_name){
-	if( sync_name == "_Z3fn1Pv_sync_2" )
-		sync_global_var = "(= global_j (ite (= global_k 12) 1 0))";
-	else
-		sync_global_var = "";
-}
 
 
 void Concurrency::dump_remaining_variables( set<NameAndPosition> free_variables, FILE* file ){
@@ -495,19 +501,7 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 	if(sync_name == "_Z3fn1Pv_sync_3"){
 
-		//string dst, content;
-
 		solver->pivot_variable("global_j", "g");
-		//solver->pivot_variable("global_k", "b");
-
-		//dst = solver->find_by_name_hint("global_j");
-		//content = "global_j_pivot_b";
-		//solver->setcontent(dst, content);
-
-		//dst = solver->find_by_name_hint("global_k");
-		//content = "global_k_pivot_b";
-		//solver->setcontent(dst, content);
-
 	}
 
 }

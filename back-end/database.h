@@ -43,6 +43,7 @@ typedef struct NameAndType {
 
 class Database {
 public:
+	string lockunlock(string sync_point);
 	string semaphore_of(string sync_point);
 	set<string> list_lock_points();
 	set<NameAndType> get_shared_vars();

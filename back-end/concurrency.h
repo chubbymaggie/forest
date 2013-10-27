@@ -102,7 +102,6 @@ public:
 	void alloca_instr(char* _reg, char* _subtype);
 
 private:
-	void get_sync_global_var(string& sync_global_var, string sync_name);
 	string stack(string sync_point);
 	map<string, set<pair<string, string> > > stores;
 	map<string, string> stacks;
