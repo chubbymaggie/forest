@@ -77,16 +77,21 @@ void Solver::dump_variable(string position, string type, FILE* file){
 
 
 		bool is_pivot = false;
-		for( map<string,string>::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+		for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
 			if(it->first == position)
 				is_pivot = true;
 		}
 
 		if(is_pivot){
-			fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
-			fprintf(file,"(declare-fun %s () %s)\n", pivot_variables[position].c_str(), type.c_str());
+			fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
+
+			vector<string> subst_to = pivot_variables[position];
+			for ( unsigned int i = 0; i < subst_to.size(); i++) {
+				string name = subst_to[i];
+				fprintf(file,"(declare-fun %s () %s)\n", locknames(name).c_str(), type.c_str());
+			}
 		} else {
-			fprintf(file,"(declare-fun %s () %s)\n", position.c_str(), type.c_str());
+			fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
 		}
 
 }
@@ -112,7 +117,7 @@ void Solver::dump_conditions(FILE* file){
 
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", it->cond.c_str() );
+		fprintf(file,"(assert %s)\n", locknames(it->cond).c_str() );
 	}
 	
 }
@@ -212,12 +217,12 @@ void Solver::dump_get(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", it->position.c_str(), it->position.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->position.c_str() );
 	}
 	
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		if( it->second.content == "" ) continue;
-		fprintf(file,"(get-value (%s)); %s\n", it->second.content.c_str(), it->first.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
 	}
 	
 }
@@ -334,7 +339,10 @@ void Solver::solve_problem(){
 	stringstream filename;
 	filename << "z3_" << rand() << ".smt2";
 
-	debug && printf("\e[31m filename solvable problem \e[0m %s\n", filename.str().c_str() );
+	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.str().c_str() );
+
+	if(options->cmd_option_bool("see_each_problem"))
+		getchar();
 
 	FILE* file = fopen(filename.str().c_str(), "w");
 
@@ -627,10 +635,12 @@ void Solver::load_forced_free_vars(){
 
 void Solver::substitute_pivots(string src){
 
-	for( map<string,string>::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+	for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
 		if( get_name_hint(src) == it->first ){
-			printf("Substitute_pivot_point %s %s\n", it->first.c_str(), it->second.c_str());
-			set_name_hint(src, it->second);
+			vector<string> pivots = it->second;
+			string subst_to = pivots[pivots.size()-1];
+			printf("Substitute_pivot_point %s %s\n", it->first.c_str(), subst_to.c_str());
+			set_name_hint(src, subst_to);
 		}
 	}
 
@@ -1151,7 +1161,7 @@ void Solver::pivot_variable(string variable, string name){
 	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
 	push_condition(condition.str(), "", empty);
 
-	pivot_variables[variable] = pivot_name;
+	pivot_variables[variable].push_back(pivot_name);
 
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str() );
 

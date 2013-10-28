@@ -407,18 +407,6 @@ string Concurrency::stack(string sync_point){
 	
 }
 
-string locknames(string condition){
-	myReplace(condition, "_Z3fn1Pv_sync_1", "a");
-	myReplace(condition, "_Z3fn1Pv_sync_2", "b");
-	myReplace(condition, "_Z3fn1Pv_sync_3", "c");
-	myReplace(condition, "_Z3fn1Pv_sync_4", "g");
-	myReplace(condition, "_Z3fn2Pv_sync_1", "d");
-	myReplace(condition, "_Z3fn2Pv_sync_6", "e");
-	myReplace(condition, "_Z3fn2Pv_sync_5", "f");
-	myReplace(condition, "_Z3fn2Pv_sync_7", "h");
-	return condition;
-}
-
 void Concurrency::propagate_constraints(string& condition){
 
 	database->load_concurrency_table(concurrency_table);
@@ -498,10 +486,11 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 	}
 
+	set<string> global_stores = database->global_stores(sync_name);
 
-	if(sync_name == "_Z3fn1Pv_sync_3"){
-
-		solver->pivot_variable("global_j", "g");
+	for( set<string>::iterator it = global_stores.begin(); it != global_stores.end(); it++ ){
+		string variable = *it;
+		solver->pivot_variable(variable, sync_name);
 	}
 
 }

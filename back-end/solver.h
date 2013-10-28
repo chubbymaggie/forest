@@ -113,7 +113,7 @@ private:
 	set<string> flatened_variables;
 	vector<Condition> conditions;
 	set<string> forced_free_vars;
-	map<string, string> pivot_variables;
+	map<string, vector<string> > pivot_variables;
 
 
 	void dump_conditions(FILE* file = stdout);

@@ -55,5 +55,6 @@ int stoi(string str);
 short stos(string str);
 short stoc(string str);
 float stof(string str);
+string locknames(string condition);
 
 #endif /* end of include guard: _UTILS_H_ */

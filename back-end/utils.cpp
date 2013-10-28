@@ -19,6 +19,9 @@
  */
 
 #include "utils.h"
+#include "options.h"
+
+extern Options* options;
 
 #define debug true
 
@@ -245,4 +248,38 @@ float stof(string str){
 	sscanf(str.c_str(), "%f", &ret);
 	return ret;
 }
+
+string locknames(string condition){
+
+	vector<string> subst = options->cmd_option_vector_str("subst_name");
+
+	for( vector<string>::iterator it = subst.begin(); it != subst.end(); it++ ){
+
+		string substs = *it;
+		vector<string> tokens = tokenize(substs, " ");
+		string from   = tokens[0];
+		string to     = tokens[1];
+
+		myReplace(condition, from, to);
+
+		//printf("locknames_option %s\n", it->c_str());
+
+	}
+	
+
+	//myReplace(condition, "_Z3fn1Pv_sync_1", "a");
+	//myReplace(condition, "_Z3fn1Pv_sync_3", "g");
+	//myReplace(condition, "_Z3fn1Pv_sync_2", "b");
+	//myReplace(condition, "_Z3fn1Pv_sync_4", "c");
+
+	//myReplace(condition, "_Z3fn2Pv_sync_1", "d");
+	//myReplace(condition, "_Z3fn2Pv_sync_3", "e");
+	//myReplace(condition, "_Z3fn2Pv_sync_5", "f");
+	//myReplace(condition, "_Z3fn2Pv_sync_7", "h");
+	
+	return condition;
+}
+
+
+
 

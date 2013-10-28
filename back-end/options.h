@@ -36,6 +36,7 @@ public:
 	virtual ~Options ();
 	void read_options();
 	bool cmd_option_bool(string key);
+	vector<string> cmd_option_vector_str(string key);
 
 private:
 	map<string, string> options;
