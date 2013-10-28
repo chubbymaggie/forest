@@ -82,6 +82,8 @@ void Solver::dump_variable(string position, string type, FILE* file){
 				is_pivot = true;
 		}
 
+		//debug && printf("\e[31m dump_variable %s is_pivot %d\e[0m\n", position.c_str(), is_pivot);
+
 		if(is_pivot){
 			fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
 
@@ -98,6 +100,8 @@ void Solver::dump_variable(string position, string type, FILE* file){
 
 
 void Solver::dump_variables(FILE* file){
+
+	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
@@ -352,7 +356,7 @@ void Solver::solve_problem(){
 	dump_header(file);
 	dump_variables(file);
 	concurrency->dump_remaining_variables(free_variables, file);
-	dump_type_limits(file);
+	//dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_get(file);
@@ -646,6 +650,15 @@ void Solver::substitute_pivots(string src){
 
 }
 
+bool Solver::is_pivot(string src){
+	string content_var = variables[src].content;
+	if(content_var.find("_pivot_") == string::npos)
+		return false;
+	else
+		return true;
+	//printf("is_pivot %s\n", content(src).c_str());
+}
+
 void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	substitute_pivots(src);
@@ -657,12 +670,20 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
-	if( is_forced_free(src) ){
-		debug && printf("\e[32m Source is forced_free\e[0m\n");
-		setcontent(src, "");
+	if( !is_pivot(src) ){
+		//printf("not pivot\n");
+		if( is_forced_free(src) ){
+			debug && printf("\e[32m Source is forced_free\e[0m\n");
+			setcontent(src, "");
+		}
+		variables[dst].content = content(src);
+
+	} else {
+		//printf("pivot\n");
+		variables[dst].content = variables[src].content;
 	}
 
-	variables[dst].content = content(src);
+
 
 	//if( variables[dst].type == "" ) assert(0 && "No type in dst");
 	settype(dst, get_type(src));
@@ -929,7 +950,7 @@ int Solver::show_problem(){
 	dump_header();
 	dump_variables();
 	concurrency->dump_remaining_variables(free_variables);
-	dump_type_limits();
+	//dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
 	dump_tail();
@@ -948,7 +969,7 @@ int Solver::show_problem(){
 	dump_header(file);
 	dump_variables(file);
 	concurrency->dump_remaining_variables(free_variables, file);
-	dump_type_limits(file);
+	//dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_tail(file);

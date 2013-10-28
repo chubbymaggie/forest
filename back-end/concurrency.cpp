@@ -162,6 +162,8 @@ void Concurrency::insert_sync_point(string lockunlock, string sync_name, string 
 
 void Concurrency::get_conditions_to_reach_here(string& ret){
 
+	printf("\e[31m Get_conditions_to_reach_here \e[0m %lu\n", sync_points_and_locks.size() );
+
 	if(sync_points_and_locks.size() == 0){
 		ret = "true";
 		return;
@@ -178,6 +180,8 @@ void Concurrency::get_conditions_to_reach_here(string& ret){
 	ret_ss << ")";
 
 	ret = ret_ss.str();
+
+	printf("\e[31m Get_conditions_to_reach_here \e[0m %s\n", ret.c_str() );
 	
 
 }
@@ -407,6 +411,21 @@ string Concurrency::stack(string sync_point){
 	
 }
 
+void Concurrency::substitute_global(string& condition){
+
+	set<NameAndType> globals = database->get_shared_vars();
+
+	for( set<NameAndType>::iterator it = globals.begin(); it != globals.end(); it++ ){
+		string name = it->name;
+
+		myReplace(condition, name, name + "_pivot_" + last_sync);
+
+	}
+	
+
+	//myReplace(condition, "global_j", "global_j_b");
+}
+
 void Concurrency::propagate_constraints(string& condition){
 
 	database->load_concurrency_table(concurrency_table);
@@ -421,6 +440,8 @@ void Concurrency::propagate_constraints(string& condition){
 	substitute_stores(condition);
 	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	substitute_conds(condition);
+	printf("Substitute_syncs %s\n", locknames(condition).c_str());
+	substitute_global(condition);
 	printf("Substitute_syncs %s\n", locknames(condition).c_str());
 	printf("Substitute_syncs-----\n");
 
@@ -471,6 +492,8 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
 
+	last_sync = sync_name;
+
 	insert_sync_point("lock", sync_name, mutex_name);
 
 	string sync_conditions;
@@ -501,6 +524,8 @@ void Concurrency::mutex_unlock_constraints(char* _mutex_name, char* _sync_name){
 
 	string mutex_name = string(_mutex_name);
 	string sync_name = string(_sync_name);
+
+	last_sync = sync_name;
 
 	insert_sync_point("unlock", sync_name, mutex_name);
 

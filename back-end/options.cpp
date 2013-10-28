@@ -26,7 +26,7 @@ Options::~Options(){}
 void Options::read_options(){
 
 	FILE *file = fopen ( "/tmp/options", "r" );
-	char line_c [ 128 ]; /* or other suitable maximum line size */
+	char line_c [ 1024 ]; /* or other suitable maximum line size */
 	
 	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
 		line_c[strlen(line_c)-1] = 0;

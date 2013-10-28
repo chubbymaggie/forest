@@ -260,6 +260,7 @@ void load_default_options(){
 	options["llvm_path"] = "/llvm-2.9";
 	options["output_file"] = "final";
 	options["tmp_dir"] = "/tmp/forest";
+	options["subst_names"] = "true";
 }
 
 void load_file_options(){

@@ -6,4 +6,7 @@
 	<option key="explanation" value="Simple example on concurrency"/> 
 	<option key="file" value="simple.c"/> 
 	<option key="forced_free_var" value="mem_61"/> 
+	<option key="forced_free_var" value="mem_47"/> 
+	<option key="subst_name" value="_Z3fn1Pv_sync_1 a"/> 
+	<option key="subst_name" value="_Z3fn2Pv_sync_1 d"/> 
 </options>

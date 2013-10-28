@@ -102,6 +102,9 @@ public:
 	void alloca_instr(char* _reg, char* _subtype);
 
 private:
+
+	string last_sync;
+	void substitute_global(string& condition);
 	string stack(string sync_point);
 	map<string, set<pair<string, string> > > stores;
 	map<string, string> stacks;

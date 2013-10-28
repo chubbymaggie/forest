@@ -104,6 +104,7 @@ public:
 	void setcontent(string varname, string content);
 
 private:
+	bool is_pivot(string src);
 	void substitute_pivots(string src);
 
 	map<string, string> stacks;
