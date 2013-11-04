@@ -552,7 +552,22 @@ void Concurrency::load_instr(char* _dst, char* _addr){
 
 	solver->assign_instruction(name(src),name(dst));
 
-	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+
+	if(options->cmd_option_bool("concurrency")){
+		debug && printf("load_concurrency dst %s src %s\n", dst.c_str(), src.c_str());
+		if(is_shared(src)){
+			printf("src_of_load_is_shared %s %s\n", solver->get_name_hint(src).c_str(), solver->get_type(src).c_str() );
+			string name = solver->get_name_hint(src);
+			string type = solver->get_type(src);
+			database->insert_global_type(name, type, "");
+		}
+	}
+
+
+
+
+
+	debug && printf("\e[31m Concurrency load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
 								    name(addr).c_str(), realvalue(addr).c_str(),
 								    name(src).c_str(), realvalue(src).c_str(),
 							            name(dst).c_str(), realvalue(dst).c_str()
@@ -583,7 +598,7 @@ void Concurrency::store_instr(char* _src, char* _addr){
 	}
 
 	if(options->cmd_option_bool("concurrency")){
-		debug && printf("if_concurrency dst %s src %s\n", dst.c_str(), src.c_str());
+		debug && printf("store_concurrency dst %s src %s\n", dst.c_str(), src.c_str());
 		if(is_shared(dst))
 			update_store(dst, solver->content(name(src)));
 	}
@@ -592,7 +607,7 @@ void Concurrency::store_instr(char* _src, char* _addr){
 
 	solver->assign_instruction(name(src),name(dst));
 
-	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
+	debug && printf("\e[31m Concurrency store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
 			                                           name(src).c_str(), realvalue(src).c_str(),
 								   name(addr).c_str(), realvalue(addr).c_str(),
 								   name(dst).c_str(), realvalue(dst).c_str() );

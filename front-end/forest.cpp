@@ -1969,7 +1969,7 @@ void check_sync_tables(){
 
 	cmd.str("");
 	cmd << "echo === Global_Types: === >> " << tmp_file("results_sync") << ";";
-	cmd << "echo '.mode columns\\n.width 15 20 20\\n.headers on\\nselect * from global_types;'";
+	cmd << "echo '.mode columns\\n.width 25 10 20\\n.headers on\\nselect * from global_types;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << ">> " << tmp_file("results_sync");
 	cmd << "; echo >> " << tmp_file("results_sync");
@@ -2052,6 +2052,9 @@ void get_concurrent_info(){
 		cmd << "./" << cmd_option_str("output_file");
 		systm(cmd.str().c_str());
 
+		//check_sync_tables();
+		//exit(0);
+
 	}
 	
 
@@ -2110,6 +2113,7 @@ void secuencialize_fn1(){
 }
 
 void check_concurrency_2(){
+	system("eog syncgraph.svg 2>/dev/null &");
 	clean();
 	clean_concurrency();
 	get_concurrent_info();
@@ -2176,6 +2180,8 @@ int main(int argc, const char *argv[]) {
 	disables("compare_bc", "test");
 	disables("view_bc", "test");
 	disables("view_bc", "check_coverage");
+	disables("view_bc", "check_concurrency");
+	disables("view_bc", "check_concurrency_2");
 	disables("dfg", "test");
 	disables("dfg", "check_coverage");
 	disables("run", "test");
@@ -2187,7 +2193,12 @@ int main(int argc, const char *argv[]) {
 	disables("klee", "test");
 	disables("check_concurrency_2", "check_concurrency");
 	disables("compare_bc", "test");
+	disables("compare_bc", "check_concurrency");
+	disables("compare_bc", "check_concurrency_2");
 	disables("compare_measure_bc", "test");
+	disables("compare_secuencialize", "test");
+	disables("compare_secuencialize", "check_concurrency");
+	disables("compare_secuencialize", "check_concurrency_2");
 
 
 	expand_options();

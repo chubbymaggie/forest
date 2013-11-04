@@ -16,7 +16,7 @@ _Z3fn1Pv_sync_1  _Z3fn1Pv_sync_1,
 _Z3fn2Pv_sync_1  _Z3fn2Pv_sync_1,                                            
 
 === Global_Types: ===
-pos              type                  position            
----------------  --------------------  --------------------
-global_k         Int                                       
+pos                        type        position            
+-------------------------  ----------  --------------------
+global_k                   Int                             
 
