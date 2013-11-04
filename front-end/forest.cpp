@@ -1635,28 +1635,22 @@ void gen_final_for_concurrency(){
 
 	// Segundo paso de optimización (exploración)
 	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all_except_ls < file-2.bc > file-3.bc";
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
 	systm(cmd.str().c_str());
-
-	// Segundo paso de optimización (exploración)
-	cmd.str("");
-	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestConcurrency.so -loadstore < file-3.bc > file-4.bc";
-	systm(cmd.str().c_str());
-
 
 	// Pasa de .bc a .s
 	cmd.str("");
-	cmd << "llc file-4.bc -o file-4.s";
+	cmd << "llc file-3.bc -o file-3.s";
 	systm(cmd.str().c_str());
 
 	// Pasa de .s a .o
 	cmd.str("");
-	cmd << "gcc -c file-4.s -o file-4.o";
+	cmd << "gcc -c file-3.s -o file-3.o";
 	systm(cmd.str().c_str());
 
 	// linka
 	cmd.str("");
-	cmd << "g++ file-4.o " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 
