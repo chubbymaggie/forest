@@ -47,6 +47,7 @@ using namespace std;
 
 class Operators {
 public:
+	void pivot_variable(char* a);
 	string get_actual_bb();
 	Operators ();
 	virtual ~Operators ();

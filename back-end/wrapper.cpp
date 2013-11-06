@@ -180,4 +180,12 @@ char vector_char(char* _name){
 	return measurement->vector_char(_name);
 }
 
+void pivot_variable(char* a){
 
+	operators->pivot_variable(a);
+
+}
+
+void pivot_var(int a){
+
+}

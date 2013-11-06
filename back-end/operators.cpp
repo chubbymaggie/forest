@@ -352,7 +352,7 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	string subtypes = string(_subtype);
 	vector<string> subtype = tokenize(string(_subtype), ",");
 
-	printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype ); fflush(stdout);
+	//printf("\e[33m alloca_instr \e[0m %s %s\n", _reg, _subtype ); fflush(stdout);
 
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
 
@@ -698,4 +698,7 @@ string Operators::get_actual_function(){
 	return actual_function;
 }
 
+void Operators::pivot_variable(char* a){
+	printf("\e[31m \n pivot_variable %s\e[0m\n", a );
+}
 

@@ -377,16 +377,20 @@ void Solver::solve_problem(){
 		ret_vector.push_back(ret);
 	}
 
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		string line = *it;
-		if(line.find("error") != string::npos )
-			assert(0 && "Error in z3 execution");
-	}
+	//for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		//string line = *it;
+		//if(line.find("error") != string::npos )
+			//assert(0 && "Error in z3 execution");
+	//}
 
 
 	pclose(fp);
 
 	string         sat_str       = ret_vector[0];
+
+	if(sat_str.find("error") != string::npos )
+		assert(0 && "Error in z3 execution");
+
 	sat = get_is_sat(sat_str);
 
 	if(!sat) return;
@@ -401,6 +405,10 @@ void Solver::solve_problem(){
 
 		string varname = it->name;
 		string value = result_get(*it_ret);
+		string line = *it_ret;
+
+		if(line.find("error") != string::npos )
+			assert(0 && "Error in z3 execution");
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), value.c_str() ); fflush(stdout);
 

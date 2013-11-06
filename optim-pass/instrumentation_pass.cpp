@@ -1316,6 +1316,7 @@ struct CallInstr: public ModulePass {
 
 						bool annotated = (fn_begin != fn_end);
 						bool freefn = (fn_name == "_Z10force_freePi");
+						bool forcepivot = (fn_name == "_Z9pivot_vari");
 						//cerr << "name " << fn_name << endl;
 						//cerr << "freefn " << freefn << endl;
 						//cerr << "annotated " << annotated << endl;
@@ -1346,7 +1347,39 @@ struct CallInstr: public ModulePass {
 							params.push_back(pointerToArray(M,c4));
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
-						} else if(!freefn){
+						} else if(freefn){
+
+							
+							GlobalVariable* c2 = make_global_str(M, oplist );
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "Free_fn" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c2));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+						} else if(forcepivot) {
+
+							GlobalVariable* c2 = make_global_str(M, oplist );
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "pivot_variable" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c2));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						} else {
 							GlobalVariable* c1 = make_global_str(M, fn_name );
 							GlobalVariable* c2 = make_global_str(M, ret_to );
 							GlobalVariable* c3 = make_global_str(M, ret_type );
@@ -1367,26 +1400,9 @@ struct CallInstr: public ModulePass {
 							params.push_back(pointerToArray(M,c3));
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
-						} else {
-
-							
-							GlobalVariable* c2 = make_global_str(M, oplist );
-
-							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "Free_fn" ,
-										Type::getVoidTy( M.getContext() ),
-										Type::getInt8PtrTy( M.getContext() ),
-										(Type *)0
-										));
-
-							BasicBlock::iterator insertpos = in;
-
-							std::vector<Value*> params;
-							params.push_back(pointerToArray(M,c2));
-							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-
-							
-
 						}
+							
+
 					}
 				}
 			}
