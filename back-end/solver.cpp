@@ -356,7 +356,7 @@ void Solver::solve_problem(){
 	dump_header(file);
 	dump_variables(file);
 	concurrency->dump_remaining_variables(free_variables, file);
-	//dump_type_limits(file);
+	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_get(file);
@@ -950,7 +950,7 @@ int Solver::show_problem(){
 	dump_header();
 	dump_variables();
 	concurrency->dump_remaining_variables(free_variables);
-	//dump_type_limits();
+	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
 	dump_tail();
@@ -969,7 +969,7 @@ int Solver::show_problem(){
 	dump_header(file);
 	dump_variables(file);
 	concurrency->dump_remaining_variables(free_variables, file);
-	//dump_type_limits(file);
+	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_tail(file);
@@ -992,11 +992,14 @@ string Solver::get_offset_tree( string varname ){
 
 bool Solver::check_mangled_name(string name){
 
+	//printf("check_mangled_name %s\n", name.c_str());
+
 
 	int number_of_underscore = count(name, UNDERSCORE);
 	if(
 			number_of_underscore != 1 && // main_registerunderscoreval mem_9
-			number_of_underscore != 0    // 0
+			number_of_underscore != 0 && // 0
+			number_of_underscore != 6    // global_j_pivot__Z3fn1Pv_sync_1
 	)
 		return false;
 
@@ -1013,6 +1016,10 @@ bool Solver::check_mangled_name(string name){
 			return false;
 	}
 
+	if( number_of_underscore  == 6 ){
+		if(name.find("pivot") == string::npos)
+			return false;
+	}
 
 	return true;
 
@@ -1042,9 +1049,15 @@ string Solver::get_name_hint(string name){
 string Solver::find_by_name_hint(string hint){
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		if(it->second.name_hint == hint)
+
+		printf("find_by_name_hint %s %s %s\n", it->first.c_str(), it->second.name_hint.c_str(), it->second.content.c_str() );
+
+		if(it->second.name_hint == hint /*|| it->first == hint*/)
 			return it->first;
 	}
+	
+	assert(0 && "name not found");
+
 	return "";
 	
 }
@@ -1169,15 +1182,15 @@ string Solver::get_position(string name){
 void Solver::pivot_variable(string variable, string name){
 
 
+	debug && printf("\e[33m pivot_variable %s %s\e[0m\n", variable.c_str(), name.c_str());
+
 	string origname = find_by_name_hint(variable);
-	string orig_content = content(origname);
+	string orig_content = variables[origname].content;
 
-	string dst = find_by_name_hint(variable);
+
 	string pivot_name = variable + "_pivot_" + name;
-	setcontent(dst, pivot_name);
-
-
-
+	setcontent(pivot_name, origname);
+	
 	vector<string> empty;
 	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
 	push_condition(condition.str(), "", empty);
@@ -1185,6 +1198,5 @@ void Solver::pivot_variable(string variable, string name){
 	pivot_variables[variable].push_back(pivot_name);
 
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str() );
-
 }
 
