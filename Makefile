@@ -41,6 +41,8 @@ test:
 	@forest ./test/simple/force_free_local/config.xml
 	@forest ./test/simple/force_free_fn/config.xml
 	@forest ./test/simple/random_init/config.xml
+	@forest ./test/simple/forcepivot/config.xml
+	@forest ./test/simple/forcepivot_global/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

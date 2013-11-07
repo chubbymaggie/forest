@@ -105,7 +105,8 @@ void Solver::dump_pivots(FILE* file){
 
 		for( vector<string>::iterator it2 = vectorpivots.begin(); it2 != vectorpivots.end(); it2++ ){
 			
-			fprintf(file, "(declare-fun %s () %s)\n", it2->c_str(), gettype(*it2).c_str() );
+			string type = get_type(*it2);
+			fprintf(file, "(declare-fun %s () %s)\n", it2->c_str(), type.c_str() );
 		}
 		
 
@@ -1236,7 +1237,12 @@ void Solver::pivot_variable(string variable, string name){
 
 	//string origname = find_by_name_hint(variable);
 	string origname = variable;
-	string orig_content = variables[origname].content;
+	//string orig_content = variables[origname].content;
+	string orig_content = content(origname);
+
+	//if(orig_content == ""){
+		//orig_content = origname;
+	//}
 
 
 	string pivot_name = variable + "_pivot_" + name;
