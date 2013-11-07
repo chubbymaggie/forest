@@ -106,7 +106,7 @@ void Solver::dump_pivots(FILE* file){
 		for( vector<string>::iterator it2 = vectorpivots.begin(); it2 != vectorpivots.end(); it2++ ){
 			
 			string type = get_type(*it2);
-			fprintf(file, "(declare-fun %s () %s)\n", it2->c_str(), type.c_str() );
+			fprintf(file, "(declare-fun %s () %s)\n", locknames(*it2).c_str(), type.c_str() );
 		}
 		
 

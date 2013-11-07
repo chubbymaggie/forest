@@ -826,6 +826,30 @@ set<string> Database::global_stores(string sync_name){
 }
 
 
+set<string> Database::global_variables(){
+
+	set<string> ret;
+
+	stringstream action;
+	//action << "select pos from stores where sync_point=\"" << sync_name << "\";";
+	action << "select pos from global_types;";
+
+	printf("global_variables action %s\n", action.str().c_str());
+
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	for( vector<pair<string, string> >::iterator it = retsqlite.begin(); it != retsqlite.end();it++ ){
+		ret.insert(it->second);
+	}
+
+	//printf("global_variables %s size %lu\n", sync_name.c_str(), ret.size());
+	
+
+	return ret;
+
+
+}
 
 set<NameAndType> Database::get_shared_vars(){
 

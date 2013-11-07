@@ -509,9 +509,9 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 
 	}
 
-	set<string> global_stores = database->global_stores(sync_name);
+	set<string> global_variables = database->global_variables();
 
-	for( set<string>::iterator it = global_stores.begin(); it != global_stores.end(); it++ ){
+	for( set<string>::iterator it = global_variables.begin(); it != global_variables.end(); it++ ){
 		string variable = *it;
 		solver->pivot_variable(variable, sync_name);
 	}

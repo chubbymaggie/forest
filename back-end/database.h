@@ -44,6 +44,7 @@ typedef struct NameAndType {
 class Database {
 public:
 	set<string> global_stores(string sync_name);
+	set<string> global_variables();
 	string lockunlock(string sync_point);
 	string semaphore_of(string sync_point);
 	set<string> list_lock_points();
