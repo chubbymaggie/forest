@@ -173,6 +173,7 @@ extern "C" char vector_char(char* _name);
 extern "C" void begin_sim_measurement(char* functions, char* bbs);
 extern "C" void br_instr_cond_measurement(bool value);
 extern "C" void pivot_variable(char* a);
-void pivot_var(int a);
+//void pivot_variable(char* a);
+//void pivot_var(int* a);
 
 #endif /* end of include guard: _WRAPPER_H_ */

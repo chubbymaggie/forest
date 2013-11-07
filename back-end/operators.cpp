@@ -698,7 +698,28 @@ string Operators::get_actual_function(){
 	return actual_function;
 }
 
-void Operators::pivot_variable(char* a){
-	printf("\e[31m \n pivot_variable %s\e[0m\n", a );
+void Operators::pivot_variable(char* _varname){
+
+	//string varname = string(_varname).substr(0, strlen(_varname)-1);
+	string varname = string(_varname);
+	
+	varname = name(varname);
+	//myReplace(varname, "underscore", "_");
+
+	string hint = solver->get_name_hint(varname);
+	string position = solver->get_position(varname);
+
+	//printf("varname %s hint %s position %s\n",varname.c_str(), hint.c_str(), position.c_str() );
+
+	solver->pivot_variable(varname, "hola");
+
+	printf("\e[31m \n pivot_variable %s\e[0m\n", varname.c_str() );
+
+	//string content = solver->content(varname);
+	//printf("varname %s\n", varname.c_str() );
+	//printf("content %s\n", content.c_str());
+	
+
+
 }
 

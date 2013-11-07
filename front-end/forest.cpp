@@ -350,7 +350,7 @@ void make_bc(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
@@ -388,7 +388,7 @@ void compare_bc(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
@@ -442,7 +442,7 @@ void compare_measure_bc(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
@@ -724,7 +724,7 @@ void view_dfg(){
 
 	// Crea el bc
 	cmd.str("");
-	cmd << "llvm-gcc --emit-llvm -c " << prj_file(cmd_option_string_vector("file")[0]) << " -o file.bc";
+	cmd << "llvm-g++ --emit-llvm -c " << prj_file(cmd_option_string_vector("file")[0]) << " -o file.bc";
 	systm(cmd.str().c_str());
 
 	// paso de optimización dot
@@ -1183,7 +1183,7 @@ void gen_final_for_measurement(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
@@ -1505,7 +1505,7 @@ void count_branches(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización
@@ -1558,7 +1558,7 @@ void do_klee(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "cd /tmp; llvm-gcc --emit-llvm -c -g -D KLEE file.c";
+	cmd << "cd /tmp; llvm-g++ --emit-llvm -c -g -D KLEE file.c";
 	systm(cmd.str().c_str());
 
 	// Ejecutar klee
@@ -1624,7 +1624,7 @@ void gen_final_for_concurrency(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización (concurrencia)
@@ -1675,7 +1675,7 @@ void view_bc_concurrency(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Primer paso de optimización (concurrencia)
@@ -1723,7 +1723,7 @@ void compare_concurrency(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
@@ -1835,7 +1835,7 @@ void secuencialize(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Paso de optimización secuencialización
@@ -1908,7 +1908,7 @@ void compare_secuencialize(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Desensamblado
@@ -2011,7 +2011,7 @@ void get_concurrent_functions(){
 	
 	// Compilación del código a .bc
 	cmd.str("");
-	cmd << "llvm-gcc -O0 --emit-llvm -c file.cpp -o file.bc";
+	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
 	systm(cmd.str().c_str());
 
 	// Paso de optimización (get_concurrent_functions)

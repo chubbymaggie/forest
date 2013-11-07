@@ -186,6 +186,6 @@ void pivot_variable(char* a){
 
 }
 
-void pivot_var(int a){
+//void pivot_var(int* a){
 
-}
+//}

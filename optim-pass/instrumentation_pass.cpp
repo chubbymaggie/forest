@@ -1316,7 +1316,7 @@ struct CallInstr: public ModulePass {
 
 						bool annotated = (fn_begin != fn_end);
 						bool freefn = (fn_name == "_Z10force_freePi");
-						bool forcepivot = (fn_name == "_Z9pivot_vari");
+						bool forcepivot = (fn_name == "_Z9pivot_varPi");
 						//cerr << "name " << fn_name << endl;
 						//cerr << "freefn " << freefn << endl;
 						//cerr << "annotated " << annotated << endl;

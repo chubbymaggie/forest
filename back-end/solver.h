@@ -105,7 +105,7 @@ public:
 
 private:
 	bool is_pivot(string src);
-	void substitute_pivots(string src);
+	void substitute_pivots(string& src);
 
 	map<string, string> stacks;
 	map<string, Variable> variables;
@@ -126,6 +126,7 @@ private:
 	void dump_tail(FILE* file = stdout);
 	void dump_get(FILE* file = stdout);
 	void dump_assigns(FILE* file = stdout);
+	void dump_pivots(FILE* file = stdout);
 	void flat_problem();
 	void insert_variable(string name, string position);
 	string extract_condition(string content);
