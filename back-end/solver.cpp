@@ -73,30 +73,30 @@ string Solver::content( string name ){
 }
 
 
-void Solver::dump_variable(string position, string type, FILE* file){
+//void Solver::dump_variable(string position, string type, FILE* file){
 
 
-		bool is_pivot = false;
-		for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-			if(it->first == position)
-				is_pivot = true;
-		}
+		//bool is_pivot = false;
+		//for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+			//if(it->first == position)
+				//is_pivot = true;
+		//}
 
-		//debug && printf("\e[31m dump_variable %s is_pivot %d\e[0m\n", position.c_str(), is_pivot);
+		////debug && printf("\e[31m dump_variable %s is_pivot %d\e[0m\n", position.c_str(), is_pivot);
 
-		if(is_pivot){
-			fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
+		//if(is_pivot){
+			//fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
 
-			vector<string> subst_to = pivot_variables[position];
-			for ( unsigned int i = 0; i < subst_to.size(); i++) {
-				string name = subst_to[i];
-				fprintf(file,"(declare-fun %s () %s)\n", locknames(name).c_str(), type.c_str());
-			}
-		} else {
-			fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
-		}
+			//vector<string> subst_to = pivot_variables[position];
+			//for ( unsigned int i = 0; i < subst_to.size(); i++) {
+				//string name = subst_to[i];
+				//fprintf(file,"(declare-fun %s () %s)\n", locknames(name).c_str(), type.c_str());
+			//}
+		//} else {
+			//fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
+		//}
 
-}
+//}
 
 void Solver::dump_pivots(FILE* file){
 
@@ -240,8 +240,12 @@ void Solver::dump_get(FILE* file){
 		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->position.c_str() );
 	}
 	
+	//fprintf(file,"; --- ↑free ↓non-free \n" );
+
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		if( it->second.content == "" ) continue;
+		if( it->first.find("_pivot_") != string::npos ) continue;
+
 		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
 	}
 	
@@ -372,7 +376,7 @@ void Solver::solve_problem(){
 	dump_header(file);
 	dump_variables(file);
 	dump_pivots(file);
-	concurrency->dump_remaining_variables(free_variables, file);
+	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
@@ -420,12 +424,13 @@ void Solver::solve_problem(){
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++,it_ret++ ){
 
-		string varname = it->name;
-		string value = result_get(*it_ret);
 		string line = *it_ret;
-
 		if(line.find("error") != string::npos )
 			assert(0 && "Error in z3 execution");
+
+		string varname = it->name;
+		string value = result_get(*it_ret);
+
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), value.c_str() ); fflush(stdout);
 
@@ -438,6 +443,12 @@ void Solver::solve_problem(){
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
 		if( it->second.content == "" ) continue;
+		if( it->first.find("_pivot_") != string::npos ) continue;
+		//printf("first name %s\n", it->first.c_str() );
+
+		string line = *it_ret;
+		if(line.find("error") != string::npos )
+			assert(0 && "Error in z3 execution");
 
 		string name = it->first;
 		string value = result_get(*it_ret);
@@ -699,7 +710,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
-	if( !is_pivot(src) ){
+	//if( !is_pivot(src) ){
 		printf("not pivot\n");
 		if( is_forced_free(src) ){
 			debug && printf("\e[32m Source is forced_free\e[0m\n");
@@ -707,10 +718,10 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 		}
 		variables[dst].content = content(src);
 
-	} else {
-		printf("pivot\n");
-		variables[dst].content = variables[src].content;
-	}
+	//} else {
+		//printf("pivot\n");
+		//variables[dst].content = variables[src].content;
+	//}
 
 
 
@@ -979,10 +990,11 @@ int Solver::show_problem(){
 	dump_header();
 	dump_variables();
 	dump_pivots();
-	concurrency->dump_remaining_variables(free_variables);
+	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
+	dump_get();
 	dump_tail();
 
 
@@ -999,7 +1011,7 @@ int Solver::show_problem(){
 	dump_header(file);
 	dump_variables(file);
 	dump_pivots(file);
-	concurrency->dump_remaining_variables(free_variables, file);
+	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
