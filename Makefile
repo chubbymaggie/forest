@@ -44,6 +44,7 @@ test:
 	@forest ./test/simple/forcepivot/config.xml
 	@forest ./test/simple/forcepivot_global/config.xml
 	@forest ./test/simple/forcepivot_hint/config.xml
+	@forest ./test/simple/force_free_and_modify/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

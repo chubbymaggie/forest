@@ -65,6 +65,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	string get_first_content_value(string var);
 	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
@@ -103,10 +104,15 @@ public:
 	string get_position(string name);
 	string find_by_name_hint(string hint);
 	void setcontent(string varname, string content);
+	bool is_forced_free(string position);
 
 private:
+	void set_first_content_value(string var, string value);
+	string get_first_content(string src);
+	void set_first_content(string src, string content);
 	bool is_pivot(string src);
 	void substitute_pivots(string& src);
+	set<string> already_forced_free;
 
 	map<string, string> stacks;
 	map<string, Variable> variables;
@@ -116,6 +122,8 @@ private:
 	vector<Condition> conditions;
 	set<string> forced_free_vars;
 	map<string, vector<string> > pivot_variables;
+	map<string, string> first_content;
+	map<string, string> first_content_value;
 
 
 	void dump_conditions(FILE* file = stdout);
@@ -157,7 +165,6 @@ private:
 	int get_num_fvars();
 	void set_is_propagated_constant(string varname);
 	bool is_constant(string varname);
-	bool is_forced_free(string position);
 	string result_get(string get_str);
 	bool implemented_operation(string operation);
 	string wired_and( string op1, string op2, int nbits );

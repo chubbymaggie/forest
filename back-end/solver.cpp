@@ -249,7 +249,7 @@ void Solver::dump_get(FILE* file){
 		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->position.c_str() );
 	}
 	
-	//fprintf(file,"; --- ↑free ↓non-free \n" );
+	fprintf(file,"; --- ↑free ↓non-free \n" );
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		if( it->second.content == "" ) continue;
@@ -257,6 +257,18 @@ void Solver::dump_get(FILE* file){
 
 		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
 	}
+
+	fprintf(file,"; --- ↑non-free ↓forced_free \n" );
+
+	//for( set<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
+		//fprintf(file,"(get-value (%s));\n", get_first_content(*it).c_str() );
+	//}
+	
+	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
+		fprintf(file, "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
+	}
+	
+	
 	
 }
 
@@ -472,6 +484,12 @@ void Solver::solve_problem(){
 	}
 
 
+	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
+		set_first_content_value(it->first, result_get(*it_ret));
+
+		it_ret++;
+	}
+
 }
 
 bool Solver::solvable_problem(){
@@ -662,10 +680,16 @@ bool Solver::is_forced_free(string position){
 
 	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
 
-	if( forced_free_vars.find(position) != forced_free_vars.end() )
-		return true;
-	else 
+	if( forced_free_vars.find(position) != forced_free_vars.end() ){
+		if( already_forced_free.find(position) != already_forced_free.end() ){
+			return false;
+		} else{
+			already_forced_free.insert(position);
+			return true;
+		}
+	} else {
 		return false;
+	}
 
 }
 
@@ -708,6 +732,29 @@ void Solver::load_forced_free_vars(){
 	////printf("is_pivot %s\n", content(src).c_str());
 //}
 
+void Solver::set_first_content(string src, string content){
+
+	printf("\e[36m set_first_content %s %s\e[0m\n", src.c_str(), content.c_str());
+
+	first_content[src] = content;
+
+}
+
+void Solver::set_first_content_value(string var, string value){
+	printf("\e[36m set_first_content_value %s %s\e[0m\n", var.c_str(), value.c_str() );
+	first_content_value[var] = value;
+}
+
+string Solver::get_first_content_value(string var){
+	return first_content_value[var];
+}
+
+string Solver::get_first_content(string src){
+
+	return first_content[src];
+
+}
+
 void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	//substitute_pivots(src);
@@ -720,12 +767,22 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
 	//if( !is_pivot(src) ){
-		printf("not pivot\n");
-		if( is_forced_free(src) ){
-			debug && printf("\e[32m Source is forced_free\e[0m\n");
+		//printf("not pivot\n");
+		
+		bool forcedfree = is_forced_free(src);
+		if(forcedfree){
+
+			string cntnt = variables[src].content;
+			debug && printf("\e[36m Source is forced_free %s %s\e[0m\n",src.c_str(), cntnt.c_str());
 			setcontent(src, "");
 		}
 		variables[dst].content = content(src);
+
+		if(forcedfree){
+			set_first_content(src, variables[dst].content);
+			printf("variables[dst].content %s\n", variables[dst].content.c_str() );
+
+		}
 
 	//} else {
 		//printf("pivot\n");

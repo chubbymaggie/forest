@@ -20,7 +20,7 @@
 
 #include "database.h"
 
-#define debug false
+#define debug true
 
 extern Solver* solver;
 extern Options* options;
@@ -199,6 +199,10 @@ void Database::insert_problem(){
 			string hint = it->position;
 
 			//myReplace(hint, "_pivot_b", "");
+			//printf("forced_initial_value %s %s\n",name.c_str(), solver->get_first_content_value(name).c_str() );
+
+			if(solver->get_first_content_value(name) != "")
+				value = solver->get_first_content_value(name);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
