@@ -512,7 +512,12 @@ void Concurrency::mutex_lock_constraints(char* _mutex_name, char* _sync_name){
 	set<string> global_variables = database->global_variables();
 
 	for( set<string>::iterator it = global_variables.begin(); it != global_variables.end(); it++ ){
-		string variable = *it;
+		string hint = *it;
+		string variable = solver->find_by_name_hint(hint);
+		
+
+		//printf("mutex_lock_constraints find_var %s\n", solver->find_by_name_hint(variable).c_str() );
+
 		solver->pivot_variable(variable, sync_name);
 	}
 

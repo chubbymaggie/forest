@@ -100,12 +100,20 @@ string Solver::content( string name ){
 
 void Solver::dump_pivots(FILE* file){
 
+	//printf("dump pivots\n");
+
 	for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
 		vector<string> vectorpivots = it->second;
 
 		for( vector<string>::iterator it2 = vectorpivots.begin(); it2 != vectorpivots.end(); it2++ ){
+
+			string hintpivot = *it2;
+			string hint = hintpivot.substr(0, hintpivot.find("_pivot_"));
+			string name = find_by_name_hint(hint);
 			
-			string type = get_type(*it2);
+			//printf("gettype %s %s\n", name.c_str(), get_type(name).c_str() );
+			string type = get_type(name);
+			//printf("gettype\n");
 			fprintf(file, "(declare-fun %s () %s)\n", locknames(*it2).c_str(), type.c_str() );
 		}
 		
@@ -1099,7 +1107,7 @@ string Solver::find_by_name_hint(string hint){
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
-		printf("find_by_name_hint %s %s %s\n", it->first.c_str(), it->second.name_hint.c_str(), it->second.content.c_str() );
+		//printf("find_by_name_hint %s %s %s\n", it->first.c_str(), it->second.name_hint.c_str(), it->second.content.c_str() );
 
 		if(it->second.name_hint == hint /*|| it->first == hint*/)
 			return it->first;
@@ -1244,8 +1252,9 @@ void Solver::pivot_variable(string variable, string name){
 		//orig_content = origname;
 	//}
 
+	string hint = get_name_hint(variable);
 
-	string pivot_name = variable + "_pivot_" + name;
+	string pivot_name = hint + "_pivot_" + name;
 	setcontent(pivot_name, origname);
 	
 	vector<string> empty;
