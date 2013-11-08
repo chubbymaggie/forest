@@ -65,6 +65,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
 	Solver ();

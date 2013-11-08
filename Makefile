@@ -19,7 +19,7 @@ distclean: clean
 test:
 	@forest ./test/crest/math/config.xml
 	@forest ./test/crest/simple/config.xml
-	#@forest ./test/crest/uniform_test/config.xml
+	@forest ./test/crest/uniform_test/config.xml
 	@forest ./test/crest/function/config.xml
 	@forest ./test/crest/concrete_return/config.xml
 	@forest ./test/simple/array/config.xml
@@ -43,6 +43,7 @@ test:
 	@forest ./test/simple/random_init/config.xml
 	@forest ./test/simple/forcepivot/config.xml
 	@forest ./test/simple/forcepivot_global/config.xml
+	@forest ./test/simple/forcepivot_hint/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

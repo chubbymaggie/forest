@@ -186,6 +186,11 @@ void pivot_variable(char* a){
 
 }
 
+
+void pivot_hint(char* a){
+	operators->pivot_hint(a);
+}
+
 //void pivot_var(int* a){
 
 //}

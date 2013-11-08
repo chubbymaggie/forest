@@ -723,3 +723,15 @@ void Operators::pivot_variable(char* _varname){
 
 }
 
+void Operators::pivot_hint(char* _hint){
+	string hint = string(_hint);
+
+	string varname = solver->find_by_name_hint(hint);
+
+	solver->pivot_variable(varname, "hola");
+
+	printf("\e[31m \n pivot_hint %s %s\e[0m\n", hint.c_str(), varname.c_str() );
+
+}
+
+
