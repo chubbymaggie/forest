@@ -1060,7 +1060,7 @@ int Solver::show_problem(){
 	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
-	dump_get();
+	//dump_get();
 	dump_tail();
 
 
@@ -1300,19 +1300,14 @@ void Solver::pivot_variable(string variable, string name){
 
 	debug && printf("\e[33m pivot_variable %s %s\e[0m\n", variable.c_str(), name.c_str());
 
-	//string origname = find_by_name_hint(variable);
 	string origname = variable;
-	//string orig_content = variables[origname].content;
 	string orig_content = content(origname);
-
-	//if(orig_content == ""){
-		//orig_content = origname;
-	//}
 
 	string hint = get_name_hint(variable);
 
 	string pivot_name = hint + "_pivot_" + name;
 	setcontent(pivot_name, origname);
+	setcontent(origname,orig_content);
 	
 	vector<string> empty;
 	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
@@ -1320,6 +1315,7 @@ void Solver::pivot_variable(string variable, string name){
 
 	pivot_variables[variable].push_back(pivot_name);
 
-	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str() );
+
+	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
 
