@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="sleep coreutils testcase"/> 
+	<option key="file" value="sleep.bc"/> 
+</options>

@@ -329,6 +329,42 @@ void clean(){
 
 }
 
+bool is_bc(string file){
+	int len = file.length();
+	string suffix = file.substr(len-3);
+	return suffix == ".bc";
+}
+
+
+void make_initial_bc(){
+
+	stringstream cmd;
+
+	if( is_bc(cmd_option_string_vector("file")[0]) ){
+		// Copia el bc a la carpeta temporal
+		cmd.str("");
+		cmd << "cp ";
+		cmd << prj_file(cmd_option_str("file"));
+		cmd << " " << tmp_file("file.bc");
+		systm(cmd.str().c_str());
+	} else {
+		// Junta todos los .c en uno
+		cmd.str("");
+		cmd << "cat ";
+		vector<string> files = cmd_option_string_vector("file");
+		for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+			cmd << prj_file(*it) << " ";
+		}
+		cmd << "> " << tmp_file("file.cpp");
+		systm(cmd.str().c_str());
+
+		// Compilación del código a .bc
+		cmd.str("");
+		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
+		systm(cmd.str().c_str());
+	}
+}
+
 void make_bc(){
 
 	start_pass("make_bc");
@@ -337,21 +373,7 @@ void make_bc(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización
 	cmd.str("");
@@ -376,20 +398,7 @@ void compare_bc(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización
 	cmd.str("");
@@ -430,20 +439,7 @@ void compare_measure_bc(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización
 	cmd.str("");
@@ -722,10 +718,12 @@ void view_dfg(){
 
 	stringstream cmd;
 
-	// Crea el bc
-	cmd.str("");
-	cmd << "llvm-g++ --emit-llvm -c " << prj_file(cmd_option_string_vector("file")[0]) << " -o file.bc";
-	systm(cmd.str().c_str());
+
+	make_initial_bc();
+
+
+
+
 
 	// paso de optimización dot
 	FILE *fp;
@@ -1171,20 +1169,7 @@ void gen_final_for_measurement(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> file.cpp";
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización
 	cmd.str("");
@@ -1493,20 +1478,7 @@ void count_branches(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización
 	cmd.str("");
@@ -1546,20 +1518,7 @@ void do_klee(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
-	}
-	cmd << "> file.c";
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "cd /tmp; llvm-g++ --emit-llvm -c -g -D KLEE file.c";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Ejecutar klee
 	FILE *fp;
@@ -1612,16 +1571,8 @@ void gen_final_for_concurrency(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> file.cpp";
-	systm(cmd.str().c_str());
-	
+		make_initial_bc();
+
 	// Compilación del código a .bc
 	cmd.str("");
 	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
@@ -1663,20 +1614,7 @@ void view_bc_concurrency(){
 	string output_file = cmd_option_str("output_file");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
-	}
-	cmd << "> file.cpp";
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Primer paso de optimización (concurrencia)
 	cmd.str("");
@@ -1711,20 +1649,7 @@ void compare_concurrency(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << *it << " ";
-	}
-	cmd << "> file.cpp";
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Desensamblado
 	cmd.str("");
@@ -1823,20 +1748,7 @@ void secuencialize(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Paso de optimización secuencialización
 	cmd.str("");
@@ -1896,20 +1808,7 @@ void compare_secuencialize(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Desensamblado
 	cmd.str("");
@@ -1999,20 +1898,7 @@ void get_concurrent_functions(){
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	// Junta todos los .c en uno
-	cmd.str("");
-	cmd << "cat ";
-	vector<string> files = cmd_option_string_vector("file");
-	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-		cmd << prj_file(*it) << " ";
-	}
-	cmd << "> " << tmp_file("file.cpp");
-	systm(cmd.str().c_str());
-	
-	// Compilación del código a .bc
-	cmd.str("");
-	cmd << "llvm-g++ -O0 --emit-llvm -c file.cpp -o file.bc";
-	systm(cmd.str().c_str());
+	make_initial_bc();
 
 	// Paso de optimización (get_concurrent_functions)
 	cmd.str("");

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="runcon coreutils testcase"/> 
+	<option key="file" value="runcon.bc"/> 
+</options>
