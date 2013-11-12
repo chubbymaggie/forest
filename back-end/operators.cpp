@@ -543,7 +543,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 			//if(yet_covered()) exit(0);
 
-			solver->solve_problem();
+			//solver->solve_problem();
 			database->insert_problem();
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";
