@@ -476,7 +476,15 @@ void view_bc(){
 
 	start_pass("view_bc");
 
+	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
+
+	make_initial_bc();
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
 
 	// Desensamblado
 	cmd.str("");
@@ -2060,7 +2068,6 @@ int main(int argc, const char *argv[]) {
 	needs("run", "final");
 	needs("make_bc", "clean");
 	needs("check_coverage", "measure_coverage");
-	needs("view_bc", "make_bc");
 
 
 	disables("compare_bc", "test");
