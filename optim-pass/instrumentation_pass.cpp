@@ -1847,6 +1847,52 @@ struct BeginEnd: public ModulePass {
 	}
 };
 
+
+struct MainArgs: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	MainArgs() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		Function* fn = M.getFunction("main");
+		BasicBlock* fnbegin = fn->begin();
+		Instruction* inbegin = fnbegin->begin();
+		//Instruction
+
+		AllocaInst* argc_addr = new AllocaInst(IntegerType::get(M.getContext(), 32), "argc_addr", inbegin );
+		
+		PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+		AllocaInst*  argv_addr   = new AllocaInst(PointerTy_1, "argv_addr", inbegin);
+
+
+		//ConstantInt* const_int_1 = ConstantInt::get(M.getContext(), APInt(64, StringRef("1"), 10));
+		//GetElementPtrInst* argc  = GetElementPtrInst::Create(argc_addr, const_int_1, "argc", inbegin);
+		//GetElementPtrInst* argv  = GetElementPtrInst::Create(argv_addr, const_int_1, "argv", inbegin);
+		
+		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
+		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
+
+		fun_iterator(fn, bb){
+		blk_iterator(bb, in){
+			if( StoreInst::classof(in) ){
+				string name = in->getOperand(0)->getName().str();
+				if(name == "argc"){
+					in->setOperand(0, argc);
+				}
+				if(name == "argv"){
+					in->setOperand(0, argv);
+				}
+			}
+		}}
+
+	}
+
+};
+
+
+
 struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GlobalInit() : ModulePass(ID) {}
@@ -2041,6 +2087,7 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		{MainArgs         pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
@@ -2131,6 +2178,9 @@ static RegisterPass<BeginEnd> BeginEnd(             "instr_beginend"        , "I
 
 char GlobalInit::ID = 0;
 static RegisterPass<GlobalInit> GlobalInit(         "instr_globalinit"      , "Initialize global variables" );
+
+char MainArgs::ID = 0;
+static RegisterPass<MainArgs> MainArgs(             "main_args"             , "main arguments" );
 
 char All::ID = 0;
 static RegisterPass<All> All(                        "instr_all"            , "Instrument all operations" );
