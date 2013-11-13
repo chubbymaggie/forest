@@ -1909,10 +1909,11 @@ struct GlobalInit: public ModulePass {
 		//cerr << "type" << endl;
 		//cerr << ConstantUndefValue::classof(constant) << endl;
 
-		ConstantInt*     constant_int    = dyn_cast<ConstantInt>(constant);
-		ConstantArray*   constant_array  = dyn_cast<ConstantArray>(constant);
-		ConstantFP*      constant_float  = dyn_cast<ConstantFP>(constant);
-		ConstantStruct*  constant_struct = dyn_cast<ConstantStruct>(constant);
+		ConstantInt*         constant_int          = dyn_cast<ConstantInt>(constant);
+		ConstantArray*       constant_array        = dyn_cast<ConstantArray>(constant);
+		ConstantFP*          constant_float        = dyn_cast<ConstantFP>(constant);
+		ConstantStruct*      constant_struct       = dyn_cast<ConstantStruct>(constant);
+		ConstantPointerNull* constant_pointer_null = dyn_cast<ConstantPointerNull>(constant);
 
 
 		string type = get_type_str(constant->getType());
@@ -2021,6 +2022,13 @@ struct GlobalInit: public ModulePass {
 
 			return aux;
 			
+		} else if( type == "PointerTyID" ){
+
+			//cerr << "constant";
+			if(constant_pointer_null)
+				return "constant_0";
+
+
 
 		} else {
 			cerr << type << endl;

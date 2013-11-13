@@ -46,6 +46,7 @@ test:
 	@forest ./test/simple/forcepivot_hint/config.xml
 	@forest ./test/simple/force_free_and_modify/config.xml
 	@forest ./test/simple/cmdargs/config.xml
+	@forest ./test/simple/pointernull/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

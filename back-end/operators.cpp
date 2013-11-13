@@ -293,12 +293,13 @@ void Operators::end_bb(char* name){
 
 void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
+	printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values); fflush(stdout);
+
 	string varname        = string(_varname);
 	string type           = string(_type);
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
-	//debug && printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values);
 
 
 	if( types.size() != values.size() ){
