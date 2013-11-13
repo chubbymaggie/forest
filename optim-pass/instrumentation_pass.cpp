@@ -1856,9 +1856,13 @@ struct MainArgs: public ModulePass {
 
 
 		Function* fn = M.getFunction("main");
+
+		Function::arg_iterator arg_begin = fn->arg_begin();
+		Function::arg_iterator arg_end   = fn->arg_end();
+		if(arg_begin == arg_end) return false;
+
 		BasicBlock* fnbegin = fn->begin();
 		Instruction* inbegin = fnbegin->begin();
-		//Instruction
 
 		AllocaInst* argc_addr = new AllocaInst(IntegerType::get(M.getContext(), 32), "argc_addr", inbegin );
 		
