@@ -2045,16 +2045,27 @@ struct GlobalInit: public ModulePass {
 
 			//cerr << "global ";
 			//gl->dump();
+			//cerr << "hasInitializer " << gl->hasInitializer() << endl;
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
 			const PointerType* pointertype  = cast<PointerType>(gl->getType());
 			const Type*        type_t       = pointertype->getElementType();
 
 			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
-			Constant*          constant     = global_var->getInitializer();
 
 			string types = get_flattened_types(type_t);
-			string vals  = get_flattened_vals(constant);
+			string vals;
+
+			if(gl->hasInitializer()){
+				Constant* constant     = global_var->getInitializer();
+				vals  = get_flattened_vals(constant);
+			} else {
+				vector<string> tokens = tokenize(types,",");
+				for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+					vals += "X,";
+				}
+			}
+
 
 			VarInit varinit = {name, types, vals };
 
