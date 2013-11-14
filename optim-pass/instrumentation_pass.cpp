@@ -1901,9 +1901,12 @@ struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GlobalInit() : ModulePass(ID) {}
 
+	map<string, int> given_addr;
+	int current_addr = 0;
+
 	string get_flattened_vals( Constant* constant ){
 
-		//cerr << "get_flattened_vals" << endl;
+		//cerr << "get_flattened_vals ";
 		//constant->dump();
 
 		//cerr << "type" << endl;
@@ -1914,9 +1917,17 @@ struct GlobalInit: public ModulePass {
 		ConstantFP*          constant_float        = dyn_cast<ConstantFP>(constant);
 		ConstantStruct*      constant_struct       = dyn_cast<ConstantStruct>(constant);
 		ConstantPointerNull* constant_pointer_null = dyn_cast<ConstantPointerNull>(constant);
+		GlobalValue*         constant_global       = dyn_cast<GlobalValue>(constant);
+
+		//cerr << "constant_global: ";
+		//constant_global->dump();
 
 
 		string type = get_type_str(constant->getType());
+
+		//cerr << "type " << type << endl;
+		//if(constant_global)
+		//cerr << "name " << constant_global->getName().str() << endl;
 
 		if( type == "IntegerTyID"){
 			int64_t val = constant_int->getSExtValue();
@@ -2025,8 +2036,13 @@ struct GlobalInit: public ModulePass {
 		} else if( type == "PointerTyID" ){
 
 			//cerr << "constant";
-			if(constant_pointer_null)
+			if(constant_pointer_null){
 				return "constant_0";
+			} else if (constant_global) {
+				//cerr << "address of : " << "global_" + constant_global->getName().str() << endl;
+				//cerr << "is: " << given_addr["global_" + constant_global->getName().str()];
+				return "constant_" + itos(given_addr["global_" + constant_global->getName().str()]);
+			}
 
 
 
@@ -2066,10 +2082,17 @@ struct GlobalInit: public ModulePass {
 				}
 			}
 
+			//cerr << "types " << types << endl;
+			//cerr << "vals  " << vals  << endl;
 
 			VarInit varinit = {name, types, vals };
 
 			global_var_inits.push_back(varinit);
+
+
+			//cerr << "name " << name << " addr " << current_addr << endl;
+			given_addr[name] = current_addr;
+			current_addr += get_size(type_t);
 
 		}
 

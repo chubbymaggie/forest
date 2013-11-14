@@ -48,6 +48,7 @@ test:
 	@forest ./test/simple/cmdargs/config.xml
 	@forest ./test/simple/pointernull/config.xml
 	@forest ./test/simple/extern/config.xml
+	@forest ./test/simple/gl_pointer_init/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
