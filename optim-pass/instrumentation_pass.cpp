@@ -278,6 +278,31 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 
 }
 
+
+vector<int> get_indexes_gepop(GEPOperator* gepop){
+
+	vector<int> ret;
+	User::op_iterator it_begin = gepop->idx_begin();
+	User::op_iterator it_end   = gepop->idx_end();
+
+	for( User::op_iterator it = it_begin; it != it_end; it++){
+
+		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
+		if(CI){
+			int64_t val = CI->getSExtValue();
+			ret.push_back(val);
+		} else {
+
+			assert(0 && "non-constant index in gepop");
+
+		}
+	}
+
+	return ret;
+
+}
+
+
 int primary_size( const Type* t ){
 
 	//cerr << "primary_size: " << endl;
@@ -495,6 +520,162 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 
 	return tokens;
 }
+
+
+int get_offset(const Type* t, int debug = 1){
+
+	//cerr << "get_offset "; t->dump();
+	const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
+	const StructType*       t_struct       = dyn_cast<StructType>(t);
+	const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
+	const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+	const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+	const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
+
+	string type_str = get_type_str(t);
+
+	if(type_str == "PointerTyID"){
+		//cerr << "pointer " << endl;
+		return get_offset(t_pointer->getElementType());
+	} else if( type_str == "StructTyID"){
+		return -1;
+	} else if(type_str == "ArrayTyID"){
+		//cerr << "array " << endl;
+
+		int sum = 0;
+		for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
+			sum += get_offset(t_composite->getTypeAtIndex(i));
+		}
+
+		return sum;
+	} else if( type_str == "IntegerTyID"){
+
+		//cerr << "Integer" << endl;
+
+		return get_size(t);
+
+	} else if( type_str == "IntegerTyID32"){
+		//cerr << "Integer32" << endl;
+
+		return get_size(t);
+
+	} else if( type_str == "IntegerTyID8"){
+		//cerr << "Integer8" << endl;
+
+		return get_size(t);
+
+	} else if (type_str == "DoubleTyID"){
+		//cerr << "double" << endl;
+
+		return get_size(t);
+
+	} else if (type_str == "FloatTyID"){
+		//cerr << "float" << endl;
+
+		return get_size(t);
+
+	} else {
+
+		//cerr << "----" << endl;
+		//cerr << "otro" << endl;
+		//t->dump();
+		//cerr << type_str << endl;
+		assert(0 && "Unknown Type");
+
+	}
+
+}
+
+
+string get_offset_tree( const Type* t, int* base){
+
+	const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
+	const StructType*       t_struct       = dyn_cast<StructType>(t);
+	const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
+	const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+	const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+	const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
+
+	string type_str = get_type_str(t);
+
+	if(type_str == "PointerTyID"){
+		//cerr << "pointer" << endl;
+
+		return "(" + get_offset_tree(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
+
+	//} else if(type_str.find(",") != string::npos ){
+	} else if( type_str == "StructTyID"){
+
+		//cerr << "struct" << endl;
+
+		string aux = "(";
+		for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
+			//cerr << "element " << i << endl;
+			aux += get_offset_tree(t_struct->getElementType(i),base);
+		}
+		aux += "," + itos(get_offset(t));
+		aux += ")";
+		return aux;
+
+	} else if(type_str == "ArrayTyID"){
+
+		//cerr << "array" << endl;
+		//t->dump();
+
+		string aux = "(";
+		for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
+			aux += get_offset_tree(t_composite->getTypeAtIndex(i),base);
+		}
+		aux += "," + itos(get_offset(t));
+		aux += ")";
+		return aux;
+
+
+	} else if( type_str == "IntegerTyID"){
+
+		//cerr << "integer " << primary_size(t) << endl;
+		return itos( primary_size(t) ) + " ";
+
+	} else if( type_str == "IntegerTyID32"){
+
+		//cerr << "integer32 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if( type_str == "IntegerTyID8"){
+
+		//cerr << "integer8 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if (type_str == "DoubleTyID"){
+
+		//cerr << "double " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if (type_str == "FloatTyID"){
+
+		//cerr << "float " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else {
+
+		//cerr << "----" << endl;
+		//cerr << "otro" << endl;
+		//t->dump();
+		//cerr << type_str << endl;
+		assert(0 && "Unknown Type");
+
+	}
+}
+
+
 
 // Optimization passes
 
@@ -1583,157 +1764,7 @@ struct GetelementPtr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	GetelementPtr() : ModulePass(ID) {}
 
-	int get_offset(const Type* t, int debug = 1){
 
-		//cerr << "get_offset "; t->dump();
-		const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
-		const StructType*       t_struct       = dyn_cast<StructType>(t);
-		const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
-		const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
-		const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
-		const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
-
-		string type_str = get_type_str(t);
-
-		if(type_str == "PointerTyID"){
-			//cerr << "pointer " << endl;
-			return get_offset(t_pointer->getElementType());
-		} else if( type_str == "StructTyID"){
-			return -1;
-		} else if(type_str == "ArrayTyID"){
-			//cerr << "array " << endl;
-
-			int sum = 0;
-			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
-				sum += get_offset(t_composite->getTypeAtIndex(i));
-			}
-
-			return sum;
-		} else if( type_str == "IntegerTyID"){
-
-			//cerr << "Integer" << endl;
-
-			return get_size(t);
-
-		} else if( type_str == "IntegerTyID32"){
-			//cerr << "Integer32" << endl;
-
-			return get_size(t);
-
-		} else if( type_str == "IntegerTyID8"){
-			//cerr << "Integer8" << endl;
-
-			return get_size(t);
-
-		} else if (type_str == "DoubleTyID"){
-			//cerr << "double" << endl;
-
-			return get_size(t);
-
-		} else if (type_str == "FloatTyID"){
-			//cerr << "float" << endl;
-
-			return get_size(t);
-
-		} else {
-
-			//cerr << "----" << endl;
-			//cerr << "otro" << endl;
-			//t->dump();
-			//cerr << type_str << endl;
-			assert(0 && "Unknown Type");
-
-		}
-
-	}
-
-	string get_offset_tree( const Type* t, int* base){
-
-		const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
-		const StructType*       t_struct       = dyn_cast<StructType>(t);
-		const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
-		const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
-		const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
-		const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
-
-		string type_str = get_type_str(t);
-
-		if(type_str == "PointerTyID"){
-			//cerr << "pointer" << endl;
-
-			return "(" + get_offset_tree(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
-
-		//} else if(type_str.find(",") != string::npos ){
-		} else if( type_str == "StructTyID"){
-
-			//cerr << "struct" << endl;
-
-			string aux = "(";
-			for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
-				//cerr << "element " << i << endl;
-				aux += get_offset_tree(t_struct->getElementType(i),base);
-			}
-			aux += "," + itos(get_offset(t));
-			aux += ")";
-			return aux;
-
-		} else if(type_str == "ArrayTyID"){
-
-			//cerr << "array" << endl;
-			//t->dump();
-
-			string aux = "(";
-			for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
-				aux += get_offset_tree(t_composite->getTypeAtIndex(i),base);
-			}
-			aux += "," + itos(get_offset(t));
-			aux += ")";
-			return aux;
-
-
-		} else if( type_str == "IntegerTyID"){
-
-			//cerr << "integer " << primary_size(t) << endl;
-			return itos( primary_size(t) ) + " ";
-
-		} else if( type_str == "IntegerTyID32"){
-
-			//cerr << "integer32 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
-			(*base) = (*base) + primary_size(t);
-			return ret;
-
-		} else if( type_str == "IntegerTyID8"){
-
-			//cerr << "integer8 " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
-			(*base) = (*base) + primary_size(t);
-			return ret;
-
-		} else if (type_str == "DoubleTyID"){
-
-			//cerr << "double " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
-			(*base) = (*base) + primary_size(t);
-			return ret;
-
-		} else if (type_str == "FloatTyID"){
-
-			//cerr << "float " << primary_size(t) << endl;
-			string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
-			(*base) = (*base) + primary_size(t);
-			return ret;
-
-		} else {
-
-			//cerr << "----" << endl;
-			//cerr << "otro" << endl;
-			//t->dump();
-			//cerr << type_str << endl;
-			assert(0 && "Unknown Type");
-
-		}
-	}
 
 	virtual bool runOnModule(Module &M) {
 
@@ -1904,10 +1935,149 @@ struct GlobalInit: public ModulePass {
 	map<string, int> given_addr;
 	int current_addr = 0;
 
+
+	bool is_number(const std::string& s) {
+	
+		//printf("\e[33m is_number \e[0m %s\n", s.c_str() );
+	
+		if( s== "true" || s== "false") return true;
+	
+		if(s.substr(0,1) == "-") return is_number(s.substr(1));
+	
+		//printf("%s\n", s.substr(0,s.find(".")).c_str() );
+		//printf("%s\n", s.substr(s.find(".")+1).c_str() );
+		if( s.find(".") != string::npos ) return 
+			is_number(s.substr(0,s.find("."))) &&
+			is_number(s.substr(s.find(".")+1));
+	
+	
+		if( s.find("e") != string::npos ) return 
+			is_number(s.substr(0,s.find("e"))) &&
+			is_number(s.substr(s.find("e")+1));
+	
+		std::string::const_iterator it = s.begin();
+		while (it != s.end() && std::isdigit(*it)) ++it;
+		return !s.empty() && it == s.end();
+	}
+
+
+	string close_str(string offset_tree){
+	
+		int depth = 0;
+		for ( unsigned int i = 0; i < offset_tree.size(); i++) {
+			if(offset_tree[i] == '(') depth++;
+			if(offset_tree[i] == ')') depth--;
+			if(depth == 0) return offset_tree.substr(0,i+1);
+		}
+	
+		assert(0 && "Unbalanced tree");
+	
+	}
+	
+	string trimpar(string str){
+	
+		int n1 = str.find_first_not_of("()");
+		int n2 = str.substr(n1).find_first_not_of("0123456789-");
+		string firstnum = str.substr(n1).substr(0,n2);
+		//printf("trimpar %s %s %d %d %s\n", str.c_str(), str.substr(n1).c_str(),  n1, n2, str.substr(n1).substr(0,n2).c_str() );
+		assert( is_number(firstnum) && "ret is not a number");
+		return firstnum;
+	}
+
+	bool has_index(string offset_tree, int index){
+	
+		int depth = -1;
+		int nelem = -1;
+		for ( unsigned int i = 1; i < offset_tree.size(); i++) {
+			if(offset_tree[i] == '(') depth++;
+			if(offset_tree[i] == ')') depth--;
+			if(depth == 0 && offset_tree[i] == '(' ){
+				nelem++;
+			}
+			if(nelem == index){
+				return true;
+	
+			}
+		}
+	
+		return false;
+	}
+
+	int get_ini_elem(int nelem_target, string offset_tree){
+	
+		int depth = -1;
+		int nelem = -1;
+		for ( unsigned int i = 1; i < offset_tree.size(); i++) {
+			if(offset_tree[i] == '(') depth++;
+			if(offset_tree[i] == ')') depth--;
+			if(depth == 0 && offset_tree[i] == '(' ){
+				nelem++;
+				//printf("elem %d at %d\n", nelem, i);
+			}
+			if(nelem == nelem_target){
+				//printf("get_ini_elem %d %s : %d\n", nelem_target, offset_tree.c_str(), i);
+				return i;
+	
+			}
+		}
+	
+		assert(0 && "Unbalanced tree");
+	
+	}
+
+	int stoi(string str){
+		int ret;
+		sscanf(str.c_str(), "%d", &ret);
+		return ret;
+	}
+
+	int get_offset(vector<int> indexes, string offset_tree){
+	
+	
+		//for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+			//debug && printf("\e[33m %s ", it->c_str() );
+		//} debug && printf(" --- ");
+		//debug && printf(" offset %s\e[0m\n", offset_tree.c_str() );
+		
+		int index_0 = indexes[0];
+	
+		//debug && printf("\e[33m %s %s \e[0m\n", indexes[0].c_str(), realvalue(indexes[0]).c_str() );
+	
+		//int realvalue_index_0 = stoi(realvalue_index_0_s);
+	
+		if( has_index(offset_tree, index_0) ){
+	
+			int ini_elem = get_ini_elem(index_0, offset_tree);
+			string right_str = offset_tree.substr(ini_elem);
+			string elem_str = close_str(right_str);
+			//printf("elem_str %s\n", elem_str.c_str());
+	
+			vector<int>::iterator first_it = indexes.begin(); first_it++;
+			vector<int> rem_indexes = vector<int>(first_it, indexes.end());
+	
+			if( rem_indexes.size() ){
+				return get_offset(rem_indexes, elem_str);
+			} else {
+				return stoi(trimpar(elem_str));
+			}
+	
+		} else {
+			vector<string> tokens = tokenize(offset_tree, "(),");
+			string size_s = tokens[tokens.size()-1];
+			int size = stoi(size_s);
+			//printf("offset_tree %s realvalue_index_0 %d size_s %s\n", offset_tree.c_str(), realvalue_index_0, size_s.c_str());
+			return size*index_0;
+		}
+	
+	}
+
+
+
+
 	string get_flattened_vals( Constant* constant ){
 
-		//cerr << "get_flattened_vals ";
-		//constant->dump();
+		cerr << "get_flattened_vals ";
+		constant->dump();
 
 		//cerr << "type" << endl;
 		//cerr << ConstantUndefValue::classof(constant) << endl;
@@ -1918,6 +2088,7 @@ struct GlobalInit: public ModulePass {
 		ConstantStruct*      constant_struct       = dyn_cast<ConstantStruct>(constant);
 		ConstantPointerNull* constant_pointer_null = dyn_cast<ConstantPointerNull>(constant);
 		GlobalValue*         constant_global       = dyn_cast<GlobalValue>(constant);
+		GEPOperator*         gepop                 = dyn_cast<GEPOperator>(constant);
 
 		//cerr << "constant_global: ";
 		//constant_global->dump();
@@ -1925,7 +2096,7 @@ struct GlobalInit: public ModulePass {
 
 		string type = get_type_str(constant->getType());
 
-		//cerr << "type " << type << endl;
+		cerr << "type " << type << endl;
 		//if(constant_global)
 		//cerr << "name " << constant_global->getName().str() << endl;
 
@@ -2039,9 +2210,45 @@ struct GlobalInit: public ModulePass {
 			if(constant_pointer_null){
 				return "constant_0";
 			} else if (constant_global) {
+				constant_global->dump();
 				//cerr << "address of : " << "global_" + constant_global->getName().str() << endl;
 				//cerr << "is: " << given_addr["global_" + constant_global->getName().str()];
 				return "constant_" + itos(given_addr["global_" + constant_global->getName().str()]);
+			} else if(gepop){
+				cerr << "gepop " << endl;
+				gepop->dump();
+				gepop->getOperand(0)->getType()->dump();
+				
+				string name_base = "global_" + gepop->getOperand(0)->getName().str();
+
+				
+				int b = 0;
+				string offset_tree = get_offset_tree(gepop->getType(), &b);
+
+				int base = given_addr[name_base];
+				cerr << "name_base " << name_base << " base " << base << endl;
+
+				vector<int> indexes = get_indexes_gepop(gepop);
+
+				string indexes_str;
+				for( vector<int>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+					indexes_str += itos(*it) + ",";
+				}
+				
+
+
+				int offset = get_offset(indexes, offset_tree);
+
+				int addr = base + offset;
+
+				cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
+
+				return "constant_" + itos(addr);
+
+
+
+			} else {
+				assert(0 && "Error in global pointer initialization");
 			}
 
 
@@ -2053,14 +2260,27 @@ struct GlobalInit: public ModulePass {
 
 	}
 
+	void get_given_addr(Module& M){
+
+		glo_iterator(M,gl){
+			string             name         = string("global" UNDERSCORE) + gl->getName().str();
+			const PointerType* pointertype  = cast<PointerType>(gl->getType());
+			const Type*        type_t       = pointertype->getElementType();
+			given_addr[name] = current_addr;
+			current_addr += get_size(type_t);
+		}
+	}
+
 	virtual bool runOnModule(Module &M) {
 
 		vector<VarInit> global_var_inits;
 
+		get_given_addr(M);
+
 		glo_iterator(M,gl){
 
-			//cerr << "global ";
-			//gl->dump();
+			cerr << "--- global ";
+			gl->dump();
 			//cerr << "hasInitializer " << gl->hasInitializer() << endl;
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
@@ -2091,14 +2311,12 @@ struct GlobalInit: public ModulePass {
 
 
 			//cerr << "name " << name << " addr " << current_addr << endl;
-			given_addr[name] = current_addr;
-			current_addr += get_size(type_t);
 
 		}
 
+		BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
 		for( vector<VarInit>::iterator it = global_var_inits.begin(); it != global_var_inits.end(); it++ ){
 
-			BasicBlock::iterator insertpos = M.getFunction("main")->begin()->begin();
 
 			string name           = it->name;
 			string type           = it->type;
@@ -2121,6 +2339,7 @@ struct GlobalInit: public ModulePass {
 			params.push_back(pointerToArray(M,c2));
 			params.push_back(pointerToArray(M,c3));
 			CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
 		}
 
 		return false;

@@ -49,6 +49,7 @@ test:
 	@forest ./test/simple/pointernull/config.xml
 	@forest ./test/simple/extern/config.xml
 	@forest ./test/simple/gl_pointer_init/config.xml
+	@forest ./test/simple/gl_pointer_init_offset/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
