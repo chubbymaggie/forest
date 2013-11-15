@@ -26,7 +26,7 @@ int main() {
 
 	int b = 2*a;
 
-	pivot_variable((char*)"mem_6");
+	pivot_variable((char*)"mem_0");
 
 	b = b + 2;
 
