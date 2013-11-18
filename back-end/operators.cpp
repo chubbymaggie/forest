@@ -77,30 +77,51 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
 }
 
-void Operators::CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
+vector<string> oplist_gl;
 
+void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 
-	string fn_name           = string(_fn_name);
-	vector<string> oplist    = tokenize( string(_oplist), ",");
-	vector<string> fn_oplist = tokenize( string(_fn_oplist), ",");
-	string ret_to            = string(_ret_to);
+	string fn_name = string(_fn_name);
+	vector<string> fn_oplist = tokenize(_fn_oplist, ",");
 
 	myReplace(fn_name, UNDERSCORE, "");
 
 
+	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
 
-	for ( unsigned int i = 0; i < oplist.size(); i++) {
 
-		solver->assign_instruction( name(oplist[i]), name(fn_oplist[i], fn_name) );
+	for ( unsigned int i = 0; i < oplist_gl.size(); i++) {
+
+		printf("%s %s\n", name(oplist_gl[i]).c_str(), name(fn_oplist[i], fn_name).c_str() );
+
+		solver->assign_instruction(
+				name(oplist_gl[i]),
+				name(fn_oplist[i], fn_name)
+				);
 
 	}
 
+	actual_function = fn_name;
 
 
-	debug && printf("\e[31m CallInstr %s %s %s %s\e[0m\n", _fn_name, _oplist, _fn_oplist, _ret_to );
+	myReplace(actual_function, UNDERSCORE, "underscore");
+
+}
+
+void Operators::CallInstr( char* _oplist, char* _ret_to ){
+
+
+	vector<string> oplist    = tokenize( string(_oplist), ",");
+	string ret_to            = string(_ret_to);
+
+	debug && printf("\e[31m CallInstr %s %s\e[0m\n", _oplist, _ret_to );
+
+	oplist_gl.clear();
+	for ( unsigned int i = 0; i < oplist.size(); i++) {
+		oplist_gl.push_back(oplist[i]);
+	}
 
 	callstack.push_back( pair<string, string>(ret_to, actual_function) );
-
 
 }
 
@@ -444,21 +465,6 @@ void Operators::begin_sim(){
 	debug = true;//options->cmd_option_bool("debug");
 
 	//alloca_pointer = 0;
-}
-
-void Operators::BeginFn(char* _fn_name){
-
-	string fn_name = string(_fn_name);
-
-	myReplace(fn_name, UNDERSCORE, "");
-	actual_function = fn_name;
-
-	myReplace(actual_function, UNDERSCORE, "underscore");
-
-
-	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
-
-
 }
 
 void Operators::end_sim(){

@@ -17,39 +17,39 @@ distclean: clean
 	rm -rf bin/* lib/*
 
 test:
-	@forest ./test/crest/math/config.xml
-	@forest ./test/crest/simple/config.xml
-	@forest ./test/crest/uniform_test/config.xml
-	@forest ./test/crest/function/config.xml
-	@forest ./test/crest/concrete_return/config.xml
-	@forest ./test/simple/array/config.xml
-	@forest ./test/simple/fnarray/config.xml
-	@forest ./test/klee-examples/get_sign/config.xml
-	@forest ./test/klee-examples/islower/config.xml
-	@forest ./test/simple/forloop/config.xml
-	@forest ./test/simple/float/config.xml
-	@forest ./test/simple/floatint/config.xml
-	@forest ./test/simple/struct/config.xml
-	@forest ./test/simple/global/config.xml
-	@forest ./test/simple/shift/config.xml
-	@forest ./test/simple/wired_bool/config.xml
-	@forest ./test/simple/array2d/config.xml
-	@forest ./test/simple/array_struct/config.xml
-	@forest ./test/simple/array_struct_global/config.xml
-	@forest ./test/simple/pointerincrement/config.xml
-	@forest ./test/simple/force_free/config.xml
-	@forest ./test/simple/force_free_local/config.xml
-	@forest ./test/simple/force_free_fn/config.xml
-	@forest ./test/simple/random_init/config.xml
-	@forest ./test/simple/forcepivot/config.xml
-	@forest ./test/simple/forcepivot_global/config.xml
-	@forest ./test/simple/forcepivot_hint/config.xml
-	@forest ./test/simple/force_free_and_modify/config.xml
-	@forest ./test/simple/cmdargs/config.xml
-	@forest ./test/simple/pointernull/config.xml
-	@forest ./test/simple/extern/config.xml
-	@forest ./test/simple/gl_pointer_init/config.xml
-	@forest ./test/simple/gl_pointer_init_offset/config.xml
+	@forest ./test/crest/math/config.xml                       # Simple math operations with integers
+	@forest ./test/crest/simple/config.xml                     # simple operations with a variable
+	@forest ./test/crest/uniform_test/config.xml               # nested ifs
+	@forest ./test/crest/function/config.xml                   # function call
+	@forest ./test/crest/concrete_return/config.xml            # Llamada a funciones no anotadas
+	@forest ./test/simple/array/config.xml                     # Array indexing
+	@forest ./test/simple/fnarray/config.xml                   # Pointer passed to function
+	@forest ./test/klee-examples/get_sign/config.xml           # First klee tutorial: Testing a small function
+	@forest ./test/klee-examples/islower/config.xml            # First klee tutorial: Testing a small function
+	@forest ./test/simple/forloop/config.xml                   # a for loop
+	@forest ./test/simple/float/config.xml                     # Real operations
+	@forest ./test/simple/floatint/config.xml                  # Mixing float and real operations
+	@forest ./test/simple/struct/config.xml                    # Structs
+	@forest ./test/simple/global/config.xml                    # global variables
+	@forest ./test/simple/shift/config.xml                     # Shift operations
+	@forest ./test/simple/wired_bool/config.xml                # Wired boolean operations
+	@forest ./test/simple/array2d/config.xml                   # 2D array indexing
+	@forest ./test/simple/array_struct/config.xml              # Array of struct
+	@forest ./test/simple/array_struct_global/config.xml       # Array of global struct
+	@forest ./test/simple/pointerincrement/config.xml          # incrementing a pointer
+	@forest ./test/simple/force_free/config.xml                # Force a variable to be free
+	@forest ./test/simple/force_free_local/config.xml          # Force a local variable to be free
+	@forest ./test/simple/force_free_fn/config.xml             # Force a variable to be free with a function
+	@forest ./test/simple/random_init/config.xml               # Random initialization of array
+	@forest ./test/simple/forcepivot/config.xml                # Force variable pivot
+	@forest ./test/simple/forcepivot_global/config.xml         # Force global variable pivot
+	@forest ./test/simple/forcepivot_hint/config.xml           # Force variable pivot
+	@forest ./test/simple/force_free_and_modify/config.xml     # Force a variable to be free and modify it
+	@forest ./test/simple/cmdargs/config.xml                   # command line arguments test
+	@forest ./test/simple/pointernull/config.xml               # Pointer to null
+	@forest ./test/simple/extern/config.xml                    # External declaration
+	@forest ./test/simple/gl_pointer_init/config.xml           # Global pointer initialization
+	@forest ./test/simple/gl_pointer_init_offset/config.xml    # Global pointer initialization with offset
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

@@ -69,11 +69,11 @@ public:
 	void end_sim();
 	void getelementptr(char*, char*, char*, char*);
 	void global_var_init(char* _name,char* _type, char* _value);
-	void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to );
 	void Free_fn( char* _fn_name );
 	void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );
 	void ReturnInstr(char* _retname );
-	void BeginFn(char* _fn_name);
+	void CallInstr( char* _oplist, char* _ret_to );
+	void BeginFn(char* _fn_name, char* fn_oplist);
 	void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 	string get_actual_function();
 	string name( string input, string fn_name = "" );

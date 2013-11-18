@@ -35,8 +35,8 @@ void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
 	operators->NonAnnotatedCallInstr(_fn_name, _ret_to, _ret_type);
 }
 
-void CallInstr( char* _fn_name, char* _oplist, char* _fn_oplist, char* _ret_to ){
-	operators->CallInstr(  _fn_name,  _oplist,  _fn_oplist,  _ret_to );
+void CallInstr( char* _oplist, char* _ret_to ){
+	operators->CallInstr( _oplist,  _ret_to );
 }
 
 void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
@@ -110,12 +110,12 @@ void begin_sim(){
 	operators->begin_sim();
 }
 
-void BeginFn(char* _fn_name){
+void BeginFn(char* _fn_name, char* _fn_oplist ){
 
 	if(options->cmd_option_bool("measurement"))
 		measurement->BeginFn(_fn_name);
 	else
-		operators->BeginFn(_fn_name);
+		operators->BeginFn(_fn_name, _fn_oplist);
 }
 
 void EndFn(){

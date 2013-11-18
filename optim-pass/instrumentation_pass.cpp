@@ -1432,36 +1432,16 @@ struct CallInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
 	CallInstr() : ModulePass(ID) {}
 
-	map<string, vector<string> > arguments;
 
 	virtual bool runOnModule(Module &M) {
-
-
-		mod_iterator(M, fn){
-
-			Function::arg_iterator arg_begin = fn->arg_begin();
-			Function::arg_iterator arg_end   = fn->arg_end();
-
-			for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
-
-				//cerr << fn->getName().str() << " " << it->getName().str() << endl;
-				//arguments[ fn->getName().str() ].push_back( it->getName().str() );
-				arguments[ fn->getName().str() ].push_back( operandname(it) );
-			}
-
-			//if( arg_begin != arg_end ){
-				//arg_begin->dump();
-				
-				//cerr << arg_begin->getName().str() << endl;
-				//cerr << fn->getName().str() << endl;
-
-			//}
-		}
 
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
 					if( CallInst::classof(in) ){
+
+						//cerr << "Instruction ";
+						//in->dump();
 
 						CallInst* in_c = cast<CallInst>(in);
 
@@ -1476,15 +1456,8 @@ struct CallInstr: public ModulePass {
 							operand_list << name << ",";
 						}
 
-						stringstream function_operand_list;
-						vector<string> fn_operand_list = arguments[ fn_name ];
-
-						for( vector<string>::iterator it = fn_operand_list.begin(); it != fn_operand_list.end(); it++ ){
-							function_operand_list << *it << ",";
-						}
 
 						string oplist  = operand_list.str();
-						string fn_oplist = function_operand_list.str();
 						string ret_to = operandname( in_c );
 						string ret_type = get_type_str( in_c->getType() );
 						
@@ -1505,15 +1478,12 @@ struct CallInstr: public ModulePass {
 
 						if( annotated ){
 
-							GlobalVariable* c1 = make_global_str(M, fn_name );
-							GlobalVariable* c2 = make_global_str(M, oplist );
-							GlobalVariable* c3 = make_global_str(M, fn_oplist );
-							GlobalVariable* c4 = make_global_str(M, ret_to );
+							GlobalVariable* c1 = make_global_str(M, oplist );
+							GlobalVariable* c2 = make_global_str(M, ret_to );
 
+							//void CallInstr( char* _oplist, char* _ret_to );
 							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
 										Type::getVoidTy( M.getContext() ),
-										Type::getInt8PtrTy( M.getContext() ),
-										Type::getInt8PtrTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										Type::getInt8PtrTy( M.getContext() ),
 										(Type *)0
@@ -1524,8 +1494,6 @@ struct CallInstr: public ModulePass {
 							std::vector<Value*> params;
 							params.push_back(pointerToArray(M,c1));
 							params.push_back(pointerToArray(M,c2));
-							params.push_back(pointerToArray(M,c3));
-							params.push_back(pointerToArray(M,c4));
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 						} else if(freefn){
@@ -1679,10 +1647,23 @@ struct BbMarks: public ModulePass {
 
 			string fn_name = fn->getName().str();
 
-			GlobalVariable* c1 = make_global_str(M, fn_name );
 
+			Function::arg_iterator arg_begin = fn->arg_begin();
+			Function::arg_iterator arg_end   = fn->arg_end();
+
+			stringstream function_operand_list;
+			for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
+				function_operand_list << operandname(it) << ",";
+			}
+			string fn_oplist = function_operand_list.str();
+
+			GlobalVariable* c1 = make_global_str(M, fn_name );
+			GlobalVariable* c2 = make_global_str(M, fn_oplist);
+
+			//void BeginFn(char* _fn_name, char* fn_oplist);
 			Value* InitFn = cast<Value> ( M.getOrInsertFunction( "BeginFn" ,
 						Type::getVoidTy( M.getContext() ),
+						Type::getInt8PtrTy( M.getContext() ),
 						Type::getInt8PtrTy( M.getContext() ),
 						(Type *)0
 						));
@@ -1699,6 +1680,7 @@ struct BbMarks: public ModulePass {
 
 				std::vector<Value*> params;
 				params.push_back(pointerToArray(M,c1));
+				params.push_back(pointerToArray(M,c2));
 				CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 				
 			}
