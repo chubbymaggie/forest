@@ -2164,8 +2164,8 @@ struct GlobalInit: public ModulePass {
 
 	string get_flattened_vals( Constant* constant ){
 
-		cerr << "get_flattened_vals ";
-		constant->dump();
+		//cerr << "get_flattened_vals ";
+		//constant->dump();
 
 		//cerr << "type" << endl;
 		//cerr << ConstantUndefValue::classof(constant) << endl;
@@ -2184,7 +2184,7 @@ struct GlobalInit: public ModulePass {
 
 		string type = get_type_str(constant->getType());
 
-		cerr << "type " << type << endl;
+		//cerr << "type " << type << endl;
 		//if(constant_global)
 		//cerr << "name " << constant_global->getName().str() << endl;
 
@@ -2218,8 +2218,8 @@ struct GlobalInit: public ModulePass {
 
 			const StructType* struct_type = cast<StructType>(constant->getType());
 
-			struct_type->dump();
-			constant->dump();
+			//struct_type->dump();
+			//constant->dump();
 
 			string aux;
 
@@ -2298,14 +2298,14 @@ struct GlobalInit: public ModulePass {
 			if(constant_pointer_null){
 				return "constant_0";
 			} else if (constant_global) {
-				constant_global->dump();
+				//constant_global->dump();
 				//cerr << "address of : " << "global_" + constant_global->getName().str() << endl;
 				//cerr << "is: " << given_addr["global_" + constant_global->getName().str()];
 				return "constant_" + itos(given_addr["global_" + constant_global->getName().str()]);
 			} else if(gepop){
-				cerr << "gepop " << endl;
-				gepop->dump();
-				gepop->getOperand(0)->getType()->dump();
+				//cerr << "gepop " << endl;
+				//gepop->dump();
+				//gepop->getOperand(0)->getType()->dump();
 				
 				string name_base = "global_" + gepop->getOperand(0)->getName().str();
 
@@ -2314,7 +2314,7 @@ struct GlobalInit: public ModulePass {
 				string offset_tree = get_offset_tree(gepop->getType(), &b);
 
 				int base = given_addr[name_base];
-				cerr << "name_base " << name_base << " base " << base << endl;
+				//cerr << "name_base " << name_base << " base " << base << endl;
 
 				vector<int> indexes = get_indexes_gepop(gepop);
 
@@ -2329,7 +2329,7 @@ struct GlobalInit: public ModulePass {
 
 				int addr = base + offset;
 
-				cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
+				//cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
 
 				return "constant_" + itos(addr);
 
@@ -2367,8 +2367,8 @@ struct GlobalInit: public ModulePass {
 
 		glo_iterator(M,gl){
 
-			cerr << "--- global ";
-			gl->dump();
+			//cerr << "--- global ";
+			//gl->dump();
 			//cerr << "hasInitializer " << gl->hasInitializer() << endl;
 
 			string             name         = string("global" UNDERSCORE) + gl->getName().str();
