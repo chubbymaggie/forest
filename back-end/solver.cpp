@@ -254,6 +254,9 @@ void Solver::dump_get(FILE* file){
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 		if( it->second.content == "" ) continue;
 		if( it->first.find("_pivot_") != string::npos ) continue;
+		if( gettype(it->first) == "Function") continue;
+		
+		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
 		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
 	}
@@ -435,6 +438,8 @@ void Solver::solve_problem(){
 
 	sat = get_is_sat(sat_str);
 
+	debug && printf("\e[31m problem solved \e[0m\n" );
+
 	if(!sat) return;
 
 
@@ -465,6 +470,7 @@ void Solver::solve_problem(){
 
 		if( it->second.content == "" ) continue;
 		if( it->first.find("_pivot_") != string::npos ) continue;
+		if( gettype(it->first) == "Function") continue;
 		//printf("first name %s\n", it->first.c_str() );
 
 		string line = *it_ret;
@@ -515,6 +521,13 @@ void Solver::insert_variable(string name, string position){
 		return;
 
 	if( is_number(name) )
+		return;
+
+
+	if( name.find("function") != string::npos )
+		return;
+
+	if( gettype(name) == "Function" )
 		return;
 
 	//if(variables[name].contents.size() == 0)
