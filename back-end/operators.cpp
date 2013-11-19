@@ -108,7 +108,22 @@ void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 
 }
 
-void Operators::CallInstr( char* _oplist, char* _ret_to ){
+int callstack_size;
+
+void Operators::CallInstr_post( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
+
+	int prev_callstack_size = callstack_size;
+	int callstack_size_local = callstack.size();
+
+	//printf("prev_callstack_size %d callstack_size_local %d\n", prev_callstack_size, callstack_size_local);
+
+	if(prev_callstack_size == callstack_size_local)
+		NonAnnotatedCallInstr( _fn_name, _ret_to, _ret_type );
+
+
+}
+
+void Operators::CallInstr( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
 
 
 	vector<string> oplist    = tokenize( string(_oplist), ",");
@@ -122,6 +137,8 @@ void Operators::CallInstr( char* _oplist, char* _ret_to ){
 	}
 
 	callstack.push_back( pair<string, string>(ret_to, actual_function) );
+
+	callstack_size = callstack.size();
 
 }
 

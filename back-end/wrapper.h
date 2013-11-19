@@ -150,7 +150,8 @@ extern "C" void global_var_init(char* _name,char* _type, char* _value);
  * @param _fn_oplist: Formal parameters
  * @param _ret_to
  */
-extern "C" void CallInstr( char* _oplist, char* _ret_to );
+extern "C" void CallInstr( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type );
+extern "C" void CallInstr_post( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type );
 extern "C" void Free_fn( char* _fn_name );
 
 extern "C" void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );

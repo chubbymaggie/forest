@@ -2088,6 +2088,7 @@ int main(int argc, const char *argv[]) {
 	disables("compare_bc", "test");
 	disables("compare_bc", "check_concurrency");
 	disables("compare_bc", "check_concurrency_2");
+	disables("compare_bc", "check_coverage");
 	disables("compare_measure_bc", "test");
 	disables("compare_secuencialize", "test");
 	disables("compare_secuencialize", "check_concurrency");
