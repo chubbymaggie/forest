@@ -1116,7 +1116,8 @@ bool Solver::check_mangled_name(string name){
 		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[1].substr(0,8) != "register" &&
 		   tokens[0].substr(0,3) != "mem"      &&
-		   tokens[0].substr(0,6) != "global"
+		   tokens[0].substr(0,6) != "global"   && 
+		   tokens[0].substr(0,8) != "function"
 		  ) return false;
 	}
 
@@ -1141,6 +1142,10 @@ bool Solver::get_is_propagated_constant(string varname){
 }
 
 string Solver::gettype(string name){
+
+	//printf("gettype %s\n", name.c_str());
+
+	if( variables.find(name) == variables.end() ) assert(0 && "Not such variable");
 
 	if(name.find("_pivot_") != string::npos)
 		name = name.substr(0, name.find("_pivot_"));
@@ -1193,10 +1198,16 @@ void Solver::settype(string name, string type){
 
 string Solver::get_type(string name){
 
+	//printf("get_type %s\n", name.c_str());
+
 	if(name.find("pivot") != string::npos)
 		name = name.substr(0,name.find("_pivot_"));
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
+
+	if(name.substr(0,8) == "function"){
+		return "Function";
+	}
 
 	if(name.substr(0,9) == "constant" UNDERSCORE) return "IntegerTyID32";
 	if( is_number(name) ){
@@ -1239,6 +1250,9 @@ string Solver::get_type(string name){
 
 	if (gettype(name) == "Pointer")
 		return "Pointer";
+
+	if (gettype(name) == "Function")
+		return "Function";
 
 
 	printf("name %s type %s\n", name.c_str(), gettype(name).c_str() );

@@ -234,6 +234,9 @@ void Operators::load_instr(char* _dst, char* _addr){
 
 void Operators::store_instr(char* _src, char* _addr){
 
+	// debug && printf("\e[33m store instruction %s %s\e[0m\n", _src, _addr );
+
+
 	string src = string(_src);
 	string addr = string(_addr);
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
@@ -581,7 +584,8 @@ string Operators::name( string input, string fn_name ){
 
 	if(input.substr(0,9) != "constant" UNDERSCORE &&
 			input.substr(0,4) != "mem" UNDERSCORE &&
-	 		input.substr(0,7) != "global" UNDERSCORE )
+	 		input.substr(0,7) != "global" UNDERSCORE &&
+			input.substr(0,9) != "function" UNDERSCORE )
 		myReplace(input, UNDERSCORE, "underscore" );
 
 
@@ -604,6 +608,8 @@ string Operators::name( string input, string fn_name ){
 	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
 		return input;
 	} else if (input.substr(0,7) == "global" UNDERSCORE ){
+		return input;
+	} else if (input.find("function") != string::npos ){
 		return input;
 	} else {
 		return ((fn_name == "")?actual_function:fn_name) + UNDERSCORE + input;
@@ -634,7 +640,8 @@ bool Operators::check_mangled_name(string name){
 		vector<string> tokens = tokenize(name, UNDERSCORE);
 		if(tokens[1].substr(0,8) != "register" &&
 		   tokens[0].substr(0,3) != "mem"      &&
-		   tokens[0].substr(0,6) != "global"
+		   tokens[0].substr(0,6) != "global"   &&
+		   tokens[0].substr(0,8) != "function"
 		  ) return false;
 	}
 

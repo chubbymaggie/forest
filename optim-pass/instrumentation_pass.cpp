@@ -94,6 +94,10 @@ string operandname( Value* operand ){
 		return nameop1_ss.str();
 	} else if(GlobalVariable::classof(operand)){
 		return "global" UNDERSCORE + operand->getName().str();
+	} else if(Function::classof(operand)){
+		string name = operand->getName();
+		if(name.substr(0,1) == "_") name = name.substr(1);
+		return "function" UNDERSCORE + name;
 	} else {
 		return "register" UNDERSCORE + operand->getName().str();
 	}
@@ -1445,7 +1449,13 @@ struct CallInstr: public ModulePass {
 
 						CallInst* in_c = cast<CallInst>(in);
 
-						string fn_name = in_c->getCalledFunction()->getName().str();
+						bool hasname = in_c->getCalledFunction();
+
+						string fn_name;
+					        if(hasname)
+							fn_name = in_c->getCalledFunction()->getName().str();
+						else
+							fn_name ="";
 
 						if(fn_name == "global_var_init") continue;
 
@@ -1465,10 +1475,8 @@ struct CallInstr: public ModulePass {
 						//cerr << oplist  << endl;
 						//cerr << fn_oplist << endl;
 
-						Function::iterator fn_begin = in_c->getCalledFunction()->begin();
-						Function::iterator fn_end   = in_c->getCalledFunction()->end();
 
-						bool annotated = (fn_begin != fn_end);
+						bool annotated = hasname && ( in_c->getCalledFunction()->begin() != in_c->getCalledFunction()->end() );
 						bool freefn = (fn_name == "_Z10force_freePi");
 						bool forcepivot = (fn_name == "_Z9pivot_varPi");
 						//cerr << "name " << fn_name << endl;

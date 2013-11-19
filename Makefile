@@ -50,6 +50,7 @@ test:
 	@forest ./test/simple/extern/config.xml                    # External declaration
 	@forest ./test/simple/gl_pointer_init/config.xml           # Global pointer initialization
 	@forest ./test/simple/gl_pointer_init_offset/config.xml    # Global pointer initialization with offset
+	@forest ./test/simple/fn_pointer/config.xml                # Calling function through a pointer
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
