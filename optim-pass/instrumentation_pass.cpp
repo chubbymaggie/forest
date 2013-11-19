@@ -1432,9 +1432,10 @@ struct BrInstr: public ModulePass {
 	}
 };
 
-struct CallInstr: public ModulePass {
+
+struct SpecialCall: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
-	CallInstr() : ModulePass(ID) {}
+	SpecialCall() : ModulePass(ID) {}
 
 
 	virtual bool runOnModule(Module &M) {
@@ -1457,7 +1458,14 @@ struct CallInstr: public ModulePass {
 						else
 							fn_name ="";
 
-						if(fn_name == "global_var_init") continue;
+						if(fn_name == "global_var_init" ) continue;
+
+						if(
+						   fn_name != "_Z10force_freePi"   && 
+						   fn_name != "_Z9pivot_varPi"
+						   )
+							continue;
+
 
 
 						stringstream operand_list;
@@ -1470,41 +1478,12 @@ struct CallInstr: public ModulePass {
 						string oplist  = operand_list.str();
 						string ret_to = operandname( in_c );
 						string ret_type = get_type_str( in_c->getType() );
-						
-						//cerr << fn_name << endl;
-						//cerr << oplist  << endl;
-						//cerr << fn_oplist << endl;
 
-
-						bool annotated = hasname && ( in_c->getCalledFunction()->begin() != in_c->getCalledFunction()->end() );
 						bool freefn = (fn_name == "_Z10force_freePi");
 						bool forcepivot = (fn_name == "_Z9pivot_varPi");
-						//cerr << "name " << fn_name << endl;
-						//cerr << "freefn " << freefn << endl;
-						//cerr << "annotated " << annotated << endl;
 
 
-						if( annotated ){
-
-							GlobalVariable* c1 = make_global_str(M, oplist );
-							GlobalVariable* c2 = make_global_str(M, ret_to );
-
-							//void CallInstr( char* _oplist, char* _ret_to );
-							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
-										Type::getVoidTy( M.getContext() ),
-										Type::getInt8PtrTy( M.getContext() ),
-										Type::getInt8PtrTy( M.getContext() ),
-										(Type *)0
-										));
-
-							BasicBlock::iterator insertpos = in;
-
-							std::vector<Value*> params;
-							params.push_back(pointerToArray(M,c1));
-							params.push_back(pointerToArray(M,c2));
-							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-
-						} else if(freefn){
+						if(freefn){
 
 							
 							GlobalVariable* c2 = make_global_str(M, oplist );
@@ -1537,6 +1516,135 @@ struct CallInstr: public ModulePass {
 							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
 
 						} else {
+
+							assert(0 && "Unknown special function");
+
+						}
+							
+
+					}
+				}
+			}
+		}
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( ReturnInst::classof(in) ){
+
+						ReturnInst* in_r = cast<ReturnInst>(in);
+
+
+						string returnoperand;
+						if( !in_r->getReturnValue() )
+							returnoperand = "register" UNDERSCORE;
+						else
+							returnoperand = operandname( in_r->getReturnValue() );
+
+						GlobalVariable* c1 = make_global_str(M, returnoperand );
+
+						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "ReturnInstr" ,
+									Type::getVoidTy( M.getContext() ),
+									Type::getInt8PtrTy( M.getContext() ),
+									(Type *)0
+									));
+
+						BasicBlock::iterator insertpos = in;
+
+						std::vector<Value*> params;
+						params.push_back(pointerToArray(M,c1));
+						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
+
+
+					}
+
+				}
+			}
+		}
+
+
+
+
+
+		return false;
+	}
+};
+
+
+
+struct CallInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	CallInstr() : ModulePass(ID) {}
+
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( CallInst::classof(in) ){
+
+						//cerr << "Instruction ";
+						//in->dump();
+
+						CallInst* in_c = cast<CallInst>(in);
+
+						bool hasname = in_c->getCalledFunction();
+
+						string fn_name;
+					        if(hasname)
+							fn_name = in_c->getCalledFunction()->getName().str();
+						else
+							fn_name ="";
+
+						if(fn_name == "global_var_init") continue;
+						if(fn_name == "_Z10force_freePi") continue;
+						if(fn_name == "_Z9pivot_varPi") continue;
+
+
+						stringstream operand_list;
+						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
+							string name = operandname( in_c->getArgOperand(i) );
+							operand_list << name << ",";
+						}
+
+
+						string oplist  = operand_list.str();
+						string ret_to = operandname( in_c );
+						string ret_type = get_type_str( in_c->getType() );
+						
+						//cerr << fn_name << endl;
+						//cerr << oplist  << endl;
+						//cerr << fn_oplist << endl;
+
+
+						bool annotated = hasname && ( in_c->getCalledFunction()->begin() != in_c->getCalledFunction()->end() );
+
+
+						if( annotated ){
+
+							GlobalVariable* c1 = make_global_str(M, oplist );
+							GlobalVariable* c2 = make_global_str(M, ret_to );
+
+							//void CallInstr( char* _oplist, char* _ret_to );
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "CallInstr" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
+							params.push_back(pointerToArray(M,c2));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						}  else {
 							GlobalVariable* c1 = make_global_str(M, fn_name );
 							GlobalVariable* c2 = make_global_str(M, ret_to );
 							GlobalVariable* c3 = make_global_str(M, ret_type );
@@ -2347,6 +2455,7 @@ struct All: public ModulePass {
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
 		{CallInstr        pass;   pass.runOnModule(M);}
+		{SpecialCall      pass;   pass.runOnModule(M);}
 		{SelectInstr      pass;   pass.runOnModule(M);}
 		{BinaryOp         pass;   pass.runOnModule(M);}
 		{CastInstr        pass;   pass.runOnModule(M);}
@@ -2363,30 +2472,6 @@ struct All: public ModulePass {
 };
 
 
-struct AllExceptLS: public ModulePass {
-	static char ID; // Pass identification, replacement for typeid
-	AllExceptLS() : ModulePass(ID) {}
-
-	virtual bool runOnModule(Module &M) {
-
-		{FillNames        pass;   pass.runOnModule(M);}
-		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit       pass;   pass.runOnModule(M);}
-		{CallInstr        pass;   pass.runOnModule(M);}
-		{SelectInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp         pass;   pass.runOnModule(M);}
-		{CastInstr        pass;   pass.runOnModule(M);}
-		//{LoadStore        pass;   pass.runOnModule(M);}
-		{IcmpInstr        pass;   pass.runOnModule(M);}
-		{BrInstr          pass;   pass.runOnModule(M);}
-		{BbMarks          pass;   pass.runOnModule(M);}
-		{AllocaInstr      pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
-		{GetelementPtr    pass;   pass.runOnModule(M);}
-
-		return false;
-	}
-};
 
 
 
@@ -2419,6 +2504,10 @@ static RegisterPass<BrInstr> BrInstr(               "instr_brinstr"         , "I
 char CallInstr::ID = 0;
 static RegisterPass<CallInstr> CallInstr(           "instr_callinstr"       , "Instrument call operations" );
 
+
+char SpecialCall::ID = 0;
+static RegisterPass<SpecialCall> SpecialCall(           "instr_specialcall"       , "Instrument call operations" );
+
 char BbMarks::ID = 0;
 static RegisterPass<BbMarks> BbMarks(               "instr_bbmarks"         , "Instrument Basic-Blocks" );
 
@@ -2440,7 +2529,5 @@ static RegisterPass<MainArgs> MainArgs(             "main_args"             , "m
 char All::ID = 0;
 static RegisterPass<All> All(                        "instr_all"            , "Instrument all operations" );
 
-char AllExceptLS::ID = 0;
-static RegisterPass<AllExceptLS> AllExceptLS(        "instr_all_except_ls"            , "Instrument all operations" );
 
 
