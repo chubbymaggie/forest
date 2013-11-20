@@ -2,6 +2,7 @@
 
 <options>
 	<option key="test" value="true"/> 
+	<option key="with_libs" value="true"/> 
 	<option key="explanation" value="yes coreutils test"/> 
 	<option key="file" value="yes.c"/> 
 </options>

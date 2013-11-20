@@ -16,6 +16,15 @@
 
 /* David MacKenzie <djm@gnu.ai.mit.edu> */
 
+#include <stdlib.h>
+#include <locale.h>
+#include <libintl.h>
+#include <stdout.h>
+#include <errno.h>
+
+
+
+
 #include <config.h>
 #include <stdio.h>
 #include <sys/types.h>

@@ -358,10 +358,33 @@ void make_initial_bc(){
 		cmd << "> " << tmp_file("file.cpp");
 		systm(cmd.str().c_str());
 
+
+
+		string base_path = cmd_option_str("base_path");
+
+
+		string cflags;
+		if(cmd_option_bool("with_libs"))
+			cflags = "-I" + base_path + "/stdlibs/include/";
+
+
 		// Compilación del código a .bc
 		cmd.str("");
-		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT -c file.cpp -o file.bc";
+		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT " << cflags << " -c file.cpp -o file.bc";
 		systm(cmd.str().c_str());
+
+
+		if(cmd_option_bool("with_libs")){
+			cmd.str("");
+			cmd << "llvm-link " << tmp_file("file.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-2.bc") << ";";
+			systm(cmd.str().c_str());
+
+			cmd.str("");
+			cmd << "mv " << tmp_file("file-2.bc") << " " << tmp_file("file.bc");
+			systm(cmd.str().c_str());
+		}
+
+
 	}
 }
 
@@ -2101,6 +2124,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("verbose")
 	//cmd_option_bool("see_each_problem")
 	//cmd_option_bool("seq_name")
+	//cmd_option_bool("with_libs")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
