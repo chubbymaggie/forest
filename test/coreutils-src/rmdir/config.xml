@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="rmdir coreutils test"/> 
+	<option key="file" value="rmdir.c"/> 
+</options>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="false coreutils test"/> 
+	<option key="file" value="false.c"/> 
+</options>
