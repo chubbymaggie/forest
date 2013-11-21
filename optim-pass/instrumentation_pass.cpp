@@ -11,7 +11,7 @@
  * |     Compiler:  gcc
  * `-. .--------------------
  *    Y
- *    ,,  ,---,
+ *    ♪♪  ,---,
  *   (_,\/_\_/_\     Author:   Pablo González de Aledo (), pablo.aledo@gmail.com
  *     \.\_/_\_/>    Company:  Universidad de Cantabria
  *     '-'   '-'
@@ -1203,6 +1203,70 @@ struct IcmpInstr: public ModulePass {
 		return false;
 	}
 };
+
+
+struct SwitchInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	SwitchInstr() : ModulePass(ID) {}
+
+
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> to_rm;
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( SwitchInst::classof(in) ){
+
+						SwitchInst* in_s = cast<SwitchInst>(in);
+						BasicBlock* def = cast<BasicBlock>(in_s->getOperand(1));
+
+
+
+
+						to_rm.push_back(in);
+
+						Value* reg = in_s->getOperand(0);
+
+						vector<BasicBlock*> bb_orig_v;
+						vector<BasicBlock*> bb_created_v;
+						vector<Value*> values_v;
+						for ( unsigned int i = 0; i < (in_s->getNumOperands()-2)/2;i++) {
+							BasicBlock* bb_orig    = cast<BasicBlock>(in_s->getOperand(2*i+3));
+							Value*      value      = in_s->getOperand(2*i+2);
+							BasicBlock* bb_created = BasicBlock::Create(M.getContext(), "bb_sw", fn,0);
+
+							bb_orig_v.push_back(bb_orig);
+							bb_created_v.push_back(bb_created);
+							values_v.push_back(value);
+						}
+
+						BranchInst::Create(cast<BasicBlock>(bb_created_v[0]), cast<BasicBlock>(bb));
+
+						for ( unsigned int i = 0; i < bb_orig_v.size(); i++) {
+							Instruction* icmp   = new ICmpInst(*(bb_created_v[i]), ICmpInst::ICMP_EQ, reg, values_v[i], "" );
+							//BranchInst::Create( bb_orig_v[i], def, icmp, bb_created_v[i]);
+							
+							if(i==bb_orig_v.size()-1)
+								BranchInst::Create( bb_orig_v[i], def, icmp, bb_created_v[i]);
+							else
+								BranchInst::Create( bb_orig_v[i], bb_created_v[i+1], icmp, bb_created_v[i]);
+						}
+
+					}
+				}
+			}
+		}
+
+		for( vector<Instruction*>::iterator it = to_rm.begin(); it != to_rm.end(); it++ ){
+			(*it)->eraseFromParent();
+		}
+
+		return false;
+	}
+};
+
 
 struct BrInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
@@ -2441,6 +2505,7 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		{MainArgs         pass;   pass.runOnModule(M);}
+		{SwitchInstr      pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
 		{GlobalInit       pass;   pass.runOnModule(M);}
@@ -2490,6 +2555,9 @@ static RegisterPass<IcmpInstr> IcmpInstr(           "instr_icmpinstr"       , "I
 
 char BrInstr::ID = 0;
 static RegisterPass<BrInstr> BrInstr(               "instr_brinstr"         , "Instrument branch operations" );
+
+char SwitchInstr::ID = 0;
+static RegisterPass<SwitchInstr> SwitchInstr(       "instr_switch"         , "Instrument switch operations" );
 
 char CallInstr::ID = 0;
 static RegisterPass<CallInstr> CallInstr(           "instr_callinstr"       , "Instrument call operations" );
