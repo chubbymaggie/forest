@@ -70,10 +70,10 @@ public:
 	void getelementptr(char*, char*, char*, char*);
 	void global_var_init(char* _name,char* _type, char* _value);
 	void Free_fn( char* _fn_name );
-	void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type );
+	void NonAnnotatedCallInstr( char* _fn_name, char* _ret_type );
 	void ReturnInstr(char* _retname );
-	void CallInstr( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type );
-	void CallInstr_post( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type );
+	void CallInstr( char* _oplist, char* _ret_to );
+	void CallInstr_post( char* _fn_name, char* _ret_type );
 	void BeginFn(char* _fn_name, char* fn_oplist);
 	void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 	string get_actual_function();

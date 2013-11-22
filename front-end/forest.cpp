@@ -1596,7 +1596,7 @@ void do_klee(){
 
 	command << "(cd " << cmd_option_str("tmp_dir") << "; klee --emit-all-errors file.bc 2>&1)";
 
-	debug && printf("\e[31m %s \e[0m\n", command.str().c_str());
+	cmd_option_bool("verbose") && printf("\e[31m %s \e[0m\n", command.str().c_str());
 	
 
 	struct timespec ping_time;

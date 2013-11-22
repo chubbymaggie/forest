@@ -65,34 +65,28 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 
 }
 
-void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
-
-	string fn_name           = string(_fn_name);
-	string ret_to            = string(_ret_to);
-	string ret_type          = string(_ret_type);
-
-	set_name_hint(name(ret_to), "return_of_" + fn_name );
-	solver->settype(name(ret_to), ret_type );
-
-	debug && printf("\e[31m NonAnnotatedCallInstr %s %s %s\e[0m\n", _fn_name, _ret_to, _ret_type );
-}
 
 vector<string> oplist_gl;
+string ret_to_gl;
+string ret_gl;
+int callstack_size;
 
 void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 
 	string fn_name = string(_fn_name);
 	vector<string> fn_oplist = tokenize(_fn_oplist, ",");
 
+	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
+
+
 	myReplace(fn_name, UNDERSCORE, "");
 
 
-	debug && printf("\e[36m begin_fn %s \e[0m\n", _fn_name);
 
 
 	for ( unsigned int i = 0; i < oplist_gl.size(); i++) {
 
-		printf("%s %s\n", name(oplist_gl[i]).c_str(), name(fn_oplist[i], fn_name).c_str() );
+		printf("\e[34m actual %s formal %s\e[0m \n", name(oplist_gl[i]).c_str(), name(fn_oplist[i], fn_name).c_str() );
 
 		solver->assign_instruction(
 				name(oplist_gl[i]),
@@ -102,43 +96,108 @@ void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 	}
 
 	actual_function = fn_name;
-
-
 	myReplace(actual_function, UNDERSCORE, "underscore");
+
+	callstack.push_back( pair<string, string>(ret_to_gl, actual_function) );
+
 
 }
 
-int callstack_size;
 
-void Operators::CallInstr_post( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
+void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 
 	int prev_callstack_size = callstack_size;
 	int callstack_size_local = callstack.size();
 
-	//printf("prev_callstack_size %d callstack_size_local %d\n", prev_callstack_size, callstack_size_local);
+	printf("prev_callstack_size %d callstack_size_local %d\n", prev_callstack_size, callstack_size_local);
+	
+	debug && printf("\e[31m CallInstr_post %s %s \e[0m. %s\n", _fn_name, _ret_type, ret_to_gl.c_str() );
 
-	if(prev_callstack_size == callstack_size_local)
-		NonAnnotatedCallInstr( _fn_name, _ret_to, _ret_type );
+	bool annotated = (prev_callstack_size != callstack_size_local);
+
+	if(!annotated)
+		NonAnnotatedCallInstr( _fn_name, _ret_type );
+
+
+	if( callstack.size() == 0 ) return;
+	if( ret_gl == "register_" ){
+
+		string last_fn_callstack = callstack[ callstack.size() - 1].second;
+
+		callstack.erase( callstack.end() - 1 );
+		actual_function = last_fn_callstack;
+
+		return;
+	}
+
+	string last_rg_callstack = callstack[ callstack.size() - 1].first;
+	string last_fn_callstack = callstack[ callstack.size() - 1].second;
+
+	if(annotated)
+		solver->assign_instruction( name(ret_gl), name(last_rg_callstack, last_fn_callstack) );
+
+	callstack.erase( callstack.end() - 1 );
+	actual_function = last_fn_callstack;
+
+
+
+
+
+
 
 
 }
 
-void Operators::CallInstr( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
+
+void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
+
+
+	debug && printf("\e[33m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
+	string fn_name           = string(_fn_name);
+	string ret_to            = ret_to_gl;
+	string ret_type          = string(_ret_type);
+
+	//printf("nonannotatedcallinstr %s\n", name(ret_to).c_str());
+
+	set_name_hint(name(ret_to), "return_of_" + fn_name );
+	solver->settype(name(ret_to), ret_type );
+
+	debug && printf("\e[31m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
+}
+
+
+void Operators::CallInstr( char* _oplist, char* _ret_to ){
 
 
 	vector<string> oplist    = tokenize( string(_oplist), ",");
-	string ret_to            = string(_ret_to);
+	string ret_to = string(_ret_to);
 
 	debug && printf("\e[31m CallInstr %s %s\e[0m\n", _oplist, _ret_to );
 
 	oplist_gl.clear();
 	for ( unsigned int i = 0; i < oplist.size(); i++) {
+		debug && printf("\e[31m Saving %s\e[0m\n", oplist[i].c_str() );
 		oplist_gl.push_back(oplist[i]);
 	}
 
-	callstack.push_back( pair<string, string>(ret_to, actual_function) );
 
 	callstack_size = callstack.size();
+	ret_to_gl = ret_to;
+
+}
+
+void Operators::ReturnInstr(char* _retname ){
+
+	string retname = string(_retname);
+
+	if(!check_mangled_name(name(retname))) assert(0 && "Wrong return name for ReturnInstr");
+
+	ret_gl = retname;
+
+
+
+	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
+
 
 }
 
@@ -165,38 +224,6 @@ void Operators::select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 }
 
-void Operators::ReturnInstr(char* _retname ){
-
-	string retname = string(_retname);
-
-	if(!check_mangled_name(name(retname))) assert(0 && "Wrong return name for ReturnInstr");
-
-
-
-	if( callstack.size() == 0 ) return;
-	if( retname == "register_" ){
-
-		string last_fn_callstack = callstack[ callstack.size() - 1].second;
-
-		callstack.erase( callstack.end() - 1 );
-		actual_function = last_fn_callstack;
-
-		return;
-	}
-
-	string last_rg_callstack = callstack[ callstack.size() - 1].first;
-	string last_fn_callstack = callstack[ callstack.size() - 1].second;
-
-	solver->assign_instruction( name(retname), name(last_rg_callstack, last_fn_callstack) );
-
-	callstack.erase( callstack.end() - 1 );
-	actual_function = last_fn_callstack;
-
-
-	debug && printf("\e[31m ReturnInstr %s \e[0m size %lu \n", _retname, callstack.size() );
-
-
-}
 
 void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 

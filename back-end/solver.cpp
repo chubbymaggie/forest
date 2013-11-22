@@ -772,12 +772,12 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	//substitute_pivots(src);
 	
+	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong src for assign");
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for assign");
 
 
-	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
 	//if( !is_pivot(src) ){
 		//printf("not pivot\n");

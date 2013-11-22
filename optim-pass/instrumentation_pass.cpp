@@ -1693,15 +1693,11 @@ struct CallInstr: public ModulePass {
 									Type::getVoidTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
 									));
 
 						Value* InitFn_post = cast<Value> ( M.getOrInsertFunction( "CallInstr_post" ,
 									Type::getVoidTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									Type::getInt8PtrTy( M.getContext() ),
 									(Type *)0
@@ -1711,16 +1707,17 @@ struct CallInstr: public ModulePass {
 
 						BasicBlock::iterator insertpos = in;
 
-						std::vector<Value*> params;
-						params.push_back(pointerToArray(M,c1));
-						params.push_back(pointerToArray(M,c2));
-						params.push_back(pointerToArray(M,c3));
-						params.push_back(pointerToArray(M,c4));
-						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+						std::vector<Value*> params1;
+						params1.push_back(pointerToArray(M,c2));
+						params1.push_back(pointerToArray(M,c3));
+						CallInst::Create(InitFn, params1.begin(), params1.end(), "", insertpos);
 
 						insertpos++; in++;
 
-						CallInst::Create(InitFn_post, params.begin(),params.end(), "", insertpos);
+						std::vector<Value*> params2;
+						params2.push_back(pointerToArray(M,c1));
+						params2.push_back(pointerToArray(M,c4));
+						CallInst::Create(InitFn_post, params2.begin(),params2.end(), "", insertpos);
 
 					}
 				}

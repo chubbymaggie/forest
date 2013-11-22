@@ -31,16 +31,16 @@ void cast_instruction(char* _dst, char* _src, char* _type){
        	operators->cast_instruction(_dst, _src, _type); 
 }
 
-void NonAnnotatedCallInstr( char* _fn_name, char* _ret_to, char* _ret_type ){
-	operators->NonAnnotatedCallInstr(_fn_name, _ret_to, _ret_type);
+void NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
+	operators->NonAnnotatedCallInstr(_fn_name, _ret_type);
 }
 
-void CallInstr_post( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
-	operators->CallInstr_post( _fn_name, _oplist, _ret_to, _ret_type );
+void CallInstr_post( char* _fn_name, char* _ret_type ){
+	operators->CallInstr_post( _fn_name, _ret_type );
 }
 
-void CallInstr( char* _fn_name, char* _oplist, char* _ret_to, char* _ret_type ){
-	operators->CallInstr( _fn_name, _oplist,  _ret_to, _ret_type );
+void CallInstr( char* _oplist, char* _ret_to ){
+	operators->CallInstr( _oplist,  _ret_to );
 }
 
 void select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
