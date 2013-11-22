@@ -1,4 +1,6 @@
-
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
 
 int main(void) {
 	int a[5][4];

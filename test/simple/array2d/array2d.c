@@ -1,3 +1,6 @@
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
 
 int a[2][2] = { {1,2}, {3,4} };
 /*int a[2][2];*/

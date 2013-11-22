@@ -40,6 +40,10 @@
 /*                                                                       */
 /*                                                                       */
 /*************************************************************************/
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 
 
 #define SWAP(a,b) temp=(a);(a)=(b);(b)=temp;

@@ -43,6 +43,10 @@
 /*                                                                       */
 /*                                                                       */
 /*************************************************************************/
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 
 
 #define SAMPLE_RATE 11025

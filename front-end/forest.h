@@ -40,6 +40,8 @@ void measure_coverage();
 void check_coverage();
 void options_to_file();
 void set_option( string key, string value );
+void do_klee();
+void minimal_test_vectors_to_db();
 
 
 

@@ -8,6 +8,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See LICENSE
  * for details.
  */
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 
 int main(void) {
 

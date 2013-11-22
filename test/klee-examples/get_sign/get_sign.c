@@ -1,6 +1,10 @@
 /*
  * First KLEE tutorial: testing a small function
  */
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 
 
 int getsign(int x) {

@@ -39,6 +39,10 @@
 /*                                                                       */
 /*                                                                       */
 /*************************************************************************/
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 
 
 #define SIZE 5

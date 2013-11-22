@@ -38,7 +38,7 @@ typedef struct FreeVariableInfo{
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
-std::map<string, set<string> > needed_map;
+std::map<string, vector<string> > needed_map;
 std::map<string, set<string> > disables_map;
 std::set<string> passes_done;
 
@@ -62,6 +62,8 @@ void do_pass(string passname){
 		measure_coverage();
 	else if(passname == "check_coverage")
 		check_coverage();
+	else if(passname == "klee")
+		do_klee();
 	else {
 		printf("Pass %s\n", passname.c_str());
 		assert(0 && "Unknown pass");
@@ -77,8 +79,8 @@ void start_pass(string pass){
 	debug && printf(" ----- Starting pass %s\n", pass.c_str());
 
 
-	set<string> needed = needed_map[pass];
-	for( set<string>::iterator it = needed.begin(); it != needed.end(); it++ ){
+	vector<string> needed = needed_map[pass];
+	for( vector<string>::iterator it = needed.begin(); it != needed.end(); it++ ){
 		debug && printf("pass %s needs %s\n", pass.c_str(), it->c_str() );
 		if(!done(*it)){
 			debug && printf("Do it (%s)\n", it->c_str());
@@ -388,6 +390,36 @@ void make_initial_bc(){
 	}
 }
 
+
+void make_initial_bc_klee(){
+
+	stringstream cmd;
+
+	// Junta todos los .c en uno
+	cmd.str("");
+	cmd << "cat ";
+	vector<string> files = cmd_option_string_vector("file");
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		cmd << prj_file(*it) << " ";
+	}
+	cmd << "> " << tmp_file("file.cpp");
+	systm(cmd.str().c_str());
+
+
+
+	string base_path = cmd_option_str("base_path");
+
+
+	// Compilación del código a .bc
+	cmd.str("");
+	cmd << "llvm-g++ -O0 --emit-llvm -D KLEE -c file.cpp -o file.bc";
+	systm(cmd.str().c_str());
+
+}
+
+
+
+
 void make_bc(){
 
 	start_pass("make_bc");
@@ -585,6 +617,8 @@ void run(){
 	cmd.str("");
 	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
+
+	minimal_test_vectors_to_db();
 
 	end_pass("run");
 
@@ -1545,11 +1579,13 @@ void count_branches(){
 
 void do_klee(){
 
+	start_pass("klee");
+
 	string base_path = cmd_option_str("base_path");
 	string llvm_path = cmd_option_str("llvm_path");
 	stringstream cmd;
 
-	make_initial_bc();
+	make_initial_bc_klee();
 
 	// Ejecutar klee
 	FILE *fp;
@@ -1557,7 +1593,9 @@ void do_klee(){
 	char ret[SIZE_STR];
 	vector<string> ret_vector;
 
-	command << "cd /tmp; klee --emit-all-errors file.o 2>&1";
+	command << "(cd " << cmd_option_str("tmp_dir") << "; klee --emit-all-errors file.bc 2>&1)";
+
+	debug && printf("\e[31m %s \e[0m\n", command.str().c_str());
 	
 
 	struct timespec ping_time;
@@ -1591,6 +1629,8 @@ void do_klee(){
 	cmd.str("");
 	cmd << "insert into klee values('" << time_ms_int << "','" << completed_paths << "');";
 	db_command(cmd.str());
+
+	end_pass("klee");
 
 }
 
@@ -2039,11 +2079,58 @@ void check_concurrency_2(){
 }
 
 void needs(string second, string first){
-	needed_map[second].insert(first);
+	needed_map[second].push_back(first);
 }
 
 void disables(string second, string first){
 	disables_map[second].insert(first);
+}
+
+void compare_klee(){
+
+	start_pass("compare_klee");
+
+
+	int paths_klee;
+	int paths_forest;
+
+	stringstream command;
+	
+	{
+		command.str("");
+		command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select paths from klee;' | sqlite3 database.db";
+		FILE *fp = popen(command.str().c_str(), "r");
+		fscanf(fp, "%d", &paths_klee);
+		pclose(fp);
+	}
+	
+	{
+		command.str("");
+		command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select count(distinct vector_id) from minimal_vectors;' | sqlite3 database.db";
+		FILE *fp = popen(command.str().c_str(), "r");
+		fscanf(fp, "%d", &paths_forest);
+		pclose(fp);
+	}
+
+
+	string explanation = cmd_option_str("explanation") + " ";
+	while( explanation.length() < 50 )
+		explanation = explanation + ".";
+	printf("* Comparing %s", explanation.c_str() );
+
+	char color[] = "\e[0m";
+	
+	if(paths_forest < paths_klee)
+		strcpy(color, "\e[31m"); // rojo
+	else if(paths_forest > paths_klee)
+		strcpy(color, "\e[32m"); // verde
+	else
+		strcpy(color, "\e[33m"); // amarillo
+
+	printf("%s Paths_klee %-3d Paths_forest %-3d\e[0m\n", color, paths_klee, paths_forest);
+
+	end_pass("compare_klee");
+
 }
 
 void expand_options(){
@@ -2058,15 +2145,6 @@ void expand_options(){
 		}
 	}
 
-	//for ( unsigned int i = 0; i < 10; i++) {
-		//for( map<string,set<string> >::iterator it = needed_map.begin(); it != needed_map.end(); it++ ){
-			//string a = it->first;
-			//set<string> b = it->second;
-			//for( set<string>::iterator it2 = b.begin(); it2 != b.end(); it2++ ){
-				//if(cmd_option_bool(a)) set_option(*it2, "true");
-			//}
-		//}
-	//}
 }
 
 int main(int argc, const char *argv[]) {
@@ -2091,6 +2169,8 @@ int main(int argc, const char *argv[]) {
 	needs("run", "final");
 	needs("make_bc", "clean");
 	needs("check_coverage", "measure_coverage");
+	needs("compare_klee", "run");
+	needs("compare_klee", "klee");
 
 
 	disables("compare_bc", "test");
@@ -2116,6 +2196,10 @@ int main(int argc, const char *argv[]) {
 	disables("compare_secuencialize", "test");
 	disables("compare_secuencialize", "check_concurrency");
 	disables("compare_secuencialize", "check_concurrency_2");
+	disables("compare_klee", "test");
+	disables("compare_klee", "check_coverage");
+	disables("test_vectors", "test");
+	disables("test_vectors", "compare_klee");
 
 
 	expand_options();
@@ -2154,6 +2238,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("clean")) clean();
 	if(cmd_option_bool("get_concurrent_functions")) get_concurrent_functions();
 	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
+	if(cmd_option_bool("compare_klee")) compare_klee();
 
 
 	return 0;
