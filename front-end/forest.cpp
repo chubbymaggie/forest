@@ -263,7 +263,7 @@ void load_default_options(){
 	options["output_file"] = "final";
 	options["tmp_dir"] = "/tmp/forest";
 	options["subst_names"] = "true";
-	options["compare_klee"] = "true";
+	//options["compare_klee"] = "true";
 }
 
 void load_file_options(){
