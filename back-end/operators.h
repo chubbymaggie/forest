@@ -80,6 +80,7 @@ public:
 	string name( string input, string fn_name = "" );
 
 private:
+	void pr_callstack();
 	bool see_each_problem;
 
 	int alloca_pointer;

@@ -1523,6 +1523,11 @@ struct SpecialCall: public ModulePass {
 							fn_name ="";
 
 						if(fn_name == "global_var_init" ) continue;
+						if(fn_name == "ReturnInstr" ) continue;
+						if(fn_name == "CallInstr_post" ) continue;
+						if(fn_name == "CallInstr" ) continue;
+
+
 
 						if(
 						   fn_name != "_Z10force_freePi"   && 
@@ -1592,46 +1597,6 @@ struct SpecialCall: public ModulePass {
 		}
 
 
-		mod_iterator(M, fn){
-			fun_iterator(fn, bb){
-				blk_iterator(bb, in){
-					if( ReturnInst::classof(in) ){
-
-						ReturnInst* in_r = cast<ReturnInst>(in);
-
-
-						string returnoperand;
-						if( !in_r->getReturnValue() )
-							returnoperand = "register" UNDERSCORE;
-						else
-							returnoperand = operandname( in_r->getReturnValue() );
-
-						GlobalVariable* c1 = make_global_str(M, returnoperand );
-
-						Value* InitFn = cast<Value> ( M.getOrInsertFunction( "ReturnInstr" ,
-									Type::getVoidTy( M.getContext() ),
-									Type::getInt8PtrTy( M.getContext() ),
-									(Type *)0
-									));
-
-						BasicBlock::iterator insertpos = in;
-
-						std::vector<Value*> params;
-						params.push_back(pointerToArray(M,c1));
-						CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
-
-
-
-
-					}
-
-				}
-			}
-		}
-
-
-
-
 
 		return false;
 	}
@@ -1667,6 +1632,9 @@ struct CallInstr: public ModulePass {
 						if(fn_name == "global_var_init") continue;
 						if(fn_name == "_Z10force_freePi") continue;
 						if(fn_name == "_Z9pivot_varPi") continue;
+						if(fn_name == "ReturnInstr" ) continue;
+						if(fn_name == "CallInstr_post" ) continue;
+						if(fn_name == "CallInstr" ) continue;
 
 
 						stringstream operand_list;
