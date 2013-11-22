@@ -20,6 +20,12 @@
 
 /*#include <stdio.h>*/
 
+
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
+
 #define SIZE 2
 
 int c[SIZE+1][SIZE+1];// = {0,4,8,12,16,20,24,28,32};
@@ -31,6 +37,12 @@ int elem11(int c_param[SIZE+1][SIZE+1]) {
 }
 
 int main() {
+
+#ifdef KLEE
+	klee_make_symbolic(c, sizeof(c), "c");
+#endif
+
+
 	/*printf("%d\n", elem11(c));*/
 	if( elem11(c) == 0 )
 		return 0;

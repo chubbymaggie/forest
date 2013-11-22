@@ -18,11 +18,21 @@
  * =====================================================================================
  */
 
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 int x;
 char a[10];
 char* b = a + 1;
 
 int main() {
+
+
+#ifdef KLEE
+	klee_make_symbolic(a, sizeof(a), "a");
+#endif
+
 	if(*b)
 		return 0;
 	else

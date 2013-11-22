@@ -263,6 +263,7 @@ void load_default_options(){
 	options["output_file"] = "final";
 	options["tmp_dir"] = "/tmp/forest";
 	options["subst_names"] = "true";
+	options["compare_klee"] = "true";
 }
 
 void load_file_options(){
@@ -2187,6 +2188,7 @@ int main(int argc, const char *argv[]) {
 	disables("show_results", "check_coverage");
 	disables("count_branches", "test");
 	disables("klee", "test");
+	disables("klee", "compare_klee");
 	disables("check_concurrency_2", "check_concurrency");
 	disables("compare_bc", "test");
 	disables("compare_bc", "check_concurrency");

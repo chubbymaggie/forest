@@ -4,4 +4,7 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="Division"/> 
 	<option key="file" value="division.c"/> 
+	<option key="forced_free_var" value="mem_8"/>
+	<option key="forced_free_var" value="mem_12"/>
+
 </options>

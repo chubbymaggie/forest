@@ -23,6 +23,7 @@ test:
 	@forest ./test/crest/function/config.xml                   # function call
 	@forest ./test/crest/concrete_return/config.xml            # Llamada a funciones no anotadas
 	@forest ./test/simple/array/config.xml                     # Array indexing
+	@forest ./test/simple/division/config.xml                  # Division
 	@forest ./test/simple/fnarray/config.xml                   # Pointer passed to function
 	@forest ./test/klee-examples/get_sign/config.xml           # First klee tutorial: Testing a small function
 	@forest ./test/klee-examples/islower/config.xml            # First klee tutorial: Testing a small function
@@ -43,7 +44,7 @@ test:
 	@forest ./test/simple/random_init/config.xml               # Random initialization of array
 	@forest ./test/simple/forcepivot/config.xml                # Force variable pivot
 	@forest ./test/simple/forcepivot_global/config.xml         # Force global variable pivot
-	@forest ./test/simple/forcepivot_hint/config.xml           # Force variable pivot
+	@forest ./test/simple/forcepivot_hint/config.xml           # Force variable pivot hint
 	@forest ./test/simple/force_free_and_modify/config.xml     # Force a variable to be free and modify it
 	@forest ./test/simple/cmdargs/config.xml                   # command line arguments test
 	@forest ./test/simple/pointernull/config.xml               # Pointer to null

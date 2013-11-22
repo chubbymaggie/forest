@@ -18,12 +18,25 @@
  * =====================================================================================
  */
 
+
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
+
+
+
 void force_free(int* a);
 
 int main() {
 	
 	int a = 5;
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#else
 	force_free(&a);
+#endif
 	if(a == 5)
 		return 0;
 	else

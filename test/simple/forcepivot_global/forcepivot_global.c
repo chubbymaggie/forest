@@ -18,6 +18,10 @@
  * =====================================================================================
  */
 
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 extern "C" void pivot_variable(char*);
 
 int a;
@@ -26,7 +30,11 @@ int main() {
 
 	int b = 2*a;
 
+#ifdef KLEE
+	klee_make_symbolic(&b, sizeof(b), "b");
+#else
 	pivot_variable((char*)"mem_0");
+#endif
 
 	b = b + 2;
 

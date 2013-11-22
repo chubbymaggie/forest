@@ -18,14 +18,26 @@
  * =====================================================================================
  */
 
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 extern "C" void pivot_hint(char*);
 
 int main() {
 
 	int a;
+
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
+
 	int b = 2*a;
 
+#ifndef KLEE
 	pivot_hint((char*)"main_register_b");
+#endif
 
 	b = b + 2;
 

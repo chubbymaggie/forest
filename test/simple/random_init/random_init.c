@@ -18,10 +18,22 @@
  * =====================================================================================
  */
 
+
+
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 int data[2];
 
 int main() {
 	int i, seed;
+
+
+#ifdef KLEE
+	klee_make_symbolic(&seed, sizeof(seed), "seed");
+#endif
+
 
 	seed = 0;
 	for (i = 0; i < 2; i++) {

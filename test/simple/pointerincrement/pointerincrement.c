@@ -27,17 +27,17 @@
 int main() {
 
 
-	float variable[5];
+	int variable[5];
 
 #ifdef KLEE
 	klee_make_symbolic(variable, sizeof(variable), "variable");
 #endif
 
-	float* pointer = variable;
+	int* pointer = variable;
 
 	pointer++;
 
-	if( *pointer == 2.0 )
+	if( *pointer == 2 )
 		return 0;
 	else
 		return 1;

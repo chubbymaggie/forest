@@ -2,6 +2,6 @@
 
 <options>
 	<option key="test" value="true"/> 
-	<option key="explanation" value="Force variable pivot"/> 
+	<option key="explanation" value="Force variable pivot hint"/> 
 	<option key="file" value="forcepivot_hint.c"/> 
 </options>

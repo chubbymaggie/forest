@@ -19,6 +19,10 @@
  */
 
 
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 int funcion(int a){
 	return 1-a;
 }
@@ -28,6 +32,12 @@ int main() {
 	int (*fn)(int a) = funcion;
 
 	int b;
+
+
+#ifdef KLEE
+	klee_make_symbolic(&b, sizeof(b), "b");
+#endif
+
 	if( fn(b) )
 		return 0;
 	else

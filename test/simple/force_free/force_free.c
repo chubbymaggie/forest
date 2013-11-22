@@ -18,9 +18,18 @@
  * =====================================================================================
  */
 
+
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
+
 int a = 5;
 
 int main() {
+
+#ifdef KLEE
+	klee_make_symbolic(&a, sizeof(a), "a");
+#endif
 	
 	if( a == 5 )
 		return 0;
