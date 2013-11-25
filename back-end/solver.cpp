@@ -1130,6 +1130,7 @@ bool Solver::check_mangled_name(string name){
 		if(tokens[1].substr(0,8) != "register" &&
 		   tokens[0].substr(0,3) != "mem"      &&
 		   tokens[0].substr(0,6) != "global"   && 
+		   tokens[0].substr(0,8) != "constant"   && 
 		   tokens[0].substr(0,8) != "function"
 		  ) return false;
 	}

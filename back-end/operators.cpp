@@ -517,6 +517,9 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	
 	stringstream offset_ss; offset_ss << offset;
 	string offset_constant_s = offset_ss.str();
+	offset_constant_s = "constant_" + offset_constant_s;
+
+	printf("offset_constant_s %s\n", offset_constant_s.c_str());
 	
 	solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
 	//exit(0);

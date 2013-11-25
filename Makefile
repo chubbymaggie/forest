@@ -54,6 +54,7 @@ test:
 	@forest ./test/simple/fn_pointer/config.xml                # Calling function through a pointer
 	@forest ./test/simple/switch/config.xml                    # Switch statement
 	@forest ./test/simple/voidfn/config.xml                    # Void function call 
+	@forest ./test/simple/cmp_str_zero/config.xml              # Compare string to zero
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
