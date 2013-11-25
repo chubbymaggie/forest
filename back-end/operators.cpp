@@ -150,9 +150,9 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	};
 	if( ret_gl == "register_" ){
 
+		callstack.erase( callstack.end() - 1 );
 		string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
-		callstack.erase( callstack.end() - 1 );
 		actual_function = last_fn_callstack;
 
 		return;
@@ -392,7 +392,7 @@ void Operators::end_bb(char* name){
 
 void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
-	printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values); fflush(stdout);
+	//printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values); fflush(stdout);
 
 	string varname        = string(_varname);
 	string type           = string(_type);
@@ -461,7 +461,7 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	solver->settype( name(reg), "Pointer");
 	solver->assign_instruction(name(rvalue.str()), name(reg) );
 
-	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE;// << itos(alloca_pointer);
+	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 	int initial_alloca_pointer = alloca_pointer;
 
 	for ( unsigned int i = 0; i < subtype.size(); i++) {
