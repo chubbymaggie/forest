@@ -677,12 +677,13 @@ string Operators::name( string input, string fn_name ){
 	}
 
 	if(input.find("constant") != string::npos ){
-		int ini = 9;
-		string interm = input.substr(ini);
-		int len = interm.find(UNDERSCORE);
-		string final = interm.substr(0, len);
+		return input;
+		//int ini = 9;
+		//string interm = input.substr(ini);
+		//int len = interm.find(UNDERSCORE);
+		//string final = interm.substr(0, len);
 
-		return final;
+		//return final;
 	} else if (input.substr(0,4) == "mem" UNDERSCORE ){
 		return input;
 	} else if (input.substr(0,7) == "global" UNDERSCORE ){
@@ -719,6 +720,7 @@ bool Operators::check_mangled_name(string name){
 		if(tokens[1].substr(0,8) != "register" &&
 		   tokens[0].substr(0,3) != "mem"      &&
 		   tokens[0].substr(0,6) != "global"   &&
+		   tokens[0].substr(0,8) != "constant" &&
 		   tokens[0].substr(0,8) != "function"
 		  ) return false;
 	}

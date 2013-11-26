@@ -55,6 +55,7 @@ test:
 	@forest ./test/simple/switch/config.xml                    # Switch statement
 	@forest ./test/simple/voidfn/config.xml                    # Void function call 
 	@forest ./test/simple/cmp_str_zero/config.xml              # Compare string to zero
+	@forest ./test/simple/arg_constant/config.xml              # propagation of constant through function parameters
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

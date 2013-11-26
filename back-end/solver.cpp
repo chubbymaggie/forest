@@ -55,6 +55,8 @@ string Solver::content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
+	if(name.find("constant_") != string::npos ) return name.substr(9);
+
 	if( variables[name].content == "" || is_forced_free(name) ){
 		string position;
 	        if(name.substr(0,7) == "global_")
@@ -1041,7 +1043,7 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	if( variables[op2].type != "" ) variables[dst].type = variables[op2].type;
 
 
-	if( variables[op1].type == "bool" && op2 == "0" && operation == "#" ){
+	if( variables[op1].type == "bool" && op2 == "constant_0" && operation == "#" ){
 		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
 
 		content_ss.str("");
