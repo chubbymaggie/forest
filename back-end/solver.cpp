@@ -823,9 +823,9 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m forcedfree\e[0m %d %d\n",
                  variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(src), get_is_propagated_constant(dst));
+		 get_is_propagated_constant(src), get_is_propagated_constant(dst), is_forced_free(src), is_forced_free(dst) );
 
 
 
@@ -879,8 +879,8 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	} else if (operation == "R" ) {
 
 		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_number(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2 );
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
 		int factor = 1 << exponent;
 
 		content_ss << "(/ " << content(op1) << " " << factor << ")";
@@ -888,8 +888,8 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	} else if (operation == "L" ) {
 
 		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_number(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2 );
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
 		int factor = 1 << exponent;
 
 		content_ss << "(* " << content(op1) << " " << factor << ")";
@@ -1018,7 +1018,7 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 	if(operation == "R"){
 		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_number(op2)) assert(0 && "Rotate non-constant");
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
 		int places = stoi( op2 );
 
 		int result_i = stoi(realvalue(op1)) >> places;
@@ -1056,9 +1056,9 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m forcedfree\e[0m %d %d \n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
-		get_is_propagated_constant(dst) );
+		get_is_propagated_constant(dst), is_forced_free(op1), is_forced_free(op2) );
 
 
 }
