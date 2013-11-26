@@ -813,7 +813,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 	set_real_value( dst, realvalue(src) );
 
 
-	if( (get_is_propagated_constant(src) || is_constant(src)) && !is_forced_free(src) )
+	if( (get_is_propagated_constant(src) || is_constant(src)) && !forcedfree )
 		set_is_propagated_constant(dst);
 
 
@@ -823,9 +823,9 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m forcedfree\e[0m %d %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \n",
                  variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(src), get_is_propagated_constant(dst), is_forced_free(src), is_forced_free(dst) );
+		 get_is_propagated_constant(src), get_is_propagated_constant(dst) );
 
 
 
@@ -1056,9 +1056,9 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m forcedfree\e[0m %d %d \n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
-		get_is_propagated_constant(dst), is_forced_free(op1), is_forced_free(op2) );
+		get_is_propagated_constant(dst) );
 
 
 }
