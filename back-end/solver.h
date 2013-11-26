@@ -164,6 +164,7 @@ private:
 	bool get_is_sat(string is_sat);
 	int get_num_fvars();
 	void set_is_propagated_constant(string varname);
+	void unset_is_propagated_constant(string varname);
 	bool is_constant(string varname);
 	string result_get(string get_str);
 	bool implemented_operation(string operation);

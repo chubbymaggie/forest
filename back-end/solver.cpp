@@ -674,6 +674,15 @@ void Solver::set_is_propagated_constant(string varname){
 
 }
 
+
+void Solver::unset_is_propagated_constant(string varname){
+
+	if(!check_mangled_name(varname)) assert(0 && "Wrong src for unset_is_propagated_constant");
+
+	variables[varname].is_propagated_constant = false;
+
+}
+
 bool Solver::is_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for is_constant");
@@ -815,6 +824,8 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	if( (get_is_propagated_constant(src) || is_constant(src)) && !forcedfree )
 		set_is_propagated_constant(dst);
+	else
+		unset_is_propagated_constant(dst);
 
 
 	//printf("srctree %s\n", get_offset_tree(src).c_str());
