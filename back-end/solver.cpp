@@ -222,6 +222,8 @@ int Solver::maxval(string type){
 
 void Solver::dump_type_limits(FILE* file){
 
+	if(options->cmd_option_bool("unconstrained")) return;
+
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
@@ -403,7 +405,7 @@ void Solver::solve_problem(){
 	dump_variables(file);
 	dump_pivots(file);
 	//concurrency->dump_remaining_variables(free_variables, file);
-	//dump_type_limits(file);
+	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_get(file);
@@ -1083,7 +1085,7 @@ int Solver::show_problem(){
 	dump_variables();
 	dump_pivots();
 	//concurrency->dump_remaining_variables(free_variables, file);
-	//dump_type_limits();
+	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
 	//dump_get();
@@ -1104,7 +1106,7 @@ int Solver::show_problem(){
 	dump_variables(file);
 	dump_pivots(file);
 	//concurrency->dump_remaining_variables(free_variables, file);
-	//dump_type_limits(file);
+	dump_type_limits(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_tail(file);
