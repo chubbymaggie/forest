@@ -60,6 +60,81 @@ typedef struct VarInit {
 
 // Helper Functions
 
+map<string, string> options;
+
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
+void read_options(){
+
+	FILE *file = fopen ( "/tmp/options", "r" );
+	char line_c [ 1024 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+
+		string key = tokens[0];
+		string value = line.substr(key.size()+1);
+		options[ tokens[0] ] = value;
+		//options[ tokens[0] ] = tokens[1];
+
+		//string value;
+		//for ( unsigned int i = 1; i < tokens.size(); i++) {
+			//value += tokens[i];
+			//value += " ";
+		//}
+
+		//options[ tokens[0] ] = value;
+
+		
+		
+	}
+	fclose ( file );
+}
+
+bool cmd_option_bool(string key){
+	return options[key] == "true";
+}
+
+vector<string> cmd_option_vector_str(string key){
+
+	//printf("cmd_option_vector_str %s\n", options[key].c_str());
+
+	vector<string> tokens = tokenize(options[key], "@");
+	return tokens;
+}
+
+
+string cmd_option_str(string key){
+	return options[key];
+}
+
+
+
 string floatvalue( ConstantFP * CF ){
 
 	stringstream ret_ss;
@@ -500,31 +575,6 @@ string itos( int value ){
 	ret_ss << value;
 	return ret_ss.str();
 }
-
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
-
 
 int get_offset(const Type* t, int debug = 1){
 
@@ -2022,6 +2072,11 @@ struct MainArgs: public ModulePass {
 		//ConstantInt* const_int_1 = ConstantInt::get(M.getContext(), APInt(64, StringRef("1"), 10));
 		//GetElementPtrInst* argc  = GetElementPtrInst::Create(argc_addr, const_int_1, "argc", inbegin);
 		//GetElementPtrInst* argv  = GetElementPtrInst::Create(argv_addr, const_int_1, "argv", inbegin);
+		
+		read_options();
+		string number_of_args = cmd_option_str("argc");
+		number_of_args = (number_of_args=="")?"0":number_of_args;
+		new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(number_of_args), 10)), argc_addr, false, inbegin);
 		
 		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
 		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
