@@ -618,7 +618,27 @@ void run(){
 	// Ejecuta el fichero resultante
 	cmd.str("");
 	cmd << "./" << output_file;
+
+
+	struct timespec ping_time;
+	struct timespec pong_time;
+	clock_gettime(CLOCK_MONOTONIC, &ping_time);
+
 	systm(cmd.str().c_str());
+
+	clock_gettime(CLOCK_MONOTONIC, &pong_time);
+	float spent_time = 0;
+	spent_time += pong_time.tv_sec - ping_time.tv_sec;
+	spent_time *= 1e9;
+	spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
+	spent_time /= 1e9;
+	spent_time *= 1000;
+
+	stringstream action;
+	action << "insert into measurements values(\"time_ms\"," << (int)spent_time << ");";
+	db_command( action.str() );
+	
+
 
 	minimal_test_vectors_to_db();
 
@@ -1615,7 +1635,8 @@ void do_klee(){
 	spent_time *= 1e9;
 	spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
 	spent_time /= 1e9;
-	int time_ms_int = (int)(spent_time/1000.0);
+	int time_ms_int = (int)(spent_time*1000.0);
+	//int time_ms_int = (int)(spent_time);
 
 	
 	// Número de caminos ejecutados
@@ -2095,6 +2116,8 @@ void compare_klee(){
 
 	int paths_klee;
 	int paths_forest;
+	int time_klee;
+	int time_forest;
 
 	stringstream command;
 	
@@ -2115,21 +2138,51 @@ void compare_klee(){
 	}
 
 
+	{
+		command.str("");
+		command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select time_ms from klee order by rowid desc limit 1;' | sqlite3 database.db";
+		FILE *fp = popen(command.str().c_str(), "r");
+		fscanf(fp, "%d", &time_klee);
+		pclose(fp);
+	}
+
+	{
+		command.str("");
+		command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select value from measurements where key=\"time_ms\";' | sqlite3 database.db";
+		FILE *fp = popen(command.str().c_str(), "r");
+		fscanf(fp, "%d", &time_forest);
+		pclose(fp);
+	}
+
+
+
 	string explanation = cmd_option_str("explanation") + " ";
 	while( explanation.length() < 50 )
 		explanation = explanation + ".";
 	printf("* Comparing %s", explanation.c_str() );
 
-	char color[] = "\e[0m";
+	char color_p[] = "\e[0m";
+	char color_t[] = "\e[0m";
 	
 	if(paths_forest < paths_klee)
-		strcpy(color, "\e[31m"); // rojo
+		strcpy(color_p, "\e[31m"); // rojo
 	else if(paths_forest > paths_klee)
-		strcpy(color, "\e[32m"); // verde
+		strcpy(color_p, "\e[32m"); // verde
 	else
-		strcpy(color, "\e[33m"); // amarillo
+		strcpy(color_p, "\e[33m"); // amarillo
 
-	printf("%s Paths_klee %-3d Paths_forest %-3d\e[0m\n", color, paths_klee, paths_forest);
+	if(time_forest > time_klee)
+		strcpy(color_t, "\e[31m"); // rojo
+	else if(time_forest < time_klee)
+		strcpy(color_t, "\e[32m"); // verde
+	else
+		strcpy(color_t, "\e[33m"); // amarillo
+
+
+
+
+
+	printf("%s Paths_klee %-3d Paths_forest %-3d\e[0m %s Time_klee %-3d Time_forest %-3d\e[0m\n", color_p, paths_klee, paths_forest, color_t, time_klee, time_forest);
 
 	end_pass("compare_klee");
 

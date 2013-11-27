@@ -42,7 +42,7 @@ void options_to_file();
 void set_option( string key, string value );
 void do_klee();
 void minimal_test_vectors_to_db();
-
+void db_command(string command);
 
 
 #endif /* end of include guard: _FOREST_H_ */
