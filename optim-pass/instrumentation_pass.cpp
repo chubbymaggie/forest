@@ -60,6 +60,14 @@ typedef struct VarInit {
 
 // Helper Functions
 
+
+	int stoi(string str){
+		int ret;
+		sscanf(str.c_str(), "%d", &ret);
+		return ret;
+	}
+
+
 map<string, string> options;
 
 vector<string> tokenize(const string& str,const string& delimiters) {
@@ -2053,8 +2061,9 @@ struct MainArgs: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 
-		Function* fn = M.getFunction("main");
+		// Finds main Function
 
+		Function* fn = M.getFunction("main");
 		Function::arg_iterator arg_begin = fn->arg_begin();
 		Function::arg_iterator arg_end   = fn->arg_end();
 		if(arg_begin == arg_end) return false;
@@ -2062,37 +2071,61 @@ struct MainArgs: public ModulePass {
 		BasicBlock* fnbegin = fn->begin();
 		Instruction* inbegin = fnbegin->begin();
 
+		// Allocate space for argc
 		AllocaInst* argc_addr = new AllocaInst(IntegerType::get(M.getContext(), 32), "argc_addr", inbegin );
 		
-		PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
-		PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
-		AllocaInst*  argv_addr   = new AllocaInst(PointerTy_1, "argv_addr", inbegin);
+		// Allocate space for argv
+		PointerType* PointerTy_4 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		ArrayType* ArrayTy_3 = ArrayType::get(PointerTy_4, 50);
+		AllocaInst*  argv_addr   = new AllocaInst(ArrayTy_3, "argv_addr", inbegin);
 
+		// Allocate space for argvs
+		ArrayType* ArrayTy     = ArrayType::get(IntegerType::get(M.getContext(), 8), 500);
+		AllocaInst*  argvs      = new AllocaInst(ArrayTy, "argvs", inbegin);
 
-		//ConstantInt* const_int_1 = ConstantInt::get(M.getContext(), APInt(64, StringRef("1"), 10));
-		//GetElementPtrInst* argc  = GetElementPtrInst::Create(argc_addr, const_int_1, "argc", inbegin);
-		//GetElementPtrInst* argv  = GetElementPtrInst::Create(argv_addr, const_int_1, "argv", inbegin);
-		
+		// Read number of arguments
 		read_options();
 		string number_of_args = cmd_option_str("argc");
 		number_of_args = (number_of_args=="")?"0":number_of_args;
-		new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(number_of_args), 10)), argc_addr, false, inbegin);
-		
-		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
-		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
+		int number_of_args_i = stoi(number_of_args);
 
-		fun_iterator(fn, bb){
-		blk_iterator(bb, in){
-			if( StoreInst::classof(in) ){
-				string name = in->getOperand(0)->getName().str();
-				if(name == "argc"){
-					in->setOperand(0, argc);
-				}
-				if(name == "argv"){
-					in->setOperand(0, argv);
-				}
+		// Set each argv
+		for ( unsigned int i = 0; i < number_of_args_i; i++) {
+
+			Instruction* ptr_13;
+			Instruction* ptr_14;
+
+
+			{
+				string elem = itos(i);
+				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
+				std::vector<Value*> ptr_13_indices;
+				ptr_13_indices.push_back(const_int64_10);
+				ptr_13_indices.push_back(const_int64_11);
+				ptr_13 = GetElementPtrInst::Create(argv_addr, ptr_13_indices.begin(), ptr_13_indices.end(), "", inbegin);
 			}
-		}}
+
+
+
+			{
+				string elem = itos(50*i);
+				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
+				std::vector<Value*> ptr_14_indices;
+				ptr_14_indices.push_back(const_int64_10);
+				ptr_14_indices.push_back(const_int64_11);
+				ptr_14 = GetElementPtrInst::Create(argvs, ptr_14_indices.begin(), ptr_14_indices.end(), "", inbegin);
+			}
+
+			new StoreInst(ptr_14, ptr_13, false, inbegin);
+		}
+
+
+		// Set number of argc
+		new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(number_of_args), 10)), argc_addr, false, inbegin);
+
+
 
 	}
 
@@ -2197,11 +2230,6 @@ struct GlobalInit: public ModulePass {
 	
 	}
 
-	int stoi(string str){
-		int ret;
-		sscanf(str.c_str(), "%d", &ret);
-		return ret;
-	}
 
 	int get_offset(vector<int> indexes, string offset_tree){
 	
