@@ -64,6 +64,8 @@ void do_pass(string passname){
 		check_coverage();
 	else if(passname == "klee")
 		do_klee();
+	else if(passname == "get_result")
+		get_result();
 	else {
 		printf("Pass %s\n", passname.c_str());
 		assert(0 && "Unknown pass");
@@ -265,6 +267,7 @@ void load_default_options(){
 	options["subst_names"] = "true";
 	options["propagate_constants"] = "true";
 	//options["compare_klee"] = "true";
+	//options["get_result"] = "true";
 }
 
 void load_file_options(){
@@ -732,7 +735,7 @@ void test(){
 
 	string explanation = cmd_option_str("explanation") + " ";
 
-	while( explanation.length() < 50 )
+	while( explanation.length() < 55 )
 		explanation = explanation + ".";
 
 	printf("* Testing %s", explanation.c_str() );
@@ -741,7 +744,7 @@ void test(){
 
 	// Muestro los resultados de la base de datos
 	cmd.str("");
-	cmd << "echo '.mode columns\\n.width 20 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
+	cmd << "echo '.mode columns\\n.width 25 5 5\\n.headers on\\nselect name_hint,value, problem_id from results where is_free;'";
 	cmd << " | sqlite3 " << tmp_file("database.db") << " ";
 	cmd << "> " << tmp_file("results");
 	systm(cmd.str().c_str());
@@ -1419,7 +1422,7 @@ void check_coverage(){
 
 		string explanation = cmd_option_str("explanation") + " ";
 
-		while( explanation.length() < 46 )
+		while( explanation.length() < 51 )
 			explanation = explanation + ".";
 
 		printf("* Coverage of %s", explanation.c_str() );
@@ -2202,6 +2205,16 @@ void expand_options(){
 
 }
 
+void get_result(){
+	start_pass("get_result");
+
+	stringstream cmd;
+	cmd << "cp " << tmp_file("results") << " " << prj_file("gold_result");
+	systm(cmd.str());
+
+	end_pass("get_result");
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -2226,6 +2239,7 @@ int main(int argc, const char *argv[]) {
 	needs("check_coverage", "measure_coverage");
 	needs("compare_klee", "run");
 	needs("compare_klee", "klee");
+	needs("get_result", "test");
 
 
 	disables("compare_bc", "test");
@@ -2295,6 +2309,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_concurrent_functions")) get_concurrent_functions();
 	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
 	if(cmd_option_bool("compare_klee")) compare_klee();
+	if(cmd_option_bool("get_result")) get_result();
 
 
 	return 0;
