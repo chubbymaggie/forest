@@ -141,6 +141,9 @@ string cmd_option_str(string key){
 	return options[key];
 }
 
+int cmd_option_int(string key){
+	return stoi(options[key]);
+}
 
 
 string floatvalue( ConstantFP * CF ){
@@ -2060,9 +2063,20 @@ struct MainArgs: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+//#define argv_size 5
+//#define argvs_size 10
+//#define each_argv_size 3
+#define argv_size cmd_option_int("argv_size")
+#define argvs_size cmd_option_int("argvs_size")
+#define each_argv_size cmd_option_int("each_argv_size")
+
+		// Read number of arguments
+		read_options();
+		string number_of_args = cmd_option_str("argc");
+		number_of_args = (number_of_args=="")?"0":number_of_args;
+		int number_of_args_i = stoi(number_of_args);
 
 		// Finds main Function
-
 		Function* fn = M.getFunction("main");
 		Function::arg_iterator arg_begin = fn->arg_begin();
 		Function::arg_iterator arg_end   = fn->arg_end();
@@ -2076,18 +2090,13 @@ struct MainArgs: public ModulePass {
 		
 		// Allocate space for argv
 		PointerType* PointerTy_4 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
-		ArrayType* ArrayTy_3 = ArrayType::get(PointerTy_4, 50);
+		ArrayType* ArrayTy_3 = ArrayType::get(PointerTy_4, argv_size);
 		AllocaInst*  argv_addr   = new AllocaInst(ArrayTy_3, "argv_addr", inbegin);
 
 		// Allocate space for argvs
-		ArrayType* ArrayTy     = ArrayType::get(IntegerType::get(M.getContext(), 8), 500);
+		ArrayType* ArrayTy     = ArrayType::get(IntegerType::get(M.getContext(), 8), argvs_size);
 		AllocaInst*  argvs      = new AllocaInst(ArrayTy, "argvs", inbegin);
 
-		// Read number of arguments
-		read_options();
-		string number_of_args = cmd_option_str("argc");
-		number_of_args = (number_of_args=="")?"0":number_of_args;
-		int number_of_args_i = stoi(number_of_args);
 
 		// Set each argv
 		for ( unsigned int i = 0; i < number_of_args_i; i++) {
@@ -2109,7 +2118,7 @@ struct MainArgs: public ModulePass {
 
 
 			{
-				string elem = itos(50*i);
+				string elem = itos(each_argv_size*i);
 				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
 				std::vector<Value*> ptr_14_indices;
@@ -2125,6 +2134,29 @@ struct MainArgs: public ModulePass {
 		// Set number of argc
 		new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(number_of_args), 10)), argc_addr, false, inbegin);
 
+		// Load argc and argv
+		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
+		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
+
+		// Cast argv instruction
+		
+		 PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		 PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+		CastInst* argv_cast = new BitCastInst(argv_addr, PointerTy_1, "argv_cast", inbegin);
+
+		// Substitute in subsequent instructions
+		fun_iterator(fn, bb){
+		blk_iterator(bb, in){
+			if( StoreInst::classof(in) ){
+				string name = in->getOperand(0)->getName().str();
+				if(name == "argc"){
+					in->setOperand(0, argc);
+				}
+				if(name == "argv"){
+					in->setOperand(0, argv_cast);
+				}
+			}
+		}}
 
 
 	}

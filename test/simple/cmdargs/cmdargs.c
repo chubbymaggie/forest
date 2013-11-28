@@ -19,8 +19,8 @@
  */
 
 
-int main(int argc, const char *argv[]) {
-	if(argv[0][0] == '-')
+int main(int argc, char *argv[]) {
+	if(argv[1][1] == '-')
 		return 0;
 	else
 		return 1;

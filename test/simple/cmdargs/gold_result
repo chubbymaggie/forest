@@ -1,6 +1,4 @@
 name_hint             value  probl
 --------------------  -----  -----
-main_register_argv_a  0      1    
-main_register_argc_a  45     1    
-main_register_argv_a  0      2    
-main_register_argc_a  0      2    
+main_register_argvs+  45     1    
+main_register_argvs+  0      2    
