@@ -589,6 +589,9 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		solver->set_sat(true);
 		database->insert_problem();
 
+		if( options->cmd_option_bool("propagate_constants") && solver->get_is_propagated_constant(name(cmp)) )
+			return real_value_prev == "true";
+
 		if( realvalue(cmp) == "true" ){
 			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
 		} else if (realvalue(cmp) == "false" ){

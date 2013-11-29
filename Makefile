@@ -57,6 +57,7 @@ test:
 	@forest ./test/simple/cmp_str_zero/config.xml              # Compare string to zero
 	@forest ./test/simple/arg_constant/config.xml              # propagation of constant through function parameters
 	@forest ./test/simple/align_struct/config.xml
+	@forest ./test/simple/prop_const_stack/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
