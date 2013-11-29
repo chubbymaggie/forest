@@ -100,6 +100,24 @@ string Solver::content( string name ){
 
 //}
 
+
+void Solver::set_last_address(string name, int last_address){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_last_address");
+	variables[name].last_address = last_address;
+
+}
+
+
+int Solver::get_last_address(string name){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for get_last_address");
+	return variables[name].last_address;
+
+}
+
+
+
 void Solver::dump_pivots(FILE* file){
 
 	//printf("dump pivots\n");
@@ -834,11 +852,12 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	set_offset_tree(dst, get_offset_tree(src));
 
+	set_last_address(dst, get_last_address(src));
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d\n",
                  variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(src), get_is_propagated_constant(dst) );
+		 get_is_propagated_constant(src), get_is_propagated_constant(dst), get_last_address(src), get_last_address(dst) );
 
 
 
@@ -938,6 +957,7 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		set_is_propagated_constant(dst);
 	}
 
+	set_last_address(dst, get_last_address(op1));
 
 
 	if(operation == "<="){
@@ -1068,10 +1088,9 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 
-
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m last_address\e[0m  %d %d\n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
-		get_is_propagated_constant(dst) );
+		get_is_propagated_constant(dst), get_last_address(op1), get_last_address(dst) );
 
 
 }

@@ -48,6 +48,7 @@ typedef struct Variable {
 	string name_hint;
 	string content;
 	string tree;
+	int last_address;
 	bool is_propagated_constant;
 } Variable;
 
@@ -65,6 +66,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	int get_last_address(string name);
+	void set_last_address(string name, int last_address);
 	string get_first_content_value(string var);
 	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);

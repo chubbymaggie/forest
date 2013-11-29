@@ -480,7 +480,9 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 		alloca_pointer += get_size(subtype[i]);
 	}
 
-	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer);
+	solver->set_last_address(name(reg), alloca_pointer - get_size(subtype[subtype.size() - 1]));
+
+	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d last_address %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer, solver->get_last_address(name(reg)));
 }
 
 void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
@@ -525,8 +527,11 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	//exit(0);
 
 
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s %s\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
-		                                                          name(dst).c_str(), realvalue(dst).c_str() );
+
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s realvalue %s lastaddress %d\n", dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
+		                                                          name(dst).c_str(), realvalue(dst).c_str(), solver->get_last_address(name(dst)) );
+
+	// assert( stoi(realvalue(dst)) <= solver->get_last_address(name(dst)) );
 
 }
 
