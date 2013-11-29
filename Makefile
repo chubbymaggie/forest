@@ -58,6 +58,7 @@ test:
 	@forest ./test/simple/arg_constant/config.xml              # propagation of constant through function parameters
 	@forest ./test/simple/align_struct/config.xml
 	@forest ./test/simple/prop_const_stack/config.xml
+	@forest ./test/simple/strcmp/config.xml
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

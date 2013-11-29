@@ -1656,6 +1656,15 @@ void do_klee(){
 	cmd << "insert into klee values('" << time_ms_int << "','" << completed_paths << "');";
 	db_command(cmd.str());
 
+
+
+	cmd.str("");
+	cmd << "ktest-tool --write-ints klee-last/test*.ktest";
+	systm(cmd.str());
+
+
+
+
 	end_pass("klee");
 
 }
