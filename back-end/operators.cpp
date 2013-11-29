@@ -399,6 +399,7 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
+	int last_address = alloca_pointer + get_size(type);
 
 
 	if( types.size() != values.size() ){
@@ -437,13 +438,16 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 		set_name_hint(mem_var.str(), hint.str());
 
+		solver->set_last_address(mem_var.str(), last_address);
+
 
 		alloca_pointer += get_size(types[i]);
 	}
 
 
-	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d\n", varname.c_str(),type.c_str(),_values 
-			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer );
+	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d last_address %d\n", varname.c_str(),type.c_str(),_values 
+			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer
+		        , last_address );
 }
 
 void Operators::alloca_instr(char* _reg, char* _subtype){
