@@ -602,6 +602,7 @@ int get_offset(const Type* t, int debug = 1){
 	if(type_str == "PointerTyID"){
 		//cerr << "pointer " << endl;
 		return get_offset(t_pointer->getElementType());
+		//return get_size(t);
 	} else if( type_str == "StructTyID"){
 		return -1;
 	} else if(type_str == "ArrayTyID"){
@@ -740,6 +741,113 @@ string get_offset_tree( const Type* t, int* base){
 	}
 }
 
+string get_offset_tree_2_rec( const Type* t, int* base){
+
+	const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
+	const StructType*       t_struct       = dyn_cast<StructType>(t);
+	const ArrayType*        t_array        = dyn_cast<ArrayType>(t);
+	const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+	const IntegerType*      t_integer      = dyn_cast<IntegerType>(t);
+	const CompositeType*    t_composite    = dyn_cast<CompositeType>(t);
+
+	string type_str = get_type_str(t);
+
+	if(type_str == "PointerTyID"){
+		//cerr << "pointer " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+
+		(*base) = (*base) + primary_size(t);
+		//base += get_offset(t);
+
+		return ret;
+	} else if( type_str == "StructTyID"){
+
+		//cerr << "struct" << endl;
+
+		string aux = "(";
+		for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
+			//cerr << "element " << i << endl;
+			aux += get_offset_tree_2_rec(t_struct->getElementType(i),base);
+		}
+		//aux += "," + itos(get_offset(t));
+		aux += ",-1";
+		aux += ")";
+
+
+		return aux;
+
+	} else if(type_str == "ArrayTyID"){
+
+		//cerr << "array" << endl;
+		//t->dump();
+
+		string aux = "(";
+		for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
+			aux += get_offset_tree_2_rec(t_composite->getTypeAtIndex(i),base);
+		}
+		//aux += "," + itos(get_offset(t_array->getElementType()));
+		aux += "," + itos(get_offset(t));
+		aux += ")";
+		return aux;
+
+
+	} else if( type_str == "IntegerTyID"){
+
+		//cerr << "integer " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if( type_str == "IntegerTyID32"){
+
+		//cerr << "integer32 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if( type_str == "IntegerTyID8"){
+
+		//cerr << "integer8 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if (type_str == "DoubleTyID"){
+
+		//cerr << "double " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else if (type_str == "FloatTyID"){
+
+		//cerr << "float " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+
+	} else {
+
+		cerr << "----" << endl;
+		cerr << "otro" << endl;
+		t->dump();
+		cerr << type_str << endl;
+		assert(0 && "Unknown Type");
+
+	}
+}
+
+string get_offset_tree_2( const Type* t, int* base){
+
+	const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
+
+	string type_str = get_type_str(t);
+
+	assert( type_str == "PointerTyID" );
+
+	return "(" + get_offset_tree_2_rec(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
+
+}
 
 
 // Optimization passes
@@ -1973,7 +2081,7 @@ struct GetelementPtr: public ModulePass {
 						}
 
 						int base = 0;
-						string offset_tree = get_offset_tree(in_g->getPointerOperand()->getType(), &base);
+						string offset_tree = get_offset_tree_2(in_g->getPointerOperand()->getType(), &base);
 
 						const PointerType* pointertype = cast<PointerType>(in_g->getPointerOperand()->getType());
 						const Type*        pointedtype = pointertype->getElementType();
