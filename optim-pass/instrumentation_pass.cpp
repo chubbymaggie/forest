@@ -756,7 +756,7 @@ string get_offset_tree( const Type* t, int* base){
 
 	assert( type_str == "PointerTyID" );
 
-	return "(" + get_offset_tree_2_rec(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
+	return "(" + get_offset_tree_rec(t_sequential->getElementType(), base) + "," + itos(get_offset(t)) + ")";
 
 }
 
