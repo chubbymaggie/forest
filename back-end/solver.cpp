@@ -1219,6 +1219,7 @@ void Solver::set_offset_tree( string varname, string tree ){
 
 void Solver::settype(string name, string type){
 
+	// debug && printf("\e[32m Settype \e[0m. %s %s\n", name.c_str(), type.c_str() );
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for settype");
 	variables[name].type = type;
