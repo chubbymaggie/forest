@@ -777,7 +777,7 @@ int Operators::get_offset(vector<string> indexes, string offset_tree, string* re
 
 	} else {
 		vector<string> tokens = tokenize(offset_tree, "(),");
-		string size_s = tokens[tokens.size()-1];
+		string size_s = tokens[tokens.size()-2];
 		int size = stoi(size_s);
 		printf("offset_tree %s realvalue_index_0 %d size_s %s\n", offset_tree.c_str(), realvalue_index_0, size_s.c_str());
 		return size*realvalue_index_0;

@@ -652,7 +652,7 @@ int get_offset(const Type* t, int debug = 1){
 
 }
 
-string get_offset_tree_rec( const Type* t, int* base){
+string get_offset_tree_rec( const Type* t, int* base, int size){
 
 	const PointerType*      t_pointer      = dyn_cast<PointerType>(t);
 	const StructType*       t_struct       = dyn_cast<StructType>(t);
@@ -665,7 +665,7 @@ string get_offset_tree_rec( const Type* t, int* base){
 
 	if(type_str == "PointerTyID"){
 		//cerr << "pointer " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 
 		(*base) = (*base) + primary_size(t);
 		//base += get_offset(t);
@@ -678,10 +678,10 @@ string get_offset_tree_rec( const Type* t, int* base){
 		string aux = "(";
 		for ( unsigned int i = 0; i < t_struct->getNumElements(); i++) {
 			//cerr << "element " << i << endl;
-			aux += get_offset_tree_rec(t_struct->getElementType(i),base);
+			aux += get_offset_tree_rec(t_struct->getElementType(i),base, size);
 		}
 		//aux += "," + itos(get_offset(t));
-		aux += ",-1";
+		aux += ",-1," + itos(size);
 		aux += ")";
 
 
@@ -694,10 +694,10 @@ string get_offset_tree_rec( const Type* t, int* base){
 
 		string aux = "(";
 		for ( unsigned int i = 0; i < t_array->getNumElements(); i++) {
-			aux += get_offset_tree_rec(t_composite->getTypeAtIndex(i),base);
+			aux += get_offset_tree_rec(t_composite->getTypeAtIndex(i),base, size);
 		}
 		//aux += "," + itos(get_offset(t_array->getElementType()));
-		aux += "," + itos(get_offset(t));
+		aux += "," + itos(get_offset(t)) + "," + itos(size);
 		aux += ")";
 		return aux;
 
@@ -705,35 +705,35 @@ string get_offset_tree_rec( const Type* t, int* base){
 	} else if( type_str == "IntegerTyID"){
 
 		//cerr << "integer " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 		(*base) = (*base) + primary_size(t);
 		return ret;
 
 	} else if( type_str == "IntegerTyID32"){
 
 		//cerr << "integer32 " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 		(*base) = (*base) + primary_size(t);
 		return ret;
 
 	} else if( type_str == "IntegerTyID8"){
 
 		//cerr << "integer8 " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 		(*base) = (*base) + primary_size(t);
 		return ret;
 
 	} else if (type_str == "DoubleTyID"){
 
 		//cerr << "double " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 		(*base) = (*base) + primary_size(t);
 		return ret;
 
 	} else if (type_str == "FloatTyID"){
 
 		//cerr << "float " << primary_size(t) << endl;
-		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + "," + itos(size) + ")";
 		(*base) = (*base) + primary_size(t);
 		return ret;
 
@@ -748,7 +748,7 @@ string get_offset_tree_rec( const Type* t, int* base){
 	}
 }
 
-string get_offset_tree( const Type* t, int* base){
+string get_offset_tree( const Type* t){
 
 	const SequentialType*   t_sequential   = dyn_cast<SequentialType>(t);
 
@@ -756,7 +756,9 @@ string get_offset_tree( const Type* t, int* base){
 
 	assert( type_str == "PointerTyID" );
 
-	return "(" + get_offset_tree_rec(t_sequential->getElementType(), base) + "," + itos(get_size(t_sequential->getElementType())) + ")";
+	int base = 0;
+	int size = get_size(t);
+	return "(" + get_offset_tree_rec(t_sequential->getElementType(), &base, size) + "," + itos(get_size(t_sequential->getElementType())) + "," + itos(size) + ")";
 
 }
 
@@ -1991,8 +1993,7 @@ struct GetelementPtr: public ModulePass {
 							indexes_str += *it + ",";
 						}
 
-						int base = 0;
-						string offset_tree = get_offset_tree(in_g->getPointerOperand()->getType(), &base);
+						string offset_tree = get_offset_tree(in_g->getPointerOperand()->getType());
 
 						const PointerType* pointertype = cast<PointerType>(in_g->getPointerOperand()->getType());
 						const Type*        pointedtype = pointertype->getElementType();
@@ -2314,7 +2315,7 @@ struct GlobalInit: public ModulePass {
 	
 		} else {
 			vector<string> tokens = tokenize(offset_tree, "(),");
-			string size_s = tokens[tokens.size()-1];
+			string size_s = tokens[tokens.size()-2];
 			int size = stoi(size_s);
 			//printf("offset_tree %s realvalue_index_0 %d size_s %s\n", offset_tree.c_str(), realvalue_index_0, size_s.c_str());
 			return size*index_0;
@@ -2473,8 +2474,7 @@ struct GlobalInit: public ModulePass {
 				string name_base = "global_" + gepop->getOperand(0)->getName().str();
 
 				
-				int b = 0;
-				string offset_tree = get_offset_tree(gepop->getType(), &b);
+				string offset_tree = get_offset_tree(gepop->getType());
 
 				int base = given_addr[name_base];
 				//cerr << "name_base " << name_base << " base " << base << endl;
