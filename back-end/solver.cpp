@@ -104,6 +104,9 @@ string Solver::content( string name ){
 void Solver::set_last_address(string name, int last_address){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_last_address");
+
+	debug && printf("\e[32m set_last_address %s %d \e[0m\n", name.c_str(), last_address);
+
 	variables[name].last_address = last_address;
 
 }

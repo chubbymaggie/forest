@@ -56,9 +56,10 @@ test:
 	@forest ./test/simple/voidfn/config.xml                    # Void function call 
 	@forest ./test/simple/cmp_str_zero/config.xml              # Compare string to zero
 	@forest ./test/simple/arg_constant/config.xml              # propagation of constant through function parameters
-	@forest ./test/simple/align_struct/config.xml
-	@forest ./test/simple/prop_const_stack/config.xml
-	@forest ./test/simple/strcmp/config.xml
+	@forest ./test/simple/align_struct/config.xml              # struct fields alignment
+	@forest ./test/simple/prop_const_stack/config.xml          # Propagation of constants in the stack
+	@forest ./test/simple/outofbouds/config.xml                # Access out of bounds
+	@forest ./test/simple/strcmp/config.xml                    # string comparison
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
