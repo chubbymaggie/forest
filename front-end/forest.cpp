@@ -52,6 +52,8 @@ void do_pass(string passname){
 		make_bc();
 	else if(passname == "run")
 		run();
+	else if(passname == "vim")
+		vim();
 	else if(passname == "test")
 		test();
 	else if(passname == "clean")
@@ -604,6 +606,38 @@ void dump_forced_free_vars(){
 	fclose(file);
 	
 }
+
+
+void vim(){
+
+	start_pass("vim");
+
+
+	string base_path   = cmd_option_str("base_path");
+	string llvm_path   = cmd_option_str("llvm_path");
+	string output_file = cmd_option_str("output_file");
+
+	dump_forced_free_vars();
+
+	stringstream cmd;
+
+	set_option("verbose", "true");
+	options_to_file();
+
+	// Ejecuta el fichero resultante
+	cmd.str("");
+	cmd << "./" << output_file << " > output;";
+	systm(cmd.str().c_str());
+
+
+	cmd.str("");
+	cmd << "gvim +AnsiEsc " << "output;";
+	systm(cmd.str().c_str());
+
+	end_pass("vim");
+
+}
+
 
 void run(){
 
@@ -2249,6 +2283,7 @@ int main(int argc, const char *argv[]) {
 	needs("compare_klee", "run");
 	needs("compare_klee", "klee");
 	needs("get_result", "test");
+	needs("vim", "final");
 
 
 	disables("compare_bc", "test");
@@ -2259,6 +2294,7 @@ int main(int argc, const char *argv[]) {
 	disables("dfg", "test");
 	disables("dfg", "check_coverage");
 	disables("run", "test");
+	disables("vim", "test");
 	disables("show_results", "test");
 	disables("show_results", "check_concurrency");
 	disables("show_results", "check_concurrency_2");
@@ -2319,6 +2355,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
 	if(cmd_option_bool("compare_klee")) compare_klee();
 	if(cmd_option_bool("get_result")) get_result();
+	if(cmd_option_bool("vim")) vim();
 
 
 	return 0;
