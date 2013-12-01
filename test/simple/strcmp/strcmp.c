@@ -32,8 +32,8 @@ int strcmp(char* s1, char* s2)
 
 int main(int argc, const char *argv[])
 {
-	char str1[1];
-	char str2[1];
+	char str1[2];
+	char str2[2];
 
 
 #ifdef KLEE
