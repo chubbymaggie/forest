@@ -636,9 +636,15 @@ string Solver::get_sized_type(string name){
 
 void Solver::clean_conditions_stack(string name){
 
+//typedef struct Condition {
+	//string cond;
+	//string function;
+	//set<string> joints;
+//} Condition;
 	
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		if( it->joints.find(name) != it->joints.end() ){
+			debug && printf("\e[35m Erase condition from stack \e[0m %s\n", it->cond.c_str() );
 			conditions.erase(it);
 			it--;
 		}

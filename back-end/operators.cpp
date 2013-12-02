@@ -585,6 +585,8 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)) );
 
 
+	solver->print_path_stack();
+
 
 	string real_value_prev = realvalue(cmp);
 

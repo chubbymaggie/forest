@@ -890,6 +890,71 @@ void view_dfg(){
 
 }
 
+
+void view_dfg_2(){
+
+
+	stringstream cmd;
+
+
+	make_initial_bc();
+
+	string llvm_path = cmd_option_str("llvm_path");
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+
+	// Segundo paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_all < file-2.bc > file-3.bc";
+	systm(cmd.str().c_str());
+
+
+
+	// paso de optimización dot
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+	
+	command << "cd " << cmd_option_str("tmp_dir") << "; ";
+	command << "opt -dot-cfg < file-3.bc 2>&1 | grep Writing";
+	
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	
+	pclose(fp);
+	
+	vector<string> gen_dfgs;
+
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "'");
+		gen_dfgs.push_back(tokens[1]);
+	}
+	
+	
+
+	for( vector<string>::iterator it = gen_dfgs.begin(); it != gen_dfgs.end(); it++ ){
+
+		// pasa el dot a png
+		cmd.str("");
+		cmd << "dot -T png " << *it << " > " << *it << ".png";
+		systm(cmd.str().c_str());
+
+		// Visualiza el png
+		cmd.str("");
+		cmd << "eog " << *it << ".png &";
+		systm(cmd.str().c_str());
+		
+	}
+
+}
+
+
 bool covers_bool( vector<string> v1, vector<string> v2 ){
 
 	debug && printf("\e[31m coversbool \e[0m\n");
@@ -2293,6 +2358,8 @@ int main(int argc, const char *argv[]) {
 	disables("view_bc", "check_concurrency_2");
 	disables("dfg", "test");
 	disables("dfg", "check_coverage");
+	disables("dfg2", "test");
+	disables("dfg2", "check_coverage");
 	disables("run", "test");
 	disables("vim", "test");
 	disables("show_results", "test");
@@ -2330,6 +2397,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_measure_bc")) compare_measure_bc();
 	if(cmd_option_bool("view_bc")) view_bc();
 	if(cmd_option_bool("dfg")) view_dfg();
+	if(cmd_option_bool("dfg2")) view_dfg_2();
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
