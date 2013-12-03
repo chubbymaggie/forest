@@ -60,6 +60,7 @@ test:
 	@forest ./test/simple/prop_const_stack/config.xml          # Propagation of constants in the stack
 	@forest ./test/simple/outofbouds/config.xml                # Access out of bounds
 	@forest ./test/simple/strcmp/config.xml                    # string comparison
+	@forest ./test/simple/non_annotated_twice/config.xml       # calling a system function twice
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

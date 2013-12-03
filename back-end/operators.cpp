@@ -177,6 +177,7 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 
 }
 
+map<string, int> nonannotated_call_count;
 
 void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
@@ -188,7 +189,14 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
 	//printf("nonannotatedcallinstr %s\n", name(ret_to).c_str());
 
-	set_name_hint(name(ret_to), "return_of_" + fn_name );
+	if(nonannotated_call_count[fn_name] == 0)
+		set_name_hint(name(ret_to), "return_of_" + fn_name );
+	else
+		set_name_hint(name(ret_to), "return_of_" + fn_name + "_" + itos(nonannotated_call_count[fn_name]) );
+
+	nonannotated_call_count[fn_name]++;
+
+
 	solver->settype(name(ret_to), ret_type );
 
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
