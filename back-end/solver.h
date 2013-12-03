@@ -50,6 +50,7 @@ typedef struct Variable {
 	string tree;
 	int last_address;
 	bool is_propagated_constant;
+	bool comes_from_non_annotated;
 } Variable;
 
 
@@ -66,6 +67,9 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void push_condition(string cond );
+	bool get_comes_from_non_annotated(string name);
+	void set_comes_from_non_annotated(string name);
 	int get_last_address(string name);
 	void set_last_address(string name, int last_address);
 	string get_first_content_value(string var);
@@ -110,6 +114,9 @@ public:
 	bool is_forced_free(string position);
 
 private:
+	//void propagate_unary(string src, string dst);
+	void propagate_unary(string src, string dst, bool forcedfree);
+	void propagate_binary(string op1, string op2, string dst);
 	void set_first_content_value(string var, string value);
 	string get_first_content(string src);
 	void set_first_content(string src, string content);

@@ -198,6 +198,7 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
 
 	solver->settype(name(ret_to), ret_type );
+	solver->set_comes_from_non_annotated(name(ret_to));
 
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
 }
@@ -621,9 +622,15 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			return real_value_prev == "true";
 
 		if( realvalue(cmp) == "true" ){
-			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			if(solver->get_comes_from_non_annotated(name(cmp)))
+				solver->push_condition(solver->content(name(cmp)));
+			else
+				solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
 		} else if (realvalue(cmp) == "false" ){
-			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			if(solver->get_comes_from_non_annotated(name(cmp)))
+				solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+			else
+				solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}
@@ -642,9 +649,15 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 
 		if( realvalue(cmp) == "true" ){
-			solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			if(solver->get_comes_from_non_annotated(name(cmp)))
+				solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+			else
+				solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
 		} else if (realvalue(cmp) == "false" ){
-			solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			if(solver->get_comes_from_non_annotated(name(cmp)))
+				solver->push_condition( solver->content( name(cmp) ) );
+			else
+				solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}

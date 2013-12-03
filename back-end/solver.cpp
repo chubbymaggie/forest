@@ -571,7 +571,20 @@ void Solver::insert_variable(string name, string position){
 
 }
 
+
+void Solver::push_condition(string cond ){
+
+	set<string> joints_set;
+	string fn = "";
+	Condition condition = { cond, fn, joints_set };
+
+	conditions.push_back( condition );
+
+}
+
 void Solver::push_condition(string cond, string fn, vector<string> joints ){
+
+	//printf("condition comes_from_non_annotated %d\n", get_comes_from_non_annotated(cond) );
 
 
 	set<string> joints_set = set<string>(joints.begin(), joints.end());
@@ -632,6 +645,24 @@ string Solver::get_sized_type(string name){
 
 	return "Int";
 
+}
+
+void Solver::set_comes_from_non_annotated(string name){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_comes_from_non_annotated");
+
+	variables[name].comes_from_non_annotated = true;
+	
+	
+}
+
+bool Solver::get_comes_from_non_annotated(string name){
+
+	if( !check_mangled_name(name) ) assert(0 && "Wrong name for get_comes_from_non_annotated");
+
+	return variables[name].comes_from_non_annotated;
+	
+	
 }
 
 void Solver::clean_conditions_stack(string name){
@@ -808,6 +839,30 @@ string Solver::get_first_content(string src){
 
 }
 
+
+void Solver::propagate_unary(string src, string dst, bool forcedfree){
+
+	//bool forcedfree = is_forced_free(src);
+
+	if( (get_is_propagated_constant(src) || is_constant(src)) && !forcedfree )
+		set_is_propagated_constant(dst);
+	else
+		unset_is_propagated_constant(dst);
+
+
+	//printf("srctree %s\n", get_offset_tree(src).c_str());
+
+	set_offset_tree(dst, get_offset_tree(src));
+
+	set_last_address(dst, get_last_address(src));
+
+	if(get_comes_from_non_annotated(src))
+		set_comes_from_non_annotated(dst);
+
+}
+
+
+
 void Solver::assign_instruction(string src, string dst, string fn_name){
 
 	//substitute_pivots(src);
@@ -842,7 +897,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 		//variables[dst].content = variables[src].content;
 	//}
 
-
+	propagate_unary(src, dst, forcedfree);
 
 	//if( variables[dst].type == "" ) assert(0 && "No type in dst");
 	settype(dst, get_type(src));
@@ -851,17 +906,6 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 	set_real_value( dst, realvalue(src) );
 
 
-	if( (get_is_propagated_constant(src) || is_constant(src)) && !forcedfree )
-		set_is_propagated_constant(dst);
-	else
-		unset_is_propagated_constant(dst);
-
-
-	//printf("srctree %s\n", get_offset_tree(src).c_str());
-
-	set_offset_tree(dst, get_offset_tree(src));
-
-	set_last_address(dst, get_last_address(src));
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d\n",
@@ -893,6 +937,23 @@ bool Solver::implemented_operation(string operation){
 
 	printf("operation %s\n", operation.c_str());
 	return false;
+}
+
+void Solver::propagate_binary(string op1, string op2, string dst){
+
+	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
+
+	if( get_is_propagated_constant(op1) && is_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
+
+	if( is_constant(op1) && get_is_propagated_constant(op2) ){
+		set_is_propagated_constant(dst);
+	}
+
+	set_last_address(dst, get_last_address(op1));
 }
 
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){
@@ -954,20 +1015,7 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		settype(dst, get_type(op2));
 
 
-	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
-		set_is_propagated_constant(dst);
-	}
-
-	if( get_is_propagated_constant(op1) && is_constant(op2) ){
-		set_is_propagated_constant(dst);
-	}
-
-	if( is_constant(op1) && get_is_propagated_constant(op2) ){
-		set_is_propagated_constant(dst);
-	}
-
-	set_last_address(dst, get_last_address(op1));
-
+	propagate_binary(op1, op2, dst);
 
 	if(operation == "<="){
 		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
