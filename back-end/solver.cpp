@@ -651,6 +651,8 @@ void Solver::set_comes_from_non_annotated(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_comes_from_non_annotated");
 
+	debug && printf("\e[32m set_comes_from_non_annotated \e[0m %s \n", name.c_str() );
+
 	variables[name].comes_from_non_annotated = true;
 	
 	
@@ -954,6 +956,13 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 	}
 
 	set_last_address(dst, get_last_address(op1));
+
+	if( get_comes_from_non_annotated(op1) )
+		set_comes_from_non_annotated(dst);
+
+	if( get_comes_from_non_annotated(op2) )
+		set_comes_from_non_annotated(dst);
+
 }
 
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){

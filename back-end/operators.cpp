@@ -591,7 +591,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 
-	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)) );
+	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d \e[32m comes_from_non_annotated\e[0m  %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)), solver->get_comes_from_non_annotated(name(cmp)) );
 
 
 	solver->print_path_stack();
