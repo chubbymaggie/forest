@@ -102,6 +102,10 @@ void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 				name(fn_oplist[i], fn_name)
 				);
 
+		set_name_hint(name(fn_oplist[i], fn_name), "argument_" + itos(i) + "_" + fn_name );
+
+
+
 	}
 
 	actual_function = fn_name;
@@ -165,6 +169,8 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	solver->assign_instruction( name(ret_gl), name(last_rg_callstack, last_fn_callstack) );
 
 	actual_function = last_fn_callstack;
+
+	solver->clean_conditions_stack("");
 
 	debug && printf("\e[36m Continuing function %s \e[0m.\n", actual_function.c_str() );
 

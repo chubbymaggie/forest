@@ -676,10 +676,19 @@ void Solver::clean_conditions_stack(string name){
 //} Condition;
 	
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		if( it->joints.find(name) != it->joints.end() ){
+
+		if( it->joints.size() == 0 && it->function == "" ){
+			continue;
+		}
+
+		if( it->joints.size() == 0 && operators->get_actual_function() != it->function ){
 			debug && printf("\e[35m Erase condition from stack \e[0m %s\n", it->cond.c_str() );
-			conditions.erase(it);
-			it--;
+			conditions.erase(it); it--; continue;
+		}
+
+		if( it->joints.find(name) != it->joints.end() && operators->get_actual_function() == it->function ){
+			debug && printf("\e[35m Erase condition from stack \e[0m %s\n", it->cond.c_str() );
+			conditions.erase(it); it--; continue;
 		}
 	}
 	
@@ -1427,6 +1436,16 @@ string Solver::get_position(string name){
 void Solver::pivot_variable(string variable, string name){
 
 
+	myReplace(variable, "underscore", "_");
+	string suffix = variable.substr(variable.find("_") + 1);
+	string prefix = variable.substr(0,variable.find("_"));
+	myReplace(suffix, "_", "underscore");
+
+	variable = prefix + "_" + suffix;
+
+	printf("pivot %s %s %s\n", prefix.c_str(), suffix.c_str(), variable.c_str());
+	
+
 	debug && printf("\e[33m pivot_variable %s %s\e[0m\n", variable.c_str(), name.c_str());
 
 	string origname = variable;
@@ -1440,7 +1459,7 @@ void Solver::pivot_variable(string variable, string name){
 	
 	vector<string> empty;
 	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
-	push_condition(condition.str(), "", empty);
+	push_condition(condition.str(), operators->get_actual_function(), empty);
 
 	pivot_variables[variable].push_back(pivot_name);
 
