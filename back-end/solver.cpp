@@ -942,6 +942,7 @@ bool Solver::implemented_operation(string operation){
 	if(operation == "R" ) return true;
 	if(operation == "L" ) return true;
 	if(operation == "Y" ) return true;
+	if(operation == "O" ) return true;
 	if(operation == "X" ) return true;
 
 	printf("operation %s\n", operation.c_str());
@@ -1070,6 +1071,56 @@ string Solver::and_constant(string op1, string op2){
 
 
 
+string Solver::or_constant(string op1, string op2){
+
+	stringstream ret;
+	int op2_i = stoi(op2);
+	string op2_b = binary_rep(op2_i);
+	string content1 = content(op1);
+
+	printf("or_constant %s %s %s %s\n", op1.c_str(),content1.c_str(), op2.c_str(), op2_b.c_str());
+
+
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0,mult1=1,mult2=2; i < op2_b.length()-1; i++,mult1*=2, mult2*=2) {
+
+		char bit = op2_b[op2_b.length()-i-1];
+
+		printf("bit %c mult %d\n", bit, mult1);
+
+		stringstream x_bit_i_sh;
+		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
+		x_bit_i_sh << "(- (mod " << content1 << " " << mult2 << ") (mod " << content1 << " " << mult1 << "))";
+
+		if(bit == '1'){
+			z_bit_i_sh << "(- " << mult1 << " " << x_bit_i_sh.str() << ")";
+		} else {
+			z_bit_i_sh << "";
+		}
+
+
+		z_bits.push_back(z_bit_i_sh.str());
+	}
+
+	string res;
+
+	for ( unsigned int i = 0; i < z_bits.size(); i++) {
+		res += z_bits[i] + " ";
+	}
+
+	res = "(+ " + content1 + " " + res + ")";
+
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
+
+
+	return ret.str();
+
+}
 
 //string wired_and( string op1, string op2, int nbits ){
 
@@ -1161,6 +1212,12 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 		if( is_constant(op2) )
 			content_ss << and_constant( op1, realvalue(op2) );
+		else
+			assert(0 && "Non-Supported Operation");
+	} else if (operation == "O" ) {
+
+		if( is_constant(op2) )
+			content_ss << or_constant( op1, realvalue(op2) );
 		else
 			assert(0 && "Non-Supported Operation");
 	} else if (operation == "X" ) {
@@ -1293,6 +1350,13 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		set_real_value(dst, result.str());
 	}
 
+	if( operation == "O" ){
+		int op1_i = stoi(realvalue(op1));
+		int op2_i = stoi(realvalue(op2));
+		int res = op1_i | op2_i;
+		stringstream result; result << res;
+		set_real_value(dst, result.str());
+	}
 
 	if( variables[op1].type != "" ) variables[dst].type = variables[op1].type;
 	if( variables[op2].type != "" ) variables[dst].type = variables[op2].type;

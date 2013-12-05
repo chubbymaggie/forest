@@ -63,6 +63,7 @@ test:
 	@forest ./test/simple/strcmp/config.xml                    # string comparison
 	@forest ./test/simple/non_annotated_twice/config.xml       # calling a system function twice
 	@forest ./test/simple/andconstant/config.xml               # AND with constant
+	@forest ./test/simple/orconstant/config.xml                # OR with constant
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
