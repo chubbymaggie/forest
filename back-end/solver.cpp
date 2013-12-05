@@ -972,6 +972,151 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 
 }
 
+string binary_rep(int n){
+
+	stringstream ret;
+
+	for( int c = 30; c >= 0; c--){
+		int k = n >> c;
+		if(k & 1)
+			ret << 1;
+		else 
+			ret << 0;
+	}
+
+	return ret.str();
+}
+
+//string Solver::and_constant(string op1, string op2){
+
+	//stringstream ret;
+	//int op2_i = stoi(op2);
+	//string op2_b = binary_rep(op2_i);
+	//string op1_content = content(op1);
+
+	//printf("and_constant %s %s %s %s\n", op1.c_str(),op1_content.c_str(), op2.c_str(), op2_b.c_str());
+
+	//ret << "(+ ";
+
+	//for ( unsigned int i = 0,mult=1,mult2=2; i < op2_b.length()-1; i++,mult*=2, mult2*=2) {
+		//char byte = op2_b[op2_b.length()-i-1];
+		//printf("byte %c mult %d\n", byte, mult);
+
+		//stringstream bit;
+
+		//bit << "(/ (- (mod " << op1_content << " " << mult2 << ") (mod " << op1_content << " " << mult << ")) " << mult <<  ")";
+
+		//if( byte == '1' )
+			//ret << "(* " << bit.str() << " " << mult << ") ";
+
+	//}
+
+	//ret << ")";
+
+	//return ret.str();
+
+//}
+
+string Solver::and_constant(string op1, string op2){
+
+	stringstream ret;
+	int op2_i = stoi(op2);
+	string op2_b = binary_rep(op2_i);
+	string content1 = content(op1);
+
+	printf("and_constant %s %s %s %s\n", op1.c_str(),content1.c_str(), op2.c_str(), op2_b.c_str());
+
+
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0,mult1=1,mult2=2; i < op2_b.length()-1; i++,mult1*=2, mult2*=2) {
+
+		char bit = op2_b[op2_b.length()-i-1];
+
+		printf("bit %c mult %d\n", bit, mult1);
+
+		stringstream x_bit_i_sh;
+		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
+		x_bit_i_sh << "(- (mod " << content1 << " " << mult2 << ") (mod " << content1 << " " << mult1 << "))";
+
+		if(bit == '1'){
+			z_bit_i_sh << x_bit_i_sh.str();
+		} else {
+			z_bit_i_sh << "";
+		}
+
+
+		z_bits.push_back(z_bit_i_sh.str());
+	}
+
+	string res;
+
+	for ( unsigned int i = 0; i < z_bits.size(); i++) {
+		res += z_bits[i] + " ";
+	}
+
+	res = "(+ " + res + ")";
+
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
+
+
+	return ret.str();
+
+}
+
+
+
+
+//string wired_and( string op1, string op2, int nbits ){
+
+	//vector<string> z_bits;
+
+	//for ( unsigned int i = 0; i < nbits; i++) {
+		//int mod1 = ( 1 << i+1 );
+		//int mod2 = ( 1 << i   );
+
+		//string content1 = content(name(op1));
+		//string content2 = content(name(op2));
+		
+		////printf("content %s %s\n", content1.c_str(), content2.c_str() );
+
+		//stringstream x_bit_i;
+		//stringstream y_bit_i;
+		//stringstream z_bit_i;
+		//stringstream z_bit_i_sh;
+		//x_bit_i << "(/ (- (mod " << content1 << " " << mod1 << ") (mod " << content1 << " " << mod2 << ")) " << mod2 << ")";
+		//y_bit_i << "(/ (- (mod " << content2 << " " << mod1 << ") (mod " << content2 << " " << mod2 << ")) " << mod2 << ")";
+
+		//z_bit_i << "(* " << x_bit_i.str() << " " << y_bit_i.str() << ")";
+
+		//z_bit_i_sh << "(* " << z_bit_i.str() << " " << mod2 << ")";
+
+		//z_bits.push_back(z_bit_i_sh.str());
+	//}
+
+	//string res;
+
+	//for ( unsigned int i = 0; i < nbits; i++) {
+		//res += z_bits[i] + " ";
+	//}
+
+	//res = "(+ " + res + ")";
+
+	////printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	//return res;
+
+//}
+
+
+
+
+
+
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){
 
 	//substitute_pivots(op1);
@@ -1013,7 +1158,11 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		content_ss << "(* " << content(op1) << " " << factor << ")";
 
 	} else if (operation == "Y" ) {
-		assert(0 && "Non-Supported Operation");
+
+		if( is_constant(op2) )
+			content_ss << and_constant( op1, realvalue(op2) );
+		else
+			assert(0 && "Non-Supported Operation");
 	} else if (operation == "X" ) {
 		assert(0 && "Non-Supported Operation");
 	} else {

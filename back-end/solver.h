@@ -121,6 +121,7 @@ public:
 	bool is_forced_free(string position);
 
 private:
+	string and_constant(string op1, string op2);
 	//void propagate_unary(string src, string dst);
 	void propagate_unary(string src, string dst, bool forcedfree);
 	void propagate_binary(string op1, string op2, string dst);
