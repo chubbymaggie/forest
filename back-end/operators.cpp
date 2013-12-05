@@ -171,6 +171,7 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	actual_function = last_fn_callstack;
 
 	solver->clean_conditions_stack("");
+	solver->clean_pivots();
 
 	debug && printf("\e[36m Continuing function %s \e[0m.\n", actual_function.c_str() );
 

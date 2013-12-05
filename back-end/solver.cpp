@@ -75,30 +75,6 @@ string Solver::content( string name ){
 }
 
 
-//void Solver::dump_variable(string position, string type, FILE* file){
-
-
-		//bool is_pivot = false;
-		//for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-			//if(it->first == position)
-				//is_pivot = true;
-		//}
-
-		////debug && printf("\e[31m dump_variable %s is_pivot %d\e[0m\n", position.c_str(), is_pivot);
-
-		//if(is_pivot){
-			//fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
-
-			//vector<string> subst_to = pivot_variables[position];
-			//for ( unsigned int i = 0; i < subst_to.size(); i++) {
-				//string name = subst_to[i];
-				//fprintf(file,"(declare-fun %s () %s)\n", locknames(name).c_str(), type.c_str());
-			//}
-		//} else {
-			//fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
-		//}
-
-//}
 
 
 void Solver::set_last_address(string name, int last_address){
@@ -125,19 +101,23 @@ void Solver::dump_pivots(FILE* file){
 
 	//printf("dump pivots\n");
 
-	for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-		vector<string> vectorpivots = it->second;
+	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
 
-		for( vector<string>::iterator it2 = vectorpivots.begin(); it2 != vectorpivots.end(); it2++ ){
+		vector<Pivot> pivots = it->second;
 
-			string hintpivot = *it2;
+		for( vector<Pivot>::iterator it2 = pivots.begin(); it2 != pivots.end(); it2++ ){
+		
+			string variable = it2->variable;
+
+
+			string hintpivot = variable;
 			string hint = hintpivot.substr(0, hintpivot.find("_pivot_"));
 			string name = find_by_name_hint(hint);
 			
 			//printf("gettype %s %s\n", name.c_str(), get_type(name).c_str() );
 			string type = get_type(name);
 			//printf("gettype\n");
-			fprintf(file, "(declare-fun %s () %s)\n", locknames(*it2).c_str(), type.c_str() );
+			fprintf(file, "(declare-fun %s () %s)\n", name.c_str(), type.c_str() );
 		}
 		
 
@@ -145,6 +125,24 @@ void Solver::dump_pivots(FILE* file){
 	
 }
 
+void Solver::clean_pivots(){
+
+	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
+
+		vector<Pivot> pivots = it->second;
+
+		for( vector<Pivot>::iterator it2 = pivots.begin(); it2 != pivots.end(); it2++ ){
+
+			string function = it2->function;
+			if( operators->get_actual_function() != function ){
+				pivots.erase( it2 ); it2--;
+			}
+		}
+
+		it->second = pivots;
+	}
+
+}
 
 void Solver::dump_variables(FILE* file){
 
@@ -1290,14 +1288,22 @@ string Solver::get_name_hint(string name){
 
 string Solver::find_by_name_hint(string hint){
 
+	myReplace(hint, "underscore", "_");
+	string suffix = hint.substr(hint.find("_") + 1);
+	string prefix = hint.substr(0,hint.find("_"));
+	myReplace(suffix, "_", "underscore");
+	hint = prefix + "_" + suffix;
+
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
 		//printf("find_by_name_hint %s %s %s\n", it->first.c_str(), it->second.name_hint.c_str(), it->second.content.c_str() );
 
-		if(it->second.name_hint == hint /*|| it->first == hint*/)
+		//if(it->second.name_hint == hint )
+		if(it->first == hint)
 			return it->first;
 	}
 	
+	printf("hint not found %s\n", hint.c_str());
 	assert(0 && "name not found");
 
 	return "";
@@ -1458,10 +1464,12 @@ void Solver::pivot_variable(string variable, string name){
 	setcontent(origname,orig_content);
 	
 	vector<string> empty;
-	stringstream condition; condition << "(= " << pivot_name << " " << orig_content << ")";
+	stringstream condition; condition << "(= " << variable << " " << orig_content << ")";
 	push_condition(condition.str(), operators->get_actual_function(), empty);
 
-	pivot_variables[variable].push_back(pivot_name);
+	Pivot pivot = { variable, operators->get_actual_function() };
+
+	pivot_variables[variable].push_back(pivot);
 
 
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );

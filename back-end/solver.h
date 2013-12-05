@@ -60,6 +60,12 @@ typedef struct NameAndPosition {
 } NameAndPosition;
 
 
+typedef struct Pivot {
+	string variable;
+	string function;
+} Pivot;
+
+
 inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 {
   return lhs.name > rhs.name;
@@ -67,6 +73,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void clean_pivots();
 	void push_condition(string cond );
 	bool get_comes_from_non_annotated(string name);
 	void set_comes_from_non_annotated(string name);
@@ -131,7 +138,7 @@ private:
 	set<string> flatened_variables;
 	vector<Condition> conditions;
 	set<string> forced_free_vars;
-	map<string, vector<string> > pivot_variables;
+	map<string, vector<Pivot> > pivot_variables;
 	map<string, string> first_content;
 	map<string, string> first_content_value;
 
