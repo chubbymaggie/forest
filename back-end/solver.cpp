@@ -1070,6 +1070,18 @@ string Solver::and_constant(string op1, string op2){
 }
 
 
+string Solver::complement_op(string op1){
+
+	stringstream ret;
+	string content1 = content(op1);
+
+	printf("complement_operation %s \n", op1.c_str());
+
+	ret << "(- (+ " << content1 << " 1))";
+
+	return ret.str();
+
+}
 
 string Solver::or_constant(string op1, string op2){
 
@@ -1221,7 +1233,10 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		else
 			assert(0 && "Non-Supported Operation");
 	} else if (operation == "X" ) {
-		assert(0 && "Non-Supported Operation");
+		if( is_constant(op2) && realvalue(op2) == "-1" )
+			content_ss  << complement_op( op1 );
+		else
+			assert(0 && "Non-Supported Operation");
 	} else {
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 	}
@@ -1356,6 +1371,15 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		int res = op1_i | op2_i;
 		stringstream result; result << res;
 		set_real_value(dst, result.str());
+	}
+
+	if( operation == "X" ){
+		if( is_constant(op2) && realvalue(op2) == "-1" ){
+			int op1_i = stoi(realvalue(op1));
+			int res = ~op1_i;
+			stringstream result; result << res;
+			set_real_value(dst, result.str());
+		}
 	}
 
 	if( variables[op1].type != "" ) variables[dst].type = variables[op1].type;
