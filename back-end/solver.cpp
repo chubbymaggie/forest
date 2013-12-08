@@ -216,7 +216,7 @@ int Solver::minval(string type){
 
 	if(type == "Int32") return -(1 << 30);
 	if(type == "Int16") return -(1 << 15);
-	if(type == "Int8")  return -(1 << 8);
+	if(type == "Int8")  return -(1 << 7);
 	if(type == "Int") return   -(1 << 30);
 	if(type == "Pointer") return 0;
 
@@ -229,7 +229,7 @@ int Solver::maxval(string type){
 
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
-	if(type == "Int8") return (1 << 8);
+	if(type == "Int8") return (1 << 7);
 	if(type == "Int") return (1 << 30);
 	if(type == "Pointer") return (1 << 30);
 
@@ -410,10 +410,6 @@ void Solver::solve_problem(){
 	stringstream filename;
 	filename << "z3_" << rand() << ".smt2";
 
-	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.str().c_str() );
-
-	if(options->cmd_option_bool("see_each_problem"))
-		getchar();
 
 	FILE* file = fopen(filename.str().c_str(), "w");
 
@@ -431,6 +427,13 @@ void Solver::solve_problem(){
 	dump_tail(file);
 
 	fclose(file);
+
+	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.str().c_str() );
+
+	if(options->cmd_option_bool("see_each_problem"))
+		getchar();
+
+
 
 	FILE *fp;
 	stringstream command;
@@ -1077,6 +1080,8 @@ string Solver::complement_op(string op1){
 
 	printf("complement_operation %s \n", op1.c_str());
 
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 1)))";
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 2)))";
 	ret << "(- (+ " << content1 << " 1))";
 
 	return ret.str();

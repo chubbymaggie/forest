@@ -20,12 +20,16 @@
 
 
 int main() {
-	int a;
-	int b = ~a;
-	if(b == -5)
+	char a;
+	char b = ~a;
+
+	char c = -6;
+	char d = -252;
+
+	if(b == c)
 		return 0;
 
-	if(b == 5)
+	if(b == d)
 		return 1;
 
 	return 2;
