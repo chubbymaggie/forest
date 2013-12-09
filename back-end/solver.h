@@ -68,11 +68,12 @@ typedef struct Pivot {
 
 inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 {
-  return lhs.name > rhs.name;
+  return (lhs.name + lhs.position) > (rhs.name + rhs.position);
 }
 
 class Solver {
 public:
+	void set_content(string name, string content);
 	void clean_pivots();
 	void push_condition(string cond );
 	bool get_comes_from_non_annotated(string name);

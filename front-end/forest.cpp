@@ -1413,17 +1413,7 @@ void measure_coverage(){
 
 void show_test_vectors(){
 
-	vector< map<string, string> > vectors = vector_of_test_vectors();
-
-	for( vector<map<string, string> >::iterator it = vectors.begin(); it != vectors.end(); it++ ){
-
-		for( map<string,string>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++ ){
-			debug && printf("%s -> %s\n", it2->first.c_str(), it2->second.c_str() );
-		}
-		
-		
-	}
-	
+	db_command(".mode columns\\n.width 6 30 5\\n.headers on\\nselect * from minimal_vectors;");
 
 }
 
@@ -2366,6 +2356,10 @@ int main(int argc, const char *argv[]) {
 	disables("show_results", "check_concurrency");
 	disables("show_results", "check_concurrency_2");
 	disables("show_results", "check_coverage");
+	disables("show_test_vectors", "test");
+	disables("show_test_vectors", "check_concurrency");
+	disables("show_test_vectors", "check_concurrency_2");
+	disables("show_test_vectors", "check_coverage");
 	disables("count_branches", "test");
 	disables("klee", "test");
 	disables("klee", "compare_klee");
@@ -2401,6 +2395,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
+	if(cmd_option_bool("show_test_vectors")) show_test_vectors();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
 	if(cmd_option_bool("show_coverage")) show_coverage();

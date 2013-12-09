@@ -1523,27 +1523,27 @@ struct BrInstr: public ModulePass {
 							set<string> reachable_1 = reachable(name1, fn);
 							set<string> reachable_2 = reachable(name2, fn);
 
-							in_b->dump();
+							//in_b->dump();
 
-							cerr << "Reachable states from true:";
-							for( set<string>::iterator it = reachable_1.begin(); it != reachable_1.end(); it++ ){
-								cerr << (*it) << ", ";
-							}
-							cerr << endl;
+							//cerr << "Reachable states from true:";
+							//for( set<string>::iterator it = reachable_1.begin(); it != reachable_1.end(); it++ ){
+								//cerr << (*it) << ", ";
+							//}
+							//cerr << endl;
 							
-							cerr << "Reachable states from false:";
-							for( set<string>::iterator it = reachable_2.begin(); it != reachable_2.end(); it++ ){
-								cerr << (*it) << ", ";
-							}
-							cerr << endl;
+							//cerr << "Reachable states from false:";
+							//for( set<string>::iterator it = reachable_2.begin(); it != reachable_2.end(); it++ ){
+								//cerr << (*it) << ", ";
+							//}
+							//cerr << endl;
 
 							set<string> joints = intersection(reachable_1, reachable_2);
 
-							cerr << "Intersection:";
-							for( set<string>::iterator it = joints.begin(); it != joints.end(); it++ ){
-								cerr << (*it) << ", ";
-							}
-							cerr << endl;
+							//cerr << "Intersection:";
+							//for( set<string>::iterator it = joints.begin(); it != joints.end(); it++ ){
+								//cerr << (*it) << ", ";
+							//}
+							//cerr << endl;
 
 							string joints_s;
 							for( set<string>::iterator it = joints.begin(); it != joints.end(); it++ ){
