@@ -65,6 +65,7 @@ test:
 	@forest ./test/simple/andconstant/config.xml               # AND with constant
 	@forest ./test/simple/orconstant/config.xml                # OR with constant
 	@forest ./test/simple/not/config.xml                       # NOT operator
+	@forest ./test/simple/non_annotated_n/config.xml           # Calling a non-annotated function n times
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

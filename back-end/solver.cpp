@@ -278,6 +278,7 @@ void Solver::dump_get(FILE* file){
 		if( it->second.content == "" ) continue;
 		if( it->first.find("_pivot_") != string::npos ) continue;
 		if( gettype(it->first) == "Function") continue;
+		if( get_is_propagated_constant(it->first) ) continue;
 		
 		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
@@ -529,6 +530,7 @@ void Solver::solve_problem(){
 		if( it->second.content == "" ) continue;
 		if( it->first.find("_pivot_") != string::npos ) continue;
 		if( gettype(it->first) == "Function") continue;
+		if( get_is_propagated_constant(it->first) ) continue;
 		//printf("first name %s\n", it->first.c_str() );
 
 		string line = *it_ret;
