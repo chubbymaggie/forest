@@ -269,7 +269,7 @@ void Solver::dump_get(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->position.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->name.c_str() );
 	}
 	
 	fprintf(file,"; --- ↑free ↓non-free \n" );
@@ -345,6 +345,28 @@ void Solver::set_real_value_mangled(string varname, string value ){
 
 	variables[varname].real_value = value;
 }
+
+void Solver::set_real_value_hint(string hint, string value ){
+
+
+
+	printf("set_real_value_hint %s %s\n", hint.c_str(), value.c_str());
+
+	
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		if(it->second.name_hint == hint){
+			it->second.real_value = value;
+			return;
+
+		}
+			
+	}
+
+	assert(0 && "Variable not found");
+	
+}
+
+
 
 #define INITIAL_LINE_LENGTH	256
 char* fgetln(register FILE* fp, size_t *lenp) {
@@ -482,11 +504,13 @@ void Solver::solve_problem(){
 
 		string varname = it->name;
 		string value = result_get(*it_ret);
+		string hint = it->position;
 
 
-		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), value.c_str() ); fflush(stdout);
+		debug && printf("\e[32m name \e[0m %s \e[32m hint \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), hint.c_str(), value.c_str() ); fflush(stdout);
 
 		set_real_value_mangled(varname, value);
+		//set_real_value_hint(hint, value);
 		//variables[varname].real_value = value;
 
 	}
@@ -572,6 +596,17 @@ void Solver::insert_variable(string name, string position){
 
 }
 
+void Solver::insert_variable_2(string name, string position){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
+		
+	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
+
+
+	NameAndPosition nandp = {name, position};
+	free_variables.insert(nandp);
+
+}
 
 void Solver::push_condition(string cond ){
 
@@ -1422,7 +1457,7 @@ int Solver::show_problem(){
 	dump_type_limits();
 	dump_conditions();
 	dump_check_sat();
-	//dump_get();
+	dump_get();
 	dump_tail();
 
 
@@ -1517,6 +1552,10 @@ string Solver::gettype(string name){
 }
 
 void Solver::set_name_hint(string name, string hint){
+
+	debug && printf("\e[35m set_name_hint \e[0m name %s hint %s \n", name.c_str(), hint.c_str() );
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_name_hint");
 
 	variables[name].name_hint = hint;
 }

@@ -198,8 +198,16 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
 	if(nonannotated_call_count[fn_name] == 0)
 		set_name_hint(name(ret_to), "return_of_" + fn_name );
-	else
+	else {
 		set_name_hint(name(ret_to), "return_of_" + fn_name + "_" + itos(nonannotated_call_count[fn_name]) );
+		//solver->insert_variable(name(ret_to), "return_of_" + fn_name );
+		for ( unsigned int i = 0; i < nonannotated_call_count[fn_name]; i++) {
+			if( i == 0 )
+				solver->insert_variable_2(name(ret_to), "return_of_" + fn_name );
+			else
+				solver->insert_variable_2(name(ret_to), "return_of_" + fn_name + "_" + itos(i) );
+		}
+	}
 
 	nonannotated_call_count[fn_name]++;
 

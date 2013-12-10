@@ -205,7 +205,8 @@ void Database::insert_problem(){
 				value = solver->get_first_content_value(name);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
-			debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
+			//debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
+			printf("\e[31m insert_result \e[0m name %s value %s hint %s\n", name.c_str(), value.c_str(), hint.c_str());
 
 		}
 

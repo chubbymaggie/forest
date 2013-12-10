@@ -73,6 +73,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void insert_variable_2(string name, string position);
 	void set_content(string name, string content);
 	void clean_pivots();
 	void push_condition(string cond );
@@ -120,8 +121,10 @@ public:
 	string find_by_name_hint(string hint);
 	void setcontent(string varname, string content);
 	bool is_forced_free(string position);
+	void insert_variable(string name, string position);
 
 private:
+	void set_real_value_hint(string hint, string value );
 	string complement_op(string op1);
 	string or_constant(string op1, string op2);
 	string and_constant(string op1, string op2);
@@ -158,7 +161,6 @@ private:
 	void dump_assigns(FILE* file = stdout);
 	void dump_pivots(FILE* file = stdout);
 	void flat_problem();
-	void insert_variable(string name, string position);
 	string extract_condition(string content);
 	string get_last_condition(string name);
 	string actual(string name);
