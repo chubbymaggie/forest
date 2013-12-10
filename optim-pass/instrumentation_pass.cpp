@@ -620,8 +620,16 @@ int get_offset(const Type* t, int debug = 1){
 
 		return get_size(t);
 
+	} else if( type_str == "IntegerTyID64"){
+		//cerr << "Integer64" << endl;
+
+		return get_size(t);
 	} else if( type_str == "IntegerTyID32"){
 		//cerr << "Integer32" << endl;
+
+		return get_size(t);
+	} else if( type_str == "IntegerTyID16"){
+		//cerr << "Integer16" << endl;
 
 		return get_size(t);
 
@@ -645,7 +653,7 @@ int get_offset(const Type* t, int debug = 1){
 		//cerr << "----" << endl;
 		//cerr << "otro" << endl;
 		//t->dump();
-		//cerr << type_str << endl;
+		cerr << type_str << endl;
 		assert(0 && "Unknown Type");
 
 	}
@@ -710,6 +718,18 @@ string get_offset_tree_rec( const Type* t, int* base){
 		return ret;
 
 	} else if( type_str == "IntegerTyID32"){
+
+		//cerr << "integer32 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+	} else if( type_str == "IntegerTyID64"){
+
+		//cerr << "integer64 " << primary_size(t) << endl;
+		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
+		(*base) = (*base) + primary_size(t);
+		return ret;
+	} else if( type_str == "IntegerTyID16"){
 
 		//cerr << "integer32 " << primary_size(t) << endl;
 		string ret = "(" + itos(*base) + "," + itos(get_offset(t)) + ")";
@@ -2376,6 +2396,10 @@ struct GlobalInit: public ModulePass {
 			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID32"){
+			int64_t val = constant_int->getSExtValue();
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			return nameop1_ss.str();
+		} else if( type == "IntegerTyID16"){
 			int64_t val = constant_int->getSExtValue();
 			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
 			return nameop1_ss.str();
