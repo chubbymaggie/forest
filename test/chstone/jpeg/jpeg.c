@@ -2716,12 +2716,22 @@ jpeg2bmp_main ()
 }
 
 
+#ifdef KLEE 
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif 
 
 
 
 int
 main ()
 {
+
+
+#ifdef KLEE
+	klee_make_symbolic((void*)hana, sizeof(hana), "hana");
+#endif
+
+
       main_result = 0;
       jpeg2bmp_main ();
 
