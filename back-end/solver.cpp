@@ -496,6 +496,8 @@ void Solver::solve_problem(){
 
 	vector<string>::iterator       it_ret = ret_vector.begin(); it_ret++;
 
+	set<NameAndPosition> free_variables_aux;
+
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++,it_ret++ ){
 
 		string line = *it_ret;
@@ -510,10 +512,16 @@ void Solver::solve_problem(){
 		debug && printf("\e[32m name \e[0m %s \e[32m hint \e[0m %s \e[32m value \e[0m %s\n", varname.c_str(), hint.c_str(), value.c_str() ); fflush(stdout);
 
 		set_real_value_mangled(varname, value);
+
+		NameAndPosition nandp = {varname, hint, value};
+		free_variables_aux.insert(nandp);
+		//it->value = value;
 		//set_real_value_hint(hint, value);
 		//variables[varname].real_value = value;
 
 	}
+
+	free_variables = free_variables_aux;
 
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){

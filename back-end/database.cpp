@@ -180,8 +180,8 @@ void Database::insert_problem(){
 	
 	action << "insert into problems (sat, path) values (" << (solver->solvable_problem()?1:0) << ",'" << path << "');";
 
-	set<NameAndPosition> variable_names = solver->get_free_variables();
-	for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+	set<NameAndPosition> free_variables = solver->get_free_variables();
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 		string name = it->name;
 		string type = solver->get_sized_type(name);
 		string position = it->position;
@@ -191,12 +191,18 @@ void Database::insert_problem(){
 	if( solver->solvable_problem() ){
 
 
-		for( set<NameAndPosition>::iterator it = variable_names.begin(); it != variable_names.end(); it++ ){
+		for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 			string name = it->name;
-			string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
+			string hint = it->position;
+			//string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
+			string value;// = (it->value=="")?string("0"):it->value;
+			if(hint.find("return_of_") != string::npos){
+				value = (it->value == "")?string("0"):it->value;
+			} else {
+				value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
+			}
 			//string value = variables[name].real_value;
 			//string hint = solver->get_name_hint(name);
-			string hint = it->position;
 
 			//myReplace(hint, "_pivot_b", "");
 			//printf("forced_initial_value %s %s\n",name.c_str(), solver->get_first_content_value(name).c_str() );

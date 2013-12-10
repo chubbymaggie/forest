@@ -57,6 +57,7 @@ typedef struct Variable {
 typedef struct NameAndPosition {
 	string name;
 	string position;
+	string value;
 } NameAndPosition;
 
 
