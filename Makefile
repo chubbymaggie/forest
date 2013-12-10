@@ -19,6 +19,7 @@ distclean: clean
 test:
 	@forest ./test/crest/math/config.xml                       # Simple math operations with integers
 	@forest ./test/crest/simple/config.xml                     # simple operations with a variable
+	@forest ./test/simple/short/config.xml                     # Short datatype
 	@forest ./test/crest/uniform_test/config.xml               # nested ifs
 	@forest ./test/crest/function/config.xml                   # function call
 	@forest ./test/crest/concrete_return/config.xml            # Llamada a funciones no anotadas
