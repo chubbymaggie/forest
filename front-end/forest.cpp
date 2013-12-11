@@ -1413,7 +1413,19 @@ void measure_coverage(){
 
 void show_test_vectors(){
 
-	db_command(".mode columns\\n.width 6 30 5\\n.headers on\\nselect * from minimal_vectors;");
+	//db_command(".mode columns\\n.width 6 30 5\\n.headers on\\nselect * from minimal_vectors;");
+	
+	stringstream command;
+
+	command << "(";
+
+	command << "cd " << cmd_option_str("tmp_dir") << "; ";
+
+	command << "echo '" << ".mode columns\\n.width 6 30 5\\n.headers on\\nselect * from minimal_vectors;" << "' | sqlite3 " << tmp_file("database.db");
+
+	command << ")";
+	
+	int ret = system(command.str().c_str() );
 
 }
 
@@ -2385,6 +2397,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("see_each_problem")
 	//cmd_option_bool("seq_name")
 	//cmd_option_bool("with_libs")
+	//cmd_option_bool("cyclotonic")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();

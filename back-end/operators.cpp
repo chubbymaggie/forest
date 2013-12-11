@@ -609,7 +609,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d \e[32m comes_from_non_annotated\e[0m  %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)), solver->get_comes_from_non_annotated(name(cmp)) );
 
 
-	solver->print_path_stack();
+	//solver->print_path_stack();
 
 
 	string real_value_prev = realvalue(cmp);
@@ -637,15 +637,23 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			return real_value_prev == "true";
 
 		if( realvalue(cmp) == "true" ){
-			if(solver->get_comes_from_non_annotated(name(cmp)))
+			if( options->cmd_option_bool("cyclotonic") ){
 				solver->push_condition(solver->content(name(cmp)));
-			else
-				solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			} else {
+				if(solver->get_comes_from_non_annotated(name(cmp)))
+					solver->push_condition(solver->content(name(cmp)));
+				else
+					solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			}
 		} else if (realvalue(cmp) == "false" ){
-			if(solver->get_comes_from_non_annotated(name(cmp)))
-				solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-			else
-				solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			if( options->cmd_option_bool("cyclotonic") ){
+					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+			} else {
+				if(solver->get_comes_from_non_annotated(name(cmp)))
+					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+				else
+					solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			}
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}
@@ -664,15 +672,23 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 
 		if( realvalue(cmp) == "true" ){
-			if(solver->get_comes_from_non_annotated(name(cmp)))
-				solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-			else
-				solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			if( options->cmd_option_bool("cyclotonic") ){
+					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+			} else {
+				if(solver->get_comes_from_non_annotated(name(cmp)))
+					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
+				else
+					solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
+			}
 		} else if (realvalue(cmp) == "false" ){
-			if(solver->get_comes_from_non_annotated(name(cmp)))
-				solver->push_condition( solver->content( name(cmp) ) );
-			else
-				solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			if( options->cmd_option_bool("cyclotonic") ){
+					solver->push_condition( solver->content( name(cmp) ) );
+			} else {
+				if(solver->get_comes_from_non_annotated(name(cmp)))
+					solver->push_condition( solver->content( name(cmp) ) );
+				else
+					solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
+			}
 		} else {
 			assert(0 && "Non-boolean value for condition");
 		}
