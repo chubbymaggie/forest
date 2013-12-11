@@ -2354,6 +2354,7 @@ int main(int argc, const char *argv[]) {
 
 
 	disables("compare_bc", "test");
+	disables("make_bc", "test");
 	disables("view_bc", "test");
 	disables("view_bc", "check_coverage");
 	disables("view_bc", "check_concurrency");

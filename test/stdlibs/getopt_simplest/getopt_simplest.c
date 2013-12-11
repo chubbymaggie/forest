@@ -25,11 +25,9 @@
 
 int main (int argc, char **argv) {
 	int aflag = 0;
-	char *cvalue = NULL;
+	char *cvalue = 0;
 	int i = 0;
 	int c;
-
-	opterr = 0;
 
 	while ((c = getopt (argc, argv, "abc:")) != -1){
 		switch (c)
