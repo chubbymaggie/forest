@@ -1,4 +1,9 @@
-  
+
+#ifndef _GETOPT_H_
+#define _GETOPT_H_
+
+
+
 
 /* types defined by this include file */
   struct option
@@ -26,6 +31,7 @@ typedef struct getopt_data
   
   
   
+#endif /* end of include guard: _GETOPT_H_ */
   
 //[>***************************************************************************
 

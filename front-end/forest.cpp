@@ -2325,6 +2325,44 @@ void get_result(){
 	end_pass("get_result");
 }
 
+void compare_libs(){
+
+	stringstream cflags;
+	cflags << "-I " << cmd_option_str("base_path") << "/stdlibs/include/ -L" << cmd_option_str("base_path") << "/stdlibs/lib";
+	stringstream cmd;
+
+	cmd.str("");
+	cmd << "llvm-gcc --emit-llvm " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-1.bc") << ";";
+	systm(cmd.str());
+
+	cmd.str("");
+	cmd << "llvm-gcc --emit-llvm " << cflags.str() << " " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-2.bc") << ";";
+	systm(cmd.str());
+
+
+	cmd.str("");
+	cmd << "llvm-dis " << tmp_file("file-1.bc") << " -o " << tmp_file("file-1.ll") << ";";
+	systm(cmd.str());
+
+
+	cmd.str("");
+	cmd << "llvm-link " << tmp_file("file-2.bc") << " " << cmd_option_str("base_path") << "/stdlibs/lib/library.bc" << " -o " << tmp_file("file-3.bc") << ";";
+	systm(cmd.str());
+
+	cmd.str("");
+	cmd << "llvm-dis " << tmp_file("file-3.bc") << " -o " << tmp_file("file-3.ll") << ";";
+	systm(cmd.str());
+
+
+	cmd.str("");
+	cmd << "meld file-1.ll file-3.ll";
+	systm(cmd.str());
+
+
+	
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -2354,6 +2392,7 @@ int main(int argc, const char *argv[]) {
 
 
 	disables("compare_bc", "test");
+	disables("compare_libs", "test");
 	disables("make_bc", "test");
 	disables("view_bc", "test");
 	disables("view_bc", "check_coverage");
@@ -2403,6 +2442,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
 	if(cmd_option_bool("compare_measure_bc")) compare_measure_bc();
+	if(cmd_option_bool("compare_libs")) compare_libs();
 	if(cmd_option_bool("view_bc")) view_bc();
 	if(cmd_option_bool("dfg")) view_dfg();
 	if(cmd_option_bool("dfg2")) view_dfg_2();

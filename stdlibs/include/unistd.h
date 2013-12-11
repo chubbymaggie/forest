@@ -1,5 +1,13 @@
-int	 getopt(int, char * const [], const char *);
+
+#ifndef _UNISTD_H_
+#define _UNISTD_H_
+
+	
+
+extern "C" int	 getopt(int, char * const [], const char *);
 extern char *optarg;			/* getopt(3) external variables */
+
+#endif /* end of include guard: _UNISTD_H_ */
 
 //#ifndef _SYS_UNISTD_H
 //#define _SYS_UNISTD_H

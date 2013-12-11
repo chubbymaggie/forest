@@ -1,5 +1,6 @@
 #include "../include/getopt.h"
 #include "../include/other.h"
+#include "../include/string.h"
 #include <stdio.h>
 #include <stdlib.h>
 

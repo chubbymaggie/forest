@@ -1,6 +1,9 @@
 .PHONY: test
 
-all: frontend backend opt
+all: frontend backend opt library
+
+library:
+	make -C stdlibs
 
 backend:
 	make -C back-end
