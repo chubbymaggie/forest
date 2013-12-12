@@ -965,11 +965,9 @@ struct FunctionNames: public ModulePass {
 		set<string> functions_v = get_standard_functions();
 
 		mod_iterator(M, fn){
-			fun_iterator(fn, bb){
-				string fn_name = fn->getName().str();
-				if( functions_v.find(fn_name) != functions_v.end() ){
-					fn->setName( "uc_" + fn_name );
-				}
+			string fn_name = fn->getName().str();
+			if( functions_v.find(fn_name) != functions_v.end() ){
+				fn->setName( "uc_" + fn_name );
 			}
 		}
 

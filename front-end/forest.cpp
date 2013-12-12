@@ -349,6 +349,8 @@ void make_initial_bc(){
 
 	stringstream cmd;
 
+	string llvm_path = cmd_option_str("llvm_path");
+
 	if( is_bc(cmd_option_string_vector("file")[0]) ){
 		// Copia el bc a la carpeta temporal
 		cmd.str("");
@@ -382,14 +384,19 @@ void make_initial_bc(){
 		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT " << cflags << " -c file.cpp -o file.bc";
 		systm(cmd.str().c_str());
 
+		// Cambio de nombre de las funciones estándar
+		cmd.str("");
+		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
+		systm(cmd.str().c_str());
+
 
 		if(cmd_option_bool("with_libs")){
 			cmd.str("");
-			cmd << "llvm-link " << tmp_file("file.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-2.bc") << ";";
+			cmd << "llvm-link " << tmp_file("file-2.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-3.bc") << ";";
 			systm(cmd.str().c_str());
 
 			cmd.str("");
-			cmd << "mv " << tmp_file("file-2.bc") << " " << tmp_file("file.bc");
+			cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
 			systm(cmd.str().c_str());
 		}
 
