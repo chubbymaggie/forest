@@ -78,7 +78,7 @@ int get_size(string type){
 		return 4;
 
 
-	if( type.find(",") != string::npos ){
+	if( type.find(',') != string::npos ){
 		int sum = 0;
 		vector<string> tokens = tokenize(type,",");
 		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){

@@ -25,6 +25,8 @@
 #define SIZE_STR 512
 #define UNDERSCORE "_"
 
+#define debug true
+
 extern Options* options;
 extern Operators* operators;
 extern Solver* solver;
@@ -585,7 +587,7 @@ void Operators::begin_sim(){
 	database->create_tables();
 	solver->load_forced_free_vars();
 
-	debug = true;//options->cmd_option_bool("debug");
+	//debug = true;//options->cmd_option_bool("debug");
 
 	//alloca_pointer = 0;
 }
