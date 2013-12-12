@@ -933,6 +933,51 @@ struct SelectInstr: public ModulePass {
 	}
 };
 
+
+struct FunctionNames: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	FunctionNames() : ModulePass(ID) {}
+
+
+
+	set<string> get_standard_functions(){
+		read_options();
+		string base_path = cmd_option_str("base_path");
+		string list_of_functions = base_path + "/stdlibs/list";
+		set<string> functions_v;
+
+		//cerr << list_of_functions << endl;
+		
+		FILE *file = fopen ( list_of_functions.c_str(), "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			functions_v.insert(string(line));
+		}
+		fclose ( file );
+
+		return functions_v;
+	}
+
+	virtual bool runOnModule(Module &M) {
+
+		set<string> functions_v = get_standard_functions();
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				string fn_name = fn->getName().str();
+				if( functions_v.find(fn_name) != functions_v.end() ){
+					fn->setName( "uc_" + fn_name );
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
 struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BinaryOp() : ModulePass(ID) {}
@@ -2646,23 +2691,24 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		{FunctionNames    pass;   pass.runOnModule(M);}
 		{MainArgs         pass;   pass.runOnModule(M);}
-		//{SwitchInstr      pass;   pass.runOnModule(M);}
-		//{FillNames        pass;   pass.runOnModule(M);}
-		//{SeparateGetElm   pass;   pass.runOnModule(M);}
-		//{GlobalInit       pass;   pass.runOnModule(M);}
-		//{CallInstr        pass;   pass.runOnModule(M);}
-		//{SpecialCall      pass;   pass.runOnModule(M);}
-		//{SelectInstr      pass;   pass.runOnModule(M);}
+		{SwitchInstr      pass;   pass.runOnModule(M);}
+		{FillNames        pass;   pass.runOnModule(M);}
+		{SeparateGetElm   pass;   pass.runOnModule(M);}
+		{GlobalInit       pass;   pass.runOnModule(M);}
+		{CallInstr        pass;   pass.runOnModule(M);}
+		{SpecialCall      pass;   pass.runOnModule(M);}
+		{SelectInstr      pass;   pass.runOnModule(M);}
 		{BinaryOp         pass;   pass.runOnModule(M);}
-		//{CastInstr        pass;   pass.runOnModule(M);}
-		//{LoadStore        pass;   pass.runOnModule(M);}
-		//{IcmpInstr        pass;   pass.runOnModule(M);}
-		//{BrInstr          pass;   pass.runOnModule(M);}
-		//{BbMarks          pass;   pass.runOnModule(M);}
-		//{AllocaInstr      pass;   pass.runOnModule(M);}
-		//{BeginEnd         pass;   pass.runOnModule(M);}
-		//{GetelementPtr    pass;   pass.runOnModule(M);}
+		{CastInstr        pass;   pass.runOnModule(M);}
+		{LoadStore        pass;   pass.runOnModule(M);}
+		{IcmpInstr        pass;   pass.runOnModule(M);}
+		{BrInstr          pass;   pass.runOnModule(M);}
+		{BbMarks          pass;   pass.runOnModule(M);}
+		{AllocaInstr      pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
+		{GetelementPtr    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -2676,6 +2722,9 @@ struct All: public ModulePass {
 
 char FillNames::ID = 0;
 static RegisterPass<FillNames> FillNames(           "instr_fill_names"      , "Fills operands and Block Names" );
+
+char FunctionNames::ID = 0;
+static RegisterPass<FunctionNames> FunctionNames(   "instr_function_names"  , "Change names of standard functions" );
 
 char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp(             "instr_binaryop"        , "Instrument binary operations" );
