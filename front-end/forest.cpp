@@ -867,9 +867,13 @@ void view_dfg(){
 	
 	vector<string> gen_dfgs;
 
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		vector<string> tokens = tokenize(*it, "'");
-		gen_dfgs.push_back(tokens[1]);
+	if(cmd_option_str("dfg_function") == ""){
+		for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+			vector<string> tokens = tokenize(*it, "'");
+			gen_dfgs.push_back(tokens[1]);
+		}
+	} else {
+		gen_dfgs.push_back("cfg." + cmd_option_str("dfg_function") + ".dot");
 	}
 	
 	
@@ -2438,6 +2442,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("seq_name")
 	//cmd_option_bool("with_libs")
 	//cmd_option_bool("cyclotonic")
+	//cmd_option_bool("dfg_function")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();

@@ -2646,15 +2646,15 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		//{MainArgs         pass;   pass.runOnModule(M);}
+		{MainArgs         pass;   pass.runOnModule(M);}
 		//{SwitchInstr      pass;   pass.runOnModule(M);}
 		//{FillNames        pass;   pass.runOnModule(M);}
 		//{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit       pass;   pass.runOnModule(M);}
+		//{GlobalInit       pass;   pass.runOnModule(M);}
 		//{CallInstr        pass;   pass.runOnModule(M);}
 		//{SpecialCall      pass;   pass.runOnModule(M);}
 		//{SelectInstr      pass;   pass.runOnModule(M);}
-		//{BinaryOp         pass;   pass.runOnModule(M);}
+		{BinaryOp         pass;   pass.runOnModule(M);}
 		//{CastInstr        pass;   pass.runOnModule(M);}
 		//{LoadStore        pass;   pass.runOnModule(M);}
 		//{IcmpInstr        pass;   pass.runOnModule(M);}
