@@ -2332,11 +2332,11 @@ void compare_libs(){
 	stringstream cmd;
 
 	cmd.str("");
-	cmd << "llvm-gcc --emit-llvm " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-1.bc") << ";";
+	cmd << "llvm-g++ --emit-llvm " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-1.bc") << ";";
 	systm(cmd.str());
 
 	cmd.str("");
-	cmd << "llvm-gcc --emit-llvm " << cflags.str() << " " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-2.bc") << ";";
+	cmd << "llvm-g++ --emit-llvm " << cflags.str() << " " << prj_file(cmd_option_string_vector("file")[0]) << " -c -o " << tmp_file("file-2.bc") << ";";
 	systm(cmd.str());
 
 

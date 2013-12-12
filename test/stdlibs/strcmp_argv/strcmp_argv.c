@@ -19,13 +19,13 @@
  */
 
 #include <stdio.h>
-/*#include <string.h>*/
+#include <string.h>
 
 int main(int argc, char *argv[])
 {
-	/*if(!strcmp(argv[1], "hello"))*/
-		/*printf("hello\n");*/
-	/*else*/
-		/*printf("bye\n");*/
+	if(!strcmp(argv[1], "hello"))
+		printf("hello\n");
+	else
+		printf("bye\n");
 	return 0;
 }
