@@ -2260,6 +2260,9 @@ struct MainArgs: public ModulePass {
 			}
 		}}
 
+#undef argv_size
+#undef argvs_size
+#undef each_argv_size
 
 	}
 
@@ -2280,7 +2283,7 @@ struct MainArgs_2: public ModulePass {
 		vector<string> tokens = tokenize(args_str, " ");
 		int min_argvs = stoi(tokens[0]);
 		int max_argvs = stoi(tokens[1]);
-		int max_len   = stoi(tokens[2]);
+		int max_len   = stoi(tokens[2]); max_len++;
 
 		// Finds main Function
 		Function* fn = M.getFunction("main");
@@ -2309,6 +2312,7 @@ struct MainArgs_2: public ModulePass {
 
 			Instruction* ptr_13;
 			Instruction* ptr_14;
+			Instruction* ptr_15;
 
 
 			{
@@ -2324,7 +2328,7 @@ struct MainArgs_2: public ModulePass {
 
 
 			{
-				string elem = itos(each_argv_size*i);
+				string elem = itos(max_len*i);
 				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
 				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
 				std::vector<Value*> ptr_14_indices;
@@ -2333,7 +2337,19 @@ struct MainArgs_2: public ModulePass {
 				ptr_14 = GetElementPtrInst::Create(argvs, ptr_14_indices.begin(), ptr_14_indices.end(), "", inbegin);
 			}
 
+			{
+				string elem = itos(max_len*i + max_len - 1);
+				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
+				std::vector<Value*> ptr_15_indices;
+				ptr_15_indices.push_back(const_int64_10);
+				ptr_15_indices.push_back(const_int64_11);
+				ptr_15 = GetElementPtrInst::Create(argvs, ptr_15_indices.begin(), ptr_15_indices.end(), "", inbegin);
+			}
+
+			ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(8, StringRef("0"), 10));
 			new StoreInst(ptr_14, ptr_13, false, inbegin);
+			new StoreInst(const_int64_10, ptr_15, false, inbegin);
 		}
 
 
