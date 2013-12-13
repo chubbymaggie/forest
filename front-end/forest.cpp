@@ -1432,7 +1432,7 @@ void show_test_vectors(){
 
 	command << "cd " << cmd_option_str("tmp_dir") << "; ";
 
-	command << "echo '" << ".mode columns\\n.width 6 30 5\\n.headers on\\nselect * from minimal_vectors;" << "' | sqlite3 " << tmp_file("database.db");
+	command << "echo '" << ".mode columns\\n.width 6 20 30 5\\n.headers on\\nselect * from minimal_vectors;" << "' | sqlite3 " << tmp_file("database.db");
 
 	command << ")";
 	
@@ -1444,8 +1444,23 @@ void create_table_minimal_test_vectors(){
 
 
 	db_command("drop table minimal_vectors;");
-	db_command( "create table minimal_vectors (vector_id Integer, variable varchar(50), value varchar(50));" );
+	db_command( "create table minimal_vectors (vector_id Integer, variable varchar(50), hint varchar(50), value varchar(50));" );
 
+}
+
+string get_position(string name){
+
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << "; echo 'select position from variables where name = \"" << name << "\" limit 1;' | sqlite3 database.db";
+
+	char ret[SIZE_STR];
+	FILE *fp = popen(cmd.str().c_str(), "r");
+	fscanf(fp, "%s", ret);
+	pclose(fp);
+
+	return string(ret);
+	
 }
 
 void minimal_test_vectors_to_db(){
@@ -1462,9 +1477,10 @@ void minimal_test_vectors_to_db(){
 			int vectid = vect;
 			string name = it2->first;
 			string value = it2->second;
+			string hint = get_position(name);
 
 			stringstream cmd;
-			cmd << "insert into minimal_vectors values (" << vect << ",\"" << name << "\",\"" << value << "\");";
+			cmd << "insert into minimal_vectors values (" << vect << ",\"" << name << "\",\"" << hint << "\",\"" << value << "\");";
 			db_command(cmd.str());
 
 			//systm( cmd.str() );
@@ -2374,6 +2390,12 @@ void compare_libs(){
 
 }
 
+
+
+void show_argvs(){
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -2423,6 +2445,10 @@ int main(int argc, const char *argv[]) {
 	disables("show_test_vectors", "check_concurrency");
 	disables("show_test_vectors", "check_concurrency_2");
 	disables("show_test_vectors", "check_coverage");
+	disables("show_argvs", "test");
+	disables("show_argvs", "check_concurrency");
+	disables("show_argvs", "check_concurrency_2");
+	disables("show_argvs", "check_coverage");
 	disables("count_branches", "test");
 	disables("klee", "test");
 	disables("klee", "compare_klee");
@@ -2461,6 +2487,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("run")) run();
 	if(cmd_option_bool("test")) test();
 	if(cmd_option_bool("show_results")) show_results();
+	if(cmd_option_bool("show_argvs")) show_argvs();
 	if(cmd_option_bool("show_test_vectors")) show_test_vectors();
 	if(cmd_option_bool("measure_coverage")) measure_coverage();
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();

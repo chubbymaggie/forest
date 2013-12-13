@@ -5,8 +5,5 @@
 	<option key="explanation" value="Simplest possible getopt"/> 
 	<option key="file" value="getopt_simplest.c"/> 
 	<option key="with_libs" value="true"/> 
-	<option key="argc" value="2"/> 
-	<option key="argv_size" value="3"/> 
-	<option key="argvs_size" value="10"/> 
-	<option key="each_argv_size" value="5"/> 
+	<option key="sym_argvs" value="1 1 2"/> 
 </options>
