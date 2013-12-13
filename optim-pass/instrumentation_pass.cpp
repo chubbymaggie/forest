@@ -2280,6 +2280,7 @@ struct MainArgs_2: public ModulePass {
 		read_options();
 		string args_str = cmd_option_str("sym_argvs");
 
+		if(args_str == "") return false;
 		vector<string> tokens = tokenize(args_str, " ");
 		int min_argvs = stoi(tokens[0]);
 		int max_argvs = stoi(tokens[1]);
@@ -2849,23 +2850,23 @@ struct All: public ModulePass {
 	virtual bool runOnModule(Module &M) {
 
 		{MainArgs_2       pass;   pass.runOnModule(M);}
-		//{FunctionNames    pass;   pass.runOnModule(M);}
-		//{SwitchInstr      pass;   pass.runOnModule(M);}
-		//{FillNames        pass;   pass.runOnModule(M);}
-		//{SeparateGetElm   pass;   pass.runOnModule(M);}
-		//{GlobalInit       pass;   pass.runOnModule(M);}
-		//{CallInstr        pass;   pass.runOnModule(M);}
-		//{SpecialCall      pass;   pass.runOnModule(M);}
-		//{SelectInstr      pass;   pass.runOnModule(M);}
-		//{BinaryOp         pass;   pass.runOnModule(M);}
-		//{CastInstr        pass;   pass.runOnModule(M);}
-		//{LoadStore        pass;   pass.runOnModule(M);}
-		//{IcmpInstr        pass;   pass.runOnModule(M);}
-		//{BrInstr          pass;   pass.runOnModule(M);}
-		//{BbMarks          pass;   pass.runOnModule(M);}
-		//{AllocaInstr      pass;   pass.runOnModule(M);}
-		//{BeginEnd         pass;   pass.runOnModule(M);}
-		//{GetelementPtr    pass;   pass.runOnModule(M);}
+		{FunctionNames    pass;   pass.runOnModule(M);}
+		{SwitchInstr      pass;   pass.runOnModule(M);}
+		{FillNames        pass;   pass.runOnModule(M);}
+		{SeparateGetElm   pass;   pass.runOnModule(M);}
+		{GlobalInit       pass;   pass.runOnModule(M);}
+		{CallInstr        pass;   pass.runOnModule(M);}
+		{SpecialCall      pass;   pass.runOnModule(M);}
+		{SelectInstr      pass;   pass.runOnModule(M);}
+		{BinaryOp         pass;   pass.runOnModule(M);}
+		{CastInstr        pass;   pass.runOnModule(M);}
+		{LoadStore        pass;   pass.runOnModule(M);}
+		{IcmpInstr        pass;   pass.runOnModule(M);}
+		{BrInstr          pass;   pass.runOnModule(M);}
+		{BbMarks          pass;   pass.runOnModule(M);}
+		{AllocaInstr      pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
+		{GetelementPtr    pass;   pass.runOnModule(M);}
 
 		return false;
 	}

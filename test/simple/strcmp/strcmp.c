@@ -30,16 +30,18 @@ int strcmp(char* s1, char* s2)
     return *(unsigned char*)s1-*(unsigned char*)s2;
 }
 
-int main(int argc, const char *argv[])
-{
-	char str1[2];
-	char str2[2];
+int main() {
+	char str1[3];
+	char str2[3];
 
 
 #ifdef KLEE
 	klee_make_symbolic(str1, sizeof(str1), "str1");
 	klee_make_symbolic(str2, sizeof(str2), "str2");
 #endif
+
+	str1[2] = 0;
+	str2[2] = 0;
 
 
 	if( strcmp(str1, str2) )
