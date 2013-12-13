@@ -2404,7 +2404,10 @@ char get_argv_char(int testvector, int i){
 
 	//printf("%s ", ret);
 
-	return stoi(ret);
+	if(string(ret) == "")
+		return 0;
+	else
+		return stoi(ret);
 
 }
 
@@ -2423,8 +2426,9 @@ void show_argvs(){
 	pclose(fp);
 
 	string argvs_str = cmd_option_str("sym_argvs");
-	string max_size_s = tokenize(argvs_str, " ")[2];
-	max_size = stoi(max_size_s);
+	string max_size_each_s = tokenize(argvs_str, " ")[2];
+	string max_size_s = tokenize(argvs_str, " ")[1];
+	max_size = stoi(max_size_s) * stoi(max_size_each_s);
 
 	for ( unsigned int testvector = 0; testvector < num_vectors; testvector++) {
 
