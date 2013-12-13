@@ -74,6 +74,7 @@ test:
 	@forest ./test/simple/not/config.xml                       # NOT operator
 	@forest ./test/simple/non_annotated_n/config.xml           # Calling a non-annotated function n times
 	@forest ./test/stdlibs/getopt_simplest/config.xml          # Simplest possible getopt
+	@forest ./test/stdlibs/strcmp_argv/config.xml              # compare argv[0]
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

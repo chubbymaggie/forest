@@ -23,7 +23,7 @@
 
 int main(int argc, char *argv[])
 {
-	if(!strcmp(argv[1], "hello"))
+	if(!strcmp(argv[0], "hello"))
 		printf("hello\n");
 	else
 		printf("bye\n");

@@ -2428,12 +2428,13 @@ void show_argvs(){
 
 	for ( unsigned int testvector = 0; testvector < num_vectors; testvector++) {
 
-		printf("Testcase %d : ", testvector);
+		printf("Testcase %3d : ", testvector);
 		for ( unsigned int i = 0; i < max_size; i++) {
 			
 			char argv_char = get_argv_char(testvector, i);
 			
-			if(argv_char == 0){ printf("\\x00"); continue; }
+			if((unsigned char)argv_char <  32){ printf("\\x%02d", (unsigned char)argv_char); continue; }
+			if((unsigned char)argv_char > 126){ printf("\\x%02d", (unsigned char)argv_char); continue; }
 
 			printf("%c", argv_char);
 
