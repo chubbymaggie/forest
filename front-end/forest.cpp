@@ -2390,9 +2390,56 @@ void compare_libs(){
 
 }
 
+char get_argv_char(int testvector, int i){
 
+	stringstream command;
+	FILE *fp;
+	char ret[SIZE_STR];
+
+	command.str("");
+	command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select value from minimal_vectors where vector_id=" << testvector << " and hint=\"main_register_argvs+" << i << "\";' | sqlite3 database.db";
+	fp = popen(command.str().c_str(), "r");
+	fscanf(fp, "%s", ret);
+	pclose(fp);
+
+	//printf("%s ", ret);
+
+	return stoi(ret);
+
+}
 
 void show_argvs(){
+
+	int num_vectors;
+	int max_size;
+	stringstream command;
+	FILE *fp;
+	char ret[SIZE_STR];
+
+	command.str("");
+	command << "cd " << cmd_option_str("tmp_dir") << "; echo 'select count(distinct vector_id) from minimal_vectors;' | sqlite3 database.db";
+	fp = popen(command.str().c_str(), "r");
+	fscanf(fp, "%d", &num_vectors);
+	pclose(fp);
+
+	string argvs_str = cmd_option_str("sym_argvs");
+	string max_size_s = tokenize(argvs_str, " ")[2];
+	max_size = stoi(max_size_s);
+
+	for ( unsigned int testvector = 0; testvector < num_vectors; testvector++) {
+
+		printf("Testcase %d : ", testvector);
+		for ( unsigned int i = 0; i < max_size; i++) {
+			
+			char argv_char = get_argv_char(testvector, i);
+			
+			if(argv_char == 0){ printf("\\x00"); continue; }
+
+			printf("%c", argv_char);
+
+		}
+		printf("\n");
+	}
 
 }
 
