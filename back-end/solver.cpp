@@ -1460,15 +1460,17 @@ int Solver::show_problem(){
 
 	options->read_options();
 	
+	if(!options->cmd_option_bool("show_only_constraints")){
 	dump_header();
 	dump_variables();
 	dump_pivots();
 	//concurrency->dump_remaining_variables(free_variables, file);
-	dump_type_limits();
+	dump_type_limits();}
 	dump_conditions();
+	if(!options->cmd_option_bool("show_only_constraints")){
 	dump_check_sat();
 	dump_get();
-	dump_tail();
+	dump_tail();}
 
 
 

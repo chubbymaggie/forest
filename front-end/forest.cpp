@@ -2428,7 +2428,8 @@ void show_argvs(){
 	string argvs_str = cmd_option_str("sym_argvs");
 	string max_size_each_s = tokenize(argvs_str, " ")[2];
 	string max_size_s = tokenize(argvs_str, " ")[1];
-	max_size = stoi(max_size_s) * stoi(max_size_each_s);
+	max_size = stoi(max_size_s) * stoi(max_size_each_s) + stoi(max_size_s);
+
 
 	for ( unsigned int testvector = 0; testvector < num_vectors; testvector++) {
 
@@ -2528,6 +2529,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("with_libs")
 	//cmd_option_bool("cyclotonic")
 	//cmd_option_bool("dfg_function")
+	//cmd_option_bool("show_only_constraints")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
