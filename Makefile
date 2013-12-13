@@ -15,6 +15,8 @@ opt:
 	make -C optim-pass
 clean:
 	rm -rf build/*
+	make -C stdlibs clean
+	make -C optim-pass clean
 
 distclean: clean
 	rm -rf bin/* lib/*

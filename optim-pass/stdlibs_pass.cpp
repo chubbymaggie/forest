@@ -149,7 +149,8 @@ struct ListFunctions: public ModulePass {
 
 		mod_iterator(M, fn){
 			string fn_name = fn->getName().str();
-			functions_s.insert(fn_name);
+			if(fn->begin() != fn->end())
+				functions_s.insert(fn_name);
 		}
 
 		FILE* file = fopen(list_of_functions.c_str(), "w");

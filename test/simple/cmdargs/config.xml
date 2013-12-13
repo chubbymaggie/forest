@@ -8,4 +8,5 @@
 	<option key="argv_size" value="5"/> 
 	<option key="argvs_size" value="10"/> 
 	<option key="each_argv_size" value="3"/> 
+	<option key="sym_argvs" value="1 2 3"/> 
 </options>

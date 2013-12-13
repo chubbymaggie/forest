@@ -2266,6 +2266,149 @@ struct MainArgs: public ModulePass {
 };
 
 
+struct MainArgs_2: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	MainArgs_2() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		// Read number of arguments
+		read_options();
+		string args_str = cmd_option_str("sym_argvs");
+
+		vector<string> tokens = tokenize(args_str, " ");
+		int min_argvs = stoi(tokens[0]);
+		int max_argvs = stoi(tokens[1]);
+		int max_len   = stoi(tokens[2]);
+
+		// Finds main Function
+		Function* fn = M.getFunction("main");
+		Function::arg_iterator arg_begin = fn->arg_begin();
+		Function::arg_iterator arg_end   = fn->arg_end();
+		if(arg_begin == arg_end) return false;
+
+		BasicBlock* fnbegin = fn->begin();
+		Instruction* inbegin = fnbegin->begin();
+
+		// Allocate space for argc
+		AllocaInst* argc_addr = new AllocaInst(IntegerType::get(M.getContext(), 32), "argc_addr", inbegin );
+		
+		// Allocate space for argv
+		PointerType* PointerTy_4 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		ArrayType* ArrayTy_3 = ArrayType::get(PointerTy_4, max_argvs);
+		AllocaInst*  argv_addr   = new AllocaInst(ArrayTy_3, "argv_addr", inbegin);
+
+		// Allocate space for argvs
+		ArrayType* ArrayTy     = ArrayType::get(IntegerType::get(M.getContext(), 8), max_len*max_argvs);
+		AllocaInst*  argvs      = new AllocaInst(ArrayTy, "argvs", inbegin);
+
+
+		// Set each argv
+		for ( unsigned int i = 0; i < max_argvs; i++) {
+
+			Instruction* ptr_13;
+			Instruction* ptr_14;
+
+
+			{
+				string elem = itos(i);
+				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
+				std::vector<Value*> ptr_13_indices;
+				ptr_13_indices.push_back(const_int64_10);
+				ptr_13_indices.push_back(const_int64_11);
+				ptr_13 = GetElementPtrInst::Create(argv_addr, ptr_13_indices.begin(), ptr_13_indices.end(), "", inbegin);
+			}
+
+
+
+			{
+				string elem = itos(each_argv_size*i);
+				ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(64, StringRef("0"), 10));
+				ConstantInt* const_int64_11 = ConstantInt::get(M.getContext(), APInt(64, StringRef(elem), 10));
+				std::vector<Value*> ptr_14_indices;
+				ptr_14_indices.push_back(const_int64_10);
+				ptr_14_indices.push_back(const_int64_11);
+				ptr_14 = GetElementPtrInst::Create(argvs, ptr_14_indices.begin(), ptr_14_indices.end(), "", inbegin);
+			}
+
+			new StoreInst(ptr_14, ptr_13, false, inbegin);
+		}
+
+
+		// Set number of argc
+		//new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(itos(max_argvs)), 10)), argc_addr, false, inbegin);
+
+		// Load argc and argv
+		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
+		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
+
+		// Cast argv instruction
+		
+		 PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		 PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+		CastInst* argv_cast = new BitCastInst(argv_addr, PointerTy_1, "argv_cast", inbegin);
+
+		// Substitute in subsequent instructions
+		fun_iterator(fn, bb){
+		blk_iterator(bb, in){
+			if( StoreInst::classof(in) ){
+				string name = in->getOperand(0)->getName().str();
+				if(name == "argc"){
+					in->setOperand(0, argc);
+				}
+				if(name == "argv"){
+					in->setOperand(0, argv_cast);
+				}
+			}
+		}}
+
+		// Icmp for minimum argc
+		BasicBlock::iterator insertpos = argv_cast; while( insertpos->getName() != "retval" ) insertpos++; insertpos++;
+		ConstantInt* const_int32_4 = ConstantInt::get(M.getContext(), APInt(32, StringRef(itos(min_argvs)), 10));
+		ICmpInst* int1_8 = new ICmpInst(insertpos, ICmpInst::ICMP_SLT,argc, const_int32_4, "min");
+
+		// Icmp for maximum argc
+		Instruction* insertpos_2 = int1_8;
+		ConstantInt* const_int32_4_2 = ConstantInt::get(M.getContext(), APInt(32, StringRef(itos(max_argvs)), 10));
+		ICmpInst* int1_8_2 = new ICmpInst(insertpos_2, ICmpInst::ICMP_SGT,argc, const_int32_4_2, "max");
+
+		// First slice
+		//BasicBlock::iterator splitpos = int1_8_2; splitpos++; splitpos++;
+		//fnbegin->SplitBlockAndInsertIfThen(int1_8, int1_8, true);
+
+		// First slice
+		BasicBlock::iterator splitpos = int1_8_2; splitpos++; splitpos++;
+		fnbegin->splitBasicBlock(splitpos);
+
+		// Second slice
+		BasicBlock::iterator splitpos_2 = int1_8_2; splitpos_2++;
+		fnbegin->splitBasicBlock(splitpos_2);
+
+		// Basic Blocks
+		Function::iterator bb1 = fn->begin();
+		Function::iterator bb2 = bb1; bb2++;
+		Function::iterator bb3 = bb2; bb3++;
+		Function::iterator bbl = fn->end(); bbl--;
+
+		//bbl->dump();
+
+		// Change terminator
+		bb1->getTerminator()->eraseFromParent();
+		BranchInst::Create(bbl,bb2, int1_8_2, bb1);
+
+		// Change terminator
+		bb2->getTerminator()->eraseFromParent();
+		BranchInst::Create(bbl,bb3, int1_8, bb2);
+
+
+
+
+
+	}
+
+};
 
 struct GlobalInit: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -2689,24 +2832,24 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		{FunctionNames    pass;   pass.runOnModule(M);}
-		{MainArgs         pass;   pass.runOnModule(M);}
-		{SwitchInstr      pass;   pass.runOnModule(M);}
-		{FillNames        pass;   pass.runOnModule(M);}
-		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit       pass;   pass.runOnModule(M);}
-		{CallInstr        pass;   pass.runOnModule(M);}
-		{SpecialCall      pass;   pass.runOnModule(M);}
-		{SelectInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp         pass;   pass.runOnModule(M);}
-		{CastInstr        pass;   pass.runOnModule(M);}
-		{LoadStore        pass;   pass.runOnModule(M);}
-		{IcmpInstr        pass;   pass.runOnModule(M);}
-		{BrInstr          pass;   pass.runOnModule(M);}
-		{BbMarks          pass;   pass.runOnModule(M);}
-		{AllocaInstr      pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
-		{GetelementPtr    pass;   pass.runOnModule(M);}
+		{MainArgs_2       pass;   pass.runOnModule(M);}
+		//{FunctionNames    pass;   pass.runOnModule(M);}
+		//{SwitchInstr      pass;   pass.runOnModule(M);}
+		//{FillNames        pass;   pass.runOnModule(M);}
+		//{SeparateGetElm   pass;   pass.runOnModule(M);}
+		//{GlobalInit       pass;   pass.runOnModule(M);}
+		//{CallInstr        pass;   pass.runOnModule(M);}
+		//{SpecialCall      pass;   pass.runOnModule(M);}
+		//{SelectInstr      pass;   pass.runOnModule(M);}
+		//{BinaryOp         pass;   pass.runOnModule(M);}
+		//{CastInstr        pass;   pass.runOnModule(M);}
+		//{LoadStore        pass;   pass.runOnModule(M);}
+		//{IcmpInstr        pass;   pass.runOnModule(M);}
+		//{BrInstr          pass;   pass.runOnModule(M);}
+		//{BbMarks          pass;   pass.runOnModule(M);}
+		//{AllocaInstr      pass;   pass.runOnModule(M);}
+		//{BeginEnd         pass;   pass.runOnModule(M);}
+		//{GetelementPtr    pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -2772,6 +2915,10 @@ static RegisterPass<GlobalInit> GlobalInit(         "instr_globalinit"      , "I
 
 char MainArgs::ID = 0;
 static RegisterPass<MainArgs> MainArgs(             "main_args"             , "main arguments" );
+
+char MainArgs_2::ID = 0;
+static RegisterPass<MainArgs_2> MainArgs_2(             "main_args_2"             , "main arguments" );
+
 
 char All::ID = 0;
 static RegisterPass<All> All(                        "instr_all"            , "Instrument all operations" );
