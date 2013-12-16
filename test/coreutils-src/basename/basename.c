@@ -24,15 +24,25 @@
    basename functions.lisp p
    => functions.lis */
 
-#include <config.h>
-#include <getopt.h>
-#include <stdio.h>
-#include <sys/types.h>
+/*#include <config.h>*/
+/*#include <getopt.h>*/
+/*#include <stdio.h>*/
+/*#include <sys/types.h>*/
 
-#include "system.h"
-#include "long-options.h"
-#include "error.h"
-#include "quote.h"
+/*#include "system.h"*/
+/*#include "long-options.h"*/
+/*#include "error.h"*/
+/*#include "quote.h"*/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <system.h>
+#include <gettext.h>
+#include <string.h>
+#include <other.h>
+#include <locale.h>
+#include <config.h>
+#include <configmake.h>
 
 /* The official name of this program (e.g., no `g' prefix).  */
 #define PROGRAM_NAME "basename"

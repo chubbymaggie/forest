@@ -4,4 +4,5 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="basename coreutils test"/> 
 	<option key="file" value="basename.c"/> 
+	<option key="with_libs" value="true"/> 
 </options>
