@@ -178,6 +178,7 @@ int cmd_option_int(string option){
 }
 
 string cmd_option_str(string option){
+	if(options[option] == "" ) return "";
 	vector<string> tokens = tokenize(options[option].c_str(),"@" );
 	string ret = tokens[tokens.size()-1];
 	return ret;

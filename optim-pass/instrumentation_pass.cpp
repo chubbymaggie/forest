@@ -975,6 +975,82 @@ struct FunctionNames: public ModulePass {
 	}
 };
 
+struct RmXBool: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	RmXBool() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		vector<Instruction*> to_rm;
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+
+					BasicBlock::iterator in_1 = in;
+					BasicBlock::iterator in_2 = in_1; in_2++;
+					BasicBlock::iterator in_3 = in_2; in_3++;
+					BasicBlock::iterator in_4 = in_3; in_4++;
+
+					if(in_4 == bb->end()) continue;
+
+					ICmpInst* in_1_c       = dyn_cast<ICmpInst>(in_1);
+					BinaryOperator* in_2_c = dyn_cast<BinaryOperator>(in_2);
+					CastInst* in_3_c       = dyn_cast<CastInst>(in_3);
+					CmpInst* in_4_c        = dyn_cast<CmpInst>(in_4);
+
+					if( !in_1_c || !in_2_c && !in_3_c && !in_4_c ) continue;
+
+
+					ConstantInt* constant_int_1_v = dyn_cast<ConstantInt>(in_1_c->getOperand(1));
+					if(!constant_int_1_v) continue;
+					int constant_int_1 = constant_int_1_v->getSExtValue();
+
+					ConstantInt* constant_int_2_v = dyn_cast<ConstantInt>(in_2_c->getOperand(1));
+					if(!constant_int_2_v) continue;
+					int constant_int_2 = constant_int_2_v->getSExtValue();
+
+						
+					ConstantInt* constant_int_4_v = dyn_cast<ConstantInt>(in_4_c->getOperand(1));
+					if(!constant_int_4_v) continue;
+					int constant_int_4 = constant_int_4_v->getSExtValue();
+
+
+					if( constant_int_1 != 0 || constant_int_2 != -1 || constant_int_4 != 0 ) continue;
+
+					
+					Value* x = in_1_c->getOperand(0);
+					ConstantInt* const_int8_5 = ConstantInt::get(M.getContext(), APInt(8, StringRef("0"), 10));
+					ICmpInst* int1_8 = new ICmpInst(in_1, ICmpInst::ICMP_NE,x,const_int8_5, "");
+
+					blk_iterator(bb, in2){
+						for ( unsigned int i = 0; i < in2->getNumOperands(); i++) {
+							Value* operand = in2->getOperand(i);
+							if(operand == in_4)
+								in2->setOperand(i, int1_8);
+						}
+					}
+
+					to_rm.push_back(in_1);
+					to_rm.push_back(in_2);
+					to_rm.push_back(in_3);
+					to_rm.push_back(in_4);
+
+				}
+
+
+			}
+		}
+
+		for( vector<Instruction*>::iterator it = to_rm.end(); it != to_rm.begin(); ){
+			it--;
+			(*it)->eraseFromParent();
+		}
+		
+
+		return false;
+	}
+};
 
 struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -2849,6 +2925,7 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
+		{RmXBool          pass;   pass.runOnModule(M);}
 		{MainArgs_2       pass;   pass.runOnModule(M);}
 		{FunctionNames    pass;   pass.runOnModule(M);}
 		{SwitchInstr      pass;   pass.runOnModule(M);}
@@ -2886,6 +2963,9 @@ static RegisterPass<FunctionNames> FunctionNames(   "instr_function_names"  , "C
 
 char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp(             "instr_binaryop"        , "Instrument binary operations" );
+
+char RmXBool::ID = 0;
+static RegisterPass<RmXBool> RmXBool(             "instr_rmxbool"        , "Remove xor boolean" );
 
 char SelectInstr::ID = 0;
 static RegisterPass<SelectInstr> SelectInstr(       "instr_select"          , "Instrument select operations" );
