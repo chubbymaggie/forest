@@ -2439,8 +2439,8 @@ void show_argvs(){
 			
 			char argv_char = get_argv_char(testvector, i);
 			
-			if((unsigned char)argv_char <  32){ printf("\\x%02d", (unsigned char)argv_char); continue; }
-			if((unsigned char)argv_char > 126){ printf("\\x%02d", (unsigned char)argv_char); continue; }
+			if((unsigned char)argv_char <  32){ printf("\e[1;37m\\%X\e[0m", (unsigned char)argv_char); continue; }
+			if((unsigned char)argv_char > 126){ printf("\e[1;37m\\%X\e[0m", (unsigned char)argv_char); continue; }
 
 			printf("%c", argv_char);
 
