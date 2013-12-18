@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="Dereferencing a pointer with a free variable"/> 
+	<option key="file" value="deref_variable.c"/> 
+</options>
