@@ -27,52 +27,52 @@ set<string> funcs_to_extract;
 // we're interested in by overriding relevant methods.
 class MyASTVisitor : public RecursiveASTVisitor<MyASTVisitor>
 {
-public:
-    MyASTVisitor(Rewriter &R)
-        : TheRewriter(R)
-    {}
+	public:
+		MyASTVisitor(Rewriter &R)
+			: TheRewriter(R)
+		{}
 
-    bool VisitStmt(Stmt *s) {
-        // Only care about If statements.
-        if (isa<IfStmt>(s)) {
-            IfStmt *IfStatement = cast<IfStmt>(s);
-            Stmt *Then = IfStatement->getThen();
+		bool VisitStmt(Stmt *s) {
+			// Only care about If statements.
+			if (isa<IfStmt>(s)) {
+				IfStmt *IfStatement = cast<IfStmt>(s);
+				Stmt *Then = IfStatement->getThen();
 
-            TheRewriter.InsertText(Then->getLocStart(),
-                                   "// the 'if' part\n",
-                                   true, true);
+				TheRewriter.InsertText(Then->getLocStart(),
+						"// the 'if' part\n",
+						true, true);
 
-            Stmt *Else = IfStatement->getElse();
-            if (Else)
-                TheRewriter.InsertText(Else->getLocStart(),
-                                       "// the 'else' part\n",
-                                       true, true);
-        }
+				Stmt *Else = IfStatement->getElse();
+				if (Else)
+					TheRewriter.InsertText(Else->getLocStart(),
+							"// the 'else' part\n",
+							true, true);
+			}
 
-        return true;
-    }
+			return true;
+		}
 
-    bool VisitFunctionDecl(FunctionDecl *f) {
-        // Only function definitions (with bodies), not declarations.
-        if (f->hasBody()) {
+		bool VisitFunctionDecl(FunctionDecl *f) {
+			// Only function definitions (with bodies), not declarations.
+			if (f->hasBody()) {
 
-            // Function name
-            DeclarationName DeclName = f->getNameInfo().getName();
-            string FuncName = DeclName.getAsString();
+				// Function name
+				DeclarationName DeclName = f->getNameInfo().getName();
+				string FuncName = DeclName.getAsString();
 
-		    if( funcs_to_extract.find(FuncName) != funcs_to_extract.end() ){
-			    ranges.push_back(f->getSourceRange());
-		    }
+				if( funcs_to_extract.find(FuncName) != funcs_to_extract.end() ){
+					ranges.push_back(f->getSourceRange());
+				}
 
-        }
+			}
 
-        return true;
-    }
+			return true;
+		}
 
-private:
-    void AddBraces(Stmt *s);
+	private:
+		void AddBraces(Stmt *s);
 
-    Rewriter &TheRewriter;
+		Rewriter &TheRewriter;
 };
 
 
@@ -80,23 +80,23 @@ private:
 // by the Clang parser.
 class MyASTConsumer : public ASTConsumer
 {
-public:
-    MyASTConsumer(Rewriter &R)
-        : Visitor(R)
-    {}
+	public:
+		MyASTConsumer(Rewriter &R)
+			: Visitor(R)
+		{}
 
-    // Override the method that gets called for each parsed top-level
-    // declaration.
-    virtual bool HandleTopLevelDecl(DeclGroupRef DR) {
-        for (DeclGroupRef::iterator b = DR.begin(), e = DR.end();
-             b != e; ++b)
-            // Traverse the declaration using our AST visitor.
-            Visitor.TraverseDecl(*b);
-        return true;
-    }
+		// Override the method that gets called for each parsed top-level
+		// declaration.
+		virtual bool HandleTopLevelDecl(DeclGroupRef DR) {
+			for (DeclGroupRef::iterator b = DR.begin(), e = DR.end();
+					b != e; ++b)
+				// Traverse the declaration using our AST visitor.
+				Visitor.TraverseDecl(*b);
+			return true;
+		}
 
-private:
-    MyASTVisitor Visitor;
+	private:
+		MyASTVisitor Visitor;
 };
 
 
@@ -106,13 +106,13 @@ int main() {
 		FILE *file = fopen ( "files", "r" );
 		char line [ 128 ]; // or other suitable maximum line size
 		vector<string> files;
-		
+
 		while ( fgets ( line, sizeof(line), file ) != NULL ){
 			line[strlen(line)-1] = 0;
 			files.push_back(string(line));
 		}
 		fclose ( file );
-	
+
 		stringstream command;
 		command << "cat";
 		for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
@@ -125,61 +125,62 @@ int main() {
 	{
 		FILE *file = fopen ( "functions", "r" );
 		char line [ 128 ]; // or other suitable maximum line size
-		
+
 		while ( fgets ( line, sizeof(line), file ) != NULL ){
 			line[strlen(line)-1] = 0;
 			funcs_to_extract.insert(string(line));
 		}
 		fclose ( file );
 	}
-	
-	
 
 
-    // CompilerInstance will hold the instance of the Clang compiler for us,
-    // managing the various objects needed to run the compiler.
-    CompilerInstance* TheCompInst = new CompilerInstance();
-    //TheCompInst.createDiagnostics(0, 0);
-    TheCompInst->createDiagnostics();
 
-    // Initialize target info with the default triple for our platform.
-    TargetOptions TO;
-    TO.Triple = llvm::sys::getDefaultTargetTriple();
-    TargetInfo *TI = TargetInfo::CreateTargetInfo(
-	TheCompInst->getDiagnostics(), &TO);
-    TheCompInst->setTarget(TI);
 
-    TheCompInst->createFileManager();
-    FileManager &FileMgr = TheCompInst->getFileManager();
-    TheCompInst->createSourceManager(FileMgr);
-    SourceManager &SourceMgr = TheCompInst->getSourceManager();
-    TheCompInst->createPreprocessor();
-    TheCompInst->createASTContext();
+	// CompilerInstance will hold the instance of the Clang compiler for us,
+	// managing the various objects needed to run the compiler.
+	CompilerInstance* TheCompInst = new CompilerInstance();
+	//TheCompInst.createDiagnostics(0, 0);
+	TheCompInst->createDiagnostics();
 
-    // A Rewriter helps us manage the code rewriting task.
-    Rewriter TheRewriter;
-    TheRewriter.setSourceMgr(SourceMgr, TheCompInst->getLangOpts());
+	// Initialize target info with the default triple for our platform.
+	TargetOptions TO;
+	TO.Triple = llvm::sys::getDefaultTargetTriple();
+	TargetInfo *TI = TargetInfo::CreateTargetInfo(
+			TheCompInst->getDiagnostics(), &TO);
+	TheCompInst->setTarget(TI);
 
-    // Set the main file handled by the source manager to the input file.
-    const FileEntry *FileIn = FileMgr.getFile("/tmp/std_files");
-    SourceMgr.createMainFileID(FileIn);
-    TheCompInst->getDiagnosticClient().BeginSourceFile(
-	TheCompInst->getLangOpts(),
-	&(TheCompInst->getPreprocessor()));
+	TheCompInst->createFileManager();
+	FileManager &FileMgr = TheCompInst->getFileManager();
+	TheCompInst->createSourceManager(FileMgr);
+	SourceManager &SourceMgr = TheCompInst->getSourceManager();
+	TheCompInst->createPreprocessor();
+	TheCompInst->createASTContext();
 
-    // Create an AST consumer instance which is going to get called by
-    // ParseAST.
-    MyASTConsumer TheConsumer(TheRewriter);
+	// A Rewriter helps us manage the code rewriting task.
+	Rewriter TheRewriter;
+	TheRewriter.setSourceMgr(SourceMgr, TheCompInst->getLangOpts());
 
-    // Parse the file to AST, registering our consumer as the AST consumer.
-    ParseAST(TheCompInst->getPreprocessor(), &TheConsumer,
-	     TheCompInst->getASTContext());
+	// Set the main file handled by the source manager to the input file.
+	const FileEntry *FileIn = FileMgr.getFile("/tmp/std_files");
+	SourceMgr.createMainFileID(FileIn);
+	TheCompInst->getDiagnosticClient().BeginSourceFile(
+			TheCompInst->getLangOpts(),
+			&(TheCompInst->getPreprocessor()));
 
-    // At this point the rewriter's buffer should be full with the rewritten
-    // file contents.
-    const RewriteBuffer *RewriteBuf =
-	TheRewriter.getRewriteBufferFor(SourceMgr.getMainFileID());
-    llvm::outs() << string(RewriteBuf->begin(), RewriteBuf->end());
+	// Create an AST consumer instance which is going to get called by
+	// ParseAST.
+	MyASTConsumer TheConsumer(TheRewriter);
 
-    return 0;
+	// Parse the file to AST, registering our consumer as the AST consumer.
+	ParseAST(TheCompInst->getPreprocessor(), &TheConsumer,
+			TheCompInst->getASTContext());
+
+	// At this point the rewriter's buffer should be full with the rewritten
+	// file contents.
+	const RewriteBuffer *RewriteBuf =
+		TheRewriter.getRewriteBufferFor(SourceMgr.getMainFileID());
+
+	llvm::outs() << string(RewriteBuf->begin(), RewriteBuf->end());
+
+	return 0;
 }
