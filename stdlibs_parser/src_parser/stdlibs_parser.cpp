@@ -20,6 +20,8 @@
 using namespace clang;
 using namespace std;
 
+vector<SourceRange> ranges;
+set<string> funcs_to_extract;
 
 // By implementing RecursiveASTVisitor, we can specify which AST nodes
 // we're interested in by overriding relevant methods.
@@ -53,28 +55,15 @@ public:
     bool VisitFunctionDecl(FunctionDecl *f) {
         // Only function definitions (with bodies), not declarations.
         if (f->hasBody()) {
-            Stmt *FuncBody = f->getBody();
-
-            // Type name as string
-            QualType QT = f->getResultType();
-            string TypeStr = QT.getAsString();
 
             // Function name
             DeclarationName DeclName = f->getNameInfo().getName();
             string FuncName = DeclName.getAsString();
 
-            // Add comment before
-            stringstream SSBefore;
-            SSBefore << "// Begin function " << FuncName << " returning "
-                     << TypeStr << "\n";
-            SourceLocation ST = f->getSourceRange().getBegin();
-            TheRewriter.InsertText(ST, SSBefore.str(), true, true);
+		    if( funcs_to_extract.find(FuncName) != funcs_to_extract.end() ){
+			    ranges.push_back(f->getSourceRange());
+		    }
 
-            // And after
-            stringstream SSAfter;
-            SSAfter << "\n// End function " << FuncName << "\n";
-            ST = FuncBody->getLocEnd().getLocWithOffset(1);
-            TheRewriter.InsertText(ST, SSAfter.str(), true, true);
         }
 
         return true;
@@ -111,12 +100,41 @@ private:
 };
 
 
-int main(int argc, char *argv[])
-{
-    if (argc != 2) {
-        llvm::errs() << "Usage: rewritersample <filename>\n";
-        return 1;
-    }
+int main() {
+
+	{
+		FILE *file = fopen ( "files", "r" );
+		char line [ 128 ]; // or other suitable maximum line size
+		vector<string> files;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			files.push_back(string(line));
+		}
+		fclose ( file );
+	
+		stringstream command;
+		command << "cat";
+		for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+			command << " " << *it;
+		}
+		command << "> /tmp/std_files";
+		system(command.str().c_str());
+	}
+
+	{
+		FILE *file = fopen ( "functions", "r" );
+		char line [ 128 ]; // or other suitable maximum line size
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			funcs_to_extract.insert(string(line));
+		}
+		fclose ( file );
+	}
+	
+	
+
 
     // CompilerInstance will hold the instance of the Clang compiler for us,
     // managing the various objects needed to run the compiler.
@@ -143,7 +161,7 @@ int main(int argc, char *argv[])
     TheRewriter.setSourceMgr(SourceMgr, TheCompInst->getLangOpts());
 
     // Set the main file handled by the source manager to the input file.
-    const FileEntry *FileIn = FileMgr.getFile(argv[1]);
+    const FileEntry *FileIn = FileMgr.getFile("/tmp/std_files");
     SourceMgr.createMainFileID(FileIn);
     TheCompInst->getDiagnosticClient().BeginSourceFile(
 	TheCompInst->getLangOpts(),

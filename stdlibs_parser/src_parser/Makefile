@@ -49,9 +49,9 @@ CLANGLIBS = \
 				$(LLVM_CONFIG_LIBS) \
 				-lncurses -ldl -lpthread
 
-all: rewritersample
+all: stdlibs_parser
 
-rewritersample: rewritersample.cpp
+stdlibs_parser: stdlibs_parser.cpp
 	$(CXX) stdlibs_parser.cpp -o stdlibs_parser \
 		$(CFLAGS) $(LLVM_CONFIG_COMMAND_RESULT) $(CLANG_BUILD_FLAGS) $(CLANGLIBS)
 clean:
