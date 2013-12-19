@@ -20,7 +20,13 @@
 using namespace clang;
 using namespace std;
 
-vector<SourceRange> ranges;
+
+typedef struct Parsed_Function {
+	string type_ret;
+	SourceRange range;
+} Parsed_Function;
+
+vector<Parsed_Function> parsed_functions;
 set<string> funcs_to_extract;
 
 // By implementing RecursiveASTVisitor, we can specify which AST nodes
@@ -32,36 +38,28 @@ class MyASTVisitor : public RecursiveASTVisitor<MyASTVisitor>
 			: TheRewriter(R)
 		{}
 
-		bool VisitStmt(Stmt *s) {
-			// Only care about If statements.
-			if (isa<IfStmt>(s)) {
-				IfStmt *IfStatement = cast<IfStmt>(s);
-				Stmt *Then = IfStatement->getThen();
-
-				TheRewriter.InsertText(Then->getLocStart(),
-						"// the 'if' part\n",
-						true, true);
-
-				Stmt *Else = IfStatement->getElse();
-				if (Else)
-					TheRewriter.InsertText(Else->getLocStart(),
-							"// the 'else' part\n",
-							true, true);
-			}
-
-			return true;
-		}
 
 		bool VisitFunctionDecl(FunctionDecl *f) {
 			// Only function definitions (with bodies), not declarations.
 			if (f->hasBody()) {
+
 
 				// Function name
 				DeclarationName DeclName = f->getNameInfo().getName();
 				string FuncName = DeclName.getAsString();
 
 				if( funcs_to_extract.find(FuncName) != funcs_to_extract.end() ){
-					ranges.push_back(f->getSourceRange());
+
+
+					// Type name as string
+					QualType QT = f->getResultType();
+					string TypeStr = QT.getAsString();
+
+					Parsed_Function parsed_function = { TypeStr, f->getSourceRange() };
+
+					parsed_functions.push_back(parsed_function);
+
+					TheRewriter.InsertText(f->getLocStart(), "");
 				}
 
 			}
@@ -70,7 +68,6 @@ class MyASTVisitor : public RecursiveASTVisitor<MyASTVisitor>
 		}
 
 	private:
-		void AddBraces(Stmt *s);
 
 		Rewriter &TheRewriter;
 };
@@ -180,7 +177,12 @@ int main() {
 	const RewriteBuffer *RewriteBuf =
 		TheRewriter.getRewriteBufferFor(SourceMgr.getMainFileID());
 
-	llvm::outs() << string(RewriteBuf->begin(), RewriteBuf->end());
+	unsigned int begin = parsed_functions[0].range.getBegin().getRawEncoding();
+	unsigned int end   = parsed_functions[0].range.getEnd().getRawEncoding();
+	string type = parsed_functions[0].type_ret;
+
+	printf("%s %s\n", type.c_str(), string(RewriteBuf->begin(), RewriteBuf->end()).substr(begin+1, end-begin-1).c_str() );
+	//llvm::outs() << string(RewriteBuf->begin(), RewriteBuf->end());
 
 	return 0;
 }
