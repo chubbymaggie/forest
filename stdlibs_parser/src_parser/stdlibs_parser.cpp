@@ -21,12 +21,7 @@ using namespace clang;
 using namespace std;
 
 
-typedef struct Parsed_Function {
-	string type_ret;
-	SourceRange range;
-} Parsed_Function;
-
-vector<Parsed_Function> parsed_functions;
+vector<SourceRange> ranges;
 set<string> funcs_to_extract;
 
 // By implementing RecursiveASTVisitor, we can specify which AST nodes
@@ -51,13 +46,7 @@ class MyASTVisitor : public RecursiveASTVisitor<MyASTVisitor>
 				if( funcs_to_extract.find(FuncName) != funcs_to_extract.end() ){
 
 
-					// Type name as string
-					QualType QT = f->getResultType();
-					string TypeStr = QT.getAsString();
-
-					Parsed_Function parsed_function = { TypeStr, f->getSourceRange() };
-
-					parsed_functions.push_back(parsed_function);
+					ranges.push_back(f->getSourceRange());
 
 					TheRewriter.InsertText(f->getLocStart(), "");
 				}
@@ -177,12 +166,14 @@ int main() {
 	const RewriteBuffer *RewriteBuf =
 		TheRewriter.getRewriteBufferFor(SourceMgr.getMainFileID());
 
-	unsigned int begin = parsed_functions[0].range.getBegin().getRawEncoding();
-	unsigned int end   = parsed_functions[0].range.getEnd().getRawEncoding();
-	string type = parsed_functions[0].type_ret;
+	for ( unsigned int i = 0; i < ranges.size(); i++) {
 
-	printf("%s %s\n", type.c_str(), string(RewriteBuf->begin(), RewriteBuf->end()).substr(begin+1, end-begin-1).c_str() );
-	//llvm::outs() << string(RewriteBuf->begin(), RewriteBuf->end());
+		unsigned int begin = ranges[i].getBegin().getRawEncoding()-2;
+		unsigned int end   = ranges[i].getEnd().getRawEncoding()-1;
+
+		printf("%s\n\n", string(RewriteBuf->begin(), RewriteBuf->end()).substr(begin, end-begin).c_str() );
+
+	}
 
 	return 0;
 }
