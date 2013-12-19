@@ -1,1 +1,2 @@
-../newlib-2.0.0/newlib/libc/stdlib/getopt.c
+../newlib-2.0.0/newlib/libc/include/getopt.h
+../newlib-2.0.0/newlib/libc/stdlib/getopt.c 
