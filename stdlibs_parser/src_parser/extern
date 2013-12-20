@@ -1,1 +1,6 @@
 stderr
+optarg
+optind
+opterr
+optopt
+optwhere

@@ -237,6 +237,7 @@ map<string, string> get_externs(vector<string> names){
 		stringstream command;
 		command << "cd /tmp/;";
 		command << "cat ast | egrep 'VarDecl [^<]*<[^>]*> " << *it << " .*' | cut -d\"'\" -f2";
+		command << " | sort | uniq ";
 		command << " > ast_filter";
 		system(command.str().c_str());
 
@@ -264,6 +265,42 @@ map<string, string> get_externs(vector<string> names){
 	
 }
 
+vector<string> get_decls(vector<string> names){
+
+	vector<string> ret_v;
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		stringstream command;
+		command << "cd /tmp/;";
+		command << "cat ast | egrep 'FunctionDecl [^<]*<[^>]*> " << *it << " .*' | cut -d\"'\" -f2";
+		command << " | sort | uniq ";
+		command << " | sed 's/\\([^(]*\\)\\((.*\\)/\\1 " << *it << " \\2;/g' ";
+		command << " > ast_filter";
+		system(command.str().c_str());
+
+		FILE *file = fopen ( "/tmp/ast_filter", "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		vector<string> lines;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			lines.push_back(string(line));
+		}
+		fclose ( file );
+
+		
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s\n", it->c_str());
+			assert(0);
+		}
+
+		ret_v.push_back(lines[0]);
+
+	}
+
+	return ret_v;
+	
+}
 
 
 
@@ -319,6 +356,31 @@ void output_externs(map<string, string> externs){
 	
 }
 
+void output_decls(vector<string> decls){
+	for( vector<string>::iterator it = decls.begin(); it != decls.end(); it++ ){
+		printf("%s\n", it->c_str());
+	}
+	
+}
+
+void output_add(string filename){
+
+	FILE *file = fopen ( filename.c_str(), "r" );
+	char line [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		fputs ( line, stdout );
+	}
+	fclose ( file );
+	
+}
+
+void compile(){
+	stringstream command;
+	command << "llvm-g++ --emit-llvm salida.cpp 2>&1 | grep error";
+	system(command.str().c_str());
+}
 
 int main() {
 
@@ -338,6 +400,12 @@ int main() {
 	output_typedefs_2(typedefs_2);
 
 
+	printf("/* decls */\n\n");
+	vector<string> decls_to_extract = get_names("decls");
+	vector<string> decls = get_decls(decls_to_extract);
+	output_decls(decls);
+
+
 	printf("/* structs */\n\n");
 	vector<string> structs_to_extract = get_names("structs");
 	vector<Range>  structs = get_ranges( structs_to_extract, "RecordDecl");
@@ -355,12 +423,14 @@ int main() {
 
 
 	printf("/* functions */\n\n");
+	output_add("extra_functions.c");
 	vector<string> funcs_to_extract = get_names("functions");
 	vector<Range> functions = get_ranges(funcs_to_extract, "FunctionDecl");
 	output_range(functions, false);
 
 
 
+	//compile();
 
 
 
