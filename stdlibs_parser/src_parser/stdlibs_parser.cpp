@@ -274,7 +274,7 @@ vector<string> get_defines(vector<string> names){
 	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
 		stringstream command;
 		command << "cd /tmp/;";
-		command << "cat std_files.c | egrep '#define[^ ]*\\<" << *it << "\\>.*'";
+		command << "cat std_files.c | grep '#define[\t ]*" << *it << "[\t ]*.*'";
 		command << " > ast_filter";
 		system(command.str().c_str());
 
