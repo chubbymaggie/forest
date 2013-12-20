@@ -189,6 +189,12 @@ int main() {
 	vector<Range>  typedefs = get_ranges( typedefs_to_extract, "TypedefDecl");
 	output_range(typedefs, true);
 
+	printf("/* enums */\n\n");
+	vector<string> enums_to_extract = get_names("enums");
+	vector<Range>  enums = get_ranges( enums_to_extract, "TypedefDecl");
+	output_range(enums , true);
+
+
 
 	//printf("/* structs */\n\n");
 	//vector<string> structs_to_extract = get_names("structs");
