@@ -29,7 +29,7 @@ vector<Range> get_ranges(vector<string> names, string type){
 		stringstream command;
 		command << "cd /tmp/;";
 		//command << "cat ast | grep " << type << " | egrep '\\<" << *it << "\\>' | grep -v '/usr/'";
-		command << "cat ast | egrep '" << type << " [^<]*<[^>]*> " << *it << " .*'";
+		command << "cat ast | egrep '" << type << " [^<]*<[^>]*> " << *it << "($| .*)'";
 		command << " | grep -v '/usr/'";
 		command << " > ast_filter";
 		system(command.str().c_str());
@@ -110,7 +110,7 @@ void out_line(int count, string line_s, vector<Range> ranges, bool whole_line){
 
 void output_range(vector<Range> ranges, bool whole_line){
 
-	FILE *file = fopen ( "/tmp/std_files", "r" );
+	FILE *file = fopen ( "/tmp/std_files.c", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
 	string line_s;
 
@@ -227,36 +227,89 @@ void output_typedefs_2(map<string, string> typedefs){
 	
 }
 
+
+vector<string> get_defines(vector<string> names){
+
+	vector<string> ret_v;
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		stringstream command;
+		command << "cd /tmp/;";
+		command << "cat std_files.c | egrep '#define[^ ]*\\<" << *it << "\\>.*'";
+		command << " > ast_filter";
+		system(command.str().c_str());
+
+		FILE *file = fopen ( "/tmp/ast_filter", "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		vector<string> lines;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			lines.push_back(string(line));
+		}
+		fclose ( file );
+
+		
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s\n", it->c_str());
+			assert(0);
+		}
+
+		ret_v.push_back(lines[0]);
+
+	}
+
+	return ret_v;
+	
+}
+
+void output_defines(vector<string> defines){
+
+
+	for( vector<string>::iterator it = defines.begin(); it != defines.end(); it++ ){
+		printf("%s\n", it->c_str() );
+	}
+	
+}
+
+
 int main() {
 
 	generate_ast();
 
+	printf("/* defines */\n\n");
+	vector<string> defines_to_extract = get_names("defines");
+	vector<string> defines = get_defines(defines_to_extract);
+	output_defines(defines);
 
 	printf("/* typedefs */\n\n");
 	vector<string> typedefs_to_extract = get_names("typedefs");
 	vector<Range>  typedefs = get_ranges( typedefs_to_extract, "TypedefDecl");
 	output_range(typedefs, true);
-
 	vector<string> typedefs_to_extract_2 = get_names("typedefs_2");
 	map<string, string> typedefs_2 = get_typedefs(typedefs_to_extract_2);
 	output_typedefs_2(typedefs_2);
+
+
+	printf("/* structs */\n\n");
+	vector<string> structs_to_extract = get_names("structs");
+	vector<Range>  structs = get_ranges( structs_to_extract, "RecordDecl");
+	output_range(structs,true);
 
 	printf("/* enums */\n\n");
 	vector<string> enums_to_extract = get_names("enums");
 	vector<Range>  enums = get_ranges( enums_to_extract, "TypedefDecl");
 	output_range(enums , true);
 
-
-	//printf("/* structs */\n\n");
-	//vector<string> structs_to_extract = get_names("structs");
-	//vector<Range>  structs = get_ranges( structs_to_extract, "RecordDecl");
-	//output_range(structs, false);
-
-
 	printf("/* functions */\n\n");
 	vector<string> funcs_to_extract = get_names("functions");
 	vector<Range> functions = get_ranges(funcs_to_extract, "FunctionDecl");
 	output_range(functions, false);
+
+
+
+
+
 
 
 	return 0;
