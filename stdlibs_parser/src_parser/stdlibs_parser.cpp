@@ -351,7 +351,7 @@ void output_defines(vector<string> defines){
 void output_externs(map<string, string> externs){
 
 	for( map<string,string>::iterator it = externs.begin(); it != externs.end(); it++ ){
-		printf("extern %s %s;\n", it->second.c_str(), it->first.c_str());
+		printf("%s %s;\n", it->second.c_str(), it->first.c_str());
 	}
 	
 }
