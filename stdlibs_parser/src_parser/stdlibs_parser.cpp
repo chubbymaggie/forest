@@ -228,6 +228,45 @@ void output_typedefs_2(map<string, string> typedefs){
 }
 
 
+
+map<string, string> get_externs(vector<string> names){
+
+	map<string, string> ret_m;
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		stringstream command;
+		command << "cd /tmp/;";
+		command << "cat ast | egrep 'VarDecl [^<]*<[^>]*> " << *it << " .*' | cut -d\"'\" -f2";
+		command << " > ast_filter";
+		system(command.str().c_str());
+
+		FILE *file = fopen ( "/tmp/ast_filter", "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		vector<string> lines;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			lines.push_back(string(line));
+		}
+		fclose ( file );
+
+		
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s\n", it->c_str());
+			assert(0);
+		}
+
+		ret_m[*it] = lines[0];
+
+	}
+
+	return ret_m;
+	
+}
+
+
+
+
 vector<string> get_defines(vector<string> names){
 
 	vector<string> ret_v;
@@ -272,6 +311,14 @@ void output_defines(vector<string> defines){
 	
 }
 
+void output_externs(map<string, string> externs){
+
+	for( map<string,string>::iterator it = externs.begin(); it != externs.end(); it++ ){
+		printf("extern %s %s;\n", it->second.c_str(), it->first.c_str());
+	}
+	
+}
+
 
 int main() {
 
@@ -300,6 +347,12 @@ int main() {
 	vector<string> enums_to_extract = get_names("enums");
 	vector<Range>  enums = get_ranges( enums_to_extract, "TypedefDecl");
 	output_range(enums , true);
+
+	printf("/* externs */\n\n");
+	vector<string> externs_to_extract = get_names("extern");
+	map<string, string> externs = get_externs( externs_to_extract);
+	output_externs(externs);
+
 
 	printf("/* functions */\n\n");
 	vector<string> funcs_to_extract = get_names("functions");
