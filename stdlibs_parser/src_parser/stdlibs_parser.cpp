@@ -9,9 +9,6 @@
 
 using namespace std;
 
-vector<string> funcs_to_extract;
-vector<string> structs_to_extract;
-
 typedef struct Location{
 	int row;
 	int column;
@@ -23,14 +20,14 @@ typedef struct Range {
 } Range;
 
 
-vector<Range> get_range_functions(){
+vector<Range> get_ranges(vector<string> names, string type){
 
 	vector<Range> ret_v;
 
-	for( vector<string>::iterator it = funcs_to_extract.begin(); it != funcs_to_extract.end(); it++ ){
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
 		stringstream command;
 		command << "cd /tmp/;";
-		command << "cat ast | grep FunctionDecl | egrep '> \\<" << *it << "\\>' | grep -v '/usr/'";
+		command << "cat ast | grep " << type << " | egrep '\\<" << *it << "\\>' | grep -v '/usr/'";
 		command << " > ast_filter";
 		system(command.str().c_str());
 
@@ -75,54 +72,7 @@ vector<Range> get_range_functions(){
 	
 }
 
-
-vector<Range> get_range_structs(){
-
-	vector<Range> ret;
-
-	for( vector<string>::iterator it = structs_to_extract.begin(); it != structs_to_extract.end(); it++ ){
-		stringstream command;
-		command << "cd /tmp/;";
-		command << "cat ast | grep RecordDecl | egrep '> struct \\<" << *it << "\\>' | grep -v '/usr/'";
-		command << " > ast_filter";
-		system(command.str().c_str());
-
-		FILE *file = fopen ( "/tmp/ast_filter", "r" );
-		char line [ 512 ]; /* or other suitable maximum line size */
-		vector<string> lines;
-		
-		while ( fgets ( line, sizeof(line), file ) != NULL ){
-			line[strlen(line)-1] = 0;
-			lines.push_back(string(line));
-
-		}
-		fclose ( file );
-
-		assert(lines.size() == 1);
-
-		command.str("");
-		
-
-		FILE *fp;
-		char ret[128];
-		//command << "cat /tmp/ast_filter | sed 's/[^:]*:\([^:]*\):\([^,]*\),[^:]*:\([^:]*\):\([^>]*\)>.*/\1 \2 \3 \4/g'";
-		command << "cat /tmp/ast_filter | sed 's/[^:]*:\\([^:]*\\):\\([^,]*\\),[^:]*:\\([^:]*\\):\\([^>]*\\)>.*/\\1 \\2 \\3 \\4/g'";
-		
-		int r1, c1, r2, c2;
-		fp = popen(command.str().c_str(), "r");
-		fscanf(fp, "%d %d %d %d", &r1, &c1, &r2, &c2);
-		pclose(fp);
-
-		//printf("%d %d %d %d\n", r1, c1, r2, c2);
-		
-		
-	}
-
-	return ret;
-	
-}
-
-void out_line(int count, string line_s, vector<Range> ranges){
+void out_line(int count, string line_s, vector<Range> ranges, bool whole_line){
 
 	bool start = false;
 	bool middle = false;
@@ -138,14 +88,21 @@ void out_line(int count, string line_s, vector<Range> ranges){
 
 	//printf("out_line %d %d %d %d %d\n", count, start, middle, end, ranges.size());
 
+	if(whole_line){
+		if(start) printf("%s\n", line_s.c_str() );
+		else if(middle) printf("%s\n", line_s.c_str() );
+		else if(end) printf("%s\n\n", line_s.c_str() );
+	} else {
+		if(start) printf("%s\n", line_s.substr(column-1).c_str() );
+		else if(middle) printf("%s\n", line_s.c_str() );
+		else if(end) printf("%s\n\n", line_s.substr(0, column).c_str() );
+	}
 
-	if(start) printf("%s\n", line_s.substr(column-1).c_str() );
-	else if(middle) printf("%s\n", line_s.c_str() );
-	else if(end) printf("%s\n\n", line_s.substr(0, column).c_str() );
+	
 	
 }
 
-void output_range(vector<Range> ranges){
+void output_range(vector<Range> ranges, bool whole_line){
 
 	FILE *file = fopen ( "/tmp/std_files", "r" );
 	char line [ 128 ]; /* or other suitable maximum line size */
@@ -159,7 +116,7 @@ void output_range(vector<Range> ranges){
 		count++;
 
 
-		out_line(count, line_s, ranges);
+		out_line(count, line_s, ranges, whole_line);
 
 
 	}
@@ -168,64 +125,81 @@ void output_range(vector<Range> ranges){
 
 }
 
+void generate_ast(){
+
+	FILE *file = fopen ( "files", "r" );
+	char line [ 128 ]; // or other suitable maximum line size
+	vector<string> files;
+
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		files.push_back(string(line));
+	}
+	fclose ( file );
+
+	stringstream command;
+	command << "cat";
+	for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
+		command << " " << *it;
+	}
+	command << "> /tmp/std_files.c";
+	system(command.str().c_str());
+
+	vector<string> defines;
+	defines.push_back("__need_getopt_newlib");
+
+
+	command.str("");
+	command << "cd /tmp/;";
+	command << "clang -Xclang -ast-dump -fno-color-diagnostics ";
+
+	for( vector<string>::iterator it = defines.begin(); it != defines.end(); it++ ){
+		command << "-D" << *it << " ";
+	}
+
+
+	command << " std_files.c > ast 2>/dev/null";
+	system(command.str().c_str());
+
+}
+
+vector<string> get_names(string filename){
+
+	vector<string> ret;
+
+	FILE *file = fopen ( filename.c_str(), "r" );
+	char line [ 128 ]; // or other suitable maximum line size
+
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		ret.push_back(string(line));
+	}
+	fclose ( file );
+
+	return ret;
+}
 
 int main() {
 
-	{
-		FILE *file = fopen ( "files", "r" );
-		char line [ 128 ]; // or other suitable maximum line size
-		vector<string> files;
-
-		while ( fgets ( line, sizeof(line), file ) != NULL ){
-			line[strlen(line)-1] = 0;
-			files.push_back(string(line));
-		}
-		fclose ( file );
-
-		stringstream command;
-		command << "cat";
-		for( vector<string>::iterator it = files.begin(); it != files.end(); it++ ){
-			command << " " << *it;
-		}
-		command << "> /tmp/std_files.c";
-		system(command.str().c_str());
-
-		command.str("");
-		command << "cd /tmp/;";
-		command << "clang -Xclang -ast-dump -fno-color-diagnostics std_files.c > ast 2>/dev/null";
-		system(command.str().c_str());
-	}
-
-	{
-		FILE *file = fopen ( "functions", "r" );
-		char line [ 128 ]; // or other suitable maximum line size
-
-		while ( fgets ( line, sizeof(line), file ) != NULL ){
-			line[strlen(line)-1] = 0;
-			funcs_to_extract.push_back(string(line));
-		}
-		fclose ( file );
-	}
-
-	{
-		FILE *file = fopen ( "structs", "r" );
-		char line [ 128 ]; // or other suitable maximum line size
-
-		while ( fgets ( line, sizeof(line), file ) != NULL ){
-			line[strlen(line)-1] = 0;
-			structs_to_extract.push_back(string(line));
-		}
-		fclose ( file );
-	}
+	generate_ast();
 
 
-	//printf("/* structures */\n\n");
-	//vector<Range>  structs = get_range_structs();
-	//output_range(structs);
-	
+	printf("/* typedefs */\n\n");
+	vector<string> typedefs_to_extract = get_names("typedefs");
+	vector<Range>  typedefs = get_ranges( typedefs_to_extract, "TypedefDecl");
+	output_range(typedefs, true);
+
+
+	//printf("/* structs */\n\n");
+	//vector<string> structs_to_extract = get_names("structs");
+	//vector<Range>  structs = get_ranges( structs_to_extract, "RecordDecl");
+	//output_range(structs, false);
+
+
 	printf("/* functions */\n\n");
-	vector<Range> functions = get_range_functions();
-	output_range(functions);
+	vector<string> funcs_to_extract = get_names("functions");
+	vector<Range> functions = get_ranges(funcs_to_extract, "FunctionDecl");
+	output_range(functions, false);
 
 
 	return 0;
