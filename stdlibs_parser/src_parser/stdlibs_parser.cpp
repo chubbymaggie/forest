@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sstream>
 #include <set>
+#include <map>
 #include <assert.h>
 
 using namespace std;
@@ -27,7 +28,9 @@ vector<Range> get_ranges(vector<string> names, string type){
 	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
 		stringstream command;
 		command << "cd /tmp/;";
-		command << "cat ast | grep " << type << " | egrep '\\<" << *it << "\\>' | grep -v '/usr/'";
+		//command << "cat ast | grep " << type << " | egrep '\\<" << *it << "\\>' | grep -v '/usr/'";
+		command << "cat ast | egrep '" << type << " [^<]*<[^>]*> " << *it << " .*'";
+		command << " | grep -v '/usr/'";
 		command << " > ast_filter";
 		system(command.str().c_str());
 
@@ -42,7 +45,10 @@ vector<Range> get_ranges(vector<string> names, string type){
 		}
 		fclose ( file );
 
-		assert(lines.size() == 1);
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s %s\n", it->c_str(), type.c_str());
+			assert(0);
+		}
 
 		command.str("");
 		
@@ -179,6 +185,48 @@ vector<string> get_names(string filename){
 	return ret;
 }
 
+map<string, string> get_typedefs(vector<string> names){
+
+	map<string, string> ret_m;
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		stringstream command;
+		command << "cd /tmp/;";
+		command << "cat ast | egrep 'TypedefDecl [^<]*<[^>]*> " << *it << " .*' | cut -d\"'\" -f2";
+		command << " > ast_filter";
+		system(command.str().c_str());
+
+		FILE *file = fopen ( "/tmp/ast_filter", "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		vector<string> lines;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			lines.push_back(string(line));
+		}
+		fclose ( file );
+
+		
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s\n", it->c_str());
+			assert(0);
+		}
+
+		ret_m[*it] = lines[0];
+
+	}
+
+	return ret_m;
+	
+}
+
+void output_typedefs_2(map<string, string> typedefs){
+	for( map<string,string>::iterator it = typedefs.begin(); it != typedefs.end(); it++ ){
+		printf("typedef %s %s;\n", it->second.c_str(), it->first.c_str() );
+	}
+	
+}
+
 int main() {
 
 	generate_ast();
@@ -189,11 +237,14 @@ int main() {
 	vector<Range>  typedefs = get_ranges( typedefs_to_extract, "TypedefDecl");
 	output_range(typedefs, true);
 
+	vector<string> typedefs_to_extract_2 = get_names("typedefs_2");
+	map<string, string> typedefs_2 = get_typedefs(typedefs_to_extract_2);
+	output_typedefs_2(typedefs_2);
+
 	printf("/* enums */\n\n");
 	vector<string> enums_to_extract = get_names("enums");
 	vector<Range>  enums = get_ranges( enums_to_extract, "TypedefDecl");
 	output_range(enums , true);
-
 
 
 	//printf("/* structs */\n\n");
