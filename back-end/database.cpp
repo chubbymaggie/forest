@@ -118,9 +118,26 @@ void Database::create_tables(){
 	action << ");";
 
 
+	action << "create table models(";
+	action << "path_id integer,";
+	action << "variable varchar(50),";
+	action << "hint varchar(50),";
+	action << "content varchar(5000),";
+	action << "path varchar(5000)";
+	action << ");";
+
+
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
+}
+
+void Database::insert_model_entry(string name, string content, string path_condition){
+
+	stringstream action;
+	action << "insert into models (variable,content,path) values ('" << name << "','" << content << "','" << path_condition << "');";
+	printf("action %s\n", action.str().c_str() );
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }
 
 int Database::num_of_assertions() {

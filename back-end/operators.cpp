@@ -594,6 +594,7 @@ void Operators::begin_sim(){
 
 void Operators::end_sim(){
 
+	solver->dump_model();
 	database->end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	

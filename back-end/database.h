@@ -43,6 +43,7 @@ typedef struct NameAndType {
 
 class Database {
 public:
+	void insert_model_entry(string name, string content, string path);
 	set<string> global_stores(string sync_name);
 	set<string> global_variables();
 	string lockunlock(string sync_point);

@@ -74,7 +74,26 @@ string Solver::content( string name ){
 	}
 }
 
+void Solver::dump_model(){
 
+
+	vector<string> outputs = options->cmd_option_vector_str("output");
+
+	debug && printf("\e[32m dump_model %lu \e[0m\n", outputs.size() );
+
+	for( vector<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
+
+		debug && printf("\e[32m dumping_model %s \e[0m\n", it->c_str() );
+
+		string variable = *it;
+		string content_var = content(variable);
+		string path_cond = get_anded_stack_conditions();
+		database->insert_model_entry(variable, content_var, path_cond);
+		
+	}
+	
+	
+}
 
 
 void Solver::set_last_address(string name, int last_address){
@@ -1714,6 +1733,23 @@ void Solver::print_path_stack(){
 map<string, Variable> Solver::get_map_variables(){
 
 	return variables;
+}
+
+string Solver::get_anded_stack_conditions(){
+
+	stringstream ret;
+
+	ret << "(and ";
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		string condition = it->cond;
+		ret << condition << " ";
+	}
+
+	ret << ")";
+
+	return ret.str();
+	
+
 }
 
 vector<Condition> Solver::get_stack_conditions(){

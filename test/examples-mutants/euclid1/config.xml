@@ -4,4 +4,6 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="Euclides gcd algorithm 1"/> 
 	<option key="file" value="euclid1.c"/> 
+	<option key="output" value="main_registerunderscoreretval8"/> 
+	<option key="cyclotonic" value="true"/> 
 </options>

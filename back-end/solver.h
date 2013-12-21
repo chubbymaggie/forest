@@ -74,6 +74,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void dump_model();
 	void insert_variable_2(string name, string position);
 	void set_content(string name, string content);
 	void clean_pivots();
@@ -125,6 +126,7 @@ public:
 	void insert_variable(string name, string position);
 
 private:
+	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );
 	string complement_op(string op1);
 	string or_constant(string op1, string op2);
