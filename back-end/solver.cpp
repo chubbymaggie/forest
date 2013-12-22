@@ -503,6 +503,8 @@ void Solver::solve_problem(){
 
 	if(sat_str.find("error") != string::npos )
 		assert(0 && "Error in z3 execution");
+	if(sat_str.find("unknown") != string::npos )
+		printf("Warning: unknown sat\n");
 
 	sat = get_is_sat(sat_str);
 

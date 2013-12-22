@@ -6,4 +6,5 @@
 	<option key="file" value="euclid1.c"/> 
 	<option key="output" value="main_registerunderscoreretval8"/> 
 	<option key="cyclotonic" value="true"/> 
+	<option key="unconstrained" value="true"/> 
 </options>

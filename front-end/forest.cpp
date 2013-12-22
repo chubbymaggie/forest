@@ -2450,6 +2450,76 @@ void show_argvs(){
 
 }
 
+vector<string> get_model_paths(){
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "echo 'select path from models;' | sqlite3 database.db";
+	cmd << " > model_paths";
+	system(cmd.str().c_str());
+
+	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_paths").c_str() , "r" );
+	static char line [ 50000 ]; /* or other suitable maximum line size */
+	vector<string> lines;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		lines.push_back(string(line));
+	}
+	fclose ( file );
+
+	return lines;
+	
+}
+
+
+vector<string> get_model_assigns(){
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "echo 'select content from models;' | sqlite3 database.db";
+	cmd << " > model_assigns";
+	system(cmd.str().c_str());
+
+	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_assigns").c_str() , "r" );
+	static char line [ 50000 ]; /* or other suitable maximum line size */
+	vector<string> lines;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		lines.push_back(string(line));
+	}
+	fclose ( file );
+
+	return lines;
+	
+}
+
+void get_model(){
+
+	vector<string> paths = get_model_paths();
+	vector<string> assigns = get_model_assigns();
+
+	printf("%d %d\n", paths.size(), assigns.size());
+	assert(paths.size() == assigns.size());
+
+	stringstream model;
+	model << "(or ";
+
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+		string path = paths[i];
+		string assign = assigns[i];
+
+		model << "(and " << "(= output " << assign << ") " << path << ")";
+	}
+	model << ")";
+
+	printf("%s\n", model.str().c_str());
+
+
+	
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -2529,6 +2599,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("seq_name")
 	//cmd_option_bool("with_libs")
 	//cmd_option_bool("cyclotonic")
+	//cmd_option_bool("unconstrained")
 	//cmd_option_bool("dfg_function")
 	//cmd_option_bool("show_only_constraints")
 	if(cmd_option_bool("make_bc")) make_bc();
@@ -2567,6 +2638,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_klee")) compare_klee();
 	if(cmd_option_bool("get_result")) get_result();
 	if(cmd_option_bool("vim")) vim();
+	if(cmd_option_bool("get_model")) get_model();
 
 
 	return 0;
