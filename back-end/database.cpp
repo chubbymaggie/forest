@@ -119,9 +119,7 @@ void Database::create_tables(){
 
 
 	action << "create table models(";
-	action << "path_id integer,";
 	action << "variable varchar(50),";
-	action << "hint varchar(50),";
 	action << "content varchar(5000),";
 	action << "path varchar(5000)";
 	action << ");";

@@ -2495,24 +2495,49 @@ vector<string> get_model_assigns(){
 	
 }
 
+
+vector<string> get_model_names(){
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "echo 'select variable from models;' | sqlite3 database.db";
+	cmd << " > model_variables";
+	system(cmd.str().c_str());
+
+	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_variables").c_str() , "r" );
+	static char line [ 50000 ]; /* or other suitable maximum line size */
+	vector<string> lines;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		lines.push_back(string(line));
+	}
+	fclose ( file );
+
+	return lines;
+	
+}
+
 void get_model(){
 
-	vector<string> paths = get_model_paths();
+	vector<string> paths   = get_model_paths();
 	vector<string> assigns = get_model_assigns();
+	vector<string> names   = get_model_names();
 
-	printf("%d %d\n", paths.size(), assigns.size());
 	assert(paths.size() == assigns.size());
+	assert(paths.size() == names.size());
 
 	stringstream model;
-	model << "(or ";
+	model << "(assert (or ";
 
 	for ( unsigned int i = 0; i < paths.size(); i++) {
 		string path = paths[i];
 		string assign = assigns[i];
+		string name = names[i];
 
-		model << "(and " << "(= output " << assign << ") " << path << ")";
+		model << "(and " << "(= " << name << " " << assign << ") " << path << ")";
 	}
-	model << ")";
+	model << "))";
 
 	printf("%s\n", model.str().c_str());
 
