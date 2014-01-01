@@ -10,14 +10,15 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 WINDOW *wins[4];    // Windows
 PANEL  *my_panels[4];  // Panels
 PANEL  *top;           // Top panel
-int ch;                // Character typed
+int ch;                // Character type 
+char command[128];     // repl command
 
 void initialize(){
 	/* Initialize curses */
 	initscr();
 	start_color();
-	cbreak();
-	keypad(stdscr, TRUE);
+	//cbreak();
+	//keypad(stdscr, TRUE);
 
 	/* Initialize all the colors */
 	init_pair(3, COLOR_BLUE, COLOR_BLACK);
@@ -57,6 +58,20 @@ void update(){
 	/* Show it on the screen */
 	doupdate();
 
+	refresh();
+
+}
+
+void command_prompt(){
+
+	mvwprintw(wins[3], 2, 2, ">>> ");
+	mvwscanw(wins[3], 2, 6, "%s", command);
+
+}
+
+void do_command(){
+
+	mvwprintw(wins[0], 2, 2, "%s", command);
 }
 
 int main(){
@@ -68,15 +83,10 @@ int main(){
 	initialize_panels();
 
 	update();
-	
-	top = my_panels[2];
-	while((ch = getch()) != 27)
-	{	switch(ch)
-		{	case 9:
-				top = (PANEL *)panel_userptr(top);
-				top_panel(top);
-				break;
-		}
+
+	while(true){
+		command_prompt();
+		do_command();
 		update();
 	}
 	endwin();
@@ -128,5 +138,4 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	wattron(win, color);
 	mvwprintw(win, y, x, "%s", string);
 	wattroff(win, color);
-	refresh();
 }
