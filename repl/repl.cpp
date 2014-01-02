@@ -39,6 +39,7 @@ void initialize(){
 	init_pair(1, COLOR_BLUE, COLOR_BLACK);
 	init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(3, COLOR_GREEN, COLOR_BLACK);
+	init_pair(4, COLOR_RED, COLOR_BLACK);
 }
 
 void initialize_panels(){
@@ -87,6 +88,63 @@ void initialize_wins() {
  
 }
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
+
+void mvwprintw_col(WINDOW* win, int row, int col, string line){
+
+	int col_2 = 0;
+
+	vector<string> tokens = tokenize(line, "#");
+
+	if(tokens.size() > 1){
+
+		for ( unsigned int i = 0; i < tokens.size(); i++) {
+			if( tokens[i] == "magenta"){
+				wattron(win, COLOR_PAIR(2));
+			} else if(tokens[i] == "green"){
+				wattron(win, COLOR_PAIR(3));
+			} else if(tokens[i] == "red"){
+				wattron(win, COLOR_PAIR(4));
+			} else if(tokens[i] == "normal"){
+				wattroff(win, COLOR_PAIR(1));
+			} else {
+				mvwprintw(win, row, col+col_2, "%s", tokens[i].c_str());
+				col_2 += tokens[i].length();
+			}
+
+		}
+
+	} else {
+		mvwprintw(win, row, col, line.c_str());
+	}
+	
+
+}
+
 void draw_win_0(){
 
 
@@ -98,17 +156,16 @@ void draw_win_0(){
 
 	if(buffer_0.size() < LINES-8){
 		for ( unsigned int i = 0; i < buffer_0.size(); i++) {
-			mvwprintw(wins[0], i+2, 2, "%s", buffer_0[i].c_str());
+			mvwprintw_col(wins[0], i+2, 2, buffer_0[i].c_str());
 		}
 
 	} else {
 		for ( unsigned int i = buffer_0.size()-(LINES-8),m=0; i < buffer_0.size(); i++,m++) {
-			mvwprintw(wins[0], m+2, 2, "%s", buffer_0[i].c_str());
+			mvwprintw_col(wins[0], m+2, 2, buffer_0[i].c_str());
 		}
 
 	}
 }
-
 
 void draw_win_1(){
 
@@ -119,27 +176,10 @@ void draw_win_1(){
 	}
 
 	for ( unsigned int i = 0; i < buffer_1.size(); i++) {
-		mvwprintw(wins[1], i+3, 2, "%s", buffer_1[i].c_str());
+		char line[512];
+		sprintf(line, "%s", buffer_1[i].c_str());
+		mvwprintw_col(wins[1], i+3, 2, line);
 	}
-
-
-
-
-
-	//for ( unsigned int i = 0; i < models.size(); i++) {
-		//wattron(wins[1], COLOR_PAIR(2));
-		//mvwprintw(wins[1], i+3, 1, " %s", models[i].name.c_str());
-		//wattroff(wins[1], COLOR_PAIR(2));
-	//}
-
-	//for ( unsigned int i = 0; i < models.size(); i++) {
-		//for ( unsigned int k = 0; k < models[i].inputs.size(); k++) {
-			//wattron(wins[1], COLOR_PAIR(3));
-			//mvwprintw(wins[1], i+3, 1, " %s", models[i].inputs[k].c_str());
-			//wattroff(wins[1], COLOR_PAIR(3));
-		//}
-	//}
-
 
 }
 
@@ -201,31 +241,9 @@ void finish(){
 	endwin();
 }
 
-vector<string> tokenize(const string& str,const string& delimiters) {
-	vector<string> tokens;
-    	
-	// skip delimiters at beginning.
-    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    	
-	// find first "non-delimiter".
-    	string::size_type pos = str.find_first_of(delimiters, lastPos);
-
-    	while (string::npos != pos || string::npos != lastPos)
-    	{
-		// found a token, add it to the vector.
-		tokens.push_back(str.substr(lastPos, pos - lastPos));
-	
-		// skip delimiters.  Note the "not_of"
-		lastPos = str.find_first_not_of(delimiters, pos);
-	
-		// find next "non-delimiter"
-		pos = str.find_first_of(delimiters, lastPos);
-    	}
-
-	return tokens;
-}
 
 void import_model(string command_str){
+
 
 	vector<string> tokens = tokenize(command_str, " ");
 	assert(tokens[0] == "import");
@@ -241,12 +259,15 @@ void import_model(string command_str){
 	Model model = {"", name, inputs, outputs};
 	models.push_back(model);
 
-	buffer_1.push_back(name);
+	buffer_1.push_back("#magenta#" + name + "#normal#");
+	buffer_1.push_back("#green# -" + inputs[0] + "#normal#");
+	buffer_1.push_back("#red# -" + outputs[0] + "#normal#");
+
+	buffer_0.push_back("#green#import#normal# " + tokens[1] + " #green#as#normal# " + name);
 
 }
 
 void do_command(){
-	buffer_0.push_back(string(command));
 
 	string command_s = string(command);
 	vector<string> tokens = tokenize(command_s, " ");
