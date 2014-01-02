@@ -2,6 +2,7 @@
 #include <string.h>
 #include <vector>
 #include <string>
+#include <assert.h>
 
 using namespace std;
 
@@ -9,6 +10,13 @@ void init_wins(WINDOW **wins, int n);
 void win_show_title(WINDOW *win, char *label);
 void win_show_box(WINDOW *win);
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
+
+typedef struct Model {
+	string content;
+	string name;
+	vector<string> inputs;
+	vector<string> outputs;
+} Model;
 
 
 WINDOW *wins[4];          // Windows
@@ -20,6 +28,7 @@ int len_command;          // command length
 vector<string> buffer_0;  // buffer of windows 0
 vector<string> buffer_1;  // buffer of windows 1
 vector<string> buffer_2;  // buffer of windows 2
+vector<Model>  models;    // Models
 
 void initialize(){
 	/* Initialize curses */
@@ -28,6 +37,8 @@ void initialize(){
 
 	/* Initialize all the colors */
 	init_pair(1, COLOR_BLUE, COLOR_BLACK);
+	init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
 }
 
 void initialize_panels(){
@@ -63,16 +74,6 @@ void initialize_wins() {
 	buffer_0.push_back("     '-'   '-'                ");
 	buffer_0.push_back("                              ");
 	buffer_0.push_back("                              ");
-
-	buffer_1.push_back("  Forest Read");
-	buffer_1.push_back(" `-. .-------");
-	buffer_1.push_back("    Y        ");
-	buffer_1.push_back("    ,,  ,---,");
-	buffer_1.push_back("   (_,\\/_\\_");
-	buffer_1.push_back("     \\.\\_/_");
-	buffer_1.push_back("     '-'   '-");
-	buffer_1.push_back("             ");
-	buffer_1.push_back("             ");
 
 	buffer_2.push_back("  Forest Read");
 	buffer_2.push_back(" `-. .-------");
@@ -117,14 +118,27 @@ void draw_win_1(){
 		}
 	}
 
-	if(buffer_1.size() < (LINES-5)/2-1 ){
-		for ( unsigned int i = 0; i < buffer_1.size(); i++) {
-			mvwprintw(wins[1], i+3, 1, "%s", buffer_1[i].c_str());
-		}
-
-	} else {
-
+	for ( unsigned int i = 0; i < buffer_1.size(); i++) {
+		mvwprintw(wins[1], i+3, 2, "%s", buffer_1[i].c_str());
 	}
+
+
+
+
+
+	//for ( unsigned int i = 0; i < models.size(); i++) {
+		//wattron(wins[1], COLOR_PAIR(2));
+		//mvwprintw(wins[1], i+3, 1, " %s", models[i].name.c_str());
+		//wattroff(wins[1], COLOR_PAIR(2));
+	//}
+
+	//for ( unsigned int i = 0; i < models.size(); i++) {
+		//for ( unsigned int k = 0; k < models[i].inputs.size(); k++) {
+			//wattron(wins[1], COLOR_PAIR(3));
+			//mvwprintw(wins[1], i+3, 1, " %s", models[i].inputs[k].c_str());
+			//wattroff(wins[1], COLOR_PAIR(3));
+		//}
+	//}
 
 
 }
@@ -187,8 +201,61 @@ void finish(){
 	endwin();
 }
 
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+void import_model(string command_str){
+
+	vector<string> tokens = tokenize(command_str, " ");
+	assert(tokens[0] == "import");
+	assert(tokens[1][0] == '/');
+	assert(tokens[2] == "as");
+
+	string file = tokens[1];
+	string name = tokens[3];
+
+	vector<string> inputs; inputs.push_back("input1");
+	vector<string> outputs; outputs.push_back("output1");
+
+	Model model = {"", name, inputs, outputs};
+	models.push_back(model);
+
+	buffer_1.push_back(name);
+
+}
+
 void do_command(){
 	buffer_0.push_back(string(command));
+
+	string command_s = string(command);
+	vector<string> tokens = tokenize(command_s, " ");
+
+	if(tokens[0] == "import"){
+		import_model(command_s);
+	} else {
+
+	}
 }
 
 void back(){
