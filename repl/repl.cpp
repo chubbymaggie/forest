@@ -3,6 +3,11 @@
 #include <vector>
 #include <string>
 #include <assert.h>
+#include <fstream>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -62,8 +67,8 @@ void initialize_wins() {
 	char label[80];
 
 	wins[0] = newwin(LINES-5      , COLS*3/4, 0          , 0)        ; win_show_box  (wins[0]) ;
-	wins[1] = newwin((LINES-5)/2  , COLS*1/4, 0          , COLS*3/4) ; win_show_title(wins[1], "Variables") ;
-	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], "Counter Example") ;
+	wins[1] = newwin((LINES-5)/2  , COLS*1/4, 0          , COLS*3/4) ; win_show_title(wins[1], (char*)"Variables") ;
+	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], (char*)"Counter Example") ;
 	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
 
 	buffer_0.push_back("  Forest Read-Eval-Print-Loop ");
@@ -241,6 +246,14 @@ void finish(){
 	endwin();
 }
 
+void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
+	size_t pos = 0;
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
 
 void import_model(string command_str){
 
@@ -253,18 +266,170 @@ void import_model(string command_str){
 	string file = tokens[1];
 	string name = tokens[3];
 
-	vector<string> inputs; inputs.push_back("input1");
-	vector<string> outputs; outputs.push_back("output1");
-
-	Model model = {"", name, inputs, outputs};
-	models.push_back(model);
+	ifstream input(tokens[1].c_str());
+	string line;
+	
+	vector<string> inputs;
+	vector<string> outputs;
 
 	buffer_1.push_back("#magenta#" + name + "#normal#");
-	buffer_1.push_back("#green# -" + inputs[0] + "#normal#");
-	buffer_1.push_back("#red# -" + outputs[0] + "#normal#");
 
 	buffer_0.push_back("#green#import#normal# " + tokens[1] + " #green#as#normal# " + name);
 
+	string content;
+
+	while( getline( input, line ) ) {
+		if( line.find("input:") != string::npos ){
+			inputs.push_back(line.substr(6));
+			buffer_1.push_back("#green# -" + line.substr(6) + "#normal#");
+		}
+		if( line.find("output:") != string::npos ){
+			outputs.push_back(line.substr(7));
+			buffer_1.push_back("#red# -" + line.substr(7) + "#normal#");
+		}
+		if( line.find("content:") != string::npos ){
+			content = line.substr(8);
+			//for( vector<string>::iterator it = inputs.begin(); it != inputs.end(); it++ ){
+				//myReplace(content, *it, name + "_" + *it);
+			//}
+			for( vector<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
+				myReplace(content, *it, name + "." + *it);
+			}
+			
+		}
+	}
+	
+
+
+	Model model = {content, name, inputs, outputs};
+	models.push_back(model);
+
+}
+
+void dump_models(){
+
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		fprintf(file, "(assert %s)\n", it->content.c_str());
+	}
+	fclose(file);
+	
+
+}
+
+void dump_header(){
+	FILE* file = fopen("/tmp/forest/model.smt2", "w");
+	fprintf(file, "(set-option :produce-models true)\n");
+	fprintf(file, "(set-logic AUFNIRA)\n");
+	fclose(file);
+}
+
+void dump_inputs(){
+	set<string> inputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> inputs = it->inputs;
+		for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+			string input = *it2;
+			inputs_set.insert(input);
+		}
+	}
+
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+		fprintf(file, "(declare-fun %s () Int)\n", it->c_str());
+	}
+	fclose(file);
+	
+	
+}
+
+void dump_outputs(){
+	set<string> outputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> outputs = it->outputs;
+		string name = it->name;
+		for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+			string output = name + "." + *it2;
+			outputs_set.insert(output);
+		}
+	}
+
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	for( set<string>::iterator it = outputs_set.begin(); it != outputs_set.end(); it++ ){
+		fprintf(file, "(declare-fun %s () Int)\n", it->c_str());
+	}
+	fclose(file);
+
+}
+
+void dump(){
+	dump_header();
+	dump_inputs();
+	dump_outputs();
+	dump_models();
+}
+
+void dump_get(){
+
+}
+
+void dump_tail(){
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	fprintf(file, "(check-sat)\n");
+	fprintf(file, "(exit)\n");
+	fclose(file);
+}
+
+void dump_check(string var1, string eq, string var2){
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	fprintf(file, "(assert (not (%s %s %s)))\n", eq.c_str(), var1.c_str(), var2.c_str());
+	fclose(file);
+}
+
+string check_sat(){
+
+	char ret_s[128];
+
+	stringstream command_ss;
+	command_ss << "z3 /tmp/forest/model.smt2 > /tmp/forest/model_result";
+	system(command_ss.str().c_str());
+
+	FILE* file = fopen("/tmp/forest/model_result", "r");
+	fscanf(file, "%s", ret_s);
+	fclose(file);
+
+	return string(ret_s);
+	
+}
+
+void check(string command_str){
+
+	vector<string> tokens = tokenize(command_str, " ");
+
+	assert(tokens[0] == "check");
+
+	string var1 = tokens[1];
+	string eq   = tokens[2];
+	string var2 = tokens[3];
+
+	dump_header();
+	dump_inputs();
+	dump_outputs();
+	dump_models();
+	dump_check(var1, eq, var2);
+	dump_get();
+	dump_tail();
+
+	string res = check_sat();
+
+	buffer_0.push_back( "#green#check#normal# " + var1 + " #red#" + eq + "#normal# " + var2 );
+
+	if(res == "sat")
+		buffer_0.push_back("   #red#FALSE#normal#");
+	if(res == "unsat")
+		buffer_0.push_back("   #green#TRUE#normal#");
+
+	
 }
 
 void do_command(){
@@ -274,6 +439,10 @@ void do_command(){
 
 	if(tokens[0] == "import"){
 		import_model(command_s);
+	} else if(tokens[0] == "dump"){
+		dump();
+	} else if(tokens[0] == "check"){
+		check(command_s);
 	} else {
 
 	}
