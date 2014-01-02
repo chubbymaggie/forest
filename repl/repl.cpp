@@ -24,16 +24,17 @@ typedef struct Model {
 } Model;
 
 
-WINDOW *wins[4];          // Windows
-PANEL  *my_panels[4];     // Panels
-PANEL  *top;              // Top panel
-int ch;                   // Character type 
-char command[128];        // repl command_prompt 
-int len_command;          // command length
-vector<string> buffer_0;  // buffer of windows 0
-vector<string> buffer_1;  // buffer of windows 1
-vector<string> buffer_2;  // buffer of windows 2
-vector<Model>  models;    // Models
+WINDOW *wins[4];            // Windows
+PANEL  *my_panels[4];       // Panels
+PANEL  *top;                // Top panel
+int ch;                     // Character type 
+char command[128];          // repl command_prompt 
+int len_command;            // command length
+vector<string> buffer_0;    // buffer of windows 0
+vector<string> buffer_1;    // buffer of windows 1
+vector<string> buffer_2;    // buffer of windows 2
+vector<Model>  models;      // Models
+vector<string> assumptions; // Assumptions
 
 void initialize(){
 	/* Initialize curses */
@@ -371,11 +372,48 @@ void dump(){
 
 void dump_get(){
 
+	set<string> inputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> inputs = it->inputs;
+		for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+			string input = *it2;
+			inputs_set.insert(input);
+		}
+	}
+
+	set<string> outputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> outputs = it->outputs;
+		string name = it->name;
+		for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+			string output = name + "." + *it2;
+			outputs_set.insert(output);
+		}
+	}
+
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+
+	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+		fprintf(file, "(get-value (%s))\n", it->c_str());
+	}
+
+	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+		fprintf(file, "(get-value (%s))\n", it->c_str());
+	}
+
+	fclose(file);
+
+	
 }
 
-void dump_tail(){
+void dump_getsat(){
 	FILE* file = fopen("/tmp/forest/model.smt2", "a");
 	fprintf(file, "(check-sat)\n");
+	fclose(file);
+}
+
+void dump_exit(){
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
 	fprintf(file, "(exit)\n");
 	fclose(file);
 }
@@ -402,6 +440,15 @@ string check_sat(){
 	
 }
 
+void dump_assumptions(){
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	for( vector<string>::iterator it = assumptions.begin(); it != assumptions.end(); it++ ){
+		fprintf(file, "%s\n", it->c_str());
+	}
+	fclose(file);
+	
+}
+
 void check(string command_str){
 
 	vector<string> tokens = tokenize(command_str, " ");
@@ -416,9 +463,11 @@ void check(string command_str){
 	dump_inputs();
 	dump_outputs();
 	dump_models();
+	dump_assumptions();
 	dump_check(var1, eq, var2);
+	dump_getsat();
 	dump_get();
-	dump_tail();
+	dump_exit();
 
 	string res = check_sat();
 
@@ -432,6 +481,22 @@ void check(string command_str){
 	
 }
 
+void assume(string command_str){
+
+	vector<string> tokens = tokenize(command_str, " ");
+
+	assert(tokens[0] == "assume");
+
+	string var1 = tokens[1];
+	string eq = tokens[2];
+	string var2 = tokens[3];
+
+	assumptions.push_back( "(assert (" + eq + " " + var1 + " " + var2 + "))");
+
+	buffer_0.push_back( "#green#assume#normal# " + var1 + " #red#" + eq + "#normal# " + var2 );
+
+}
+
 void do_command(){
 
 	string command_s = string(command);
@@ -443,6 +508,8 @@ void do_command(){
 		dump();
 	} else if(tokens[0] == "check"){
 		check(command_s);
+	} else if(tokens[0] == "assume"){
+		assume(command_s);
 	} else {
 
 	}
