@@ -488,6 +488,8 @@ void dump_assumptions(){
 
 void get_counterexample(){
 
+	assigns.clear();
+
 	set<string> inputs_set;
 	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
 		vector<string> inputs = it->inputs;
