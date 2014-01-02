@@ -527,7 +527,17 @@ void get_counterexample(){
 
 	int i = 0;
 	while( getline( input, line ) ) {
-		string value = tokenize(line, " ()")[1];
+		vector<string> tokens = tokenize(line, " ()");
+		string value;
+		string sign;
+		if(tokens[1] == "-"){
+			value = tokens[2];
+			sign = "-";
+		} else {
+			value = tokens[1];
+			sign = "";
+		}
+		value = sign + value;
 		assigns[i].value = value;
 		i++;
 	}
