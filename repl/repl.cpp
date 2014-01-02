@@ -7,21 +7,20 @@ void win_show_box(WINDOW *win);
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 
 
-WINDOW *wins[4];    // Windows
+WINDOW *wins[4];       // Windows
 PANEL  *my_panels[4];  // Panels
 PANEL  *top;           // Top panel
 int ch;                // Character type 
-char command[128];     // repl command
+char command[128];     // repl command_prompt 
+int len_command;       // command length
 
 void initialize(){
 	/* Initialize curses */
 	initscr();
 	start_color();
-	//cbreak();
-	//keypad(stdscr, TRUE);
 
 	/* Initialize all the colors */
-	init_pair(3, COLOR_BLUE, COLOR_BLACK);
+	init_pair(1, COLOR_BLUE, COLOR_BLACK);
 }
 
 void initialize_panels(){
@@ -48,6 +47,19 @@ void initialize_wins() {
 	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], "Counter Example") ;
 	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
 
+	scrollok(wins[0], TRUE);
+
+	int n = 0;
+
+	mvwprintw(wins[0], n+2,2, "  Forest Read-Eval-Print-Loop ");
+	mvwprintw(wins[0], n+3,2, " `-. .------------------------");
+	mvwprintw(wins[0], n+4,2, "    Y                         ");
+	mvwprintw(wins[0], n+5,2, "    ,,  ,---,                 ");
+	mvwprintw(wins[0], n+6,2, "   (_,\\/_\\_/_\\                ");
+	mvwprintw(wins[0], n+7,2, "     \\.\\_/_\\_/>               ");
+	mvwprintw(wins[0], n+8,2, "     '-'   '-'                ");
+
+ 
 }
 
 void update(){
@@ -62,16 +74,34 @@ void update(){
 
 }
 
-void command_prompt(){
+void command_prompt(int ch){
+	mvwprintw(wins[0], 2, 2, "%d", ch);
+	char chs[] = {ch, 0};
+	strcat(command, chs);
+	len_command++;
+}
 
+void begin_prompt(){
 	mvwprintw(wins[3], 2, 2, ">>> ");
-	mvwscanw(wins[3], 2, 6, "%s", command);
+	move(LINES-3, 6);
+	clrtoeol();
+	strcpy(command, "");
+	len_command = 0;
+}
 
+void finish(){
+	endwin();
 }
 
 void do_command(){
-
 	mvwprintw(wins[0], 2, 2, "%s", command);
+}
+
+void back(){
+	len_command--;
+	command[len_command] = 0;
+	mvwprintw(wins[3], 2, 6, "%s   ", command);
+	move(LINES-3, 6+len_command);
 }
 
 int main(){
@@ -82,14 +112,30 @@ int main(){
 
 	initialize_panels();
 
+	begin_prompt();
+
 	update();
 
-	while(true){
-		command_prompt();
-		do_command();
+	while(ch = getch()){
+		switch(ch){
+			case 27:
+				finish();
+				return 0;
+			case 10:
+				do_command();
+				begin_prompt();
+				break;
+			case 127:
+				back();
+				break;
+			default:
+				command_prompt(ch);
+				break;
+
+		}
+
 		update();
 	}
-	endwin();
 	return 0;
 }
 
@@ -115,7 +161,7 @@ void win_show_title(WINDOW *win, char *label) {
 	mvwhline(win, 2, 1, ACS_HLINE, width - 2);
 	mvwaddch(win, 2, width - 1, ACS_RTEE);
 	
-	print_in_middle(win, 1, 0, width, label, COLOR_PAIR(3));
+	print_in_middle(win, 1, 0, width, label, COLOR_PAIR(1));
 }
 
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color) {
@@ -139,3 +185,4 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	mvwprintw(win, y, x, "%s", string);
 	wattroff(win, color);
 }
+
