@@ -23,6 +23,11 @@ typedef struct Model {
 	vector<string> outputs;
 } Model;
 
+typedef struct Assign {
+	string name;
+	string input_output;
+	string value;
+} Assign;
 
 WINDOW *wins[4];            // Windows
 PANEL  *my_panels[4];       // Panels
@@ -35,6 +40,7 @@ vector<string> buffer_1;    // buffer of windows 1
 vector<string> buffer_2;    // buffer of windows 2
 vector<Model>  models;      // Models
 vector<string> assumptions; // Assumptions
+vector<Assign> assigns;     // Counter-Example solution
 
 void initialize(){
 	/* Initialize curses */
@@ -82,15 +88,6 @@ void initialize_wins() {
 	buffer_0.push_back("                              ");
 	buffer_0.push_back("                              ");
 
-	buffer_2.push_back("  Forest Read");
-	buffer_2.push_back(" `-. .-------");
-	buffer_2.push_back("    Y        ");
-	buffer_2.push_back("    ,,  ,---,");
-	buffer_2.push_back("   (_,\\/_\\_");
-	buffer_2.push_back("     \\.\\_/_");
-	buffer_2.push_back("     '-'   '-");
-	buffer_2.push_back("             ");
-	buffer_2.push_back("             ");
  
 }
 
@@ -230,9 +227,16 @@ void draw_win_2(){
 		}
 	}
 
+	buffer_2.clear();
+
+	for( vector<Assign>::iterator it = assigns.begin(); it != assigns.end(); it++ ){
+		buffer_2.push_back( ((it->input_output == "input")?"#green#":"#red#") + it->name + " = " + it->value + "#normal#");
+	}
+	
+
 	if(buffer_2.size() < (LINES-5)/2-1 ){
 		for ( unsigned int i = 0; i < buffer_2.size(); i++) {
-			mvwprintw(wins[2], i+3, 1, "%s", buffer_2[i].c_str());
+			mvwprintw_col(wins[2], i+3, 1, buffer_2[i].c_str());
 		}
 
 	} else {
@@ -426,7 +430,7 @@ void dump_get(){
 		fprintf(file, "(get-value (%s))\n", it->c_str());
 	}
 
-	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+	for( set<string>::iterator it = outputs_set.begin(); it != outputs_set.end(); it++ ){
 		fprintf(file, "(get-value (%s))\n", it->c_str());
 	}
 
@@ -482,6 +486,54 @@ void dump_assumptions(){
 	
 }
 
+void get_counterexample(){
+
+	set<string> inputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> inputs = it->inputs;
+		for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+			string input = *it2;
+			inputs_set.insert(input);
+		}
+	}
+
+	set<string> outputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> outputs = it->outputs;
+		string name = it->name;
+		for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+			string output = name + "." + *it2;
+			outputs_set.insert(output);
+		}
+	}
+
+
+
+	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+		Assign assign = {*it, "input", ""};
+		assigns.push_back(assign);
+	}
+
+	for( set<string>::iterator it = outputs_set.begin(); it != outputs_set.end(); it++ ){
+		Assign assign = {*it, "output", ""};
+		assigns.push_back(assign);
+	}
+	
+	ifstream input("/tmp/forest/model_result");
+	string line;
+	getline(input, line);
+
+	int i = 0;
+	while( getline( input, line ) ) {
+		string value = tokenize(line, " ()")[1];
+		assigns[i].value = value;
+		i++;
+	}
+	
+
+
+}
+
 void check(string command_str){
 
 	vector<string> tokens = tokenize(command_str, " ");
@@ -510,6 +562,12 @@ void check(string command_str){
 		buffer_0.push_back("   #red#FALSE#normal#");
 	if(res == "unsat")
 		buffer_0.push_back("   #green#TRUE#normal#");
+
+	if(res == "sat"){
+		get_counterexample();
+	} else {
+		assigns.clear();
+	}
 
 	
 }
