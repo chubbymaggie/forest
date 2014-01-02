@@ -175,6 +175,38 @@ void draw_win_0(){
 
 void draw_win_1(){
 
+	buffer_1.clear();
+
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		string name = it->name;
+		buffer_1.push_back( "#magenta#" + name + "#normal#");
+		vector<string> outputs = it->outputs;
+		for( vector<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
+			buffer_1.push_back( " - #red#" + (*it) + "#normal#");
+		}
+		
+	}
+
+	set<string> inputs_set;
+	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+		vector<string> inputs = it->inputs;
+		for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+			string input = *it2;
+			inputs_set.insert(input);
+		}
+	}
+
+	for( set<string>::iterator it = inputs_set.begin(); it != inputs_set.end(); it++ ){
+		buffer_1.push_back( "#green#" + (*it) + "#normal#");
+	}
+
+	for( vector<string>::iterator it = assumptions.begin(); it != assumptions.end(); it++ ){
+		buffer_1.push_back("#magenta#" + (*it) + "#normal#");
+	}
+	
+	
+	
+
 	for ( unsigned int row = 3; row < (LINES-5)/2-1; row++) {
 		for ( unsigned int col = 1; col < COLS*1/4-1; col++) {
 			mvwprintw(wins[1], row,col, " ");
@@ -273,7 +305,6 @@ void import_model(string command_str){
 	vector<string> inputs;
 	vector<string> outputs;
 
-	buffer_1.push_back("#magenta#" + name + "#normal#");
 
 	buffer_0.push_back("#green#import#normal# " + tokens[1] + " #green#as#normal# " + name);
 
@@ -282,11 +313,9 @@ void import_model(string command_str){
 	while( getline( input, line ) ) {
 		if( line.find("input:") != string::npos ){
 			inputs.push_back(line.substr(6));
-			buffer_1.push_back("#green# -" + line.substr(6) + "#normal#");
 		}
 		if( line.find("output:") != string::npos ){
 			outputs.push_back(line.substr(7));
-			buffer_1.push_back("#red# -" + line.substr(7) + "#normal#");
 		}
 		if( line.find("content:") != string::npos ){
 			content = line.substr(8);
@@ -443,7 +472,11 @@ string check_sat(){
 void dump_assumptions(){
 	FILE* file = fopen("/tmp/forest/model.smt2", "a");
 	for( vector<string>::iterator it = assumptions.begin(); it != assumptions.end(); it++ ){
-		fprintf(file, "%s\n", it->c_str());
+		vector<string> tokens = tokenize(*it, " ");
+		string var1 = tokens[0];
+		string eq = tokens[1];
+		string var2 = tokens[2];
+		fprintf(file, "(assert (%s %s %s))\n", eq.c_str(), var1.c_str(), var2.c_str());
 	}
 	fclose(file);
 	
@@ -491,10 +524,14 @@ void assume(string command_str){
 	string eq = tokens[2];
 	string var2 = tokens[3];
 
-	assumptions.push_back( "(assert (" + eq + " " + var1 + " " + var2 + "))");
+	assumptions.push_back( var1 + " "  + eq + " " + var2);
 
 	buffer_0.push_back( "#green#assume#normal# " + var1 + " #red#" + eq + "#normal# " + var2 );
 
+}
+
+void rm_assumptions(){
+	assumptions.clear();
 }
 
 void do_command(){
@@ -510,6 +547,8 @@ void do_command(){
 		check(command_s);
 	} else if(tokens[0] == "assume"){
 		assume(command_s);
+	} else if(tokens[0] == "rm_assumptions"){
+		rm_assumptions();
 	} else {
 
 	}
