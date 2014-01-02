@@ -1,5 +1,9 @@
 #include <panel.h>
 #include <string.h>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 void init_wins(WINDOW **wins, int n);
 void win_show_title(WINDOW *win, char *label);
@@ -7,12 +11,13 @@ void win_show_box(WINDOW *win);
 void print_in_middle(WINDOW *win, int starty, int startx, int width, char *string, chtype color);
 
 
-WINDOW *wins[4];       // Windows
-PANEL  *my_panels[4];  // Panels
-PANEL  *top;           // Top panel
-int ch;                // Character type 
-char command[128];     // repl command_prompt 
-int len_command;       // command length
+WINDOW *wins[4];          // Windows
+PANEL  *my_panels[4];     // Panels
+PANEL  *top;              // Top panel
+int ch;                   // Character type 
+char command[128];        // repl command_prompt 
+int len_command;          // command length
+vector<string> buffer_0;  // buffer of windows 0
 
 void initialize(){
 	/* Initialize curses */
@@ -51,15 +56,39 @@ void initialize_wins() {
 
 	int n = 0;
 
-	mvwprintw(wins[0], n+2,2, "  Forest Read-Eval-Print-Loop ");
-	mvwprintw(wins[0], n+3,2, " `-. .------------------------");
-	mvwprintw(wins[0], n+4,2, "    Y                         ");
-	mvwprintw(wins[0], n+5,2, "    ,,  ,---,                 ");
-	mvwprintw(wins[0], n+6,2, "   (_,\\/_\\_/_\\                ");
-	mvwprintw(wins[0], n+7,2, "     \\.\\_/_\\_/>               ");
-	mvwprintw(wins[0], n+8,2, "     '-'   '-'                ");
+	buffer_0.push_back("  Forest Read-Eval-Print-Loop ");
+	buffer_0.push_back(" `-. .------------------------");
+	buffer_0.push_back("    Y                         ");
+	buffer_0.push_back("    ,,  ,---,                 ");
+	buffer_0.push_back("   (_,\\/_\\_/_\\             ");
+	buffer_0.push_back("     \\.\\_/_\\_/>            ");
+	buffer_0.push_back("     '-'   '-'                ");
+	buffer_0.push_back("                              ");
+	buffer_0.push_back("                              ");
 
  
+}
+
+void draw_win_0(){
+
+
+	for ( unsigned int row = 2; row < LINES-6; row++) {
+		for ( unsigned int col = 2; col < COLS*3/4-3; col++) {
+			mvwprintw(wins[0], row,col, " ");
+		}
+	}
+
+	if(buffer_0.size() < LINES-8){
+		for ( unsigned int i = 0; i < buffer_0.size(); i++) {
+			mvwprintw(wins[0], i+2, 2, "%s", buffer_0[i].c_str());
+		}
+
+	} else {
+		for ( unsigned int i = buffer_0.size()-(LINES-8),m=0; i < buffer_0.size(); i++,m++) {
+			mvwprintw(wins[0], m+2, 2, "%s", buffer_0[i].c_str());
+		}
+
+	}
 }
 
 void update(){
@@ -83,7 +112,7 @@ void command_prompt(int ch){
 
 void begin_prompt(){
 
-	char prompt[128] = ">>> ";
+	char prompt[512] = ">>> ";
 	for ( unsigned int i = 0; i < LINES; i++) {
 		strcat(prompt, " ");
 	}
@@ -100,7 +129,7 @@ void finish(){
 }
 
 void do_command(){
-	mvwprintw(wins[0], 2, 2, "%s", command);
+	buffer_0.push_back(string(command));
 }
 
 void back(){
@@ -119,6 +148,8 @@ int main(){
 	initialize_panels();
 
 	begin_prompt();
+
+	draw_win_0();
 
 	update();
 
@@ -139,6 +170,8 @@ int main(){
 				break;
 
 		}
+
+		draw_win_0();
 
 		update();
 	}
