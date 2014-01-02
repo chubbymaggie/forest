@@ -82,9 +82,15 @@ void command_prompt(int ch){
 }
 
 void begin_prompt(){
-	mvwprintw(wins[3], 2, 2, ">>> ");
+
+	char prompt[128] = ">>> ";
+	for ( unsigned int i = 0; i < LINES; i++) {
+		strcat(prompt, " ");
+	}
+
+	mvwprintw(wins[3], 2, 2, "%s", prompt);
+
 	move(LINES-3, 6);
-	clrtoeol();
 	strcpy(command, "");
 	len_command = 0;
 }
