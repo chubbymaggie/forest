@@ -18,6 +18,8 @@ int ch;                   // Character type
 char command[128];        // repl command_prompt 
 int len_command;          // command length
 vector<string> buffer_0;  // buffer of windows 0
+vector<string> buffer_1;  // buffer of windows 1
+vector<string> buffer_2;  // buffer of windows 2
 
 void initialize(){
 	/* Initialize curses */
@@ -52,10 +54,6 @@ void initialize_wins() {
 	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], "Counter Example") ;
 	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
 
-	scrollok(wins[0], TRUE);
-
-	int n = 0;
-
 	buffer_0.push_back("  Forest Read-Eval-Print-Loop ");
 	buffer_0.push_back(" `-. .------------------------");
 	buffer_0.push_back("    Y                         ");
@@ -66,6 +64,25 @@ void initialize_wins() {
 	buffer_0.push_back("                              ");
 	buffer_0.push_back("                              ");
 
+	buffer_1.push_back("  Forest Read");
+	buffer_1.push_back(" `-. .-------");
+	buffer_1.push_back("    Y        ");
+	buffer_1.push_back("    ,,  ,---,");
+	buffer_1.push_back("   (_,\\/_\\_");
+	buffer_1.push_back("     \\.\\_/_");
+	buffer_1.push_back("     '-'   '-");
+	buffer_1.push_back("             ");
+	buffer_1.push_back("             ");
+
+	buffer_2.push_back("  Forest Read");
+	buffer_2.push_back(" `-. .-------");
+	buffer_2.push_back("    Y        ");
+	buffer_2.push_back("    ,,  ,---,");
+	buffer_2.push_back("   (_,\\/_\\_");
+	buffer_2.push_back("     \\.\\_/_");
+	buffer_2.push_back("     '-'   '-");
+	buffer_2.push_back("             ");
+	buffer_2.push_back("             ");
  
 }
 
@@ -91,6 +108,48 @@ void draw_win_0(){
 	}
 }
 
+
+void draw_win_1(){
+
+	for ( unsigned int row = 3; row < (LINES-5)/2-1; row++) {
+		for ( unsigned int col = 1; col < COLS*1/4-1; col++) {
+			mvwprintw(wins[1], row,col, " ");
+		}
+	}
+
+	if(buffer_1.size() < (LINES-5)/2-1 ){
+		for ( unsigned int i = 0; i < buffer_1.size(); i++) {
+			mvwprintw(wins[1], i+3, 1, "%s", buffer_1[i].c_str());
+		}
+
+	} else {
+
+	}
+
+
+}
+
+
+void draw_win_2(){
+
+	for ( unsigned int row = 3; row < (LINES-5)/2-1; row++) {
+		for ( unsigned int col = 1; col < COLS*1/4-1; col++) {
+			mvwprintw(wins[2], row,col, " ");
+		}
+	}
+
+	if(buffer_2.size() < (LINES-5)/2-1 ){
+		for ( unsigned int i = 0; i < buffer_2.size(); i++) {
+			mvwprintw(wins[2], i+3, 1, "%s", buffer_2[i].c_str());
+		}
+
+	} else {
+
+	}
+
+
+}
+
 void update(){
 
 	/* Update the stacking order. 2nd panel will be on top */
@@ -112,12 +171,12 @@ void command_prompt(int ch){
 
 void begin_prompt(){
 
-	char prompt[512] = ">>> ";
-	for ( unsigned int i = 0; i < LINES; i++) {
-		strcat(prompt, " ");
+	for ( unsigned int row = 1; row < 4; row++) {
+		for ( unsigned int col = 1; col < COLS-1; col++) {
+			mvwprintw(wins[3], row,col, " ");
+		}
 	}
-
-	mvwprintw(wins[3], 2, 2, "%s", prompt);
+	mvwprintw(wins[3], 2, 2, ">>> ");
 
 	move(LINES-3, 6);
 	strcpy(command, "");
@@ -150,6 +209,8 @@ int main(){
 	begin_prompt();
 
 	draw_win_0();
+	draw_win_1();
+	draw_win_2();
 
 	update();
 
@@ -172,6 +233,8 @@ int main(){
 		}
 
 		draw_win_0();
+		draw_win_1();
+		draw_win_2();
 
 		update();
 	}
