@@ -41,6 +41,8 @@ vector<string> buffer_2;    // buffer of windows 2
 vector<Model>  models;      // Models
 vector<string> assumptions; // Assumptions
 vector<Assign> assigns;     // Counter-Example solution
+vector<string> history;     // history of commands
+int n_get_command = 0;      // pointer in the history of commands
 
 
 
@@ -57,6 +59,7 @@ void initialize(){
 	/* Initialize curses */
 	initscr();
 	start_color();
+	keypad(stdscr, TRUE);
 
 	/* Initialize all the colors */
 	init_pair(1, COLOR_BLUE, COLOR_BLACK);
@@ -372,7 +375,6 @@ void update(){
 }
 
 void command_prompt(int ch){
-	mvwprintw(wins[0], 2, 2, "%d", ch);
 	char chs[] = {ch, 0};
 	strcat(command, chs);
 	len_command++;
@@ -704,6 +706,7 @@ void rm_assumptions(){
 void do_command(){
 
 	string command_s = string(command);
+	history.push_back(command_s); n_get_command ++;
 	vector<string> tokens = tokenize(command_s, " ");
 
 	if(tokens[0] == "import"){
@@ -722,10 +725,27 @@ void do_command(){
 }
 
 void back(){
+	if( len_command == 0 ) return;
 	len_command--;
 	command[len_command] = 0;
 	mvwprintw(wins[3], 2, 6, "%s   ", command);
 	move(LINES-3, 6+len_command);
+}
+
+void get_prev_command(){
+	if(n_get_command == 0) return;
+	n_get_command--;
+	//strcpy(command, history[n_get_command].c_str());
+	//len_command = strlen(command);
+	sprintf(command, "%d", n_get_command);
+}
+
+void get_next_command(){
+	if(n_get_command == history.size()-1) return;
+	n_get_command++;
+	//strcpy(command, history[n_get_command].c_str());
+	//len_command = strlen(command);
+	sprintf(command, "%d", n_get_command);
 }
 
 int main(){
@@ -754,13 +774,22 @@ int main(){
 				do_command();
 				begin_prompt();
 				break;
-			case 127:
+			case 263:
 				back();
 				break;
 			case 9:
 				complete_command();
 				break;
+			case 259:
+				get_prev_command();
+			case 258:
+				get_next_command();
 			default:
+
+				FILE* file = fopen("/tmp/key", "w");
+				fprintf(file, "%d", ch);
+				fclose(file);
+
 				command_prompt(ch);
 				break;
 
