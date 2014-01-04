@@ -268,6 +268,8 @@ string highlight(string command){
 	myReplace(ret, "as ", "#green#as #normal#");
 	myReplace(ret, "check ", "#green#check #normal#");
 	myReplace(ret, "assume ", "#green#assume #normal#");
+	myReplace(ret, "clear ", "#green#clear #normal#");
+	myReplace(ret, "exit ", "#green#exit #normal#");
 	return ret;
 }
 
@@ -326,6 +328,8 @@ void complete_command(){
 		keys.push_back("import");
 		keys.push_back("check");
 		keys.push_back("assume");
+		keys.push_back("clear");
+		keys.push_back("exit");
 
 		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
 			if(it->length() < len_command) continue;
@@ -737,6 +741,9 @@ void do_command(){
 		rm_assumptions();
 	} else if(tokens[0] == "clear"){
 		clear_all();
+	} else if(tokens[0] == "exit"){
+		finish();
+		exit(0);
 	} else {
 
 	}
