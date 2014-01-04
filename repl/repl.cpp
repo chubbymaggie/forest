@@ -283,6 +283,33 @@ void draw_win_3(){
 	move(LINES-3, 6+len_command);
 }
 
+vector<string> get_paths(string seed){
+
+	FILE *fp;
+	stringstream command;
+	char ret[512];
+	vector<string> ret_vector;
+	
+	command << "find " << seed << "* -maxdepth 1 -type l 2>/dev/null | grep -v cdrom | sed 's/$/\\//g';";
+	command << "find " << seed << "* -maxdepth 1 -type d 2>/dev/null | grep -v cdrom | sed 's/$/\\//g';";
+	command << "find " << seed << "* -maxdepth 1 -type f 2>/dev/null;";
+	
+
+	fp = popen(command.str().c_str(), "r");
+	
+	while (fgets(ret,512, fp) != NULL){
+		ret[strlen(ret)-1] = 0;
+		ret_vector.push_back(ret);
+	}
+	
+	pclose(fp);
+
+	return ret_vector;
+	
+	
+}
+
+
 void complete_command(){
 
 	string remaining = "";
@@ -298,10 +325,16 @@ void complete_command(){
 		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
 			if(it->length() < len_command) continue;
 			if(it->substr(0, len_command) == tokens[0])
-				remaining = it->substr(len_command);
+				remaining = it->substr(len_command) + " ";
 		}
 
 
+	}
+
+	if( tokens.size() == 2 && tokens[0] == "import" ){
+		vector<string> paths = get_paths(tokens[1]);
+		if(!paths.size()) return;
+		remaining = paths[0].substr(tokens[1].length());
 	}
 
 	strcat(command, remaining.c_str());
