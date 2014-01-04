@@ -92,15 +92,15 @@ void initialize_wins() {
 	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], (char*)"Counter Example") ;
 	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
 
-	buffer_0.push_back("  Forest Read-Eval-Print-Loop ");
-	buffer_0.push_back(" `-. .------------------------");
-	buffer_0.push_back("    Y                         ");
-	buffer_0.push_back("    ,,  ,---,                 ");
-	buffer_0.push_back("   (_,\\/_\\_/_\\             ");
-	buffer_0.push_back("     \\.\\_/_\\_/>            ");
-	buffer_0.push_back("     '-'   '-'                ");
-	buffer_0.push_back("                              ");
-	buffer_0.push_back("                              ");
+	buffer_0.push_back("  Forest Read-Eval-Print-Loop                                     ");
+	buffer_0.push_back(" `-. .------------------------                                    ");
+	buffer_0.push_back("    Y                                                             ");
+	buffer_0.push_back("    ,,  ,---,        Version 1.0                                  ");
+	buffer_0.push_back("   (_,\\/_\\_/_\\       University of Cantabria                   ");
+	buffer_0.push_back("     \\.\\_/_\\_/>      GESE group                                ");
+	buffer_0.push_back("     '-'   '-'                                                    ");
+	buffer_0.push_back("                                                                  ");
+	buffer_0.push_back("                                                                  ");
 
  
 }
@@ -390,6 +390,11 @@ void finish(){
 	endwin();
 }
 
+string itos(int i){
+	stringstream i_ss;
+	i_ss << i;
+	return i_ss.str();
+}
 
 void import_model(string command_str){
 
@@ -437,6 +442,7 @@ void import_model(string command_str){
 	Model model = {content, name, inputs, outputs};
 	models.push_back(model);
 
+	buffer_0.push_back("   Model successfully imported in workspace. size : " + itos(content.length()) + " B.");
 }
 
 void dump_models(){
@@ -703,6 +709,16 @@ void rm_assumptions(){
 	assumptions.clear();
 }
 
+void clear_all(){
+	models.clear();
+	assumptions.clear();
+	assigns.clear();
+
+
+	buffer_0.push_back("#green#clear#normal#");
+	buffer_0.push_back("   Workspace successfully cleared.");
+}
+
 void do_command(){
 
 	string command_s = string(command);
@@ -719,6 +735,8 @@ void do_command(){
 		assume(command_s);
 	} else if(tokens[0] == "rm_assumptions"){
 		rm_assumptions();
+	} else if(tokens[0] == "clear"){
+		clear_all();
 	} else {
 
 	}
