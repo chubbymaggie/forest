@@ -261,9 +261,10 @@ void draw_win_2(){
 string highlight(string command){
 	string ret = command;
 	myReplace(ret, "#green#", "");
-	myReplace(ret, "import", "#green#import#normal#");
-	myReplace(ret, "as", "#green#as#normal#");
-	myReplace(ret, "check", "#green#check#normal#");
+	myReplace(ret, "import ", "#green#import #normal#");
+	myReplace(ret, "as ", "#green#as #normal#");
+	myReplace(ret, "check ", "#green#check #normal#");
+	myReplace(ret, "assume ", "#green#assume #normal#");
 	return ret;
 }
 
@@ -321,6 +322,7 @@ void complete_command(){
 		vector<string> keys;
 		keys.push_back("import");
 		keys.push_back("check");
+		keys.push_back("assume");
 
 		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
 			if(it->length() < len_command) continue;
@@ -335,6 +337,22 @@ void complete_command(){
 		vector<string> paths = get_paths(tokens[1]);
 		if(!paths.size()) return;
 		remaining = paths[0].substr(tokens[1].length());
+	}
+
+	if( tokens.size() == 2 && tokens[0] == "assume" ){
+
+
+		set<string> inputs_set;
+		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+			vector<string> inputs = it->inputs;
+			for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+				string input = *it2;
+				inputs_set.insert(input);
+			}
+		}
+
+		if(!inputs_set.size()) return;
+		remaining = inputs_set.begin()->substr(tokens[1].length());
 	}
 
 	strcat(command, remaining.c_str());
