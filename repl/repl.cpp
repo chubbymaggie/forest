@@ -42,6 +42,17 @@ vector<Model>  models;      // Models
 vector<string> assumptions; // Assumptions
 vector<Assign> assigns;     // Counter-Example solution
 
+
+
+void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
+	size_t pos = 0;
+	while((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
+
 void initialize(){
 	/* Initialize curses */
 	initscr();
@@ -246,6 +257,32 @@ void draw_win_2(){
 
 }
 
+
+string highlight(string command){
+	string ret = command;
+	myReplace(ret, "#green#", "");
+	myReplace(ret, "import", "#green#import#normal#");
+	myReplace(ret, "as", "#green#as#normal#");
+	myReplace(ret, "check", "#green#check#normal#");
+	return ret;
+}
+
+void draw_win_3(){
+
+	for ( unsigned int row = 1; row < 4; row++) {
+		for ( unsigned int col = 1; col < COLS-1; col++) {
+			mvwprintw(wins[3], row,col, " ");
+		}
+	}
+
+	string command_high = highlight(command);
+
+	mvwprintw_col(wins[3], 2, 2, ">>> ");
+	mvwprintw_col(wins[3], 2, 6, command_high);
+
+	move(LINES-3, 6+len_command);
+}
+
 void update(){
 
 	/* Update the stacking order. 2nd panel will be on top */
@@ -267,28 +304,12 @@ void command_prompt(int ch){
 
 void begin_prompt(){
 
-	for ( unsigned int row = 1; row < 4; row++) {
-		for ( unsigned int col = 1; col < COLS-1; col++) {
-			mvwprintw(wins[3], row,col, " ");
-		}
-	}
-	mvwprintw(wins[3], 2, 2, ">>> ");
-
-	move(LINES-3, 6);
 	strcpy(command, "");
 	len_command = 0;
 }
 
 void finish(){
 	endwin();
-}
-
-void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
-	size_t pos = 0;
-	while((pos = str.find(oldStr, pos)) != std::string::npos){
-		str.replace(pos, oldStr.length(), newStr);
-		pos += newStr.length();
-	}
 }
 
 
@@ -644,6 +665,7 @@ int main(){
 	draw_win_0();
 	draw_win_1();
 	draw_win_2();
+	draw_win_3();
 
 	update();
 
@@ -665,9 +687,11 @@ int main(){
 
 		}
 
+
 		draw_win_0();
 		draw_win_1();
 		draw_win_2();
+		draw_win_3();
 
 		update();
 	}
