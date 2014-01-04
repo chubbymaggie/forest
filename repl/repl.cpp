@@ -722,7 +722,7 @@ void clear_all(){
 void do_command(){
 
 	string command_s = string(command);
-	history.push_back(command_s); n_get_command ++;
+	history.push_back(command_s); n_get_command = history.size();
 	vector<string> tokens = tokenize(command_s, " ");
 
 	if(tokens[0] == "import"){
@@ -751,19 +751,19 @@ void back(){
 }
 
 void get_prev_command(){
-	if(n_get_command == 0) return;
+	if(n_get_command <= 0) return;
 	n_get_command--;
-	//strcpy(command, history[n_get_command].c_str());
-	//len_command = strlen(command);
-	sprintf(command, "%d", n_get_command);
+	strcpy(command, history[n_get_command].c_str());
+	len_command = strlen(command);
+	//sprintf(command, "%d", n_get_command);
 }
 
 void get_next_command(){
-	if(n_get_command == history.size()-1) return;
+	if(n_get_command >= history.size()-1) return;
 	n_get_command++;
-	//strcpy(command, history[n_get_command].c_str());
-	//len_command = strlen(command);
-	sprintf(command, "%d", n_get_command);
+	strcpy(command, history[n_get_command].c_str());
+	len_command = strlen(command);
+	//sprintf(command, "%d", n_get_command);
 }
 
 int main(){
@@ -800,8 +800,10 @@ int main(){
 				break;
 			case 259:
 				get_prev_command();
+				break;
 			case 258:
 				get_next_command();
+				break;
 			default:
 
 				FILE* file = fopen("/tmp/key", "w");
