@@ -283,6 +283,31 @@ void draw_win_3(){
 	move(LINES-3, 6+len_command);
 }
 
+void complete_command(){
+
+	string remaining = "";
+	vector<string> tokens = tokenize(string(command), " ");
+	if(!tokens.size()) return;
+
+	if(tokens.size() == 1){
+
+		vector<string> keys;
+		keys.push_back("import");
+		keys.push_back("check");
+
+		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
+			if(it->length() < len_command) continue;
+			if(it->substr(0, len_command) == tokens[0])
+				remaining = it->substr(len_command);
+		}
+
+
+	}
+
+	strcat(command, remaining.c_str());
+	len_command = strlen(command);
+}
+
 void update(){
 
 	/* Update the stacking order. 2nd panel will be on top */
@@ -680,6 +705,9 @@ int main(){
 				break;
 			case 127:
 				back();
+				break;
+			case 9:
+				complete_command();
 				break;
 			default:
 				command_prompt(ch);
