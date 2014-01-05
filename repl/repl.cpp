@@ -414,10 +414,12 @@ void complete_command(){
 		remaining = mc.substr(tokens[1].length());
 	}
 
-	if( tokens.size() == 2 && tokens[0] == "check" ){
+	if( (tokens.size() == 2 || tokens.size() == 4) && tokens[0] == "check" ){
+
+		int i = tokens.size()-1;
 
 		vector<string> completions;
-		if(tokens[1].find(".") == string::npos ){
+		if(tokens[i].find(".") == string::npos ){
 			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
 				completions.push_back(it->name);
 			}
@@ -429,7 +431,7 @@ void complete_command(){
 				}
 			}
 		} else {
-			string model_name = tokenize(tokens[1], ".")[0];
+			string model_name = tokenize(tokens[i], ".")[0];
 			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
 				if(it->name != model_name) continue;
 				vector<string> outputs = it->outputs;
@@ -441,13 +443,13 @@ void complete_command(){
 
 		}
 
-		completions = filter(completions, tokens[1]);
+		completions = filter(completions, tokens[i]);
 
 
 		if(!completions.size()) return; 
 		string mc = min_common(completions);
-		if(tokens[1].length() > mc.length()) return;
-		remaining = mc.substr(tokens[1].length());
+		if(tokens[i].length() > mc.length()) return;
+		remaining = mc.substr(tokens[i].length());
 	}
 
 	strcat(command, remaining.c_str());
