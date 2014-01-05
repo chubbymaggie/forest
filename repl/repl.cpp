@@ -352,6 +352,20 @@ string min_common(vector<string> strings){
 	return strings[0].substr(0,minlength);
 }
 
+vector<string> filter(vector<string> strings, string input){
+
+	vector<string> ret;
+	int len = input.length();
+
+	for( vector<string>::iterator it = strings.begin(); it != strings.end(); it++ ){
+		if(it->substr(0,len) == input){
+			ret.push_back(*it);
+		}
+	}
+	return ret;
+	
+}
+
 void complete_command(){
 
 	string remaining = "";
@@ -396,6 +410,42 @@ void complete_command(){
 
 		if(!all_inputs.size()) return; 
 		string mc = min_common(all_inputs);
+		if(tokens[1].length() > mc.length()) return;
+		remaining = mc.substr(tokens[1].length());
+	}
+
+	if( tokens.size() == 2 && tokens[0] == "check" ){
+
+		vector<string> completions;
+		if(tokens[1].find(".") == string::npos ){
+			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+				completions.push_back(it->name);
+			}
+			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+				vector<string> inputs = it->inputs;
+				for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+					string input = *it2;
+					completions.push_back(input);
+				}
+			}
+		} else {
+			string model_name = tokenize(tokens[1], ".")[0];
+			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+				if(it->name != model_name) continue;
+				vector<string> outputs = it->outputs;
+				for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+					string output = *it2;
+					completions.push_back(model_name + "." + output);
+				}
+			}
+
+		}
+
+		completions = filter(completions, tokens[1]);
+
+
+		if(!completions.size()) return; 
+		string mc = min_common(completions);
 		if(tokens[1].length() > mc.length()) return;
 		remaining = mc.substr(tokens[1].length());
 	}
