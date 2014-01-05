@@ -1,2 +1,2 @@
 ../bin/repl: repl.cpp
-	g++ repl.cpp -lpanel -lncurses -o ../bin/repl
+	g++ -g repl.cpp -lpanel -lncurses -o ../bin/repl

@@ -385,7 +385,6 @@ void complete_command(){
 
 	if( tokens.size() == 2 && tokens[0] == "assume" ){
 
-
 		vector<string> all_inputs;
 		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
 			vector<string> inputs = it->inputs;
@@ -395,8 +394,10 @@ void complete_command(){
 			}
 		}
 
-		if(!all_inputs.size()) return;
-		remaining = min_common(all_inputs).substr(tokens[1].length());
+		if(!all_inputs.size()) return; 
+		string mc = min_common(all_inputs);
+		if(tokens[1].length() > mc.length()) return;
+		remaining = mc.substr(tokens[1].length());
 	}
 
 	strcat(command, remaining.c_str());
