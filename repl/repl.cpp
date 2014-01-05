@@ -315,6 +315,42 @@ vector<string> get_paths(string seed){
 	
 }
 
+string min_common(vector<string> strings){
+
+
+	{
+		FILE* file = fopen("/tmp/min_common", "w");
+		for( vector<string>::iterator it = strings.begin(); it != strings.end(); it++ ){
+			fprintf(file, "%s\n", it->c_str());
+		}
+		fclose(file);
+	}
+	
+
+	int minlength = 99999;
+	for( vector<string>::iterator it = strings.begin(); it != strings.end(); it++ ){
+		if( it->length() < minlength ){
+			minlength = it->length();
+		}
+	}
+
+
+	for ( unsigned int i = 0; i < minlength; i++) {
+		char character_1 = strings[0][i];
+		for( vector<string>::iterator it = strings.begin(); it != strings.end(); it++ ){
+			string str = *it;
+			char character_2 = str[i];
+
+
+
+			if( character_1 != character_2 ){
+				return strings[0].substr(0,i);
+			}
+		}
+	}
+
+	return strings[0].substr(0,minlength);
+}
 
 void complete_command(){
 
@@ -343,23 +379,24 @@ void complete_command(){
 	if( tokens.size() == 2 && tokens[0] == "import" ){
 		vector<string> paths = get_paths(tokens[1]);
 		if(!paths.size()) return;
-		remaining = paths[0].substr(tokens[1].length());
+		string common_path = min_common(paths);
+		remaining = common_path.substr(tokens[1].length());
 	}
 
 	if( tokens.size() == 2 && tokens[0] == "assume" ){
 
 
-		set<string> inputs_set;
+		vector<string> all_inputs;
 		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
 			vector<string> inputs = it->inputs;
 			for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
 				string input = *it2;
-				inputs_set.insert(input);
+				all_inputs.push_back(input);
 			}
 		}
 
-		if(!inputs_set.size()) return;
-		remaining = inputs_set.begin()->substr(tokens[1].length());
+		if(!all_inputs.size()) return;
+		remaining = min_common(all_inputs).substr(tokens[1].length());
 	}
 
 	strcat(command, remaining.c_str());
