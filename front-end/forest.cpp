@@ -2518,17 +2518,82 @@ vector<string> get_model_names(){
 	
 }
 
+set<string> get_model_freevars(){
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "echo 'select free from models;' | sqlite3 database.db";
+	cmd << " > model_free";
+	system(cmd.str().c_str());
+
+	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_free").c_str() , "r" );
+	static char line [ 50000 ]; /* or other suitable maximum line size */
+	vector<string> lines;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		lines.push_back(string(line));
+	}
+	fclose ( file );
+
+	set<string> free_vars;
+
+	for( vector<string>::iterator it = lines.begin(); it != lines.end(); it++ ){
+		vector<string> tokens = tokenize(*it, ",");
+		for( vector<string>::iterator it2 = tokens.begin(); it2 != tokens.end(); it2++ ){
+			free_vars.insert(*it2);
+		}
+		
+	}
+	
+
+	return free_vars;
+
+}
+
+set<string> get_model_outputs(){
+
+	stringstream cmd;
+	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
+	cmd << "echo 'select variable from models;' | sqlite3 database.db";
+	cmd << " > model_outputs";
+	system(cmd.str().c_str());
+
+	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_outputs").c_str() , "r" );
+	static char line [ 50000 ]; /* or other suitable maximum line size */
+	vector<string> lines;
+	
+	while ( fgets ( line, sizeof(line), file ) != NULL ){
+		line[strlen(line)-1] = 0;
+		lines.push_back(string(line));
+	}
+	fclose ( file );
+
+	set<string> outputs;
+
+	for( vector<string>::iterator it = lines.begin(); it != lines.end(); it++ ){
+		outputs.insert(*it);
+		
+	}
+	
+
+	return outputs;
+
+}
+
 void get_model(){
 
 	vector<string> paths   = get_model_paths();
 	vector<string> assigns = get_model_assigns();
 	vector<string> names   = get_model_names();
+	set<string>    free_v  = get_model_freevars();
+	set<string>    outputs = get_model_outputs();
 
 	assert(paths.size() == assigns.size());
 	assert(paths.size() == names.size());
 
 	stringstream model;
-	model << "(assert (or ";
+	model << "content:(or ";
 
 	for ( unsigned int i = 0; i < paths.size(); i++) {
 		string path = paths[i];
@@ -2537,7 +2602,16 @@ void get_model(){
 
 		model << "(and " << "(= " << name << " " << assign << ") " << path << ")";
 	}
-	model << "))";
+	model << ")";
+
+	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
+		printf("input:%s\n", it->c_str());
+	}
+
+	for( set<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
+		printf("output:%s\n", it->c_str());
+	}
+	
 
 	printf("%s\n", model.str().c_str());
 
@@ -2614,6 +2688,7 @@ int main(int argc, const char *argv[]) {
 	disables("compare_klee", "check_coverage");
 	disables("test_vectors", "test");
 	disables("test_vectors", "compare_klee");
+	disables("get_model", "test");
 
 
 	expand_options();

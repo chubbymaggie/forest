@@ -81,6 +81,12 @@ void Solver::dump_model(){
 
 	debug && printf("\e[32m dump_model %lu \e[0m\n", outputs.size() );
 
+	string free_vars;
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		free_vars += (it->position + ",");
+	}
+	
+
 	for( vector<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
 
 		debug && printf("\e[32m dumping_model %s \e[0m\n", it->c_str() );
@@ -88,7 +94,7 @@ void Solver::dump_model(){
 		string variable = *it;
 		string content_var = content(variable);
 		string path_cond = get_anded_stack_conditions();
-		database->insert_model_entry(variable, content_var, path_cond);
+		database->insert_model_entry(variable, free_vars, content_var, path_cond);
 		
 	}
 	

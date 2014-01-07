@@ -120,6 +120,7 @@ void Database::create_tables(){
 
 	action << "create table models(";
 	action << "variable varchar(50),";
+	action << "free varchar(5000),";
 	action << "content varchar(5000),";
 	action << "path varchar(5000)";
 	action << ");";
@@ -130,10 +131,10 @@ void Database::create_tables(){
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
 }
 
-void Database::insert_model_entry(string name, string content, string path_condition){
+void Database::insert_model_entry(string name,string free_vars, string content, string path_condition){
 
 	stringstream action;
-	action << "insert into models (variable,content,path) values ('" << name << "','" << content << "','" << path_condition << "');";
+	action << "insert into models (variable,free,content,path) values ('" << name << "','" << free_vars << "','" << content << "','" << path_condition << "');";
 	printf("action %s\n", action.str().c_str() );
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }

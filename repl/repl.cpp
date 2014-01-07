@@ -95,10 +95,10 @@ void initialize_wins() {
 	buffer_0.push_back("  Forest Read-Eval-Print-Loop                                     ");
 	buffer_0.push_back(" `-. .------------------------                                    ");
 	buffer_0.push_back("    Y                                                             ");
-	buffer_0.push_back("    ,,  ,---,        Version 1.0                                  ");
-	buffer_0.push_back("   (_,\\/_\\_/_\\       University of Cantabria                   ");
-	buffer_0.push_back("     \\.\\_/_\\_/>      GESE group                                ");
-	buffer_0.push_back("     '-'   '-'                                                    ");
+	buffer_0.push_back("#green#    ,,  ,---,      #normal#  Version 1.0                                  ");
+	buffer_0.push_back("#green#   (_,\\/_\\_/_\\  #normal#     University of Cantabria                   ");
+	buffer_0.push_back("#green#     \\.\\_/_\\_/> #normal#     GESE group                                ");
+	buffer_0.push_back("#green#     '-'   '-'     #normal#                                               ");
 	buffer_0.push_back("                                                                  ");
 	buffer_0.push_back("                                                                  ");
 
@@ -746,6 +746,8 @@ void get_counterexample(){
 }
 
 void check(string command_str){
+
+	system("mkdir -p /tmp/forest");
 
 	vector<string> tokens = tokenize(command_str, " ");
 
