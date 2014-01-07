@@ -79,6 +79,7 @@ test:
 	@forest ./test/stdlibs/getopt_simplest/config.xml          # Simplest possible getopt
 	@forest ./test/stdlibs/strcmp_argv/config.xml              # compare argv[0]
 	@forest ./test/simple/and_bool/config.xml                  # ANDing two boolean variables
+	@forest ./test/simple/overflow/config.xml                  # Overflow detection
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
