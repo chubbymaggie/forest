@@ -105,11 +105,11 @@ void initialize_wins() {
 	
 
 buffer_0.push_back("#green#       %%%,%%%%%%%               _-_         #normal#");
-buffer_0.push_back("#green#        ,'%% \\\\-*%%%%%%%      /~~   ~~\\      #normal#");
-buffer_0.push_back("#green#  ;%%%%%*%   _%%%%\"        /~~         ~~\\   #normal#");
-buffer_0.push_back("#green#   ,%%%       \\(_.*%%%%.  {               }  #normal# Forest Read-Eval-Print-Loop");
+buffer_0.push_back("#green#        ,'%% #yellow#\\\\#green#-*%%%%%%%      /~~   ~~\\      #normal#");
+buffer_0.push_back("#green#  ;%%%%%*%   _%%%%\"        /~~  ~      ~~\\   #normal#");
+buffer_0.push_back("#green#   ,%%%       #yellow#\\_(#green#.*%%%%.  {   ~    ~  ~   }  #normal# Forest Read-Eval-Print-Loop");
 buffer_0.push_back("#green#   % *%%, ,%%%%*(    '     \\  _-     -_  /   #normal# University of Cantabria");
-buffer_0.push_back("#green# %^     ,*%%% )\\|,%%*%,_     ~  #normal##yellow#\\\\ //#normal##green#  ~     #normal# GESE Group");
+buffer_0.push_back("#green# %^     ,*%%% #yellow#)\\|#green#,%%*%,_     ~  #normal##yellow#\\\\ //#normal##green#  ~     #normal# GESE Group");
 buffer_0.push_back("#green#      *%#normal#    #yellow#\\/  )#normal##green#.-\"*%%*#normal#         #yellow#| |#normal#        #normal#");
 buffer_0.push_back("#normal#          #yellow#_.) ,/#yellow# #green#*%,#normal#             #yellow#| |#normal#        #normal#");
 buffer_0.push_back("#normal#  ___#green#\\\\/#normal#___#yellow#/  (#normal#______#green#\\\\/#normal#__#green#\\//#normal#__ #yellow#// \\\\#normal#_____  #normal#");
@@ -295,6 +295,7 @@ string highlight(string command){
 	myReplace(ret, "assume ", "#green#assume #normal#");
 	myReplace(ret, "clear ", "#green#clear #normal#");
 	myReplace(ret, "exit ", "#green#exit #normal#");
+	myReplace(ret, "rm_assumptions ", "#green#rm_assumptions #normal#");
 	return ret;
 }
 
@@ -405,6 +406,7 @@ void complete_command(){
 		keys.push_back("assume");
 		keys.push_back("clear");
 		keys.push_back("exit");
+		keys.push_back("rm_assumptions");
 
 		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
 			if(it->length() < len_command) continue;
@@ -424,17 +426,24 @@ void complete_command(){
 
 	if( tokens.size() == 2 && tokens[0] == "assume" ){
 
-		vector<string> all_inputs;
+		vector<string> completions;
 		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+			string name = it->name;
+			vector<string> outputs = it->outputs;
+			for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+				string output = *it2;
+				completions.push_back(name + "." + output);
+			}
 			vector<string> inputs = it->inputs;
 			for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
 				string input = *it2;
-				all_inputs.push_back(input);
+				completions.push_back(input);
 			}
 		}
 
-		if(!all_inputs.size()) return; 
-		string mc = min_common(all_inputs);
+		completions = filter(completions, tokens[1]);
+
+		string mc = min_common(completions);
 		if(tokens[1].length() > mc.length()) return;
 		remaining = mc.substr(tokens[1].length());
 	}
@@ -443,29 +452,20 @@ void complete_command(){
 
 		int i = tokens.size()-1;
 
+		
 		vector<string> completions;
-		if(tokens[i].find(".") == string::npos ){
-			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
-				completions.push_back(it->name);
+		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+			string name = it->name;
+			vector<string> outputs = it->outputs;
+			for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+				string output = *it2;
+				completions.push_back(name + "." + output);
 			}
-			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
-				vector<string> inputs = it->inputs;
-				for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
-					string input = *it2;
-					completions.push_back(input);
-				}
+			vector<string> inputs = it->inputs;
+			for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+				string input = *it2;
+				completions.push_back(input);
 			}
-		} else {
-			string model_name = tokenize(tokens[i], ".")[0];
-			for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
-				if(it->name != model_name) continue;
-				vector<string> outputs = it->outputs;
-				for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
-					string output = *it2;
-					completions.push_back(model_name + "." + output);
-				}
-			}
-
 		}
 
 		completions = filter(completions, tokens[i]);
@@ -677,7 +677,10 @@ void dump_exit(){
 
 void dump_check(string var1, string eq, string var2){
 	FILE* file = fopen("/tmp/forest/model.smt2", "a");
-	fprintf(file, "(assert (not (%s %s %s)))\n", eq.c_str(), var1.c_str(), var2.c_str());
+	if(var1 == "" || eq == "" || var2 == "")
+		fprintf(file, "");
+	else
+		fprintf(file, "(assert (not (%s %s %s)))\n", eq.c_str(), var1.c_str(), var2.c_str());
 	fclose(file);
 }
 
@@ -778,9 +781,17 @@ void check(string command_str){
 
 	assert(tokens[0] == "check");
 
-	string var1 = tokens[1];
-	string eq   = tokens[2];
-	string var2 = tokens[3];
+	string var1, eq, var2;
+
+	if(tokens.size() == 4){
+		var1 = tokens[1];
+		eq   = tokens[2];
+		var2 = tokens[3];
+	} else {
+		var1 = "";
+		eq   = "";
+		var2 = "";
+	}
 
 	dump_header();
 	dump_inputs();
@@ -796,10 +807,12 @@ void check(string command_str){
 
 	buffer_0.push_back( "#green#check#normal# " + var1 + " #red#" + eq + "#normal# " + var2 );
 
-	if(res == "sat")
-		buffer_0.push_back("   #red#FALSE#normal#");
-	if(res == "unsat")
-		buffer_0.push_back("   #green#TRUE#normal#");
+	if(tokens.size() == 4){
+		if(res == "sat")
+			buffer_0.push_back("   #red#FALSE#normal#");
+		if(res == "unsat")
+			buffer_0.push_back("   #green#TRUE#normal#");
+	}
 
 	if(res == "sat"){
 		get_counterexample();
