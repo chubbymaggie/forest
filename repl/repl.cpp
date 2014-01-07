@@ -66,6 +66,7 @@ void initialize(){
 	init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
 	init_pair(3, COLOR_GREEN, COLOR_BLACK);
 	init_pair(4, COLOR_RED, COLOR_BLACK);
+	init_pair(5, COLOR_YELLOW, COLOR_BLACK);
 }
 
 void initialize_panels(){
@@ -92,15 +93,37 @@ void initialize_wins() {
 	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], (char*)"Counter Example") ;
 	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
 
-	buffer_0.push_back("  Forest Read-Eval-Print-Loop                                     ");
-	buffer_0.push_back(" `-. .------------------------                                    ");
-	buffer_0.push_back("    Y                                                             ");
-	buffer_0.push_back("#green#    ,,  ,---,      #normal#  Version 1.0                                  ");
-	buffer_0.push_back("#green#   (_,\\/_\\_/_\\  #normal#     University of Cantabria                   ");
-	buffer_0.push_back("#green#     \\.\\_/_\\_/> #normal#     GESE group                                ");
-	buffer_0.push_back("#green#     '-'   '-'     #normal#                                               ");
-	buffer_0.push_back("                                                                  ");
-	buffer_0.push_back("                                                                  ");
+	//buffer_0.push_back("  Forest Read-Eval-Print-Loop                                     ");
+	//buffer_0.push_back(" `-. .------------------------                                    ");
+	//buffer_0.push_back("    Y                                                             ");
+	//buffer_0.push_back("#green#    ,,  ,---,      #normal#  Version 1.0                                  ");
+	//buffer_0.push_back("#green#   (_,\\/_\\_/_\\  #normal#     University of Cantabria                   ");
+	//buffer_0.push_back("#green#     \\.\\_/_\\_/> #normal#     GESE group                                ");
+	//buffer_0.push_back("#green#     '-'   '-'     #normal#                                               ");
+	//buffer_0.push_back("                                                                  ");
+	//buffer_0.push_back("                                                                  ");
+	
+
+buffer_0.push_back("#green#       %%%,%%%%%%%               _-_         #normal#");
+buffer_0.push_back("#green#        ,'%% \\\\-*%%%%%%%      /~~   ~~\\      #normal#");
+buffer_0.push_back("#green#  ;%%%%%*%   _%%%%\"        /~~         ~~\\   #normal#");
+buffer_0.push_back("#green#   ,%%%       \\(_.*%%%%.  {               }  #normal# Forest Read-Eval-Print-Loop");
+buffer_0.push_back("#green#   % *%%, ,%%%%*(    '     \\  _-     -_  /   #normal# University of Cantabria");
+buffer_0.push_back("#green# %^     ,*%%% )\\|,%%*%,_     ~  #normal##yellow#\\\\ //#normal##green#  ~     #normal# GESE Group");
+buffer_0.push_back("#green#      *%#normal#    #yellow#\\/  )#normal##green#.-\"*%%*#normal#         #yellow#| |#normal#        #normal#");
+buffer_0.push_back("#normal#          #yellow#_.) ,/#yellow# #green#*%,#normal#             #yellow#| |#normal#        #normal#");
+buffer_0.push_back("#normal#  ___#green#\\\\/#normal#___#yellow#/  (#normal#______#green#\\\\/#normal#__#green#\\//#normal#__ #yellow#// \\\\#normal#_____  #normal#");
+buffer_0.push_back("");
+buffer_0.push_back("");
+
+
+
+
+
+
+
+
+
 
  
 }
@@ -146,6 +169,8 @@ void mvwprintw_col(WINDOW* win, int row, int col, string line){
 				wattron(win, COLOR_PAIR(3));
 			} else if(tokens[i] == "red"){
 				wattron(win, COLOR_PAIR(4));
+			} else if(tokens[i] == "yellow"){
+				wattron(win, COLOR_PAIR(5));
 			} else if(tokens[i] == "normal"){
 				wattroff(win, COLOR_PAIR(1));
 			} else {
