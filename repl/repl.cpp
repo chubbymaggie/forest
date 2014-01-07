@@ -8,6 +8,7 @@
 #include <set>
 #include <sstream>
 #include <stdlib.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -29,6 +30,17 @@ typedef struct Assign {
 	string value;
 } Assign;
 
+typedef struct WinRegion {
+	int height;
+	int width;
+	int row;
+	int col;
+} WinRegion;
+
+WinRegion win_0;
+WinRegion win_1;
+WinRegion win_2;
+WinRegion win_3;
 WINDOW *wins[4];            // Windows
 PANEL  *my_panels[4];       // Panels
 PANEL  *top;                // Top panel
@@ -55,19 +67,6 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 }
 
 
-void initialize(){
-	/* Initialize curses */
-	initscr();
-	start_color();
-	keypad(stdscr, TRUE);
-
-	/* Initialize all the colors */
-	init_pair(1, COLOR_BLUE, COLOR_BLACK);
-	init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
-	init_pair(3, COLOR_GREEN, COLOR_BLACK);
-	init_pair(4, COLOR_RED, COLOR_BLACK);
-	init_pair(5, COLOR_YELLOW, COLOR_BLACK);
-}
 
 void initialize_panels(){
 
@@ -84,14 +83,27 @@ void initialize_panels(){
 	set_panel_userptr(my_panels[3], my_panels[0]);
 }
 
+
+void calc_win_regions(){
+
+	int screen_width = COLS;
+	int screen_height = LINES;
+
+	win_0.height = screen_height-5      ; win_0.width = COLS*3/4; win_0.row = 0                   ; win_0.col = 0;
+	win_1.height = (screen_height-5)/2  ; win_1.width = COLS*1/4; win_1.row = 0                   ; win_1.col = COLS*3/4;
+	win_2.height = (screen_height-5)/2+1; win_2.width = COLS*1/4; win_2.row = (screen_height-5)/2 ; win_2.col = COLS*3/4;
+	win_3.height = 5                    ; win_3.width = COLS    ; win_3.row = screen_height-5     ; win_3.col = 0;
+
+}
+
 void initialize_wins() {
 	int x, y, i;
 	char label[80];
 
-	wins[0] = newwin(LINES-5      , COLS*3/4, 0          , 0)        ; win_show_box  (wins[0]) ;
-	wins[1] = newwin((LINES-5)/2  , COLS*1/4, 0          , COLS*3/4) ; win_show_title(wins[1], (char*)"Variables") ;
-	wins[2] = newwin((LINES-5)/2+1, COLS*1/4, (LINES-5)/2, COLS*3/4) ; win_show_title(wins[2], (char*)"Counter Example") ;
-	wins[3] = newwin(5            , COLS    , LINES-5    , 0)        ; win_show_box  (wins[3]) ;
+	wins[0] = newwin(win_0.height, win_0.width, win_0.row, win_0.col) ; win_show_box  (wins[0]) ;
+	wins[1] = newwin(win_1.height, win_1.width, win_1.row, win_1.col) ; win_show_title(wins[1], (char*)"Variables") ;
+	wins[2] = newwin(win_2.height, win_2.width, win_2.row, win_2.col) ; win_show_title(wins[2], (char*)"Counter Example") ;
+	wins[3] = newwin(win_3.height, win_3.width, win_3.row, win_3.col) ; win_show_box  (wins[3]) ;
 
 	//buffer_0.push_back("  Forest Read-Eval-Print-Loop                                     ");
 	//buffer_0.push_back(" `-. .------------------------                                    ");
@@ -103,6 +115,9 @@ void initialize_wins() {
 	//buffer_0.push_back("                                                                  ");
 	//buffer_0.push_back("                                                                  ");
 	
+}
+
+void initialize_buffer_0(){
 
 buffer_0.push_back("#green#       %%%,%%%%%%%               _-_         #normal#");
 buffer_0.push_back("#green#        ,'%% #yellow#\\\\#green#-*%%%%%%%      /~~   ~~\\      #normal#");
@@ -903,65 +918,6 @@ void get_next_command(){
 	//sprintf(command, "%d", n_get_command);
 }
 
-int main(){
-
-	initialize();
-
-	initialize_wins();
-
-	initialize_panels();
-
-	begin_prompt();
-
-	draw_win_0();
-	draw_win_1();
-	draw_win_2();
-	draw_win_3();
-
-	update();
-
-	while(ch = getch()){
-		switch(ch){
-			case 27:
-				finish();
-				return 0;
-			case 10:
-				do_command();
-				begin_prompt();
-				break;
-			case 263:
-				back();
-				break;
-			case 9:
-				complete_command();
-				break;
-			case 259:
-				get_prev_command();
-				break;
-			case 258:
-				get_next_command();
-				break;
-			default:
-
-				FILE* file = fopen("/tmp/key", "w");
-				fprintf(file, "%d", ch);
-				fclose(file);
-
-				command_prompt(ch);
-				break;
-
-		}
-
-
-		draw_win_0();
-		draw_win_1();
-		draw_win_2();
-		draw_win_3();
-
-		update();
-	}
-	return 0;
-}
 
 
 void win_show_box(WINDOW *win)
@@ -1008,5 +964,109 @@ void print_in_middle(WINDOW *win, int starty, int startx, int width, char *strin
 	wattron(win, color);
 	mvwprintw(win, y, x, "%s", string);
 	wattroff(win, color);
+}
+
+void resizeHandler(int sig) {
+
+	finish();
+
+	calc_win_regions();
+
+	initialize_wins();
+
+	initialize_panels();
+
+	draw_win_0();
+	draw_win_1();
+	draw_win_2();
+	draw_win_3();
+
+	update();
+}
+
+
+void initialize(){
+	/* Initialize curses */
+	initscr();
+	start_color();
+	keypad(stdscr, TRUE);
+
+	/* Initialize all the colors */
+	init_pair(1, COLOR_BLUE, COLOR_BLACK);
+	init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
+	init_pair(4, COLOR_RED, COLOR_BLACK);
+	init_pair(5, COLOR_YELLOW, COLOR_BLACK);
+
+	//signal(SIGWINCH, resizeHandler);
+	
+}
+
+
+int main(){
+
+	initialize();
+
+	calc_win_regions();
+
+	initialize_wins();
+
+	initialize_buffer_0();
+
+	initialize_panels();
+
+	begin_prompt();
+
+	draw_win_0();
+	draw_win_1();
+	draw_win_2();
+	draw_win_3();
+
+	update();
+
+	while(ch = getch()){
+		switch(ch){
+			case 27:
+				finish();
+				return 0;
+			case 10:
+				do_command();
+				begin_prompt();
+				break;
+			case 263:
+				back();
+				break;
+			case 9:
+				complete_command();
+				break;
+			case 259:
+				get_prev_command();
+				break;
+			case 258:
+				get_next_command();
+				break;
+			case KEY_RESIZE:
+				resizeHandler(1);
+				break;
+			default:
+
+				FILE* file = fopen("/tmp/key", "w");
+				fprintf(file, "%d", ch);
+				fclose(file);
+
+				command_prompt(ch);
+				break;
+
+		}
+
+
+		draw_win_0();
+		draw_win_1();
+		draw_win_2();
+		draw_win_3();
+
+		update();
+	}
+	return 0;
 }
 
