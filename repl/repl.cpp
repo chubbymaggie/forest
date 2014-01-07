@@ -89,9 +89,9 @@ void calc_win_regions(){
 	int screen_width = COLS;
 	int screen_height = LINES;
 
-	win_0.height = screen_height-5      ; win_0.width = COLS*3/4; win_0.row = 0                   ; win_0.col = 0;
-	win_1.height = (screen_height-5)/2  ; win_1.width = COLS*1/4; win_1.row = 0                   ; win_1.col = COLS*3/4;
-	win_2.height = (screen_height-5)/2+1; win_2.width = COLS*1/4; win_2.row = (screen_height-5)/2 ; win_2.col = COLS*3/4;
+	win_0.height = screen_height-5      ; win_0.width = COLS*3/4-10; win_0.row = 0                   ; win_0.col = 0;
+	win_1.height = (screen_height-5)/2  ; win_1.width = COLS*1/4+10; win_1.row = 0                   ; win_1.col = COLS*3/4-10;
+	win_2.height = (screen_height-5)/2+1; win_2.width = COLS*1/4+10; win_2.row = (screen_height-5)/2 ; win_2.col = COLS*3/4-10;
 	win_3.height = 5                    ; win_3.width = COLS    ; win_3.row = screen_height-5     ; win_3.col = 0;
 
 }
@@ -205,19 +205,19 @@ void mvwprintw_col(WINDOW* win, int row, int col, string line){
 void draw_win_0(){
 
 
-	for ( unsigned int row = 2; row < LINES-6; row++) {
-		for ( unsigned int col = 2; col < COLS*3/4-3; col++) {
+	for ( unsigned int row = 2; row < win_0.height-1; row++) {
+		for ( unsigned int col = 2; col < win_0.width-3; col++) {
 			mvwprintw(wins[0], row,col, " ");
 		}
 	}
 
-	if(buffer_0.size() < LINES-8){
+	if(buffer_0.size() < win_0.height-3){
 		for ( unsigned int i = 0; i < buffer_0.size(); i++) {
 			mvwprintw_col(wins[0], i+2, 2, buffer_0[i].c_str());
 		}
 
 	} else {
-		for ( unsigned int i = buffer_0.size()-(LINES-8),m=0; i < buffer_0.size(); i++,m++) {
+		for ( unsigned int i = buffer_0.size()-(win_0.height-3),m=0; i < buffer_0.size(); i++,m++) {
 			mvwprintw_col(wins[0], m+2, 2, buffer_0[i].c_str());
 		}
 
@@ -258,8 +258,8 @@ void draw_win_1(){
 	
 	
 
-	for ( unsigned int row = 3; row < (LINES-5)/2-1; row++) {
-		for ( unsigned int col = 1; col < COLS*1/4-1; col++) {
+	for ( unsigned int row = 3; row < win_1.height-1; row++) {
+		for ( unsigned int col = 1; col < win_1.width-1; col++) {
 			mvwprintw(wins[1], row,col, " ");
 		}
 	}
@@ -275,8 +275,8 @@ void draw_win_1(){
 
 void draw_win_2(){
 
-	for ( unsigned int row = 3; row < (LINES-5)/2-1; row++) {
-		for ( unsigned int col = 1; col < COLS*1/4-1; col++) {
+	for ( unsigned int row = 3; row < win_2.height-1; row++) {
+		for ( unsigned int col = 1; col < win_2.width-1; col++) {
 			mvwprintw(wins[2], row,col, " ");
 		}
 	}
@@ -288,7 +288,7 @@ void draw_win_2(){
 	}
 	
 
-	if(buffer_2.size() < (LINES-5)/2-1 ){
+	if(buffer_2.size() < win_2.height-1 ){
 		for ( unsigned int i = 0; i < buffer_2.size(); i++) {
 			mvwprintw_col(wins[2], i+3, 1, buffer_2[i].c_str());
 		}
@@ -317,7 +317,7 @@ string highlight(string command){
 void draw_win_3(){
 
 	for ( unsigned int row = 1; row < 4; row++) {
-		for ( unsigned int col = 1; col < COLS-1; col++) {
+		for ( unsigned int col = 1; col < win_3.width-1; col++) {
 			mvwprintw(wins[3], row,col, " ");
 		}
 	}
