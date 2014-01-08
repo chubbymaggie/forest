@@ -416,21 +416,48 @@ void complete_command(){
 
 	if(tokens.size() == 1){
 
-		vector<string> keys;
-		keys.push_back("import");
-		keys.push_back("check");
-		keys.push_back("check_smt");
-		keys.push_back("assume");
-		keys.push_back("clear");
-		keys.push_back("exit");
-		keys.push_back("rm_assumptions");
+		vector<string> completions;
+		completions.push_back("import");
+		completions.push_back("check");
+		completions.push_back("check_smt");
+		completions.push_back("assume");
+		completions.push_back("clear");
+		completions.push_back("exit");
+		completions.push_back("rm_assumptions");
 
-		for( vector<string>::iterator it = keys.begin(); it != keys.end(); it++ ){
-			if(it->length() < len_command) continue;
-			if(it->substr(0, len_command) == tokens[0])
-				remaining = it->substr(len_command) + " ";
+		
+		completions = filter(completions, tokens[0]);
+		string mc = min_common(completions);
+		if(tokens[0].length() > mc.length()) return;
+		remaining = mc.substr(tokens[0].length());
+
+		if(completions.size() == 1) remaining = remaining + " ";
+	}
+
+	if(tokens.size() > 1 && tokens[0] == "check_smt"){
+
+		int i = tokens.size()-1;
+
+		vector<string> completions;
+		for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
+			string name = it->name;
+			vector<string> outputs = it->outputs;
+			for( vector<string>::iterator it2 = outputs.begin(); it2 != outputs.end(); it2++ ){
+				string output = *it2;
+				completions.push_back(name + "." + output);
+			}
+			vector<string> inputs = it->inputs;
+			for( vector<string>::iterator it2 = inputs.begin(); it2 != inputs.end(); it2++ ){
+				string input = *it2;
+				completions.push_back(input);
+			}
 		}
 
+		completions = filter(completions, tokens[i]);
+
+		string mc = min_common(completions);
+		if(tokens[i].length() > mc.length()) return;
+		remaining = mc.substr(tokens[i].length());
 
 	}
 
