@@ -307,6 +307,7 @@ string highlight(string command){
 	myReplace(ret, "import ", "#green#import #normal#");
 	myReplace(ret, "as ", "#green#as #normal#");
 	myReplace(ret, "check ", "#green#check #normal#");
+	myReplace(ret, "check_smt ", "#green#check_smt #normal#");
 	myReplace(ret, "assume ", "#green#assume #normal#");
 	myReplace(ret, "clear ", "#green#clear #normal#");
 	myReplace(ret, "exit ", "#green#exit #normal#");
@@ -418,6 +419,7 @@ void complete_command(){
 		vector<string> keys;
 		keys.push_back("import");
 		keys.push_back("check");
+		keys.push_back("check_smt");
 		keys.push_back("assume");
 		keys.push_back("clear");
 		keys.push_back("exit");
@@ -699,6 +701,12 @@ void dump_check(string var1, string eq, string var2){
 	fclose(file);
 }
 
+void dump_check_smt(string eq){
+	FILE* file = fopen("/tmp/forest/model.smt2", "a");
+	fprintf(file, "(assert (not %s))\n", eq.c_str());
+	fclose(file);
+}
+
 string check_sat(){
 
 	char ret_s[128];
@@ -786,6 +794,42 @@ void get_counterexample(){
 	
 
 
+}
+
+void check_smt(string command_str){
+
+	system("mkdir -p /tmp/forest");
+
+	vector<string> tokens = tokenize(command_str, " ");
+
+	assert(tokens[0] == "check_smt");
+	string eq = command_str.substr(tokens[0].length());
+
+
+	dump_header();
+	dump_inputs();
+	dump_outputs();
+	dump_models();
+	dump_assumptions();
+	dump_check_smt(eq);
+	dump_getsat();
+	dump_get();
+	dump_exit();
+
+	string res = check_sat();
+
+	buffer_0.push_back( "#green#check_smt#normal# " + eq );
+
+	if(res == "sat")
+		buffer_0.push_back("   #red#FALSE#normal#");
+	if(res == "unsat")
+		buffer_0.push_back("   #green#TRUE#normal#");
+
+	if(res == "sat"){
+		get_counterexample();
+	} else {
+		assigns.clear();
+	}
 }
 
 void check(string command_str){
@@ -880,6 +924,8 @@ void do_command(){
 		dump();
 	} else if(tokens[0] == "check"){
 		check(command_s);
+	} else if(tokens[0] == "check_smt"){
+		check_smt(command_s);
 	} else if(tokens[0] == "assume"){
 		assume(command_s);
 	} else if(tokens[0] == "rm_assumptions"){
