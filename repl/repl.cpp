@@ -22,6 +22,7 @@ typedef struct Model {
 	string name;
 	vector<string> inputs;
 	vector<string> outputs;
+	vector<string> functions;
 } Model;
 
 typedef struct Assign {
@@ -232,8 +233,13 @@ void draw_win_1(){
 		string name = it->name;
 		buffer_1.push_back( "#magenta#" + name + "#normal#");
 		vector<string> outputs = it->outputs;
+		vector<string> functions = it->functions;
+
 		for( vector<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
 			buffer_1.push_back( " - #red#" + (*it) + "#normal#");
+		}
+		for( vector<string>::iterator it = functions.begin(); it != functions.end(); it++ ){
+			buffer_1.push_back( " - #yellow#" + (*it) + "#normal#");
 		}
 		
 	}
@@ -575,6 +581,7 @@ void import_model(string command_str){
 	
 	vector<string> inputs;
 	vector<string> outputs;
+	vector<string> functions;
 
 
 	buffer_0.push_back("#green#import#normal# " + tokens[1] + " #green#as#normal# " + name);
@@ -589,7 +596,7 @@ void import_model(string command_str){
 			outputs.push_back(line.substr(7));
 		}
 		if( line.find("content:") != string::npos ){
-			content = line.substr(8);
+			content = "(assert " + line.substr(8) + ")";
 			//for( vector<string>::iterator it = inputs.begin(); it != inputs.end(); it++ ){
 				//myReplace(content, *it, name + "_" + *it);
 			//}
@@ -598,11 +605,16 @@ void import_model(string command_str){
 			}
 			
 		}
+		if( line.find("function:") != string::npos ){
+			content = line.substr(9);
+			functions.push_back("gcd");
+			myReplace( content , "define-function gcd", "define-function " + name);
+		}
 	}
 	
 
 
-	Model model = {content, name, inputs, outputs};
+	Model model = {content, name, inputs, outputs, functions};
 	models.push_back(model);
 
 	buffer_0.push_back("   Model successfully imported in workspace. size : " + itos(content.length()) + " B.");
@@ -612,7 +624,7 @@ void dump_models(){
 
 	FILE* file = fopen("/tmp/forest/model.smt2", "a");
 	for( vector<Model>::iterator it = models.begin(); it != models.end(); it++ ){
-		fprintf(file, "(assert %s)\n", it->content.c_str());
+		fprintf(file, "%s\n", it->content.c_str());
 	}
 	fclose(file);
 	

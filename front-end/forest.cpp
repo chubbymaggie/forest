@@ -2670,11 +2670,6 @@ void get_model_fn(){
 		printf("input:%s\n", it->c_str());
 	}
 
-	for( set<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
-		printf("output:%s\n", it->c_str());
-	}
-	
-
 	printf("%s\n", model.str().c_str());
 
 }
