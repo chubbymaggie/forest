@@ -2629,6 +2629,56 @@ void get_model(){
 	
 }
 
+void get_model_fn(){
+
+	vector<string> paths   = get_model_paths();
+	vector<string> assigns = get_model_assigns();
+	vector<string> names   = get_model_names();
+	set<string>    free_v  = get_model_freevars();
+	set<string>    outputs = get_model_outputs();
+
+	assert(paths.size() == assigns.size());
+	assert(paths.size() == names.size());
+
+	stringstream model;
+	model << "function:(define-fun gcd ( ";
+	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
+		model << "(" << *it << " Int) ";
+	}
+	model << ") Int ";
+	
+
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+	//for ( unsigned int i = 0; i < 1; i++) {
+		string path = paths[i];
+		string assign = assigns[i];
+		string name = names[i];
+
+		model << "(ite " << path << " " << assign << " ";
+		//model << "(ite " ;
+
+	}
+
+	model << "0";
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+	//for ( unsigned int i = 0; i < 1; i++) {
+		model << ")";
+	}
+	model << ")";
+
+	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
+		printf("input:%s\n", it->c_str());
+	}
+
+	for( set<string>::iterator it = outputs.begin(); it != outputs.end(); it++ ){
+		printf("output:%s\n", it->c_str());
+	}
+	
+
+	printf("%s\n", model.str().c_str());
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -2699,6 +2749,7 @@ int main(int argc, const char *argv[]) {
 	disables("test_vectors", "test");
 	disables("test_vectors", "compare_klee");
 	disables("get_model", "test");
+	disables("get_model_fn", "test");
 
 
 	expand_options();
@@ -2749,6 +2800,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_result")) get_result();
 	if(cmd_option_bool("vim")) vim();
 	if(cmd_option_bool("get_model")) get_model();
+	if(cmd_option_bool("get_model_fn")) get_model_fn();
 
 
 	return 0;
