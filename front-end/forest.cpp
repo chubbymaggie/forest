@@ -385,13 +385,15 @@ void make_initial_bc(){
 		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT " << cflags << " -c file.cpp -o file.bc";
 		systm(cmd.str().c_str());
 
-		// Cambio de nombre de las funciones estándar
-		cmd.str("");
-		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
-		systm(cmd.str().c_str());
 
 
 		if(cmd_option_bool("with_libs")){
+
+			// Cambio de nombre de las funciones estándar
+			cmd.str("");
+			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
+			systm(cmd.str().c_str());
+
 			cmd.str("");
 			cmd << "llvm-link " << tmp_file("file-2.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-3.bc") << ";";
 			systm(cmd.str().c_str());
@@ -444,6 +446,14 @@ void make_bc(){
 	stringstream cmd;
 
 	make_initial_bc();
+
+	if(cmd_option_str("seed_function") != ""){
+		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -isolate_function < file.bc > file-2.bc";
+		systm(cmd.str().c_str());
+		cmd.str("");
+		cmd << "mv file-2.bc file.bc";
+		systm(cmd.str().c_str());
+	}
 
 	// Primer paso de optimización
 	cmd.str("");

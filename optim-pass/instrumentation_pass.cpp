@@ -882,6 +882,59 @@ struct FillNames : public ModulePass {
 	}
 };
 
+
+struct IsolateFunction: public ModulePass {
+	static char ID;
+	IsolateFunction() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		read_options();
+
+		string seed = cmd_option_str("seed_function");
+
+		Function* fnseed = M.getFunction(seed);
+
+		Function::arg_iterator arg_begin = fnseed->arg_begin();
+		Function::arg_iterator arg_end   = fnseed->arg_end();
+		vector<string> argNames;
+		vector<const Type*> argTypes;
+		for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
+			argNames.push_back(it->getName().str());
+			const Type* t = it->getType();
+			argTypes.push_back(t);
+		}
+
+		M.getFunction("main")->eraseFromParent();
+		
+		Function* func_main = cast<Function> ( M.getOrInsertFunction( "main" ,
+					Type::getVoidTy( M.getContext() ),
+					(Type *)0
+					));
+
+		BasicBlock* entry = BasicBlock::Create(M.getContext(), "entry",func_main,0);
+
+		std::vector<Value*> params;
+		for ( unsigned int i = 0; i < argNames.size(); i++) {
+			string name = argNames[i];
+			const Type* type = argTypes[i];
+
+			AllocaInst* ai = new AllocaInst(type, 0, name.c_str(), entry );
+			LoadInst* ai_ptr = new LoadInst(ai,"",entry);
+
+			params.push_back(ai_ptr);
+
+		}
+
+		CallInst::Create(fnseed, params.begin(), params.end(), "", entry);
+
+		ReturnInst::Create(M.getContext(), entry);
+
+		return false;
+	}
+};
+
+
 struct SelectInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	SelectInstr() : ModulePass(ID) {}
@@ -2969,6 +3022,10 @@ static RegisterPass<RmXBool> RmXBool(             "instr_rmxbool"        , "Remo
 
 char SelectInstr::ID = 0;
 static RegisterPass<SelectInstr> SelectInstr(       "instr_select"          , "Instrument select operations" );
+
+char IsolateFunction::ID = 0;
+static RegisterPass<IsolateFunction> IsolateFunction(       "isolate_function"          , "Isolate a single function for model creation" );
+
 
 char CastInstr::ID = 0;
 static RegisterPass<CastInstr> CastInstr(           "instr_castinstr"       , "Instrument cast operations" );
