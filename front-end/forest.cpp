@@ -2721,6 +2721,8 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 					nodes[nextnode].node_pos = nodes.size();
 				else if(branch(cond, nodes[nextnode]) == "F")
 					nodes[nextnode].node_neg = nodes.size();
+				else 
+					assert(0 && "corrupted BDD");
 				nodes.push_back(newnode);
 			} else {
 				if(debg) printf("non final\n");
@@ -2729,6 +2731,8 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 					nodes[nextnode].node_pos = nodes.size();
 				else if(branch(cond, nodes[nextnode]) == "F")
 					nodes[nextnode].node_neg = nodes.size();
+				else 
+					assert(0 && "corrupted BDD");
 				
 				for ( unsigned int k = i+1; k < path.size(); k++) {
 					Node n = {path[k],  negation(path[k]), nodes.size()+1, -1, ""};
@@ -2746,6 +2750,14 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 	}
 
 
+}
+
+string get_ite_expr(vector<Node> nodes, int n = 0){
+	Node node = nodes[n];
+	if(node.node_pos == -1 || node.node_neg == -1)
+		return (node.assign == "")?"0":node.assign;
+
+	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
 }
 
 string make_tree(vector<string> paths, vector<string> assigns){
@@ -2767,19 +2779,31 @@ string make_tree(vector<string> paths, vector<string> assigns){
 		nodes_add(nodes, path_and_assigns[i]);
 	}
 
-		for ( unsigned int i = 0; i < nodes.size(); i++) {
-			Node n = nodes[i];
-			printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
-		}
-
 	//for ( unsigned int i = 0; i < nodes.size(); i++) {
 		//Node n = nodes[i];
 		//printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
 	//}
 
-	exit(0);
+	if(cmd_option_bool("show_bdd")){
+		FILE* file = fopen("/tmp/digraph", "w");
+		fprintf(file, "digraph G{\n");
+		for ( unsigned int i = 0; i < nodes.size(); i++) {
+			Node n = nodes[i];
+			fprintf(file, "%d -> %d\n", i, nodes[i].node_pos );
+			fprintf(file, "%d -> %d\n", i, nodes[i].node_neg );
+		}
+		fprintf(file, "}\n");
+		fclose(file);
+		system("cat /tmp/digraph | dot -Tpng > /tmp/digraph.png");
+		system("eog /tmp/digraph.png");
+	}
 
-	return "";
+	string ite_expr = get_ite_expr(nodes);
+
+	//printf("ite_expr: %s\n", ite_expr.c_str());
+
+	return ite_expr;
+
 
 }
 
@@ -2802,22 +2826,19 @@ void get_model_fn(){
 	model << ") Int ";
 	
 
-	vector<string> paths_aux;
-	paths_aux.push_back("(a),(b)");
-	paths_aux.push_back("(a),(not (b))");
-	paths_aux.push_back("(not (a)),(c)");
-	paths_aux.push_back("(not (a)),(not (c))");
+	//vector<string> paths_aux;
+	//paths_aux.push_back("(a),(b)");
+	//paths_aux.push_back("(a),(not (b))");
+	//paths_aux.push_back("(not (a)),(c)");
+	//paths_aux.push_back("(not (a)),(not (c))");
+	//vector<string> assigns_aux;
+	//assigns_aux.push_back("1");
+	//assigns_aux.push_back("2");
+	//assigns_aux.push_back("3");
+	//assigns_aux.push_back("4");
+	//model << make_tree(paths_aux, assigns_aux);
 
-	vector<string> assigns_aux;
-	assigns_aux.push_back("1");
-	assigns_aux.push_back("2");
-	assigns_aux.push_back("3");
-	assigns_aux.push_back("4");
-
-	
-	model << make_tree(paths_aux, assigns_aux);
-
-	//model << make_tree(paths, assigns);
+	model << make_tree(paths, assigns);
 
 	model << ")";
 
