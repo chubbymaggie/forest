@@ -90,10 +90,10 @@ void calc_win_regions(){
 	int screen_width = COLS;
 	int screen_height = LINES;
 
-	win_0.height = screen_height-5      ; win_0.width = COLS*3/4-10; win_0.row = 0                   ; win_0.col = 0;
-	win_1.height = (screen_height-5)/2  ; win_1.width = COLS*1/4+10; win_1.row = 0                   ; win_1.col = COLS*3/4-10;
-	win_2.height = (screen_height-5)/2+1; win_2.width = COLS*1/4+10; win_2.row = (screen_height-5)/2 ; win_2.col = COLS*3/4-10;
-	win_3.height = 5                    ; win_3.width = COLS    ; win_3.row = screen_height-5     ; win_3.col = 0;
+	win_0.height = screen_height-5         ; win_0.width = COLS*3/4-10; win_0.row = 0                   ; win_0.col = 0;
+	win_1.height = (screen_height-5)/2     ; win_1.width = COLS*1/4+10; win_1.row = 0                   ; win_1.col = COLS*3/4-10;
+	win_2.height = (screen_height-5-1)/2+1 ; win_2.width = COLS*1/4+10; win_2.row = (screen_height-5)/2 ; win_2.col = COLS*3/4-10;
+	win_3.height = 5                       ; win_3.width = COLS       ; win_3.row = screen_height-5     ; win_3.col = 0;
 
 }
 

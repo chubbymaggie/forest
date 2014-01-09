@@ -126,6 +126,7 @@ public:
 	void insert_variable(string name, string position);
 
 private:
+	string get_comma_stack_conditions();
 	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );
 	string complement_op(string op1);

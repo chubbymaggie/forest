@@ -93,7 +93,8 @@ void Solver::dump_model(){
 
 		string variable = *it;
 		string content_var = content(variable);
-		string path_cond = get_anded_stack_conditions();
+		//string path_cond = get_anded_stack_conditions();
+		string path_cond = get_comma_stack_conditions();
 		database->insert_model_entry(variable, free_vars, content_var, path_cond);
 		
 	}
@@ -1759,6 +1760,23 @@ string Solver::get_anded_stack_conditions(){
 	
 
 }
+
+
+string Solver::get_comma_stack_conditions(){
+
+	stringstream ret;
+
+	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+		string condition = it->cond;
+		ret << condition << ",";
+	}
+
+
+	return ret.str();
+	
+
+}
+
 
 vector<Condition> Solver::get_stack_conditions(){
 

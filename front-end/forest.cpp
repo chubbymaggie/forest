@@ -2629,6 +2629,160 @@ void get_model(){
 	
 }
 
+typedef vector<string> Path;
+typedef struct PathAndAssign {
+	Path path;
+	string assign;
+} PathAndAssign;
+
+typedef struct Node {
+	string cond_pos;
+	string cond_neg;
+	int node_pos;
+	int node_neg;
+	string assign;
+} Node;
+
+int next_node(string condition, vector<Node> nodes, int nextnode){
+	Node actual_node = nodes[nextnode];
+	string cond_pos = actual_node.cond_pos;
+	string cond_neg = actual_node.cond_neg;
+	int node_pos = actual_node.node_pos;
+	int node_neg = actual_node.node_neg;
+
+	if(condition == cond_pos){
+		return node_pos;
+	}
+
+	if(condition == cond_neg){
+		return node_neg;
+	}
+
+	return nextnode;
+}
+
+string negation(string cond){
+	if(cond.substr(0,4) == "(not"){
+		string right = cond.substr(5);
+		string center = right.substr(0, right.length()-1);
+		return center;
+	} else {
+		return "(not " + cond + ")";
+	}
+}
+
+string branch(string cond, Node node){
+	if( negation(cond) == negation(node.cond_pos) ) return "T";
+	if( negation(cond) == negation(node.cond_neg) ) return "F";
+	return "NEW";
+}
+
+void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
+
+	static int n = 0;
+	bool debg = 0;
+	if(++n == 4) debg = 1;
+	debg = 0;
+
+	if(debg){
+		for ( unsigned int i = 0; i < nodes.size(); i++) {
+			Node n = nodes[i];
+			printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
+		}
+	}
+
+	Path path = path_and_assign.path;
+	string assign = path_and_assign.assign;
+
+	if(!nodes.size()){
+
+		for ( unsigned int i = 0; i < path.size(); i++) {
+			Node n = {path[i],  negation(path[i]), i+1, -1, ""};
+			nodes.push_back(n);
+		}
+		Node n = {"", "", -1, -1, assign};
+		nodes.push_back(n);
+
+		return;
+	}
+
+	int nextnode = 0;
+
+	for ( unsigned int i = 0; i < path.size(); i++) {
+		string cond = path[i];
+		if(debg) printf("%s\n", cond.c_str());
+		int nextnode_2 = next_node(cond,nodes, nextnode);
+		if(debg) printf("%d\n", nextnode_2);
+		if(nextnode_2 == -1){
+			if(i == path.size() - 1){
+				if(debg) printf("final\n");
+				Node newnode = {"", "", -1, -1, assign};
+				if(branch(cond, nodes[nextnode]) == "T")
+					nodes[nextnode].node_pos = nodes.size();
+				else if(branch(cond, nodes[nextnode]) == "F")
+					nodes[nextnode].node_neg = nodes.size();
+				nodes.push_back(newnode);
+			} else {
+				if(debg) printf("non final\n");
+				
+				if(branch(cond, nodes[nextnode]) == "T")
+					nodes[nextnode].node_pos = nodes.size();
+				else if(branch(cond, nodes[nextnode]) == "F")
+					nodes[nextnode].node_neg = nodes.size();
+				
+				for ( unsigned int k = i+1; k < path.size(); k++) {
+					Node n = {path[k],  negation(path[k]), nodes.size()+1, -1, ""};
+					nodes.push_back(n);
+				}
+				Node n = {"", "", -1, -1, assign};
+				nodes.push_back(n);
+
+				return;
+			}
+			
+		} else {
+			nextnode = nextnode_2;
+		}
+	}
+
+
+}
+
+string make_tree(vector<string> paths, vector<string> assigns){
+
+	assert(paths.size() == assigns.size());
+
+	vector<PathAndAssign> path_and_assigns;
+
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+		vector<string> path = tokenize(paths[i], ",");
+		string assign = assigns[i];
+		PathAndAssign path_and_assign = {path, assign};
+		path_and_assigns.push_back(path_and_assign);
+	}
+
+	vector<Node> nodes;
+
+	for ( unsigned int i = 0; i < path_and_assigns.size(); i++) {
+		nodes_add(nodes, path_and_assigns[i]);
+	}
+
+		for ( unsigned int i = 0; i < nodes.size(); i++) {
+			Node n = nodes[i];
+			printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
+		}
+
+	//for ( unsigned int i = 0; i < nodes.size(); i++) {
+		//Node n = nodes[i];
+		//printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
+	//}
+
+	exit(0);
+
+	return "";
+
+}
+
 void get_model_fn(){
 
 	vector<string> paths   = get_model_paths();
@@ -2648,22 +2802,23 @@ void get_model_fn(){
 	model << ") Int ";
 	
 
-	for ( unsigned int i = 0; i < paths.size(); i++) {
-	//for ( unsigned int i = 0; i < 1; i++) {
-		string path = paths[i];
-		string assign = assigns[i];
-		string name = names[i];
+	vector<string> paths_aux;
+	paths_aux.push_back("(a),(b)");
+	paths_aux.push_back("(a),(not (b))");
+	paths_aux.push_back("(not (a)),(c)");
+	paths_aux.push_back("(not (a)),(not (c))");
 
-		model << "(ite " << path << " " << assign << " ";
-		//model << "(ite " ;
+	vector<string> assigns_aux;
+	assigns_aux.push_back("1");
+	assigns_aux.push_back("2");
+	assigns_aux.push_back("3");
+	assigns_aux.push_back("4");
 
-	}
+	
+	model << make_tree(paths_aux, assigns_aux);
 
-	model << "0";
-	for ( unsigned int i = 0; i < paths.size(); i++) {
-	//for ( unsigned int i = 0; i < 1; i++) {
-		model << ")";
-	}
+	//model << make_tree(paths, assigns);
+
 	model << ")";
 
 	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
