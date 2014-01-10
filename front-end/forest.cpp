@@ -35,20 +35,6 @@ typedef struct FreeVariableInfo{
 
 } FreeVariableInfo;
 
-typedef vector<string> Path;
-typedef struct PathAndAssign {
-	Path path;
-	string assign;
-} PathAndAssign;
-
-typedef struct Node {
-	string cond_pos;
-	string cond_neg;
-	int node_pos;
-	int node_neg;
-	string assign;
-} Node;
-
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
@@ -2643,524 +2629,98 @@ void get_model(){
 	
 }
 
-int next_node(string condition, vector<Node> nodes, int nextnode){
-	Node actual_node = nodes[nextnode];
-	string cond_pos = actual_node.cond_pos;
-	string cond_neg = actual_node.cond_neg;
-	int node_pos = actual_node.node_pos;
-	int node_neg = actual_node.node_neg;
+typedef struct Node {
+	string cond_pos;
+	string cond_neg;
+	int node_pos;
+	int node_neg;
+	string assign;
+} Node;
 
-	if(condition == cond_pos){
-		return node_pos;
+typedef vector<string> Path;
+
+typedef struct PathAndAssign {
+	Path path;
+	string assign;
+} PathAndAssign;
+
+
+vector<string> remove(vector<string>input , string to_remove){
+	vector<string> ret;
+	for( vector<string>::iterator it = input.begin(); it != input.end(); it++ ){
+		if(*it != to_remove)
+			ret.push_back(*it);
 	}
-
-	if(condition == cond_neg){
-		return node_neg;
-	}
-
-	return -1;
-}
-
-string negation(string cond){
-	if(cond.substr(0,4) == "(not"){
-		string right = cond.substr(5);
-		string center = right.substr(0, right.length()-1);
-		return center;
-	} else {
-		return "(not " + cond + ")";
-	}
-}
-
-string branch(string cond, Node node){
-	string ret;
-
-	if( negation(cond) == negation(node.cond_pos) ) ret = "T";
-	else if( negation(cond) == negation(node.cond_neg) ) ret = "F";
-	else ret = "NEW";
-
-	printf("branch cond %s cond_pos %s cond_neg %s ret %s\n", cond.c_str(), node.cond_pos.c_str(), node.cond_neg.c_str(), ret.c_str());
-
 	return ret;
 }
 
-set<int> set_union(set<int> s1, set<int> s2, set<int> s3){
-	set<int> ret;
 
-	for( set<int>::iterator it = s1.begin(); it != s1.end(); it++ ) ret.insert(*it);
-	for( set<int>::iterator it = s2.begin(); it != s2.end(); it++ ) ret.insert(*it);
-	for( set<int>::iterator it = s3.begin(); it != s3.end(); it++ ) ret.insert(*it);
+bool is_complete(string variable, vector<PathAndAssign> table){
 
-	return ret;
-	
-}
-
-set<int> get_terminal_nodes(vector<Node> nodes, int n){
-
-	set<int> ret;
-	set<int> ret_pos;
-	set<int> ret_neg;
-
-	Node node = nodes[n];
-
-	if(node.node_pos == -1 || node.node_neg == -1){
-		ret.insert(n);
-	}
-	
-	if(node.node_pos != -1){
-		ret_pos = get_terminal_nodes(nodes, node.node_pos);
-	}
-
-	if(node.node_neg != -1){
-		ret_neg = get_terminal_nodes(nodes, node.node_neg);
-	}
-
-
-	return set_union(ret, ret_pos, ret_neg);
-}
-
-set<int> get_terminal_nodes(vector<Node> nodes, int n, string sense){
-
-	if(sense == "BOTH") return get_terminal_nodes(nodes, n);
-
-	if(sense == "T"){
-		if(nodes[n].node_pos == -1){
-			set<int> ret;
-			ret.insert(n);
-			return ret;
-		} else {
-			return get_terminal_nodes(nodes, nodes[n].node_pos);
+	for( vector<PathAndAssign>::iterator it = table.begin(); it != table.end(); it++ ){
+		PathAndAssign path_and_assign = *it;
+		Path path = path_and_assign.path;
+		bool found = false;
+		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
+			if(*it2 == variable)
+				found = true;
 		}
-	}
-
-	if(sense == "F"){
-		if(nodes[n].node_neg == -1){
-			set<int> ret;
-			ret.insert(n);
-			return ret;
-		} else {
-			return get_terminal_nodes(nodes, nodes[n].node_neg);
-		}
-	}
-
-	assert(0 && "error in get_terminal_nodes");
-
-}
-
-PathAndAssign get_remaining(PathAndAssign path_and_assign, int i){
-
-	PathAndAssign ret = path_and_assign;
-	Path::iterator it_begin = path_and_assign.path.begin() + i;
-	Path::iterator it_end   = path_and_assign.path.end();
-	Path retpath = Path(it_begin, it_end);
-	ret.path = retpath;
-
-	return ret;
-}
-
-int get_parent(vector<Node> nodes, int node){
-	for ( unsigned int i = 0; i < nodes.size(); i++) {
-		if(nodes[i].node_pos == node || nodes[i].node_neg == node)
-			return i;
-	}
-	
-	assert(0 && "no parent");
-}
-
-void show_bdd(vector<Node> nodes, string title="");
-
-void insert_in_terminal(vector<Node>& nodes, int terminalnode, PathAndAssign path_and_assign ){
-
-	
-	bool is_positive = nodes[terminalnode].node_pos != -1;
-	bool is_negative = nodes[terminalnode].node_neg != -1;
-	bool is_both     = !is_positive && !is_negative;
-
-	printf("insert_in_terminal %d p %d n %d b %d\n", terminalnode, is_positive, is_negative, is_both);
-
-	//string cond_pos;
-	//string cond_neg;
-	//int node_pos;
-	//int node_neg;
-	//string assign;
-
-	Path path = path_and_assign.path;
-	string assign = path_and_assign.assign;
-
-	if(is_both){
-	//if(false){
-	
-		show_bdd(nodes, "initial_both");
-	
-		printf("is_both\n");
-		printf("size %d\n", nodes.size());
-
-		int parent = get_parent(nodes, terminalnode);
-		bool parent_pos = (nodes[parent].node_pos == terminalnode);
-		bool parent_neg = (nodes[parent].node_neg == terminalnode);
-		if(parent_pos) nodes[parent].node_pos = nodes.size();
-		if(parent_neg) nodes[parent].node_neg = nodes.size();
-		printf("parent %d parent_pos %d parent_neg %d parent_node_pos %d parent_node_neg %d\n", parent, parent_pos, parent_neg,
-				nodes[parent].node_pos, nodes[parent].node_neg);
-
-		show_bdd(nodes, "parent_changed");
-
-
-		string cond = path[0];
-		Node node_1 = {cond, negation(cond), nodes.size()+1, terminalnode, ""  };
-		nodes.push_back(node_1);
-
-		show_bdd(nodes, "both_added_one");
-
-		Node node_3 = {"", "", -1, -1, assign  };
-		nodes.push_back(node_3);
-
-		show_bdd(nodes, "both_added_two");
-
-		//for ( unsigned int i = 1; i < path.size(); i++) {
-			//string cond = path[i];
-			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-			//nodes.push_back(node_2);
-		//}
-
-
-
-	}
-
-	if(is_positive){
-	//if(false){
-
-		printf("is_positive\n");
-		printf("size %d\n", nodes.size());
-
-		show_bdd(nodes, "initial");
-
-		nodes[terminalnode].node_neg = nodes.size();
-
-		if(path.size()){
-			string cond = path[0];
-			Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-			nodes.push_back(node_1);
-		}
-
-
-
-		//for ( unsigned int i = 1; i < path.size(); i++) {
-			//string cond = path[i];
-			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-			//nodes.push_back(node_2);
-		//}
+		if(!found) return false;
 		
-		Node node_3 = {"", "", -1, -1, assign  };
-		nodes.push_back(node_3);
-
-		show_bdd(nodes, "final-1");
-
-
-
 	}
-
-	if(is_negative){
-	//if(false){
-
-		printf("is_negative\n");
-		printf("size %d\n", nodes.size());
-
-		show_bdd(nodes, "initial");
-
-		nodes[terminalnode].node_pos = nodes.size();
-
-		if(path.size()){
-			string cond = path[0];
-			Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-			nodes.push_back(node_1);
-		}
-
-
-
-		//for ( unsigned int i = 1; i < path.size(); i++) {
-			//string cond = path[i];
-			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-			//nodes.push_back(node_2);
-		//}
-		
-		Node node_3 = {"", "", -1, -1, assign  };
-		nodes.push_back(node_3);
-
-		show_bdd(nodes, "final-1");
-
-
-
-	}
-
-
-
-
-
+	
+	return true;
 }
 
-void insert_in_terminals(vector<Node>& nodes, set<int> terminalnodes, PathAndAssign path_and_assign ){
-
-	printf("insert_in_terminals\n");
-	for( set<int>::iterator it = terminalnodes.begin(); it != terminalnodes.end(); it++ ){
-		printf("%d ", *it);
-	}
-	printf("\n");
-
-	Path path = path_and_assign.path;
+bool contains_pos(Path path, string cond){
 	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
-		printf("%s ", it->c_str());
-	}
-	printf("\n");
-	
-	
-	string assign= path_and_assign.assign;
-	printf("%s ", assign.c_str());
-	printf("\n");
-
-	for( set<int>::iterator it = terminalnodes.begin(); it != terminalnodes.end(); it++ ){
-		insert_in_terminal(nodes, *it, path_and_assign);
+		if( cond == *it )
+			return true;
 	}
 
-	printf("end of insert_in_terminals\n");
+	return false;
 	
-	
-
 }
 
-
-void show_bdd(vector<Node> nodes, string title){
-
-		FILE* file = fopen("/tmp/digraph", "w");
-		fprintf(file, "digraph G{\n");
-		for ( unsigned int i = 0; i < nodes.size(); i++) {
-			Node n = nodes[i];
-			fprintf(file, "%d -> %d\n", i, nodes[i].node_pos );
-			fprintf(file, "%d -> %d\n", i, nodes[i].node_neg );
-		}
-
-		fprintf(file, "legend_1 [shape=none, margin=0, label=<");
-		fprintf(file, "<table border='0' cellborder='0'>");
-
-		if(title != ""){
-			fprintf(file, "<tr><td>");
-			fprintf(file, "%s", title.c_str());
-			fprintf(file, "</td></tr>\n");
-		}
-
-
-		for ( unsigned int i = 0; i < nodes.size(); i++) {
-			stringstream row;
-			string cond_pos = nodes[i].cond_pos; if(cond_pos == "") cond_pos = "-"; if(cond_pos.length() > 20) cond_pos = cond_pos.substr(0,20) + "...";
-			string cond_neg = nodes[i].cond_neg; if(cond_neg == "") cond_neg = "-"; if(cond_neg.length() > 20) cond_neg = cond_neg.substr(0,20) + "...";
-			string assign   = nodes[i].assign;   if(assign   == "") assign   = "-"; if(assign.length()   > 20) assign   =   assign.substr(0,20)  + "...";
-			int node_pos = nodes[i].node_pos;
-			int node_neg = nodes[i].node_neg;
-			row << "<tr>"; 
-
-			row << "<td align='left'>";
-			row << i;
-			row << "</td>";
-
-			row << "<td align='left'>";
-			row << "<font color='green'>" << cond_pos << "</font>";
-			row << "</td>";
-
-			row << "<td align='left'>";
-			row << "<font color='red'>" << cond_neg << "</font>";
-			row << "</td>";
-
-
-			row << "<td align='left'>";
-			row << "<font color='green'>" << node_pos << "</font>";
-			row << "</td>";
-
-			row << "<td align='left'>";
-			row << "<font color='red'>" << node_neg << "</font>";
-			row << "</td>";
-
-
-
-			row << "<td align='left'>";
-			row << "<font color='blue'>" << assign << "</font>";
-			row << "</td>";
-
-			row << "</tr>"; 
-
-			fprintf(file, "%s\n", row.str().c_str());
-
-		}
-		//fprintf(file, "<tr><td align='left'><font color='red'> hola </font></td></tr>");
-		//fprintf(file, "<tr><td align='left'> adiosssss </td></tr>");
-		fprintf(file, "</table>");
-		fprintf(file, ">];");
-
-
-
-		fprintf(file, "}\n");
-		fclose(file);
-		system("cat /tmp/digraph | dot -Tpng > /tmp/digraph.png");
-		system("eog /tmp/digraph.png");
-}
-
-
-void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
-
-
-
-
-
-	Path path = path_and_assign.path;
-	string assign = path_and_assign.assign;
-
-
-	printf("\e[31m nodes_add \e[0m");
+bool contains_neg(Path path, string cond){
 	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
-		string cond = *it;
-		printf("%s ", cond.c_str());
+		if( "(not " + cond + ")" == *it )
+			return true;
 	}
-	printf("\n");
+
+	return false;
 	
-	static int n = 0;
-	bool debg = 0;
-	if(++n == 5){debg = 1; printf("DEBUG\n");}
-	if(debg){
-		show_bdd(nodes, "enter nodes_add");
-	}
-
-
-	if(!nodes.size()){
-
-		for ( unsigned int i = 0; i < path.size(); i++) {
-			Node n = {path[i],  negation(path[i]), i+1, -1, ""};
-			nodes.push_back(n);
-		}
-		Node n = {"", "", -1, -1, assign};
-		nodes.push_back(n);
-
-		return;
-	}
-
-	int nextnode = 0;
-
-	for ( unsigned int i = 0; i < path.size(); i++) {
-		string cond = path[i];
-		if(debg) printf("cond %s\n", cond.c_str());
-		int nextnode_2 = next_node(cond,nodes, nextnode);
-		if(debg) printf("nextnode_2 %d\n", nextnode_2);
-		if(nextnode_2 == -1){
-			if(branch(cond, nodes[nextnode]) == "NEW"){
-				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "BOTH");
-				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
-				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
-			} else if(branch(cond, nodes[nextnode]) == "F"){
-				i++;
-				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "F");
-				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
-				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
-			} else if(branch(cond, nodes[nextnode]) == "T"){
-				i++;
-				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "T");
-				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
-				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
-			} else {
-				assert(0 && "malformed BDD");
-			}
-			//if(i == path.size() - 1){
-				//if(debg) printf("final\n");
-				//Node newnode = {"", "", -1, -1, assign};
-				//if(branch(cond, nodes[nextnode]) == "T")
-					//nodes[nextnode].node_pos = nodes.size();
-				//else if(branch(cond, nodes[nextnode]) == "F")
-					//nodes[nextnode].node_neg = nodes.size();
-				//else if(branch(cond, nodes[nextnode]) == "NEW"){
-					//set<int> terminalnodes = get_terminal_nodes(nodes, nextnode);
-					//PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
-					//insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
-				//} else 
-					//assert(0 && "corrupted BDD");
-				//nodes.push_back(newnode);
-			//} else {
-				//if(debg) printf("non final\n");
-				//printf("non final\n");
-				
-				//if(branch(cond, nodes[nextnode]) == "T")
-					//nodes[nextnode].node_pos = nodes.size();
-				//else if(branch(cond, nodes[nextnode]) == "F")
-					//nodes[nextnode].node_neg = nodes.size();
-				//else if(branch(cond, nodes[nextnode]) == "NEW"){
-
-				//} else 
-					//assert(0 && "corrupted BDD");
-				
-				//for ( unsigned int k = i+1; k < path.size(); k++) {
-					//Node n = {path[k],  negation(path[k]), nodes.size()+1, -1, ""};
-					//nodes.push_back(n);
-				//}
-				//Node n = {"", "", -1, -1, assign};
-				//nodes.push_back(n);
-
-				//return;
-			//}
-			
-		} else {
-			nextnode = nextnode_2;
-		}
-	}
-
-
 }
 
-string get_ite_expr(vector<Node> nodes, int n = 0){
-	Node node = nodes[n];
-	if(node.node_pos == -1 || node.node_neg == -1)
-		return (node.assign == "")?"0":node.assign;
+void part_paths(string cond, vector<PathAndAssign> input, vector<PathAndAssign> output_pos, vector<PathAndAssign> output_neg ){
 
-	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
+	for( vector<PathAndAssign>::iterator it = input.begin(); it != input.end(); it++ ){
+		Path path = it->path;
+		if( contains_pos(path, cond) )
+			output_pos.push_back(*it);
+		else if( contains_neg(path, cond))
+			output_neg.push_back(*it);
+		else
+			assert(0 && "Malformed BDD");
+	}
+	
+	
 }
 
 
+void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vector<string> cond_ordering ){
 
-string make_tree(vector<string> paths, vector<string> assigns){
+	for( vector<string>::iterator it = cond_ordering.begin(); it != cond_ordering.end(); it++ ){
+		if(is_complete(*it, paths_and_assign)){
+			vector<PathAndAssign> paths_pos;
+			vector<PathAndAssign> paths_neg;
+			part_paths(*it,paths_and_assign, paths_pos, paths_neg);
 
-	assert(paths.size() == assigns.size());
-
-	vector<PathAndAssign> path_and_assigns;
-
-	for ( unsigned int i = 0; i < paths.size(); i++) {
-		vector<string> path = tokenize(paths[i], ",");
-		string assign = assigns[i];
-		PathAndAssign path_and_assign = {path, assign};
-		path_and_assigns.push_back(path_and_assign);
-	}
-
-	vector<Node> nodes;
-
-	for ( unsigned int i = 0; i < path_and_assigns.size(); i++) {
-		nodes_add(nodes, path_and_assigns[i]);
-	}
-
-	//for ( unsigned int i = 0; i < nodes.size(); i++) {
-		//Node n = nodes[i];
-		//printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
-	//}
-
-	if(cmd_option_bool("show_bdd")){
-
-
-		set<int> prb_terminal_nodes = get_terminal_nodes(nodes, 5);
-		for( set<int>::iterator it = prb_terminal_nodes.begin(); it != prb_terminal_nodes.end(); it++ ){
-			printf("terminal_nodes %d\n", *it);
+			make_tree(nodes, paths_pos, remove(cond_ordering, *it) );
+			make_tree(nodes, paths_neg, remove(cond_ordering, *it) );
 		}
-		show_bdd(nodes);
 	}
-
-	string ite_expr = get_ite_expr(nodes);
-
-	//printf("ite_expr: %s\n", ite_expr.c_str());
-
-	return ite_expr;
-
-
+	
 }
 
 void get_model_fn(){
@@ -3194,7 +2754,7 @@ void get_model_fn(){
 	assigns_aux.push_back("2");
 	assigns_aux.push_back("3");
 	assigns_aux.push_back("4");
-	model << make_tree(paths_aux, assigns_aux);
+	//model << make_tree(paths_aux, assigns_aux);
 	exit(0);
 	//model << make_tree(paths, assigns);
 
