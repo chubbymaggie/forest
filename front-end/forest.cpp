@@ -35,6 +35,20 @@ typedef struct FreeVariableInfo{
 
 } FreeVariableInfo;
 
+typedef vector<string> Path;
+typedef struct PathAndAssign {
+	Path path;
+	string assign;
+} PathAndAssign;
+
+typedef struct Node {
+	string cond_pos;
+	string cond_neg;
+	int node_pos;
+	int node_neg;
+	string assign;
+} Node;
+
 
 std::map<std::string, std::string> options; // Opciones del fichero XML / linea de comandos
 
@@ -2629,20 +2643,6 @@ void get_model(){
 	
 }
 
-typedef vector<string> Path;
-typedef struct PathAndAssign {
-	Path path;
-	string assign;
-} PathAndAssign;
-
-typedef struct Node {
-	string cond_pos;
-	string cond_neg;
-	int node_pos;
-	int node_neg;
-	string assign;
-} Node;
-
 int next_node(string condition, vector<Node> nodes, int nextnode){
 	Node actual_node = nodes[nextnode];
 	string cond_pos = actual_node.cond_pos;
@@ -2658,7 +2658,7 @@ int next_node(string condition, vector<Node> nodes, int nextnode){
 		return node_neg;
 	}
 
-	return nextnode;
+	return -1;
 }
 
 string negation(string cond){
@@ -2672,9 +2672,15 @@ string negation(string cond){
 }
 
 string branch(string cond, Node node){
-	if( negation(cond) == negation(node.cond_pos) ) return "T";
-	if( negation(cond) == negation(node.cond_neg) ) return "F";
-	return "NEW";
+	string ret;
+
+	if( negation(cond) == negation(node.cond_pos) ) ret = "T";
+	else if( negation(cond) == negation(node.cond_neg) ) ret = "F";
+	else ret = "NEW";
+
+	printf("branch cond %s cond_pos %s cond_neg %s ret %s\n", cond.c_str(), node.cond_pos.c_str(), node.cond_neg.c_str(), ret.c_str());
+
+	return ret;
 }
 
 set<int> set_union(set<int> s1, set<int> s2, set<int> s3){
@@ -2712,109 +2718,213 @@ set<int> get_terminal_nodes(vector<Node> nodes, int n){
 	return set_union(ret, ret_pos, ret_neg);
 }
 
+set<int> get_terminal_nodes(vector<Node> nodes, int n, string sense){
+
+	if(sense == "BOTH") return get_terminal_nodes(nodes, n);
+
+	if(sense == "T"){
+		if(nodes[n].node_pos == -1){
+			set<int> ret;
+			ret.insert(n);
+			return ret;
+		} else {
+			return get_terminal_nodes(nodes, nodes[n].node_pos);
+		}
+	}
+
+	if(sense == "F"){
+		if(nodes[n].node_neg == -1){
+			set<int> ret;
+			ret.insert(n);
+			return ret;
+		} else {
+			return get_terminal_nodes(nodes, nodes[n].node_neg);
+		}
+	}
+
+	assert(0 && "error in get_terminal_nodes");
+
+}
+
 PathAndAssign get_remaining(PathAndAssign path_and_assign, int i){
+
 	PathAndAssign ret = path_and_assign;
-	Path::iterator it_begin = path_and_assign.path.begin();
+	Path::iterator it_begin = path_and_assign.path.begin() + i;
 	Path::iterator it_end   = path_and_assign.path.end();
+	Path retpath = Path(it_begin, it_end);
+	ret.path = retpath;
 
 	return ret;
 }
 
-void insert_in_terminals(vector<Node>& nodes, set<int> terminalnodes, PathAndAssign path_and_assign ){
-
+int get_parent(vector<Node> nodes, int node){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].node_pos == node || nodes[i].node_neg == node)
+			return i;
+	}
+	
+	assert(0 && "no parent");
 }
 
-void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
+void show_bdd(vector<Node> nodes, string title="");
 
-	static int n = 0;
-	bool debg = 0;
-	if(++n == 4) debg = 1;
-	debg = 0;
+void insert_in_terminal(vector<Node>& nodes, int terminalnode, PathAndAssign path_and_assign ){
 
-	if(debg){
-		for ( unsigned int i = 0; i < nodes.size(); i++) {
-			Node n = nodes[i];
-			printf("%d: \e[32m %s \e[0m \e[31m %s \e[0m \e[32m %d \e[0m \e[31m %d \e[0m %s\n", i, n.cond_pos.c_str(), n.cond_neg.c_str(), n.node_pos, n.node_neg, n.assign.c_str() );
-		}
-	}
+	
+	bool is_positive = nodes[terminalnode].node_pos != -1;
+	bool is_negative = nodes[terminalnode].node_neg != -1;
+	bool is_both     = !is_positive && !is_negative;
+
+	printf("insert_in_terminal %d p %d n %d b %d\n", terminalnode, is_positive, is_negative, is_both);
+
+	//string cond_pos;
+	//string cond_neg;
+	//int node_pos;
+	//int node_neg;
+	//string assign;
 
 	Path path = path_and_assign.path;
 	string assign = path_and_assign.assign;
 
-	if(!nodes.size()){
+	if(is_both){
+	//if(false){
+	
+		show_bdd(nodes, "initial_both");
+	
+		printf("is_both\n");
+		printf("size %d\n", nodes.size());
 
-		for ( unsigned int i = 0; i < path.size(); i++) {
-			Node n = {path[i],  negation(path[i]), i+1, -1, ""};
-			nodes.push_back(n);
-		}
-		Node n = {"", "", -1, -1, assign};
-		nodes.push_back(n);
+		int parent = get_parent(nodes, terminalnode);
+		bool parent_pos = (nodes[parent].node_pos == terminalnode);
+		bool parent_neg = (nodes[parent].node_neg == terminalnode);
+		if(parent_pos) nodes[parent].node_pos = nodes.size();
+		if(parent_neg) nodes[parent].node_neg = nodes.size();
+		printf("parent %d parent_pos %d parent_neg %d parent_node_pos %d parent_node_neg %d\n", parent, parent_pos, parent_neg,
+				nodes[parent].node_pos, nodes[parent].node_neg);
 
-		return;
+		show_bdd(nodes, "parent_changed");
+
+
+		string cond = path[0];
+		Node node_1 = {cond, negation(cond), nodes.size()+1, terminalnode, ""  };
+		nodes.push_back(node_1);
+
+		show_bdd(nodes, "both_added_one");
+
+		Node node_3 = {"", "", -1, -1, assign  };
+		nodes.push_back(node_3);
+
+		show_bdd(nodes, "both_added_two");
+
+		//for ( unsigned int i = 1; i < path.size(); i++) {
+			//string cond = path[i];
+			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+			//nodes.push_back(node_2);
+		//}
+
+
+
 	}
 
-	int nextnode = 0;
+	if(is_positive){
+	//if(false){
 
-	for ( unsigned int i = 0; i < path.size(); i++) {
-		string cond = path[i];
-		if(debg) printf("%s\n", cond.c_str());
-		int nextnode_2 = next_node(cond,nodes, nextnode);
-		if(debg) printf("%d\n", nextnode_2);
-		if(nextnode_2 == -1){
-			if(i == path.size() - 1){
-				if(debg) printf("final\n");
-				Node newnode = {"", "", -1, -1, assign};
-				if(branch(cond, nodes[nextnode]) == "T")
-					nodes[nextnode].node_pos = nodes.size();
-				else if(branch(cond, nodes[nextnode]) == "F")
-					nodes[nextnode].node_neg = nodes.size();
-				else if(branch(cond, nodes[nextnode]) == "NEW"){
-					set<int> terminalnodes = get_terminal_nodes(nodes, nextnode);
-					PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
-					insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
-				} else 
-					assert(0 && "corrupted BDD");
-				nodes.push_back(newnode);
-			} else {
-				if(debg) printf("non final\n");
-				
-				if(branch(cond, nodes[nextnode]) == "T")
-					nodes[nextnode].node_pos = nodes.size();
-				else if(branch(cond, nodes[nextnode]) == "F")
-					nodes[nextnode].node_neg = nodes.size();
-				else if(branch(cond, nodes[nextnode]) == "NEW"){
+		printf("is_positive\n");
+		printf("size %d\n", nodes.size());
 
-				} else 
-					assert(0 && "corrupted BDD");
-				
-				for ( unsigned int k = i+1; k < path.size(); k++) {
-					Node n = {path[k],  negation(path[k]), nodes.size()+1, -1, ""};
-					nodes.push_back(n);
-				}
-				Node n = {"", "", -1, -1, assign};
-				nodes.push_back(n);
+		show_bdd(nodes, "initial");
 
-				return;
-			}
-			
-		} else {
-			nextnode = nextnode_2;
-		}
+		nodes[terminalnode].node_neg = nodes.size();
+
+		string cond = path[0];
+		Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+		nodes.push_back(node_1);
+
+
+
+		//for ( unsigned int i = 1; i < path.size(); i++) {
+			//string cond = path[i];
+			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+			//nodes.push_back(node_2);
+		//}
+		
+		Node node_3 = {"", "", -1, -1, assign  };
+		nodes.push_back(node_3);
+
+		show_bdd(nodes, "final-1");
+
+
+
 	}
+
+	if(is_negative){
+	//if(false){
+
+		printf("is_negative\n");
+		printf("size %d\n", nodes.size());
+
+		show_bdd(nodes, "initial");
+
+		nodes[terminalnode].node_pos = nodes.size();
+
+		string cond = path[0];
+		Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+		nodes.push_back(node_1);
+
+
+
+		//for ( unsigned int i = 1; i < path.size(); i++) {
+			//string cond = path[i];
+			//Node node_2 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+			//nodes.push_back(node_2);
+		//}
+		
+		Node node_3 = {"", "", -1, -1, assign  };
+		nodes.push_back(node_3);
+
+		show_bdd(nodes, "final-1");
+
+
+
+	}
+
+
+
 
 
 }
 
-string get_ite_expr(vector<Node> nodes, int n = 0){
-	Node node = nodes[n];
-	if(node.node_pos == -1 || node.node_neg == -1)
-		return (node.assign == "")?"0":node.assign;
+void insert_in_terminals(vector<Node>& nodes, set<int> terminalnodes, PathAndAssign path_and_assign ){
 
-	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
+	printf("insert_in_terminals\n");
+	for( set<int>::iterator it = terminalnodes.begin(); it != terminalnodes.end(); it++ ){
+		printf("%d ", *it);
+	}
+	printf("\n");
+
+	Path path = path_and_assign.path;
+	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
+		printf("%s ", it->c_str());
+	}
+	printf("\n");
+	
+	
+	string assign= path_and_assign.assign;
+	printf("%s ", assign.c_str());
+	printf("\n");
+
+	for( set<int>::iterator it = terminalnodes.begin(); it != terminalnodes.end(); it++ ){
+		insert_in_terminal(nodes, *it, path_and_assign);
+	}
+
+	printf("end of insert_in_terminals\n");
+	
+	
+
 }
 
 
-void show_bdd(vector<Node> nodes){
+void show_bdd(vector<Node> nodes, string title){
 
 		FILE* file = fopen("/tmp/digraph", "w");
 		fprintf(file, "digraph G{\n");
@@ -2827,14 +2937,25 @@ void show_bdd(vector<Node> nodes){
 		fprintf(file, "legend_1 [shape=none, margin=0, label=<");
 		fprintf(file, "<table border='0' cellborder='0'>");
 
+		if(title != ""){
+			fprintf(file, "<tr><td>");
+			fprintf(file, "%s", title.c_str());
+			fprintf(file, "</td></tr>\n");
+		}
+
+
 		for ( unsigned int i = 0; i < nodes.size(); i++) {
 			stringstream row;
-			string cond_pos = nodes[i].cond_pos; if(cond_pos == "") cond_pos = "-";
-			string cond_neg = nodes[i].cond_neg; if(cond_neg == "") cond_neg = "-";
-			string assign   = nodes[i].assign;   if(assign   == "") assign   = "-";
+			string cond_pos = nodes[i].cond_pos; if(cond_pos == "") cond_pos = "-"; if(cond_pos.length() > 20) cond_pos = cond_pos.substr(0,20) + "...";
+			string cond_neg = nodes[i].cond_neg; if(cond_neg == "") cond_neg = "-"; if(cond_neg.length() > 20) cond_neg = cond_neg.substr(0,20) + "...";
+			string assign   = nodes[i].assign;   if(assign   == "") assign   = "-"; if(assign.length()   > 20) assign   =   assign.substr(0,20)  + "...";
+			int node_pos = nodes[i].node_pos;
+			int node_neg = nodes[i].node_neg;
 			row << "<tr>"; 
 
-			row << "<td align='left'>"; row << i; row << "</td>";
+			row << "<td align='left'>";
+			row << i;
+			row << "</td>";
 
 			row << "<td align='left'>";
 			row << "<font color='green'>" << cond_pos << "</font>";
@@ -2843,6 +2964,17 @@ void show_bdd(vector<Node> nodes){
 			row << "<td align='left'>";
 			row << "<font color='red'>" << cond_neg << "</font>";
 			row << "</td>";
+
+
+			row << "<td align='left'>";
+			row << "<font color='green'>" << node_pos << "</font>";
+			row << "</td>";
+
+			row << "<td align='left'>";
+			row << "<font color='red'>" << node_neg << "</font>";
+			row << "</td>";
+
+
 
 			row << "<td align='left'>";
 			row << "<font color='blue'>" << assign << "</font>";
@@ -2865,6 +2997,122 @@ void show_bdd(vector<Node> nodes){
 		system("cat /tmp/digraph | dot -Tpng > /tmp/digraph.png");
 		system("eog /tmp/digraph.png");
 }
+
+
+void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
+
+
+
+
+
+	Path path = path_and_assign.path;
+	string assign = path_and_assign.assign;
+
+
+	printf("\e[31m nodes_add \e[0m");
+	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
+		string cond = *it;
+		printf("%s ", cond.c_str());
+	}
+	printf("\n");
+	
+	static int n = 0;
+	bool debg = 0;
+	if(++n == 4){debg = 1; printf("DEBUG\n");}
+	if(debg){
+		show_bdd(nodes, "enter nodes_add");
+	}
+
+
+	if(!nodes.size()){
+
+		for ( unsigned int i = 0; i < path.size(); i++) {
+			Node n = {path[i],  negation(path[i]), i+1, -1, ""};
+			nodes.push_back(n);
+		}
+		Node n = {"", "", -1, -1, assign};
+		nodes.push_back(n);
+
+		return;
+	}
+
+	int nextnode = 0;
+
+	for ( unsigned int i = 0; i < path.size(); i++) {
+		string cond = path[0];
+		if(debg) printf("cond %s\n", cond.c_str());
+		int nextnode_2 = next_node(cond,nodes, nextnode);
+		if(debg) printf("nextnode_2 %d\n", nextnode_2);
+		if(nextnode_2 == -1){
+			if(branch(cond, nodes[nextnode]) == "NEW"){
+				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "BOTH");
+				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
+				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
+			} else if(branch(cond, nodes[nextnode]) == "F"){
+				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "F");
+				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i+1);
+				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
+			} else if(branch(cond, nodes[nextnode]) == "T"){
+				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "T");
+				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i+1);
+				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
+			} else {
+				assert(0 && "malformed BDD");
+			}
+			//if(i == path.size() - 1){
+				//if(debg) printf("final\n");
+				//Node newnode = {"", "", -1, -1, assign};
+				//if(branch(cond, nodes[nextnode]) == "T")
+					//nodes[nextnode].node_pos = nodes.size();
+				//else if(branch(cond, nodes[nextnode]) == "F")
+					//nodes[nextnode].node_neg = nodes.size();
+				//else if(branch(cond, nodes[nextnode]) == "NEW"){
+					//set<int> terminalnodes = get_terminal_nodes(nodes, nextnode);
+					//PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
+					//insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
+				//} else 
+					//assert(0 && "corrupted BDD");
+				//nodes.push_back(newnode);
+			//} else {
+				//if(debg) printf("non final\n");
+				//printf("non final\n");
+				
+				//if(branch(cond, nodes[nextnode]) == "T")
+					//nodes[nextnode].node_pos = nodes.size();
+				//else if(branch(cond, nodes[nextnode]) == "F")
+					//nodes[nextnode].node_neg = nodes.size();
+				//else if(branch(cond, nodes[nextnode]) == "NEW"){
+
+				//} else 
+					//assert(0 && "corrupted BDD");
+				
+				//for ( unsigned int k = i+1; k < path.size(); k++) {
+					//Node n = {path[k],  negation(path[k]), nodes.size()+1, -1, ""};
+					//nodes.push_back(n);
+				//}
+				//Node n = {"", "", -1, -1, assign};
+				//nodes.push_back(n);
+
+				//return;
+			//}
+			
+		} else {
+			nextnode = nextnode_2;
+		}
+	}
+
+
+}
+
+string get_ite_expr(vector<Node> nodes, int n = 0){
+	Node node = nodes[n];
+	if(node.node_pos == -1 || node.node_neg == -1)
+		return (node.assign == "")?"0":node.assign;
+
+	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
+}
+
+
 
 string make_tree(vector<string> paths, vector<string> assigns){
 
@@ -2930,7 +3178,7 @@ void get_model_fn(){
 
 	vector<string> paths_aux;
 	paths_aux.push_back("(a),(b)");
-	paths_aux.push_back("(not (a)),(d)");
+	paths_aux.push_back("(a),(d)");
 	paths_aux.push_back("(a),(not (b))");
 	paths_aux.push_back("(not (a)),(c)");
 	paths_aux.push_back("(not (a)),(not (c))");

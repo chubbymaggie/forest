@@ -433,6 +433,7 @@ void complete_command(){
 
 		
 		completions = filter(completions, tokens[0]);
+		if(!completions.size()) return;
 		string mc = min_common(completions);
 		if(tokens[0].length() > mc.length()) return;
 		remaining = mc.substr(tokens[0].length());
