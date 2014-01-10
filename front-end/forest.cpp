@@ -2836,9 +2836,11 @@ void insert_in_terminal(vector<Node>& nodes, int terminalnode, PathAndAssign pat
 
 		nodes[terminalnode].node_neg = nodes.size();
 
-		string cond = path[0];
-		Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-		nodes.push_back(node_1);
+		if(path.size()){
+			string cond = path[0];
+			Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+			nodes.push_back(node_1);
+		}
 
 
 
@@ -2867,9 +2869,11 @@ void insert_in_terminal(vector<Node>& nodes, int terminalnode, PathAndAssign pat
 
 		nodes[terminalnode].node_pos = nodes.size();
 
-		string cond = path[0];
-		Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
-		nodes.push_back(node_1);
+		if(path.size()){
+			string cond = path[0];
+			Node node_1 = {cond, negation(cond), nodes.size()+1, -1, ""  };
+			nodes.push_back(node_1);
+		}
 
 
 
@@ -3018,7 +3022,7 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 	
 	static int n = 0;
 	bool debg = 0;
-	if(++n == 4){debg = 1; printf("DEBUG\n");}
+	if(++n == 5){debg = 1; printf("DEBUG\n");}
 	if(debg){
 		show_bdd(nodes, "enter nodes_add");
 	}
@@ -3039,7 +3043,7 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 	int nextnode = 0;
 
 	for ( unsigned int i = 0; i < path.size(); i++) {
-		string cond = path[0];
+		string cond = path[i];
 		if(debg) printf("cond %s\n", cond.c_str());
 		int nextnode_2 = next_node(cond,nodes, nextnode);
 		if(debg) printf("nextnode_2 %d\n", nextnode_2);
@@ -3049,12 +3053,14 @@ void nodes_add(vector<Node>& nodes, PathAndAssign path_and_assign){
 				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
 				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
 			} else if(branch(cond, nodes[nextnode]) == "F"){
+				i++;
 				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "F");
-				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i+1);
+				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
 				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
 			} else if(branch(cond, nodes[nextnode]) == "T"){
+				i++;
 				set<int> terminalnodes = get_terminal_nodes(nodes, nextnode, "T");
-				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i+1);
+				PathAndAssign path_and_assign_remaining = get_remaining(path_and_assign,i);
 				insert_in_terminals(nodes,terminalnodes,path_and_assign_remaining);
 			} else {
 				assert(0 && "malformed BDD");
