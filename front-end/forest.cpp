@@ -11,7 +11,7 @@
  * |     Compiler:  gcc
  * `-. .--------------------
  *    Y
- *    ,,  ,---,
+ *      ,---,
  *   (_,\/_\_/_\     Author:   Pablo González de Aledo (), pablo.aledo@gmail.com
  *     \.\_/_\_/>    Company:  Universidad de Cantabria
  *     '-'   '-'
@@ -2631,7 +2631,6 @@ void get_model(){
 
 typedef struct Node {
 	string cond_pos;
-	string cond_neg;
 	int node_pos;
 	int node_neg;
 	string assign;
@@ -2661,7 +2660,7 @@ bool is_complete(string variable, vector<PathAndAssign> table){
 		PathAndAssign path_and_assign = *it;
 		Path path = path_and_assign.path;
 		bool found = false;
-		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
+		for( Path::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
 			if(*it2 == variable)
 				found = true;
 		}
@@ -2673,7 +2672,7 @@ bool is_complete(string variable, vector<PathAndAssign> table){
 }
 
 bool contains_pos(Path path, string cond){
-	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
+	for( Path::iterator it = path.begin(); it != path.end(); it++ ){
 		if( cond == *it )
 			return true;
 	}
@@ -2683,7 +2682,7 @@ bool contains_pos(Path path, string cond){
 }
 
 bool contains_neg(Path path, string cond){
-	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
+	for( Path::iterator it = path.begin(); it != path.end(); it++ ){
 		if( "(not " + cond + ")" == *it )
 			return true;
 	}
@@ -2707,8 +2706,74 @@ void part_paths(string cond, vector<PathAndAssign> input, vector<PathAndAssign> 
 	
 }
 
+string negation(string cond){
+	if(cond.substr(0,4) == "(not"){
+		string right = cond.substr(5);
+		string center = right.substr(0, right.length()-1);
+		return center;
+	} else {
+		return "(not " + cond + ")";
+	}
+}
+
+PathAndAssign get_remaining(PathAndAssign path_and_assign, int i){
+
+	PathAndAssign ret = path_and_assign;
+	Path::iterator it_begin = path_and_assign.path.begin() + i;
+	Path::iterator it_end   = path_and_assign.path.end();
+	Path retpath = Path(it_begin, it_end);
+	ret.path = retpath;
+
+	return ret;
+}
+
+string positive_cond(string condition){
+	if(condition.substr(0,5) == "(neg ") return negation(condition);
+	return condition;
+}
+
+void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root = 0, string sense = ""){
+
+	Path path = path_and_assign.path;
+	string cond = path.size()? path[0]:"";
+	string assign = path_and_assign.assign;
+
+
+	if(sense == ""){
+		Node node = {positive_cond(cond), -1, -1, ""};
+		nodes.push_back(node);
+		if(positive_cond(cond) == cond)
+			add_path(nodes, get_remaining(path_and_assign, 1), node_root, "pos");
+		else
+			add_path(nodes, get_remaining(path_and_assign, 1), node_root, "neg");
+	}
+
+	if(cond == ""){
+		Node node = {"", -1, -1, assign};
+		nodes.push_back(node);
+		return;
+	}
+
+	if(sense == "pos"){
+		nodes[node_root].node_pos = nodes.size();
+		Node node = {positive_cond(cond), -1, -1, ""};
+		nodes.push_back(node);
+	}
+
+	if(sense == "neg"){
+		nodes[node_root].node_neg = nodes.size();
+		Node node = {positive_cond(cond), -1, -1, ""};
+		nodes.push_back(node);
+	}
+
+}
 
 void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vector<string> cond_ordering ){
+
+	if( paths_and_assign.size() == 1 ){
+		add_path(nodes, paths_and_assign[0]);
+		return;
+	}
 
 	for( vector<string>::iterator it = cond_ordering.begin(); it != cond_ordering.end(); it++ ){
 		if(is_complete(*it, paths_and_assign)){
@@ -2742,23 +2807,18 @@ void get_model_fn(){
 	model << ") Int ";
 	
 
-	vector<string> paths_aux;
-	paths_aux.push_back("(a),(b)");
-	paths_aux.push_back("(a),(d)");
-	paths_aux.push_back("(a),(not (b))");
-	paths_aux.push_back("(not (a)),(c)");
-	paths_aux.push_back("(not (a)),(not (c))");
-	vector<string> assigns_aux;
-	assigns_aux.push_back("1");
-	assigns_aux.push_back("5");
-	assigns_aux.push_back("2");
-	assigns_aux.push_back("3");
-	assigns_aux.push_back("4");
-	//model << make_tree(paths_aux, assigns_aux);
+	vector<PathAndAssign> path_and_assigns;
+	{ PathAndAssign pa; pa.path = tokenize("(a),(b)"              ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
+	{ PathAndAssign pa; pa.path = tokenize("(a),(not (b))"        ,  ","); pa.assign = "2"; path_and_assigns.push_back(pa); }
+	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(c)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
+	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (c))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
+
+	vector<Node> nodes;
+	make_tree(nodes, path_and_assigns, tokenize("(a),(b),(c)", ","));
 	exit(0);
-	//model << make_tree(paths, assigns);
 
 	model << ")";
+
 
 	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
 		printf("input:%s\n", it->c_str());

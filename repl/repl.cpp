@@ -318,6 +318,7 @@ string highlight(string command){
 	myReplace(ret, "clear ", "#green#clear #normal#");
 	myReplace(ret, "exit ", "#green#exit #normal#");
 	myReplace(ret, "rm_assumptions ", "#green#rm_assumptions #normal#");
+	myReplace(ret, "width ", "#green#width #normal#");
 	return ret;
 }
 
@@ -430,6 +431,7 @@ void complete_command(){
 		completions.push_back("clear");
 		completions.push_back("exit");
 		completions.push_back("rm_assumptions");
+		completions.push_back("width");
 
 		
 		completions = filter(completions, tokens[0]);
@@ -954,6 +956,43 @@ void clear_all(){
 	buffer_0.push_back("   Workspace successfully cleared.");
 }
 
+void adjust_width(){
+
+	while(ch = getch()){
+
+		switch(ch){
+			case 'j':
+				win_0.width--;
+				win_1.width++;
+				win_2.width++;
+				win_1.col--;
+				win_2.col--;
+				break;
+			case 'k':
+				win_0.width++;
+				win_1.width--;
+				win_2.width--;
+				win_1.col++;
+				win_2.col++;
+				break;
+			case 10:
+				return;
+		}
+
+
+		finish();
+		initialize_wins();
+		initialize_panels();
+		draw_win_0();
+		draw_win_1();
+		draw_win_2();
+		draw_win_3();
+
+		update();
+
+	}
+}
+
 void do_command(){
 
 	string command_s = string(command);
@@ -977,6 +1016,8 @@ void do_command(){
 	} else if(tokens[0] == "exit"){
 		finish();
 		exit(0);
+	} else if(tokens[0] == "width"){
+		adjust_width();
 	} else {
 
 	}
