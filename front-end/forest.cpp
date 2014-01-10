@@ -2653,6 +2653,15 @@ vector<string> remove(vector<string>input , string to_remove){
 	return ret;
 }
 
+string negation(string cond){
+	if(cond.substr(0,4) == "(not"){
+		string right = cond.substr(5);
+		string center = right.substr(0, right.length()-1);
+		return center;
+	} else {
+		return "(not " + cond + ")";
+	}
+}
 
 bool is_complete(string variable, vector<PathAndAssign> table){
 
@@ -2661,7 +2670,7 @@ bool is_complete(string variable, vector<PathAndAssign> table){
 		Path path = path_and_assign.path;
 		bool found = false;
 		for( Path::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
-			if(*it2 == variable)
+			if(*it2 == variable || negation(*it2) == variable)
 				found = true;
 		}
 		if(!found) return false;
@@ -2691,7 +2700,7 @@ bool contains_neg(Path path, string cond){
 	
 }
 
-void part_paths(string cond, vector<PathAndAssign> input, vector<PathAndAssign> output_pos, vector<PathAndAssign> output_neg ){
+void part_paths(string cond, vector<PathAndAssign> input, vector<PathAndAssign>& output_pos, vector<PathAndAssign>& output_neg ){
 
 	for( vector<PathAndAssign>::iterator it = input.begin(); it != input.end(); it++ ){
 		Path path = it->path;
@@ -2706,15 +2715,6 @@ void part_paths(string cond, vector<PathAndAssign> input, vector<PathAndAssign> 
 	
 }
 
-string negation(string cond){
-	if(cond.substr(0,4) == "(not"){
-		string right = cond.substr(5);
-		string center = right.substr(0, right.length()-1);
-		return center;
-	} else {
-		return "(not " + cond + ")";
-	}
-}
 
 PathAndAssign get_remaining(PathAndAssign path_and_assign, int i){
 
@@ -2732,7 +2732,77 @@ string positive_cond(string condition){
 	return condition;
 }
 
+void show_bdd(vector<Node> nodes, string title = ""){
+
+		FILE* file = fopen("/tmp/digraph", "w");
+		fprintf(file, "digraph G{\n");
+		for ( unsigned int i = 0; i < nodes.size(); i++) {
+			Node n = nodes[i];
+			fprintf(file, "%d -> %d [color=\"green\"]\n", i, nodes[i].node_pos );
+			fprintf(file, "%d -> %d [color=\"red\"]\n",   i, nodes[i].node_neg );
+		}
+
+		fprintf(file, "legend_1 [shape=none, margin=0, label=<");
+		fprintf(file, "<table border='0' cellborder='0'>");
+
+		if(title != ""){
+			fprintf(file, "<tr><td>");
+			fprintf(file, "%s", title.c_str());
+			fprintf(file, "</td></tr>\n");
+		}
+
+
+		for ( unsigned int i = 0; i < nodes.size(); i++) {
+			stringstream row;
+			string cond_pos = nodes[i].cond_pos; if(cond_pos == "") cond_pos = "-"; if(cond_pos.length() > 20) cond_pos = cond_pos.substr(0,20) + "...";
+			string assign   = nodes[i].assign;   if(assign   == "") assign   = "-"; if(assign.length()   > 20) assign   =   assign.substr(0,20)  + "...";
+			int node_pos = nodes[i].node_pos;
+			int node_neg = nodes[i].node_neg;
+			row << "<tr>"; 
+
+			row << "<td align='left'>";
+			row << i;
+			row << "</td>";
+
+			row << "<td align='left'>";
+			row << "<font color='green'>" << cond_pos << "</font>";
+			row << "</td>";
+
+			row << "<td align='left'>";
+			row << "<font color='green'>" << node_pos << "</font>";
+			row << "</td>";
+
+			row << "<td align='left'>";
+			row << "<font color='red'>" << node_neg << "</font>";
+			row << "</td>";
+
+
+
+			row << "<td align='left'>";
+			row << "<font color='blue'>" << assign << "</font>";
+			row << "</td>";
+
+			row << "</tr>"; 
+
+			fprintf(file, "%s\n", row.str().c_str());
+
+		}
+		//fprintf(file, "<tr><td align='left'><font color='red'> hola </font></td></tr>");
+		//fprintf(file, "<tr><td align='left'> adiosssss </td></tr>");
+		fprintf(file, "</table>");
+		fprintf(file, ">];");
+
+
+
+		fprintf(file, "}\n");
+		fclose(file);
+		system("cat /tmp/digraph | dot -Tpng > /tmp/digraph.png");
+		system("eog /tmp/digraph.png");
+}
+
 void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root = 0, string sense = ""){
+
+	show_bdd(nodes);
 
 	Path path = path_and_assign.path;
 	string cond = path.size()? path[0]:"";
@@ -2776,10 +2846,14 @@ void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vect
 	}
 
 	for( vector<string>::iterator it = cond_ordering.begin(); it != cond_ordering.end(); it++ ){
+		printf("variable %s\n", it->c_str());
 		if(is_complete(*it, paths_and_assign)){
+			printf("is_complete\n");
 			vector<PathAndAssign> paths_pos;
 			vector<PathAndAssign> paths_neg;
 			part_paths(*it,paths_and_assign, paths_pos, paths_neg);
+
+			assert(paths_pos.size() + paths_neg.size() == paths_and_assign.size());
 
 			make_tree(nodes, paths_pos, remove(cond_ordering, *it) );
 			make_tree(nodes, paths_neg, remove(cond_ordering, *it) );
