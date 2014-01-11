@@ -3010,6 +3010,31 @@ void permute(vector<string>& variables_vec){
 
 }
 
+void normalize(PathAndAssign& path_and_assign){
+
+	Path path = path_and_assign.path;
+
+	for ( unsigned int i = 0; i < path.size(); i++) {
+		string cond = path[i];
+
+		while(cond.substr(0,10) == "(not (not "){
+			string right = cond.substr(10);
+			cond = right.substr(0,right.length()-2);
+		}
+
+		path[i] = cond;
+	}
+	
+	path_and_assign.path = path;
+}
+
+void normalize(vector<PathAndAssign>& path_and_assigns){
+
+	for( vector<PathAndAssign>::iterator it = path_and_assigns.begin(); it != path_and_assigns.end(); it++ )
+		normalize(*it);
+	
+}
+
 void get_model_fn(){
 
 	vector<string> paths   = get_model_paths();
@@ -3031,16 +3056,26 @@ void get_model_fn(){
 
 	vector<PathAndAssign> path_and_assigns;
 
-	//{ PathAndAssign pa; pa.path = tokenize("(a),(b)"              ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
+	//{ PathAndAssign pa; pa.path = tokenize("(= main_register_a 0),(= main_register_b 0)"      ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
 	//{ PathAndAssign pa; pa.path = tokenize("(a),(not (b))"        ,  ","); pa.assign = "2"; path_and_assigns.push_back(pa); }
 	//{ PathAndAssign pa; pa.path = tokenize("(not (a)),(b)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
 	//{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
+	
+//{ PathAndAssign pa; pa.path = tokenize("(not (= main_register_a 0)),(not (= main_register_b 0))", ","); pa.assign = "0"; path_and_assigns.push_back(pa);}
+//{ PathAndAssign pa; pa.path = tokenize("(not (= main_register_a 0)),(= main_register_b 0)", ","); pa.assign = "1"; path_and_assigns.push_back(pa);}
+//{ PathAndAssign pa; pa.path = tokenize("(= main_register_a 0),(not (= main_register_b 0))", ","); pa.assign = "1"; path_and_assigns.push_back(pa);}
+//{ PathAndAssign pa; pa.path = tokenize("(= main_register_a 0),(= main_register_b 0)", ","); pa.assign = "2"; path_and_assigns.push_back(pa);}
+	
+	
+	
 	for ( unsigned int i = 0; i < paths.size(); i++) {
 		PathAndAssign pa;
 		pa.path = tokenize(paths[i], ",");
 		pa.assign = assigns[i];
 		path_and_assigns.push_back(pa); 
 	}
+
+	normalize(path_and_assigns);
 
 	//for( vector<PathAndAssign>::iterator it = path_and_assigns.begin(); it != path_and_assigns.end(); it++ ){
 		//PathAndAssign path_and_assign = *it;
@@ -3054,9 +3089,9 @@ void get_model_fn(){
 
 	permute(variables_vec);
 
-	for( vector<string>::iterator it = variables_vec.begin(); it != variables_vec.end(); it++ ){
-		printf("variable %s\n", it->c_str());
-	}
+	//for( vector<string>::iterator it = variables_vec.begin(); it != variables_vec.end(); it++ ){
+		//printf("variable %s\n", it->c_str());
+	//}
 	
 	
 	vector<Node> nodes;
