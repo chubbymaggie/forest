@@ -3030,10 +3030,24 @@ void get_model_fn(){
 	
 
 	vector<PathAndAssign> path_and_assigns;
-	{ PathAndAssign pa; pa.path = tokenize("(a),(b)"              ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
-	{ PathAndAssign pa; pa.path = tokenize("(a),(not (b))"        ,  ","); pa.assign = "2"; path_and_assigns.push_back(pa); }
-	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(b)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
-	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
+
+	//{ PathAndAssign pa; pa.path = tokenize("(a),(b)"              ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
+	//{ PathAndAssign pa; pa.path = tokenize("(a),(not (b))"        ,  ","); pa.assign = "2"; path_and_assigns.push_back(pa); }
+	//{ PathAndAssign pa; pa.path = tokenize("(not (a)),(b)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
+	//{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+		PathAndAssign pa;
+		pa.path = tokenize(paths[i], ",");
+		pa.assign = assigns[i];
+		path_and_assigns.push_back(pa); 
+	}
+
+	//for( vector<PathAndAssign>::iterator it = path_and_assigns.begin(); it != path_and_assigns.end(); it++ ){
+		//PathAndAssign path_and_assign = *it;
+		//print_path_assign(path_and_assign);
+	//}
+
+	
 
 	set<string> variables_set = get_set_variables(path_and_assigns);
 	vector<string> variables_vec = vector<string>(variables_set.begin(), variables_set.end());
