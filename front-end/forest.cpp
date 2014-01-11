@@ -2591,6 +2591,23 @@ set<string> get_model_outputs(){
 
 }
 
+void and_paths(vector<string>& paths){
+	
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+		vector<string> paths_v = tokenize(paths[i], ",");
+		string path;
+
+		path = "(and ";
+		for ( unsigned int k = 0; k < paths_v.size(); k++) {
+			path += ( paths_v[k] + " " );
+		}
+		path += ")";
+
+		paths[i] = path;
+	}
+	
+}
+
 void get_model(){
 
 	vector<string> paths   = get_model_paths();
@@ -2598,6 +2615,8 @@ void get_model(){
 	vector<string> names   = get_model_names();
 	set<string>    free_v  = get_model_freevars();
 	set<string>    outputs = get_model_outputs();
+
+	and_paths(paths);
 
 	assert(paths.size() == assigns.size());
 	assert(paths.size() == names.size());
