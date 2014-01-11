@@ -4,7 +4,7 @@ all: ../bin/forest
 	g++ ../build/forest.o ../build/tiny*.o -o ../bin/forest -lrt
 
 ../build/forest.o: forest.cpp 
-	g++ -c forest.cpp -o ../build/forest.o
+	g++ -g -c forest.cpp -o ../build/forest.o
 
 ../build/tinystr.o: tinystr.cpp 
 	g++ -c tinystr.cpp -o ../build/tinystr.o

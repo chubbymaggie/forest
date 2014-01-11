@@ -2801,18 +2801,27 @@ void print_path_assign(PathAndAssign pa){
 	
 }
 
+void print_path(Path path){
+
+	for( vector<string>::iterator it = path.begin(); it != path.end(); it++ ){
+		printf("%s ", it->c_str());
+	}
+	printf("\n");
+	
+}
+
 void insert_node(vector<Node>& nodes, Node node){
-	printf("insert_node %lu\n", nodes.size());
+	//printf("insert_node %lu\n", nodes.size());
 	nodes.push_back(node);
 }
 
 void new_node_pos(vector<Node>& nodes, int node_root){
-	printf("set node_pos %d %lu\n", node_root, nodes.size());
+	//printf("set node_pos %d %lu\n", node_root, nodes.size());
 	nodes[node_root].node_pos = nodes.size();
 }
 
 void new_node_neg(vector<Node>& nodes, int node_root){
-	printf("set node_neg %d %lu\n", node_root, nodes.size());
+	//printf("set node_neg %d %lu\n", node_root, nodes.size());
 	nodes[node_root].node_neg = nodes.size();
 }
 
@@ -2841,9 +2850,10 @@ void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root 
 	bool create_neg  = (nodes[node_root].cond_pos == negation(cond) && nodes[node_root].node_neg == -1);
 	bool is_terminal = (path.size() == 0);
 
+
 	printf("follow_pos %d follow_neg %d create_pos %d create_neg %d is_terminal %d\n", follow_pos, follow_neg, create_pos, create_neg, is_terminal);
 
-	show_bdd(nodes);
+	//show_bdd(nodes);
 
 	if(follow_pos){
 		add_path(nodes, tail(path_and_assign), nodes[node_root].node_pos );
@@ -2882,7 +2892,69 @@ void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root 
 
 }
 
-void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vector<string> cond_ordering ){
+Path put_nth(string cond, Path path, int depth){
+
+	//printf("put_nth\n");
+	//print_path(path);
+	//printf("cond %s\n", cond.c_str());
+	//printf("depth %d\n", depth);
+
+	Path ret;
+
+	int n = 0;
+	for( vector<string>::iterator it = path.begin(); it != path.end(); it++,n++ ){
+		if( n==depth )
+			ret.push_back(cond);
+		ret.push_back(*it);
+	}
+
+	if(depth == path.size())
+		ret.push_back(cond);
+	
+	return ret;
+}
+
+PathAndAssign get_to_front(PathAndAssign path_and_assign, string cond_pos, int depth){
+
+	//printf("get_to_front\n---");
+	//print_path_assign(path_and_assign);
+	//printf("cond_pos %s\n", cond_pos.c_str() );
+
+	Path path = path_and_assign.path;
+	string assign = path_and_assign.assign;
+
+	Path path_without_cond;
+	string cond;
+
+	for( Path::iterator it = path.begin(); it != path.end(); it++ ){
+
+		if( cond_pos == *it || cond_pos == negation(*it) ){
+			cond = *it;
+		} else {
+			path_without_cond.push_back(*it);
+		}
+	}
+
+	PathAndAssign path_and_assign_ret;
+	path_and_assign_ret.path = put_nth(cond, path_without_cond, depth);
+	path_and_assign_ret.assign = assign;
+
+	//printf("\n+++");
+	//print_path_assign(path_and_assign_ret);
+
+	return path_and_assign_ret;
+}
+
+void get_to_front(vector<PathAndAssign>& path_and_assigns, string cond_pos, int depth){
+
+
+	for ( unsigned int i = 0; i < path_and_assigns.size(); i++) {
+		path_and_assigns[i] = get_to_front(path_and_assigns[i], cond_pos, depth);
+	}
+	
+}
+
+void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vector<string> cond_ordering , int depth = 0){
 
 	if( paths_and_assign.size() == 1 ){
 		add_path(nodes, paths_and_assign[0]);
@@ -2890,17 +2962,20 @@ void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vect
 	}
 
 	for( vector<string>::iterator it = cond_ordering.begin(); it != cond_ordering.end(); it++ ){
-		printf("variable %s\n", it->c_str());
+		//printf("variable %s\n", it->c_str());
 		if(is_complete(*it, paths_and_assign)){
-			printf("is_complete\n");
+			//printf("is_complete\n");
 			vector<PathAndAssign> paths_pos;
 			vector<PathAndAssign> paths_neg;
 			part_paths(*it,paths_and_assign, paths_pos, paths_neg);
 
+			get_to_front(paths_pos, *it, depth);
+			get_to_front(paths_neg, *it, depth);
+
 			assert(paths_pos.size() + paths_neg.size() == paths_and_assign.size());
 
-			make_tree(nodes, paths_pos, remove(cond_ordering, *it) );
-			make_tree(nodes, paths_neg, remove(cond_ordering, *it) );
+			make_tree(nodes, paths_pos, remove(cond_ordering, *it) , depth + 1);
+			make_tree(nodes, paths_neg, remove(cond_ordering, *it) , depth + 1);
 		}
 	}
 	
@@ -2928,11 +3003,12 @@ void get_model_fn(){
 	vector<PathAndAssign> path_and_assigns;
 	{ PathAndAssign pa; pa.path = tokenize("(a),(b)"              ,  ","); pa.assign = "1"; path_and_assigns.push_back(pa); }
 	{ PathAndAssign pa; pa.path = tokenize("(a),(not (b))"        ,  ","); pa.assign = "2"; path_and_assigns.push_back(pa); }
-	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(c)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
-	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (c))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
+	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(b)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
+	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
 
 	vector<Node> nodes;
-	make_tree(nodes, path_and_assigns, tokenize("(c),(b),(a)", ","));
+	make_tree(nodes, path_and_assigns, tokenize("(b),(a)", ","));
+	if(cmd_option_bool("show_bdd")) show_bdd(nodes);
 	exit(0);
 
 	model << ")";
