@@ -2832,11 +2832,6 @@ void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root 
 	string cond = path.size()? path[0]:"";
 	string assign = path_and_assign.assign;
 
-	printf("-----------\n");
-	printf("add_path\n");
-	print_path_assign(path_and_assign);
-	printf("node_root %d\n", node_root);
-	printf("cond %s\n", cond.c_str());
 
 	if(!nodes.size()){
 		Node node = {positive_cond(cond), -1, -1, ""};
@@ -2848,45 +2843,53 @@ void add_path(vector<Node>& nodes, PathAndAssign path_and_assign, int node_root 
 	bool follow_neg  = (nodes[node_root].cond_pos == negation(cond) && nodes[node_root].node_neg != -1);
 	bool create_pos  = (nodes[node_root].cond_pos == cond && nodes[node_root].node_pos == -1);
 	bool create_neg  = (nodes[node_root].cond_pos == negation(cond) && nodes[node_root].node_neg == -1);
-	bool is_terminal = (path.size() == 0);
+	bool is_terminal = (path.size() == 1);
 
-
-	printf("follow_pos %d follow_neg %d create_pos %d create_neg %d is_terminal %d\n", follow_pos, follow_neg, create_pos, create_neg, is_terminal);
+	//printf("-----------\n");
+	//printf("add_path\n");
+	//print_path_assign(path_and_assign);
+	//printf("node_root %d\n", node_root);
+	//printf("cond %s\n", cond.c_str());
+	//printf("follow_pos %d follow_neg %d create_pos %d create_neg %d is_terminal %d\n", follow_pos, follow_neg, create_pos, create_neg, is_terminal);
 
 	//show_bdd(nodes);
 
-	if(follow_pos){
+	if(follow_pos && !is_terminal){
 		add_path(nodes, tail(path_and_assign), nodes[node_root].node_pos );
 		return;
 	}
 
-	if(follow_neg){
+	if(follow_neg && !is_terminal){
 		add_path(nodes, tail(path_and_assign), nodes[node_root].node_neg);
 		return;
 	}
 
-	if(create_pos && !is_terminal ){
-		new_node_pos(nodes, node_root);
-		Node node = { positive_cond( path[1] ), -1, -1, ""};
-		insert_node(nodes, node);
-		add_path(nodes, tail(path_and_assign), nodes[node_root].node_pos );
-		return;
+	if(create_pos){
+		if(is_terminal){
+			new_node_pos(nodes, node_root);
+			Node node = { "", -1, -1, assign};
+			insert_node(nodes, node);
+		} else {
+			new_node_pos(nodes, node_root);
+			Node node = { positive_cond( path[1] ), -1, -1, ""};
+			insert_node(nodes, node);
+			add_path(nodes, tail(path_and_assign), nodes[node_root].node_pos );
+		}
 	}
 
-	if(create_neg && !is_terminal ){
-		new_node_neg(nodes, node_root);
-		Node node = {positive_cond( path[1] ), -1, -1, ""};
-		insert_node(nodes, node);
-		add_path(nodes, tail(path_and_assign), nodes[node_root].node_neg );
-		return;
+	if(create_neg){
+		if(is_terminal){
+			new_node_neg(nodes, node_root);
+			Node node = { "", -1, -1, assign};
+			insert_node(nodes, node);
+		} else {
+			new_node_neg(nodes, node_root);
+			Node node = {positive_cond( path[1] ), -1, -1, ""};
+			insert_node(nodes, node);
+			add_path(nodes, tail(path_and_assign), nodes[node_root].node_neg );
+		}
 	}
 
-	if(is_terminal){
-		nodes[node_root].cond_pos = "";
-		nodes[node_root].node_pos = -1;
-		nodes[node_root].node_neg = -1;
-		nodes[node_root].assign = assign;
-	}
 
 
 
@@ -3007,7 +3010,7 @@ void get_model_fn(){
 	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
 
 	vector<Node> nodes;
-	make_tree(nodes, path_and_assigns, tokenize("(b),(a)", ","));
+	make_tree(nodes, path_and_assigns, tokenize("(a),(b)", ","));
 	if(cmd_option_bool("show_bdd")) show_bdd(nodes);
 	exit(0);
 
