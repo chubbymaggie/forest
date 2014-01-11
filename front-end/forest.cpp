@@ -2984,6 +2984,32 @@ void make_tree(vector<Node>& nodes, vector<PathAndAssign> paths_and_assign, vect
 	
 }
 
+set<string> get_set_variables(vector<PathAndAssign> path_and_assigns){
+
+	set<string> ret;
+	for( vector<PathAndAssign>::iterator it = path_and_assigns.begin(); it != path_and_assigns.end(); it++ ){
+		Path path = it->path;
+		for( vector<string>::iterator it2 = path.begin(); it2 != path.end(); it2++ ){
+			string cond = *it2;
+			if( cond.substr(0,5) == "(not ")
+				ret.insert(negation(*it2));
+			else
+				ret.insert(*it2);
+		}
+	}
+
+	return ret;
+	
+}
+
+void permute(vector<string>& variables_vec){
+
+	for ( unsigned int i = 0; i < cmd_option_int("bdd_permutation"); i++) {
+		next_permutation(variables_vec.begin(), variables_vec.end());
+	}
+
+}
+
 void get_model_fn(){
 
 	vector<string> paths   = get_model_paths();
@@ -3009,8 +3035,18 @@ void get_model_fn(){
 	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(b)"        ,  ","); pa.assign = "3"; path_and_assigns.push_back(pa); }
 	{ PathAndAssign pa; pa.path = tokenize("(not (a)),(not (b))"  ,  ","); pa.assign = "4"; path_and_assigns.push_back(pa); }
 
+	set<string> variables_set = get_set_variables(path_and_assigns);
+	vector<string> variables_vec = vector<string>(variables_set.begin(), variables_set.end());
+
+	permute(variables_vec);
+
+	for( vector<string>::iterator it = variables_vec.begin(); it != variables_vec.end(); it++ ){
+		printf("variable %s\n", it->c_str());
+	}
+	
+	
 	vector<Node> nodes;
-	make_tree(nodes, path_and_assigns, tokenize("(a),(b)", ","));
+	make_tree(nodes, path_and_assigns, variables_vec);
 	if(cmd_option_bool("show_bdd")) show_bdd(nodes);
 	exit(0);
 
@@ -3109,6 +3145,8 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("unconstrained")
 	//cmd_option_bool("dfg_function")
 	//cmd_option_bool("show_only_constraints")
+	//cmd_option_bool("show_bdd")
+	//cmd_option_bool("bdd_permutation")
 	if(cmd_option_bool("make_bc")) make_bc();
 	if(cmd_option_bool("final")) final();
 	if(cmd_option_bool("compare_bc")) compare_bc();
