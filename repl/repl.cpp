@@ -870,6 +870,8 @@ void check_smt(string command_str){
 		buffer_0.push_back("   #red#FALSE#normal#");
 	if(res == "unsat")
 		buffer_0.push_back("   #green#TRUE#normal#");
+	if(res == "unknown")
+		buffer_0.push_back("   #yellow#UNKNOWN#normal#");
 
 	if(res == "sat"){
 		get_counterexample();

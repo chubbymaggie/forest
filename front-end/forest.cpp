@@ -3054,6 +3054,17 @@ void normalize(vector<PathAndAssign>& path_and_assigns){
 	
 }
 
+
+
+string get_ite_expr(vector<Node> nodes, int n = 0){
+	Node node = nodes[n];
+	if(node.node_pos == -1 || node.node_neg == -1)
+		return (node.assign == "")?"0":node.assign;
+
+	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
+}
+
+
 void get_model_fn(){
 
 	vector<string> paths   = get_model_paths();
@@ -3116,7 +3127,10 @@ void get_model_fn(){
 	vector<Node> nodes;
 	make_tree(nodes, path_and_assigns, variables_vec);
 	if(cmd_option_bool("show_bdd")) show_bdd(nodes);
-	exit(0);
+
+	model << get_ite_expr(nodes);
+	
+	//exit(0);
 
 	model << ")";
 
