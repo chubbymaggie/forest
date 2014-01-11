@@ -2622,7 +2622,7 @@ void get_model(){
 	assert(paths.size() == names.size());
 
 	stringstream model;
-	model << "content:(or ";
+	model << "content:(assert (or ";
 
 	for ( unsigned int i = 0; i < paths.size(); i++) {
 		string path = paths[i];
@@ -2631,7 +2631,7 @@ void get_model(){
 
 		model << "(and " << "(= " << name << " " << assign << ") " << path << ")";
 	}
-	model << ")";
+	model << "))";
 
 	for( set<string>::iterator it = free_v.begin(); it != free_v.end(); it++ ){
 		printf("input:%s\n", it->c_str());

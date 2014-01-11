@@ -603,7 +603,7 @@ void import_model(string command_str){
 			outputs.push_back(line.substr(7));
 		}
 		if( line.find("content:") != string::npos ){
-			content = "(assert " + line.substr(8) + ")";
+			content = line.substr(8);
 			//for( vector<string>::iterator it = inputs.begin(); it != inputs.end(); it++ ){
 				//myReplace(content, *it, name + "_" + *it);
 			//}
