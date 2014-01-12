@@ -306,6 +306,15 @@ void draw_win_2(){
 
 }
 
+string color(int n, string input){
+	string colors[] = {"yellow", "green", "red", "magenta"};
+	int ncolors = 4;
+	int ncolor = n % ncolors; ncolor = ncolor<=0?-ncolor:ncolor;
+	assert(ncolor >= 0 && ncolor < ncolors);
+	string color = colors[ncolor];
+
+	return string("#") + color + "#" + input + "#normal#";
+}
 
 string highlight(string command){
 	string ret = command;
@@ -319,6 +328,33 @@ string highlight(string command){
 	myReplace(ret, "exit ", "#green#exit #normal#");
 	myReplace(ret, "rm_assumptions ", "#green#rm_assumptions #normal#");
 	myReplace(ret, "width ", "#green#width #normal#");
+
+	//if(ret.substr(0,9) == "check_smt"){
+	if(ret.find("check_smt") != string::npos ){
+
+		//string input = ret.substr(20);
+		string input = ret;
+		string output;
+		int count = 0;
+
+		for ( unsigned int i = 0; i < input.size(); i++) {
+			char character = input[i];
+
+			if(character == '('){
+				count++;
+				output += color(count, "(");
+			} else if(character == ')'){
+				count--;
+				output += color(count+1, ")");
+			} else {
+				output += character;
+			}
+
+		}
+
+		ret = output;
+	}
+
 	return ret;
 }
 
