@@ -2772,6 +2772,11 @@ void show_bdd(vector<Node> nodes, string title = ""){
 
 
 		for ( unsigned int i = 0; i < nodes.size(); i++) {
+
+
+			if(nodes[i].node_pos == -1 && nodes[i].node_neg == -1 && nodes[i].assign == "")
+				continue;
+
 			stringstream row;
 			string cond_pos = nodes[i].cond_pos; if(cond_pos == "") cond_pos = "-"; if(cond_pos.length() > 20) cond_pos = cond_pos.substr(0,20) + "...";
 			string assign   = nodes[i].assign;   if(assign   == "") assign   = "-"; if(assign.length()   > 20) assign   =   assign.substr(0,20)  + "...";
@@ -3115,15 +3120,31 @@ void pass_1(vector<Node>& nodes){
 			for( vector<ParentStruct>::iterator it = parents.begin(); it != parents.end(); it++ ){
 				if(it->branch == "pos"){
 					nodes[it->node].node_pos = node_dest;
-					nodes[i].assign = "";
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
 				} else if(it->branch == "neg"){
 					nodes[it->node].node_neg = node_dest;
-					nodes[i].assign = "";
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
 				} else if(it->branch == "both"){
 					nodes[it->node].node_pos = node_dest;
 					nodes[it->node].node_neg = node_dest;
-					nodes[i].assign = "";
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
 				}
+			}
+		}
+	}
+
+	for( set<string>::iterator it = set_contents.begin(); it != set_contents.end(); it++ ){
+		Node node = { "", -1, -1, *it};
+		nodes.push_back(node);
+	}
+	
+
+}
+
+void pass_2(vector<Node>& nodes){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		for ( unsigned int k = 0; k < nodes.size(); k++) {
+			if(nodes[i].node_pos == nodes[k].node_pos && nodes[i].node_neg == nodes[k].node_neg){
 			}
 		}
 	}
