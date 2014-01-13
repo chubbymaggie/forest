@@ -3142,12 +3142,45 @@ void pass_1(vector<Node>& nodes){
 }
 
 void pass_2(vector<Node>& nodes){
+	//return;
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
+	//unsigned int i = 19;{
 		for ( unsigned int k = 0; k < nodes.size(); k++) {
+		//unsigned int k = 11; {
 			if(nodes[i].node_pos == nodes[k].node_pos && nodes[i].node_neg == nodes[k].node_neg){
+
+				if(nodes[i].node_pos == -1 && nodes[i].node_neg == -1 ) continue;
+				if(nodes[k].node_pos == -1 && nodes[k].node_neg == -1 ) continue;
+
+				vector<ParentStruct> parents = get_parents(nodes, k);
+
+				for( vector<ParentStruct>::iterator it = parents.begin(); it != parents.end(); it++ ){
+					if(it->branch == "pos"){
+						nodes[it->node].node_pos = i;
+						nodes[k].assign = ""; nodes[k].node_pos = nodes[k].node_neg = -1;
+					} else if(it->branch == "neg"){
+						nodes[it->node].node_neg = i;
+						nodes[k].assign = ""; nodes[k].node_pos = nodes[k].node_neg = -1;
+					} else if(it->branch == "both"){
+						nodes[it->node].node_pos = i;
+						nodes[k].assign = ""; nodes[k].node_pos = nodes[k].node_neg = -1;
+					}
+				}
+				
 			}
 		}
 	}
+
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if( (nodes[i].node_pos == -1 && nodes[i].node_neg == -1) && nodes[i].cond_pos != ""){
+			vector<ParentStruct> parents = get_parents(nodes, i);
+			for ( unsigned int k = 0; k < parents.size(); k++) {
+				int n = parents[k].node;
+				nodes[n].assign = ""; nodes[n].node_pos = nodes[n].node_neg = -1;
+			}
+		}
+	}
+	
 }
 
 void rm_invalid_nodes(vector<Node>& nodes){
@@ -3160,6 +3193,7 @@ void rm_invalid_nodes(vector<Node>& nodes){
 
 void robdd(vector<Node>& nodes){
 	pass_1(nodes);
+	pass_2(nodes);
 	//rm_invalid_nodes(nodes);
 }
 
@@ -3223,8 +3257,8 @@ void get_model_fn(){
 		//variables_vec = tokenize()
 	//}
 	
-	variables_vec = tokenize("(= main_register_x1 0),(= main_register_x3 0),(= main_register_x5 0),(= main_register_x7 0),(= main_register_x2 0),(= main_register_x4 0),(= main_register_x6 0),(= main_register_x8 0)", ",");
-	//variables_vec = tokenize("(= main_register_x1 0),(= main_register_x2 0),(= main_register_x3 0),(= main_register_x4 0),(= main_register_x5 0),(= main_register_x6 0),(= main_register_x7 0),(= main_register_x8 0)", ",");
+	//variables_vec = tokenize("(= main_register_x1 0),(= main_register_x3 0),(= main_register_x5 0),(= main_register_x7 0),(= main_register_x2 0),(= main_register_x4 0),(= main_register_x6 0),(= main_register_x8 0)", ",");
+	variables_vec = tokenize("(= main_register_x1 0),(= main_register_x2 0),(= main_register_x3 0),(= main_register_x4 0),(= main_register_x5 0),(= main_register_x6 0),(= main_register_x7 0),(= main_register_x8 0)", ",");
 
 	//for( vector<string>::iterator it = variables_vec.begin(); it != variables_vec.end(); it++ ){
 		//printf("variable %s\n", it->c_str());
