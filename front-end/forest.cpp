@@ -2757,8 +2757,12 @@ void show_bdd(vector<Node> nodes, string title = ""){
 		fprintf(file, "digraph G{\n");
 		for ( unsigned int i = 0; i < nodes.size(); i++) {
 			Node n = nodes[i];
+
 			if(nodes[i].node_pos != -1 ) fprintf(file, "%d -> %d [color=\"green\"]\n", i, nodes[i].node_pos );
 			if(nodes[i].node_neg != -1 ) fprintf(file, "%d -> %d [color=\"red\"]\n",   i, nodes[i].node_neg );
+			//if(nodes[i].node_pos != -1 ) fprintf(file, "%d -> %d [color=\"red\"]\n", i, nodes[i].node_pos );
+			//if(nodes[i].node_neg != -1 ) fprintf(file, "%d -> %d [color=\"green\"]\n",   i, nodes[i].node_neg );
+
 		}
 
 		fprintf(file, "legend_1 [shape=none, margin=0, label=<");
@@ -3151,6 +3155,7 @@ void pass_2(vector<Node>& nodes){
 
 				if(nodes[i].node_pos == -1 && nodes[i].node_neg == -1 ) continue;
 				if(nodes[k].node_pos == -1 && nodes[k].node_neg == -1 ) continue;
+				if( i == k ) continue;
 
 				vector<ParentStruct> parents = get_parents(nodes, k);
 
@@ -3183,6 +3188,31 @@ void pass_2(vector<Node>& nodes){
 	
 }
 
+void pass_3(vector<Node>& nodes){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if( nodes[i].node_pos == nodes[i].node_neg ){
+
+			if(nodes[i].node_pos == -1) continue;
+
+			vector<ParentStruct> parents = get_parents(nodes,i);
+			int dest = nodes[i].node_pos;
+
+			for( vector<ParentStruct>::iterator it = parents.begin(); it != parents.end(); it++ ){
+				if(it->branch == "pos"){
+					nodes[it->node].node_pos = dest;
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
+				} else if(it->branch == "neg"){
+					nodes[it->node].node_neg = dest;
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
+				} else if(it->branch == "both"){
+					nodes[it->node].node_pos = dest;
+					nodes[i].assign = ""; nodes[i].node_pos = nodes[i].node_neg = -1;
+				}
+			}
+		}
+	}
+}
+
 void rm_invalid_nodes(vector<Node>& nodes){
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
 		if( nodes[i].node_pos == -1 && nodes[i].node_neg == -1 && nodes[i].assign == "" ){
@@ -3194,6 +3224,7 @@ void rm_invalid_nodes(vector<Node>& nodes){
 void robdd(vector<Node>& nodes){
 	pass_1(nodes);
 	pass_2(nodes);
+	pass_3(nodes);
 	//rm_invalid_nodes(nodes);
 }
 
@@ -3253,12 +3284,9 @@ void get_model_fn(){
 	//if(cmd_option_int("bdd_permutation"))
 		//permute(variables_vec);
 
-	//if(cmd_option_str("bdd_ordering") != ""){
-		//variables_vec = tokenize()
-	//}
-	
 	//variables_vec = tokenize("(= main_register_x1 0),(= main_register_x3 0),(= main_register_x5 0),(= main_register_x7 0),(= main_register_x2 0),(= main_register_x4 0),(= main_register_x6 0),(= main_register_x8 0)", ",");
-	variables_vec = tokenize("(= main_register_x1 0),(= main_register_x2 0),(= main_register_x3 0),(= main_register_x4 0),(= main_register_x5 0),(= main_register_x6 0),(= main_register_x7 0),(= main_register_x8 0)", ",");
+	//variables_vec = tokenize("(= main_register_x1 0),(= main_register_x2 0),(= main_register_x3 0),(= main_register_x4 0),(= main_register_x5 0),(= main_register_x6 0),(= main_register_x7 0),(= main_register_x8 0)", ",");
+	//variables_vec = tokenize("(= main_register_x1 0),(= main_register_x2 0),(= main_register_x3 0)", ",");
 
 	//for( vector<string>::iterator it = variables_vec.begin(); it != variables_vec.end(); it++ ){
 		//printf("variable %s\n", it->c_str());
