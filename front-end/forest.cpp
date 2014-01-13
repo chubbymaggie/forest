@@ -3064,6 +3064,84 @@ string get_ite_expr(vector<Node> nodes, int n = 0){
 	return string("(ite ") + " " + node.cond_pos + " " + get_ite_expr(nodes, node.node_pos) + " " + get_ite_expr(nodes, node.node_neg) + ")";
 }
 
+typedef struct ParentStruct {
+	string branch;
+	int node;
+} ParentStruct;
+
+
+vector<ParentStruct> get_parents(vector<Node> nodes, int n){
+
+	vector<ParentStruct> ret;
+	ParentStruct ps;
+
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].node_pos == n && nodes[i].node_neg == n){
+			ps.node = i;
+			ps.branch = "both";
+			ret.push_back(ps);
+		} else if(nodes[i].node_pos == n){
+			ps.node = i;
+			ps.branch = "pos";
+			ret.push_back(ps);
+		} else if(nodes[i].node_neg == n){
+			ps.node = i;
+			ps.branch = "neg";
+			ret.push_back(ps);
+		}
+	}
+	return ret;
+}
+
+void pass_1(vector<Node>& nodes){
+
+	map<string, int> map_contents;
+	set<string> set_contents;
+	int num_nodes = nodes.size();
+
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].assign != "" && set_contents.find(nodes[i].assign) == set_contents.end() ){
+			map_contents[ nodes[i].assign ] = num_nodes;
+			set_contents.insert(nodes[i].assign);
+			num_nodes++;
+		}
+	}
+
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].assign != ""){
+			vector<ParentStruct> parents = get_parents(nodes, i);
+			int node_dest = map_contents[ nodes[i].assign ];
+
+			for( vector<ParentStruct>::iterator it = parents.begin(); it != parents.end(); it++ ){
+				if(it->branch == "pos"){
+					nodes[it->node].node_pos = node_dest;
+					nodes[i].assign = "";
+				} else if(it->branch == "neg"){
+					nodes[it->node].node_neg = node_dest;
+					nodes[i].assign = "";
+				} else if(it->branch == "both"){
+					nodes[it->node].node_pos = node_dest;
+					nodes[it->node].node_neg = node_dest;
+					nodes[i].assign = "";
+				}
+			}
+		}
+	}
+}
+
+void rm_invalid_nodes(vector<Node>& nodes){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if( nodes[i].node_pos == -1 && nodes[i].node_neg == -1 && nodes[i].assign == "" ){
+			nodes.erase(nodes.begin() + i);i--;
+		}
+	}
+}
+
+void robdd(vector<Node>& nodes){
+	pass_1(nodes);
+	//rm_invalid_nodes(nodes);
+}
+
 
 void get_model_fn(){
 
@@ -3134,6 +3212,7 @@ void get_model_fn(){
 	
 	vector<Node> nodes;
 	make_tree(nodes, path_and_assigns, variables_vec);
+	robdd(nodes);
 	if(cmd_option_bool("show_bdd")) show_bdd(nodes);
 
 	model << get_ite_expr(nodes);
