@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include "utils.h"
 #include <string.h>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 

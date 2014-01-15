@@ -22,7 +22,6 @@
 #include "solver.h"
 #include <sys/wait.h>
 
-#define SIZE_STR 512
 #define UNDERSCORE "_"
 
 #define debug true

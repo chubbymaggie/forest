@@ -25,12 +25,12 @@ Options::~Options(){}
 
 void Options::read_options(){
 
-	FILE *file = fopen ( "/tmp/options", "r" );
-	char line_c [ 1024 ]; /* or other suitable maximum line size */
+
+	ifstream input("/tmp/options");
+	string line;
 	
-	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
-		line_c[strlen(line_c)-1] = 0;
-		string line = string(line_c);
+	while( getline( input, line ) ) {
+		
 		vector<string> tokens = tokenize(line, " ");
 
 		string key = tokens[0];
@@ -49,7 +49,8 @@ void Options::read_options(){
 		
 		
 	}
-	fclose ( file );
+	
+	
 }
 
 bool Options::cmd_option_bool(string key){

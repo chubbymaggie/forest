@@ -21,7 +21,6 @@
 
 #include "solver.h"
 
-#define SIZE_STR 32768
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
@@ -486,26 +485,18 @@ void Solver::solve_problem(){
 
 	FILE *fp;
 	stringstream command;
-	char ret[SIZE_STR];
 
 	command << "z3 " << filename.str();
+	command << " > /tmp/z3_output";
+	system(command.str().c_str());
 
-	fp = popen(command.str().c_str(), "r");
-
-	while (fgets(ret,SIZE_STR, fp) != NULL){
-		ret[strlen(ret)-1] = 0;
-		ret_vector.push_back(ret);
+	ifstream input("/tmp/z3_output");
+	string line;
+	
+	while( getline( input, line ) ) {
+		ret_vector.push_back(line);
 	}
-
-	//for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		//string line = *it;
-		//if(line.find("error") != string::npos )
-			//assert(0 && "Error in z3 execution");
-	//}
-
-
-	pclose(fp);
-
+	
 	string         sat_str       = ret_vector[0];
 
 	if(sat_str.find("error") != string::npos )
@@ -864,14 +855,13 @@ bool Solver::is_forced_free(string position){
 
 void Solver::load_forced_free_vars(){
 
-	FILE *file = fopen ( "free_vars", "r" );
-	char line [ 128 ]; /* or other suitable maximum line size */
+
+	ifstream input("free_vars");
+	string line;
 	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		forced_free_vars.insert(string(line));
+	while( getline( input, line ) ) {
+		forced_free_vars.insert(line);
 	}
-	fclose ( file );
 	
 }
 

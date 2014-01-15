@@ -30,6 +30,8 @@
 #include <assert.h>
 #include "utils.h"
 #include "database.h"
+#include <fstream>
+#include <iostream>
 
 
 class Measurement {

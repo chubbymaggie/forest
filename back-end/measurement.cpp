@@ -74,40 +74,45 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 	map<string, vector<string> > ret;
 
 	FILE* file;
-	char line[128];
 
 	debug && printf("loading free_variables\n"); fflush(stdout);
 
-	file = fopen ( "free_variables", "r" );
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		vector<string> tokens = tokenize(string(line), " ");
-		string name = tokens[0];
 
-		free_variables.push_back(name);
-	}
-	fclose ( file );
+
+{
+
+		ifstream input("free_variables");
+		string line;
+		
+		while( getline( input, line ) ) {
+			vector<string> tokens = tokenize(line, " ");
+			string name = tokens[0];
+	
+			free_variables.push_back(name);
+		}
+		
+}
+	
 
 
 	debug && printf("loading test_vectors\n"); fflush(stdout);
 
-	file = fopen ( "vectors", "r" );
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-
-		vector<string> tokens = tokenize(string(line), " ");
-
-		for ( unsigned int i = 0; i < tokens.size(); i++) {
-			debug && printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
-			ret[ free_variables[i] ].push_back(tokens[i]);
-		}
+{
+		ifstream input("vectors");
+		string line;
 		
+		while( getline( input, line ) ) {
+			
+			vector<string> tokens = tokenize(line, " ");
+	
+			for ( unsigned int i = 0; i < tokens.size(); i++) {
+				debug && printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
+				ret[ free_variables[i] ].push_back(tokens[i]);
+			}
+		}
+}
+	
 
-
-	}
-	fclose ( file );
 
 	debug && printf("End_loading\n"); fflush(stdout);
 
