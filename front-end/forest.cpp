@@ -1603,7 +1603,7 @@ int custom_random(string name, map<string, string> distributions){
 	vector<string> tokens = tokenize( distributions[name], " ");
 	string distribution = tokens[0];
 
-	printf("distribution %s %s\n", name.c_str(), distribution.c_str());
+	//printf("distribution %s %s\n", name.c_str(), distribution.c_str());
 
 	if( distribution == "uniform" ){
 
@@ -1688,6 +1688,10 @@ void random_testing(){
 	gen_file_free_variables_from_xml();
 	gen_file_vectors_random();
 	gen_final_for_measurement();
+
+	set_option("measurement", "true");
+	options_to_file();
+
 
 	// Ejecuta
 	
