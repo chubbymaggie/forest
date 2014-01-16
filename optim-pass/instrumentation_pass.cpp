@@ -1105,6 +1105,40 @@ struct RmXBool: public ModulePass {
 	}
 };
 
+
+
+structe FixInstr: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	FixInstr() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( BinaryOperator::classof(in) ){
+
+						int nameop     = in->getOpcode();
+						string operation = get_op_name_from_id(nameop);
+
+						if(operation == "%"){
+							ConstantInt* const_int64_10 = ConstantInt::get(M.getContext(), APInt(32, StringRef("1"), 10));
+							in->setOperand(1,const_int64_10);
+							//instr_to_remove.push_back(in);
+						}
+
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
+
+
 struct BinaryOp: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BinaryOp() : ModulePass(ID) {}
@@ -2997,6 +3031,7 @@ struct All: public ModulePass {
 		{AllocaInstr      pass;   pass.runOnModule(M);}
 		{BeginEnd         pass;   pass.runOnModule(M);}
 		{GetelementPtr    pass;   pass.runOnModule(M);}
+		{FixInstr         pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -3019,6 +3054,10 @@ static RegisterPass<BinaryOp> BinaryOp(             "instr_binaryop"        , "I
 
 char RmXBool::ID = 0;
 static RegisterPass<RmXBool> RmXBool(             "instr_rmxbool"        , "Remove xor boolean" );
+
+
+char FixInstr::ID = 0;
+static RegisterPass<FixInstr> FixInstr(             "instr_fixinstr"        , "Fix problematic instructions" );
 
 char SelectInstr::ID = 0;
 static RegisterPass<SelectInstr> SelectInstr(       "instr_select"          , "Instrument select operations" );
