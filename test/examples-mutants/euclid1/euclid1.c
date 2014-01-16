@@ -1,6 +1,11 @@
 
 int main() {
-	int a, b;
+	int a = 1, b = 1;
+
+	/*if(a >  92) return 0;*/
+	/*if(b >  92) return 0;*/
+	/*if(a <   0) return 0;*/
+	/*if(b <   0) return 0;*/
 
 	if( a == 0 || b == 0 ) return 0;
 
