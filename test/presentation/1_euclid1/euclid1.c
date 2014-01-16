@@ -1,6 +1,6 @@
 
 int main() {
-	int a = 1, b = 1;
+	int a, b;
 
 	if( a == 0 || b == 0 ) return 0;
 
