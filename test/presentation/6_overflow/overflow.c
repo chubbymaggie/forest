@@ -50,9 +50,9 @@ int main(int argc, const char *argv[])
 		acceso = 1;
 
 	if( acceso )
-		printf("Acceso Permitido\n");
+		printf("\e[32m Acceso Permitido \e[0m\n");
 	else 
-		printf("Acceso Denegado\n");
+		printf("\e[31m Acceso Denegado \e[0m\n");
 
 	return 0;
 	

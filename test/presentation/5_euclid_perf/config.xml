@@ -7,4 +7,5 @@
 	<option key="cyclotonic" value="true"/> 
 	<option key="unconstrained" value="true"/> 
 	<option key="output" value="mem_0"/> 
+	<option key="max_depth" value="10"/> 
 </options>

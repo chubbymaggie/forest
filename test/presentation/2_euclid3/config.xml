@@ -8,4 +8,5 @@
 	<option key="unconstrained" value="true"/> 
 	<option key="seed_function" value="_Z3gcdii"/> 
 	<option key="output" value="main_registerunderscorer2"/> 
+	<option key="max_depth" value="10"/> 
 </options>

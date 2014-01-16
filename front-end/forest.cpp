@@ -2472,16 +2472,15 @@ vector<string> get_model_paths(){
 	cmd << " > model_paths";
 	system(cmd.str().c_str());
 
-	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_paths").c_str() , "r" );
-	static char line [ 50000 ]; /* or other suitable maximum line size */
 	vector<string> lines;
-	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		lines.push_back(string(line));
-	}
-	fclose ( file );
+	string line;
 
+	ifstream input((cmd_option_str("tmp_dir") + "/model_paths").c_str());
+	
+	while( getline( input, line ) ) {
+		lines.push_back(line);
+	}
+	
 	return lines;
 	
 }
@@ -2495,15 +2494,16 @@ vector<string> get_model_assigns(){
 	cmd << " > model_assigns";
 	system(cmd.str().c_str());
 
-	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_assigns").c_str() , "r" );
-	static char line [ 50000 ]; /* or other suitable maximum line size */
 	vector<string> lines;
+
+	ifstream input((cmd_option_str("tmp_dir") + "/model_assigns").c_str());
+	string line;
 	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		lines.push_back(string(line));
+	while( getline( input, line ) ) {
+		lines.push_back(line);
 	}
-	fclose ( file );
+	
+	
 
 	return lines;
 	
@@ -2518,15 +2518,13 @@ vector<string> get_model_names(){
 	cmd << " > model_variables";
 	system(cmd.str().c_str());
 
-	FILE *file = fopen ( (cmd_option_str("tmp_dir") + "/model_variables").c_str() , "r" );
-	static char line [ 50000 ]; /* or other suitable maximum line size */
+	ifstream input((cmd_option_str("tmp_dir") + "/model_variables").c_str());
+	string line;
 	vector<string> lines;
 	
-	while ( fgets ( line, sizeof(line), file ) != NULL ){
-		line[strlen(line)-1] = 0;
-		lines.push_back(string(line));
+	while( getline( input, line ) ) {
+		lines.push_back(line);
 	}
-	fclose ( file );
 
 	return lines;
 	
@@ -2621,6 +2619,8 @@ void get_model(){
 	set<string>    outputs = get_model_outputs();
 
 	and_paths(paths);
+
+	printf("paths and models %lu %lu\n", paths.size(), assigns.size());
 
 	assert(paths.size() == assigns.size());
 	assert(paths.size() == names.size());
