@@ -74,6 +74,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	bool is_forced_free_2(string position);
 	void dump_model();
 	void insert_variable_2(string name, string position);
 	void set_content(string name, string content);

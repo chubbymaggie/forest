@@ -853,6 +853,20 @@ bool Solver::is_forced_free(string position){
 
 }
 
+
+bool Solver::is_forced_free_2(string position){
+
+	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+
+	if( forced_free_vars.find(position) != forced_free_vars.end() ){
+		return true;
+	} else {
+		return false;
+	}
+
+}
+
+
 void Solver::load_forced_free_vars(){
 
 
@@ -1566,6 +1580,7 @@ bool Solver::check_mangled_name(string name){
 bool Solver::get_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
+	if(is_forced_free_2(varname)) return false;
 	return variables[varname].is_propagated_constant;
 }
 
