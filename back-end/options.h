@@ -28,12 +28,15 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
 
 class Options {
 public:
+	int cmd_option_int(string option);
+	string cmd_option_str(string option);
 	Options ();
 	virtual ~Options ();
 	void read_options();

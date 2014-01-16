@@ -1107,7 +1107,7 @@ struct RmXBool: public ModulePass {
 
 
 
-structe FixInstr: public ModulePass {
+struct FixInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	FixInstr() : ModulePass(ID) {}
 

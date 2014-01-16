@@ -450,6 +450,10 @@ bool sat;
 
 void Solver::solve_problem(){
 
+	if(options->cmd_option_str("max_depth") != "" && conditions.size() > options->cmd_option_int("max_depth")){
+		sat = 0;
+		return;
+	}
 
 	vector<string> ret_vector;
 

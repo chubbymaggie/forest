@@ -1,6 +1,6 @@
 
 int main() {
-	int a = 1, b = 1;
+	int a, b;
 
 	/*if(a >  92) return 0;*/
 	/*if(b >  92) return 0;*/

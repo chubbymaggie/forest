@@ -64,3 +64,14 @@ vector<string> Options::cmd_option_vector_str(string key){
 	vector<string> tokens = tokenize(options[key], "@");
 	return tokens;
 }
+
+string Options::cmd_option_str(string option){
+	if(options[option] == "" ) return "";
+	vector<string> tokens = tokenize(options[option].c_str(),"@" );
+	string ret = tokens[tokens.size()-1];
+	return ret;
+}
+
+int Options::cmd_option_int(string option){
+	return atoi( options[option].c_str() );
+}
