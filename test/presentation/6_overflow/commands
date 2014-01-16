@@ -1,0 +1,6 @@
+make
+./overflow clave
+./overflow error
+./overflow errorerrorerror
+forest -test false -run
+forest -get_model 2>/dev/null > /media/disk/overflow
