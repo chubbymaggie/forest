@@ -2620,7 +2620,7 @@ void get_model(){
 
 	and_paths(paths);
 
-	printf("paths and models %lu %lu\n", paths.size(), assigns.size());
+	//printf("paths and models %lu %lu\n", paths.size(), assigns.size());
 
 	assert(paths.size() == assigns.size());
 	assert(paths.size() == names.size());
