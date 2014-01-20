@@ -638,27 +638,8 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		if( options->cmd_option_bool("propagate_constants") && solver->get_is_propagated_constant(name(cmp)) )
 			return real_value_prev == "true";
 
-		if( realvalue(cmp) == "true" ){
-			if( options->cmd_option_bool("cyclotonic") ){
-				solver->push_condition(solver->content(name(cmp)));
-			} else {
-				if(solver->get_comes_from_non_annotated(name(cmp)))
-					solver->push_condition(solver->content(name(cmp)));
-				else
-					solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
-			}
-		} else if (realvalue(cmp) == "false" ){
-			if( options->cmd_option_bool("cyclotonic") ){
-					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-			} else {
-				if(solver->get_comes_from_non_annotated(name(cmp)))
-					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-				else
-					solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
-			}
-		} else {
-			assert(0 && "Non-boolean value for condition");
-		}
+
+		solver->push_condition_2(name(cmp), actual_function, joints);
 
 		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
 
@@ -673,28 +654,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		}
 
 
-		if( realvalue(cmp) == "true" ){
-			if( options->cmd_option_bool("cyclotonic") ){
-					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-			} else {
-				if(solver->get_comes_from_non_annotated(name(cmp)))
-					solver->push_condition( solver->negation(solver->content( name(cmp) )) );
-				else
-					solver->push_condition( solver->negation(solver->content( name(cmp) )), actual_function, joints );
-			}
-		} else if (realvalue(cmp) == "false" ){
-			if( options->cmd_option_bool("cyclotonic") ){
-					solver->push_condition( solver->content( name(cmp) ) );
-			} else {
-				if(solver->get_comes_from_non_annotated(name(cmp)))
-					solver->push_condition( solver->content( name(cmp) ) );
-				else
-					solver->push_condition( solver->content( name(cmp) ) , actual_function, joints );
-			}
-		} else {
-			assert(0 && "Non-boolean value for condition");
-		}
-
+		solver->push_condition_3(name(cmp), actual_function, joints);
 
 		see_each_problem && solver->show_problem();
 

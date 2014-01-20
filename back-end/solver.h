@@ -74,6 +74,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void push_condition_2(string name, string actual_function, vector<string> joints);
+	void push_condition_3(string name, string actual_function, vector<string> joints);
 	bool is_forced_free_2(string position);
 	void dump_model();
 	void insert_variable_2(string name, string position);
@@ -127,6 +129,7 @@ public:
 	void insert_variable(string name, string position);
 
 private:
+	bool need_for_dump(string name, string content);
 	string get_comma_stack_conditions();
 	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );

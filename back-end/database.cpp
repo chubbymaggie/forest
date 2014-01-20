@@ -147,40 +147,29 @@ int Database::num_of_variables() {
 	return solver->get_free_variables().size();
 }
 
-int Database::num_of_mults(){
+int Database::count_in_conds(string op){
 	int ret = 0;
 	vector<Condition> conditions = solver->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		ret += count(it->cond, "*");
+		ret += count(it->cond, op);
 	}
 	return ret;
+}
+
+int Database::num_of_mults(){
+	return count_in_conds("*");
 }
 
 int Database::num_of_divs(){
-	int ret = 0;
-	vector<Condition> conditions = solver->get_stack_conditions();
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		ret += count(it->cond, "/");
-	}
-	return ret;
+	return count_in_conds("/");
 }
 
 int Database::num_of_sums(){
-	int ret = 0;
-	vector<Condition> conditions = solver->get_stack_conditions();
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		ret += count(it->cond, "+");
-	}
-	return ret;
+	return count_in_conds("+");
 }
 
 int Database::num_of_subs(){
-	int ret = 0;
-	vector<Condition> conditions = solver->get_stack_conditions();
-	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		ret += count(it->cond, "-");
-	}
-	return ret;
+	return count_in_conds("-");
 }
 
 void Database::insert_problem(){

@@ -181,6 +181,7 @@ void insert_problem_measurement();
 
 
 private:
+	int count_in_conds(string op);
 	sqlite3 *db;
 
 

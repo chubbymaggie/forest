@@ -289,6 +289,14 @@ void Solver::dump_tail(FILE* file){
 	fprintf(file,"(exit)\n");
 }
 
+bool Solver::need_for_dump(string name, string content){
+		if( content == "" ) return false;
+		if( name.find("_pivot_") != string::npos ) return false;
+		if( gettype(name) == "Function") return false;
+		if( get_is_propagated_constant(name) ) return false;
+		return true;
+}
+
 void Solver::dump_get(FILE* file){
 
 
@@ -300,10 +308,8 @@ void Solver::dump_get(FILE* file){
 	fprintf(file,"; --- ↑free ↓non-free \n" );
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-		if( it->second.content == "" ) continue;
-		if( it->first.find("_pivot_") != string::npos ) continue;
-		if( gettype(it->first) == "Function") continue;
-		if( get_is_propagated_constant(it->first) ) continue;
+
+		if(!need_for_dump(it->first, it->second.content)) continue;
 		
 		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
@@ -550,11 +556,7 @@ void Solver::solve_problem(){
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
-		if( it->second.content == "" ) continue;
-		if( it->first.find("_pivot_") != string::npos ) continue;
-		if( gettype(it->first) == "Function") continue;
-		if( get_is_propagated_constant(it->first) ) continue;
-		//printf("first name %s\n", it->first.c_str() );
+		if(!need_for_dump(it->first, it->second.content)) continue;
 
 		string line = *it_ret;
 		if(line.find("error") != string::npos )
@@ -650,6 +652,59 @@ void Solver::push_condition(string cond ){
 	conditions.push_back( condition );
 
 }
+
+
+void Solver::push_condition_2(string name, string actual_function, vector<string> joints){
+
+	if( realvalue(name) == "true" ){
+		if( options->cmd_option_bool("cyclotonic") ){
+			push_condition(content(name));
+		} else {
+			if(get_comes_from_non_annotated(name))
+				push_condition(content(name));
+			else
+				push_condition(content(name), actual_function, joints );
+		}
+	} else if( realvalue(name) == "false" ){
+		if( options->cmd_option_bool("cyclotonic") ){
+			push_condition(negation(content(name)));
+		} else {
+			if(get_comes_from_non_annotated(name))
+				push_condition(negation(content(name)));
+			else
+				push_condition(negation(content(name)), actual_function, joints );
+		}
+	} else {
+		assert(0 && "Non-boolean value for condition");
+	}
+}
+
+
+void Solver::push_condition_3(string name, string actual_function, vector<string> joints){
+
+	if( realvalue(name) == "true" ){
+		if( options->cmd_option_bool("cyclotonic") ){
+			push_condition(negation(content(name)));
+		} else {
+			if(get_comes_from_non_annotated(name))
+				push_condition(negation(content(name)));
+			else
+				push_condition(negation(content(name)), actual_function, joints );
+		}
+	} else if( realvalue(name) == "false" ){
+		if( options->cmd_option_bool("cyclotonic") ){
+			push_condition(content(name));
+		} else {
+			if(get_comes_from_non_annotated(name))
+				push_condition(content(name));
+			else
+				push_condition(content(name), actual_function, joints );
+		}
+	} else {
+		assert(0 && "Non-boolean value for condition");
+	}
+}
+
 
 void Solver::push_condition(string cond, string fn, vector<string> joints ){
 
@@ -1011,7 +1066,6 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 bool Solver::implemented_operation(string operation){
 
-	if(operation == "+" ) return true;
 	if(operation == "<=") return true;
 	if(operation == ">=") return true;
 	if(operation == "<" ) return true;
