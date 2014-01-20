@@ -526,6 +526,16 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d last_address %d first_address %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer, solver->get_last_address(name(mem_var_aux.str())), solver->get_first_address(name(mem_var_aux.str())) );
 }
 
+bool Operators::all_constant(vector<string> names){
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		if(!(solver->is_constant(name(*it)) || solver->get_is_propagated_constant(name(*it)))) return false;
+	}
+
+	return true;
+	
+}
+
 void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
 
 	string dst     = string(_dst);
@@ -552,20 +562,24 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	//}
 	
 
-	string remaining_tree;
-	int offset = get_offset(indexes, offset_tree, &remaining_tree);
-	solver->set_offset_tree(name(dst), remaining_tree);
-	//printf("offset %d remaining_tree %s remaining_tree %s\n", offset, remaining_tree.c_str(), get_offset_tree(dst).c_str() );
+	if(all_constant(indexes)){
+		string remaining_tree;
+		int offset = get_offset(indexes, offset_tree, &remaining_tree);
+		solver->set_offset_tree(name(dst), remaining_tree);
 
-	
-	stringstream offset_ss; offset_ss << offset;
-	string offset_constant_s = offset_ss.str();
-	offset_constant_s = "constant_" + offset_constant_s;
+		stringstream offset_ss; offset_ss << offset;
+		string offset_constant_s = offset_ss.str();
+		offset_constant_s = "constant_" + offset_constant_s;
 
-	printf("offset_constant_s %s\n", offset_constant_s.c_str());
-	
-	solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
-	//exit(0);
+		printf("offset_constant_s %s\n", offset_constant_s.c_str());
+
+		solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
+		//exit(0);
+
+	} else {
+		assert(0 && "Not all indexes constant");
+	}
+
 
 
 

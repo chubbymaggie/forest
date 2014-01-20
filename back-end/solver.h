@@ -130,6 +130,7 @@ public:
 	void setcontent(string varname, string content);
 	bool is_forced_free(string position);
 	void insert_variable(string name, string position);
+	bool is_constant(string varname);
 
 private:
 	bool need_for_dump(string name, string content);
@@ -199,7 +200,6 @@ private:
 	int get_num_fvars();
 	void set_is_propagated_constant(string varname);
 	void unset_is_propagated_constant(string varname);
-	bool is_constant(string varname);
 	string result_get(string get_str);
 	bool implemented_operation(string operation);
 	string wired_and( string op1, string op2, int nbits );

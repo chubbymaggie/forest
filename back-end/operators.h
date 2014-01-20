@@ -80,6 +80,7 @@ public:
 	string name( string input, string fn_name = "" );
 
 private:
+	bool all_constant(vector<string> names);
 	void pr_callstack();
 	bool see_each_problem;
 
