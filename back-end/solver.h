@@ -48,6 +48,7 @@ typedef struct Variable {
 	string name_hint;
 	string content;
 	string tree;
+	int first_address;
 	int last_address;
 	bool is_propagated_constant;
 	bool comes_from_non_annotated;
@@ -86,6 +87,8 @@ public:
 	void set_comes_from_non_annotated(string name);
 	int get_last_address(string name);
 	void set_last_address(string name, int last_address);
+	int get_first_address(string name);
+	void set_first_address(string name, int first_address);
 	string get_first_content_value(string var);
 	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);

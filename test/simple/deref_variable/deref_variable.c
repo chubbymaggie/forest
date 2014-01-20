@@ -25,17 +25,17 @@
 
 
 int main() {
-	int a;
+	int index;
 	int array[] = {1,2,3,4,5};
 
 
 #ifdef KLEE
-	klee_make_symbolic(&a, sizeof(a), "a");
+	klee_make_symbolic(&index, sizeof(index), "index");
 #endif
 
 
 
-	if(array[a] == 3)
+	if(array[index] == 3)
 		return 0;
 	else
 		return 1;

@@ -112,6 +112,15 @@ void Solver::set_last_address(string name, int last_address){
 
 }
 
+void Solver::set_first_address(string name, int first_address){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_first_address");
+
+	debug && printf("\e[32m set_first_address %s %d \e[0m\n", name.c_str(), first_address);
+
+	variables[name].first_address = first_address;
+
+}
 
 int Solver::get_last_address(string name){
 
@@ -121,6 +130,12 @@ int Solver::get_last_address(string name){
 }
 
 
+int Solver::get_first_address(string name){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for get_first_address");
+	return variables[name].first_address;
+
+}
 
 void Solver::dump_pivots(FILE* file){
 
@@ -1003,6 +1018,7 @@ void Solver::propagate_unary(string src, string dst, bool forcedfree){
 	set_offset_tree(dst, get_offset_tree(src));
 
 	set_last_address(dst, get_last_address(src));
+	set_first_address(dst, get_first_address(src));
 
 	if(get_comes_from_non_annotated(src))
 		set_comes_from_non_annotated(dst);
@@ -1056,9 +1072,10 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d firstaddress %d %d\n",
                  variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(src), get_is_propagated_constant(dst), get_last_address(src), get_last_address(dst) );
+		 get_is_propagated_constant(src), get_is_propagated_constant(dst),
+		 get_last_address(src), get_last_address(dst), get_first_address(src), get_first_address(dst) );
 
 
 
@@ -1102,6 +1119,7 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 	}
 
 	set_last_address(dst, get_last_address(op1));
+	set_first_address(dst, get_first_address(op1));
 
 	if( get_comes_from_non_annotated(op1) )
 		set_comes_from_non_annotated(dst);
@@ -1538,9 +1556,10 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m last_address\e[0m  %d %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m last_address\e[0m  %d %d firstaddress %d %d\n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
-		get_is_propagated_constant(dst), get_last_address(op1), get_last_address(dst) );
+		get_is_propagated_constant(dst),
+		get_last_address(op1), get_last_address(dst), get_first_address(op1), get_first_address(dst) );
 
 
 }
