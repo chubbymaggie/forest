@@ -309,7 +309,7 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 bool Operators::is_variable_pointer(string addr){
 
-	string content = solver->content(name(addr));
+	string content = solver->content_2(name(addr));
 	if(content.substr(0,4) == "idx:") return true;
 	return false;
 

@@ -73,6 +73,32 @@ string Solver::content( string name ){
 	}
 }
 
+
+string Solver::content_2( string name ){
+
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
+
+	if(name.find("constant_") != string::npos ) return name.substr(9);
+
+	if( variables[name].content == "" || is_forced_free(name) ){
+		string position;
+	        if(name.substr(0,7) == "global_")
+			position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
+		else
+			position = variables[name].name_hint;
+		//insert_variable(name, position );
+
+		if(is_number(name)) return name;
+		else return position;
+		//return name;
+
+	} else {
+		return variables[name].content;
+	}
+}
+
+
+
 void Solver::dump_model(){
 
 

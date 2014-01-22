@@ -76,6 +76,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	string content_2( string name );
 	void variable_load(string dst, string content, int first_address, int last_address );
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
 	void push_condition_2(string name, string actual_function, vector<string> joints);
