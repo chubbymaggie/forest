@@ -79,6 +79,7 @@ test:
 	@forest ./test/simple/and_bool/config.xml                  # ANDing two boolean variables
 	@forest ./test/simple/overflow/config.xml                  # Overflow detection
 	@forest ./test/simple/deref_variable/config.xml            # Dereferencing a pointer with a free variable
+	@forest ./test/simple/deref_variable_store/config.xml      # Dereferencing a pointer with a free variable in store
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml

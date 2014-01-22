@@ -2014,4 +2014,36 @@ void Solver::variable_load(string dst, string idx_content, int first_address, in
 
 
 
+void Solver::variable_store(string src, string idx_content, int first_address, int last_address ){
+
+	if(!check_mangled_name(src)) assert(0 && "Wrong name for variable_store");
+
+	string index_expr = idx_content.substr(5);
+
+	string src_content  = content(src);
+
+	for ( unsigned int i = first_address; i <= last_address; i++) {
+
+
+		string mem_name = "mem_" + itos(i);
+		if(get_name_hint(mem_name) == "") continue;
+
+		string prev_content = content(mem_name);
+
+		stringstream result_expr;
+		result_expr << "(ite (= " << index_expr << " " << i << ") " << src_content << " " << prev_content << ")";
+
+		setcontent(mem_name, result_expr.str());
+		settype(mem_name, get_type(src));
+		unset_is_propagated_constant(mem_name);
+
+	}
+
+
+
+	printf("\e[32m Variable_store \e[0m src %s content %s first_addr %d last_addr %d \n",src.c_str(),
+			idx_content.c_str(), first_address, last_address);
+
+
+}
 
