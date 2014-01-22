@@ -1912,3 +1912,80 @@ void Solver::pivot_variable(string variable, string name){
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
 
+
+vector<int> jump_offsets(string offset_tree){
+
+	vector<int> ret;
+
+	for ( unsigned int i = 1; offset_tree[i] == '('; i++) {
+		string sub = close_str(offset_tree.substr(i));
+		string right = sub.substr(sub.find_last_of(","));
+		string center = right.substr(1,right.length()-2);
+		//printf("sub %s %s\n", sub.c_str(), center.c_str() );
+		ret.push_back(stoi(center));
+	}
+
+	return ret;
+}
+
+void Solver::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
+
+	vector<int> jmp_offsets = jump_offsets(offset_tree);
+
+	assert( jmp_offsets.size() == indexes.size() );
+
+	string expr = "idx: (+ " + content(base) + " ";
+	for ( unsigned int i = 0; i < indexes.size(); i++) {
+		stringstream subexpr;
+		subexpr << "(* " << content(indexes[i]) << " " << jmp_offsets[i] << ") ";
+		expr += subexpr.str();
+	}
+
+	expr += ")";
+
+	setcontent(dst, expr);
+
+	bool forcedfree = is_forced_free(base);
+	propagate_unary(base, dst, forcedfree);
+
+	debug && printf("\e[32m pointer_instruction \e[0m last_addr %d first_addr %d last_addr %d first_addr %d\n",
+			get_last_address(base), get_first_address(base),
+			get_last_address(dst) , get_first_address(dst)
+			);
+
+}
+
+
+void Solver::variable_load(string dst, string idx_content, int first_address, int last_address ){
+
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
+
+	string index_expr = idx_content.substr(5);
+	stringstream result_expr;
+
+	int m = 0;
+	for ( unsigned int i = first_address; i <= last_address; i++) {
+		string mem_name = "mem_" + itos(i);
+		if(get_name_hint(mem_name) == "") continue;
+		result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
+		m++;
+	}
+
+	result_expr << "0";
+
+	for ( unsigned int i = 0; i < m; i++) {
+		result_expr << ")";
+	}
+
+	setcontent(dst, result_expr.str());
+
+	settype(dst, get_type("mem_" + itos(first_address)));
+
+	printf("\e[32m Variable_load \e[0m dst %s content %s first_addr %d last_addr %d result_expr %s\n", dst.c_str(), idx_content.c_str(), first_address, last_address, result_expr.str().c_str());
+
+
+}
+
+
+
+

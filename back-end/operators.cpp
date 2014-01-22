@@ -307,6 +307,14 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 #define update_store(A,B) concurrency->update_store(A,B);
 
 
+bool Operators::is_variable_pointer(string addr){
+
+	string content = solver->content(name(addr));
+	if(content.substr(0,4) == "idx:") return true;
+	return false;
+
+}
+
 void Operators::load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
@@ -314,20 +322,58 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
 
-	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
-	if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
+	if(is_variable_pointer(addr)){
 
-	//if(options->cmd_option_bool("secuencialize")){
+		string content = solver->content(name(addr));
+		//string addr_base = tokenize(content, " ")[2];
+		//string addr_base_name = "mem_" + addr_base;
+		//int first_address = solver->get_first_address(addr_base_name);
+		//int last_address = solver->get_last_address(addr_base_name);
+
+		//printf("content %s addr_base %s\n", content.c_str(), addr_base.c_str() );
+		
+		
+		int first_address = solver->get_first_address(name(addr));
+		int last_address = solver->get_last_address(name(addr));
+		
+
+		printf("variable_pointer %d %d\n", first_address, last_address);
+
+		solver->variable_load(name(dst), content, first_address, last_address);
+		
+		//if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
+		//if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
+
+		//if(options->cmd_option_bool("secuencialize")){
 		//database->insert_load(src);
-	//}
+		//}
 
-	solver->assign_instruction(name(src),name(dst));
+		//solver->assign_instruction(name(src),name(dst));
 
-	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
-								    name(addr).c_str(), realvalue(addr).c_str(),
-								    name(src).c_str(), realvalue(src).c_str(),
-							            name(dst).c_str(), realvalue(dst).c_str()
-								    );
+		//debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+				//name(addr).c_str(), realvalue(addr).c_str(),
+				//name(src).c_str(), realvalue(src).c_str(),
+				//name(dst).c_str(), realvalue(dst).c_str()
+			       //);
+	} else {
+
+		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
+		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
+
+		//if(options->cmd_option_bool("secuencialize")){
+		//database->insert_load(src);
+		//}
+
+		solver->assign_instruction(name(src),name(dst));
+
+		debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+				name(addr).c_str(), realvalue(addr).c_str(),
+				name(src).c_str(), realvalue(src).c_str(),
+				name(dst).c_str(), realvalue(dst).c_str()
+			       );
+	}
+
+
 	//exit(0);
 
 }
@@ -575,9 +621,23 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 		solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
 		//exit(0);
+		
+		//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
+		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) )
+			exit(0);
+		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) )
+			exit(0);
 
 	} else {
-		assert(0 && "Not all indexes constant");
+
+		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
+
+		//string base = pointer;
+		//string index_expr = get_index_expr(offset_tree, indexes, base);
+
+		//printf("index_expr %s\n", index_expr.c_str() );
+
+		
 	}
 
 
@@ -587,11 +647,6 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 			dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
 			name(dst).c_str(), realvalue(dst).c_str(), solver->get_last_address(name(pointer)), solver->get_first_address(name(pointer)) );
 
-	//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
-	if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) )
-		exit(0);
-	if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) )
-		exit(0);
 
 }
 
@@ -716,6 +771,20 @@ void Operators::Free_fn( char* _oplist ){
 	debug && printf("\e[31m FreeFn %s\e[0m\n", _oplist );
 
 }
+
+vector<string> Operators::name( vector<string> input, string fn_name ){
+
+	vector<string> ret;
+
+	for( vector<string>::iterator it = input.begin(); it != input.end(); it++ ){
+		ret.push_back( name(*it, fn_name) );
+	}
+	
+
+	return ret;
+
+}
+
 
 string Operators::name( string input, string fn_name ){
 

@@ -78,6 +78,7 @@ test:
 	@forest ./test/simple/non_annotated_n/config.xml           # Calling a non-annotated function n times
 	@forest ./test/simple/and_bool/config.xml                  # ANDing two boolean variables
 	@forest ./test/simple/overflow/config.xml                  # Overflow detection
+	@forest ./test/simple/deref_variable/config.xml            # Dereferencing a pointer with a free variable
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
