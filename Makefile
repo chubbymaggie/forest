@@ -80,6 +80,7 @@ test:
 	@forest ./test/simple/overflow/config.xml                  # Overflow detection
 	@forest ./test/simple/deref_variable/config.xml            # Dereferencing a pointer with a free variable
 	@forest ./test/simple/deref_variable_store/config.xml      # Dereferencing a pointer with a free variable in store
+	@forest ./test/simple/probem_mod/config.xml                # Avoids problematic module 0
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
