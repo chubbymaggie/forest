@@ -1090,7 +1090,15 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 	propagate_unary(src, dst, forcedfree);
 
 	//if( variables[dst].type == "" ) assert(0 && "No type in dst");
+	string prev_type = variables[dst].type;
+	string new_type = get_type(src);
+
 	settype(dst, get_type(src));
+
+	if(is_constant(src) && prev_type != new_type && prev_type != "Pointer" && prev_type != ""){
+		printf("Types %s %s\n", prev_type.c_str(), new_type.c_str());
+		settype(dst, prev_type);
+	}
 
 	//printf("set_real_value inside assign %s %s %s\n", dst.c_str(), src.c_str(), realvalue(src).c_str() );
 	set_real_value( dst, realvalue(src) );
@@ -1098,9 +1106,10 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d firstaddress %d %d\n",
-                 variables[dst].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(), 
-		 get_is_propagated_constant(src), get_is_propagated_constant(dst),
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s %s %s\e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d firstaddress %d %d\n",
+                 variables[dst].content.c_str(),
+		 variables[src].type.c_str(), variables[dst].type.c_str(), prev_type.c_str(),
+		 realvalue(dst).c_str(), get_is_propagated_constant(src), get_is_propagated_constant(dst),
 		 get_last_address(src), get_last_address(dst), get_first_address(src), get_first_address(dst) );
 
 
