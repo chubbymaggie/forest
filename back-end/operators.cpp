@@ -725,6 +725,24 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 
 	//solver->print_path_stack();
+	
+	if(options->cmd_option_bool("follow_path") ){
+		string path = options->cmd_option_str("path");
+		int length = path.length();
+
+		static int n;
+
+		if(n < length){
+			bool step = path[n] == 'T';
+			printf("step %d\n", step);
+			solver->push_path_stack(step);
+
+			if( !solver->get_is_propagated_constant(name(cmp)) )
+				solver->push_condition(solver->content(name(cmp)));
+			n++;
+			return step;
+		}
+	}
 
 
 	string real_value_prev = realvalue(cmp);
