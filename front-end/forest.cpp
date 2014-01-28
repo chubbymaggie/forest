@@ -657,6 +657,34 @@ void vim(){
 }
 
 
+void drive_frontend(){
+
+	printf("drive_frontend\n");
+
+	set_option("follow_path", "true");
+	set_option("single_step", "true");
+
+	set<string> frontier;
+
+	//do {
+		string first;
+		if(frontier.size()){
+			first = *(frontier.begin());
+			frontier.erase(frontier.begin());
+		}
+
+		//set_option("path", first);
+		set_option("path", "T");
+
+		options_to_file();
+
+		// Ejecuta el fichero resultante
+		stringstream cmd;
+		cmd << "./" << cmd_option_str("output_file");
+		systm(cmd.str().c_str());
+	//} while(frontier.size());
+}
+
 void run(){
 
 	start_pass("run");
@@ -679,7 +707,11 @@ void run(){
 	struct timespec pong_time;
 	clock_gettime(CLOCK_MONOTONIC, &ping_time);
 
-	systm(cmd.str().c_str());
+	if(cmd_option_bool("driven_by_frontend")){
+		drive_frontend();
+	} else {
+		systm(cmd.str().c_str());
+	}
 
 	clock_gettime(CLOCK_MONOTONIC, &pong_time);
 	float spent_time = 0;

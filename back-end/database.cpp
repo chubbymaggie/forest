@@ -65,6 +65,7 @@ void Database::drop_tables(){
 	action << "drop table variables;";
 	action << "drop table results;";
 	action << "drop table measurements;";
+	action << "drop table frontend;";
 
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
@@ -125,6 +126,10 @@ void Database::create_tables(){
 	action << "path varchar(5000)";
 	action << ");";
 
+	action << "create table frontend(";
+	action << "path varchar(5000),";
+	action << "conditions varchar(5000)";
+	action << ");";
 
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
@@ -890,4 +895,11 @@ set<NameAndType> Database::get_shared_vars(){
 
 }
 
+void Database::insert_frontend_interface(){
+	string path = solver->get_path_stack_str();
+	string conditions = solver->get_comma_stack_conditions();
 
+	stringstream action;
+	action << "insert into frontend values ('" << path << "','" << conditions << "');";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+}

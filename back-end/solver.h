@@ -76,6 +76,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	string get_path_stack_str();
+	void pop_path_stack();
 	void variable_store(string src,string idx_content, int first_address, int last_address );
 	string content_2( string name );
 	void variable_load(string dst, string content, int first_address, int last_address );
@@ -136,10 +138,10 @@ public:
 	bool is_forced_free(string position);
 	void insert_variable(string name, string position);
 	bool is_constant(string varname);
+	string get_comma_stack_conditions();
 
 private:
 	bool need_for_dump(string name, string content);
-	string get_comma_stack_conditions();
 	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );
 	string complement_op(string op1);

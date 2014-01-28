@@ -1836,10 +1836,31 @@ vector<bool> Solver::get_path_stack(){
 	return path_stack;
 }
 
+string Solver::get_path_stack_str(){
+
+	string ret;
+	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
+		if(*it)
+			ret += "T";
+		else
+			ret += "F";
+	}
+	
+	return ret;
+}
+
 void Solver::push_path_stack(bool step){
 
 	path_stack.push_back(step);
 }
+
+
+void Solver::pop_path_stack(){
+
+	vector<bool>::iterator iter = path_stack.end();iter--;
+	path_stack.erase(iter);
+}
+
 
 void Solver::print_path_stack(){
 

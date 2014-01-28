@@ -726,11 +726,12 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	//solver->print_path_stack();
 	
+	static int n;
+
 	if(options->cmd_option_bool("follow_path") ){
 		string path = options->cmd_option_str("path");
 		int length = path.length();
 
-		static int n;
 
 		if(n < length){
 			bool step = path[n] == 'T';
@@ -742,6 +743,58 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			n++;
 			return step;
 		}
+	}
+
+	if(options->cmd_option_bool("single_step") /*&& !solver->get_is_propagated_constant(name(cmp))*/){
+
+
+
+
+		string real_value_prev = realvalue(cmp);
+
+
+////////////////////
+		
+
+		solver->push_path_stack( real_value_prev == "true");
+		solver->set_sat(true);
+
+		//database->insert_problem();
+		database->insert_frontend_interface();
+
+
+
+////////////////////
+		solver->pop_path_stack();
+////////////////////
+
+
+
+
+		if( solver->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
+
+		solver->push_condition_3(name(cmp), actual_function, joints);
+
+		solver->solve_problem();
+
+		if( solver->solvable_problem() ){
+
+			solver->push_path_stack( real_value_prev != "true");
+
+			//database->insert_problem();
+			database->insert_frontend_interface();
+
+			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
+		} else {
+			debug && printf("\e[31m hijo unsat \e[0m\n"); fflush(stdout);
+		}
+
+////////////////////
+
+
+			exit(0);
+
+
 	}
 
 
