@@ -656,6 +656,67 @@ void vim(){
 
 }
 
+typedef struct PathAndConds {
+	string path;
+	string conds;
+
+} PathAndConds;
+
+inline bool operator<(const PathAndConds& lhs, const PathAndConds& rhs) {
+  return lhs.path > rhs.path;
+}
+
+void add_paths(set<PathAndConds>& frontier){
+
+	stringstream action;
+
+	action << "echo 'select path from frontend;' | sqlite3 database.db > paths";
+	systm(action.str());
+
+	action.str("");
+	action << "echo 'select conditions from frontend;' | sqlite3 database.db > conditions";
+	systm(action.str());
+
+	string line;
+
+	vector<string> paths;
+	vector<string> conds;
+
+	{
+		ifstream input("/tmp/forest/paths");
+		while( getline( input, line ) ) {
+			paths.push_back(line);
+		}
+	}
+	
+	{
+		ifstream input("/tmp/forest/conditions");
+		while( getline( input, line ) ) {
+			conds.push_back(line);
+		}
+	}
+
+
+	assert(paths.size() == conds.size());
+
+	for ( unsigned int i = 0; i < paths.size(); i++) {
+		PathAndConds path_and_cond = {paths[i], conds[i]};
+		frontier.insert(path_and_cond);
+	}
+
+
+
+
+}
+
+void print_frontier(set<PathAndConds> frontier){
+
+	printf("frontier: ");
+	for( set<PathAndConds>::iterator it = frontier.begin(); it != frontier.end(); it++ ){
+		printf("%s, ", it->path.c_str());
+	}
+	printf("\n");
+}
 
 void drive_frontend(){
 
@@ -664,17 +725,16 @@ void drive_frontend(){
 	set_option("follow_path", "true");
 	set_option("single_step", "true");
 
-	set<string> frontier;
+	set<PathAndConds> frontier;
 
-	//do {
-		string first;
+	do {
+		PathAndConds first;
 		if(frontier.size()){
 			first = *(frontier.begin());
 			frontier.erase(frontier.begin());
 		}
 
-		//set_option("path", first);
-		set_option("path", "T");
+		set_option("path", first.path);
 
 		options_to_file();
 
@@ -682,7 +742,12 @@ void drive_frontend(){
 		stringstream cmd;
 		cmd << "./" << cmd_option_str("output_file");
 		systm(cmd.str().c_str());
-	//} while(frontier.size());
+
+		add_paths(frontier);
+		print_frontier(frontier);
+
+	} while(frontier.size());
+
 }
 
 void run(){

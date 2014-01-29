@@ -79,20 +79,26 @@ void Database::create_tables(){
 	debug && printf("\e[31m create_tables \e[0m\n"); fflush(stdout);
 
 	stringstream action;
+
+	action.str("");
 	action << "create table problems(";
 	action << "problem_id INTEGER PRIMARY KEY AUTOINCREMENT,";
 	action << "sat bool,";
 	action << "path varchar(50)";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 
+	action.str("");
 	action << "create table variables(";
 	action << "name varchar(50),";
 	action << "type varchar(50),";
 	action << "position varchar(50),";
 	action << "problem_id INTEGER";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
+	action.str("");
 	action << "create table results(";
 	action << "name varchar(50),";
 	action << "value varchar(50),";
@@ -100,13 +106,17 @@ void Database::create_tables(){
 	action << "is_free bool,";
 	action << "problem_id INTEGER";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
+	action.str("");
 	action << "create table measurements(";
 	action << "key varchar(50),";
 	action << "value varchar(50)";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 
+	action.str("");
 	action << "create table statistics(";
 	action << "problem_id integer,";
 	action << "num_of_assertions integer,";
@@ -117,23 +127,28 @@ void Database::create_tables(){
 	action << "num_of_subs integer,";
 	action << "time_ms float";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 
+	action.str("");
 	action << "create table models(";
 	action << "variable varchar(50),";
 	action << "free varchar(5000),";
 	action << "content varchar(5000),";
 	action << "path varchar(5000)";
 	action << ");";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
+	action.str("");
 	action << "create table frontend(";
 	action << "path varchar(5000),";
 	action << "conditions varchar(5000)";
 	action << ");";
-
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
 	debug && printf("\e[31m end_tables \e[0m\n"); fflush(stdout);
+	//printf("action: %s\n", action.str().c_str());
+	//exit(0);
 }
 
 void Database::insert_model_entry(string name,string free_vars, string content, string path_condition){

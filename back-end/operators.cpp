@@ -729,6 +729,9 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 	static int n;
 
 	if(options->cmd_option_bool("follow_path") ){
+
+		printf("follow_path\n");
+
 		string path = options->cmd_option_str("path");
 		int length = path.length();
 
@@ -748,7 +751,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 	if(options->cmd_option_bool("single_step") /*&& !solver->get_is_propagated_constant(name(cmp))*/){
 
 
-
+		printf("single_step\n");
 
 		string real_value_prev = realvalue(cmp);
 
