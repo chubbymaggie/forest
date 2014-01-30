@@ -111,14 +111,7 @@ struct PathFinder: public ModulePass {
 	PathFinder() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
-		map<string, map<string, string> > conectivity_matrix;
-		set<string> bbs;
-
-		mod_iterator(M, fun){
-		fun_iterator(fun,bb){
-			bbs.insert(fun->getName().str() + "_" + bb->getName().str() );
-		}
-		}
+		map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond
 
 
 		mod_iterator(M, fun){
@@ -126,7 +119,6 @@ struct PathFinder: public ModulePass {
 
 			string fn_name = fun->getName().str();
 			string bb_name =  bb->getName().str();
-			string bb_name_c = fn_name + "_" + bb_name;
 
 			Instruction* term = bb->getTerminator();
 			//term->dump();
@@ -139,28 +131,19 @@ struct PathFinder: public ModulePass {
 					string name1 = in_b->getSuccessor(0)->getName().str();
 					string name2 = in_b->getSuccessor(1)->getName().str();
 
-					string bb_name_1 = fn_name + "_" + bb_name;
-					string bb_name_2 = fn_name + "_" + name1;
-					string bb_name_3 = fn_name + "_" + name2;
-
 					string cond_pos;
 					string cond_neg;
-					
 					generate_static_conds(fun, bb, in_b, cond_pos, cond_neg);
 
-					conectivity_matrix[bb_name_1][bb_name_2] = cond_pos;
-					conectivity_matrix[bb_name_1][bb_name_3] = cond_neg;
+					conectivity_matrix[fn_name][bb_name][name1] = cond_pos;
+					conectivity_matrix[fn_name][bb_name][name2] = cond_neg;
 
 
 				} else {
 					//cerr << "inconditional" << endl;
 
 					string name1 = in_b->getSuccessor(0)->getName().str();
-
-					string bb_name_1 = fn_name + "_" + bb_name;
-					string bb_name_2 = fn_name + "_" + name1;
-
-					conectivity_matrix[bb_name_1][bb_name_2] = "true";
+					conectivity_matrix[fn_name][bb_name][name1] = "true";
 					
 				}
 
@@ -170,12 +153,22 @@ struct PathFinder: public ModulePass {
 
 		FILE* file = fopen("/tmp/pathfinder.dot", "w");
 		fprintf(file, "digraph G {\n");
-		for( set<string>::iterator it = bbs.begin(); it != bbs.end(); it++ ){
-			for( set<string>::iterator it2 = bbs.begin(); it2 != bbs.end(); it2++ ){
-				string bb1 = *it;
-				string bb2 = *it2;
-				if( conectivity_matrix[bb1][bb2] != "" )
-					fprintf(file, "%s -> %s [label=\"%s\"]\n", bb1.c_str(), bb2.c_str(), conectivity_matrix[bb1][bb2].c_str() );
+		for( map<string, map<string, map<string, string> > >::iterator it = conectivity_matrix.begin(); it != conectivity_matrix.end(); it++ ){
+			map<string, map<string, string> > map_bbs = it->second;
+			string fn_name = it->first;
+			for( map<string,map<string, string> >::iterator it2 = map_bbs.begin(); it2 != map_bbs.end(); it2++ ){
+				string bb_1 = it2->first;
+				map<string, string> connected = it2->second;
+				for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
+					string bb_2 = it3->first;
+
+					string bb1_complete = fn_name + "_" + bb_1;
+					string bb2_complete = fn_name + "_" + bb_2;
+
+					fprintf(file, "%s -> %s [label=\"%s\"]\n", bb1_complete.c_str(), bb2_complete.c_str(), conectivity_matrix[fn_name][bb_1][bb_2].c_str() );
+					
+				}
+				
 			}
 			
 		}

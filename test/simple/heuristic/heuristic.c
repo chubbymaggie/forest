@@ -54,9 +54,18 @@
 
 /*}*/
 
+int function(int a){
+	if(a){
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 int main() {
 
 	int j;
+	function(1);
 	if(j)
 		return 0;
 	else 
