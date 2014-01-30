@@ -105,13 +105,51 @@ void generate_static_conds(Function* fn, BasicBlock* bb, BranchInst* instr, stri
 
 }
 
+
+map<string, map<string, string> > inline_calls( map<string, map<string, map<string, string> > > conectivity_matrix, map<pair<string, string>, vector<string> > calls ){
+
+	map<string, map<string, string> > ret;
+
+
+		for( map<string, map<string, map<string, string> > >::iterator it = conectivity_matrix.begin(); it != conectivity_matrix.end(); it++ ){
+			map<string, map<string, string> > map_bbs = it->second;
+			string fn_name = it->first;
+			for( map<string,map<string, string> >::iterator it2 = map_bbs.begin(); it2 != map_bbs.end(); it2++ ){
+				string bb_1 = it2->first;
+				map<string, string> connected = it2->second;
+				for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
+					string bb_2 = it3->first;
+
+					string bb1_complete = fn_name + "_" + bb_1;
+					string bb2_complete = fn_name + "_" + bb_2;
+
+					ret[bb1_complete][bb2_complete] = conectivity_matrix[fn_name][bb_1][bb_2];
+
+				}
+				
+			}
+			
+		}
+
+
+
+	
+
+	return ret;
+
+}
+
+
+
 struct PathFinder: public ModulePass {
 
 	static char ID;
 	PathFinder() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
-		map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond
+		map<string, map<string, string> > conectivity_matrix_inlined; // bb1, bb2, cond
+		map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond 
+		map<pair<string, string>, vector<string> > calls;
 
 
 		mod_iterator(M, fun){
@@ -151,27 +189,57 @@ struct PathFinder: public ModulePass {
 
 		}}
 
-		FILE* file = fopen("/tmp/pathfinder.dot", "w");
-		fprintf(file, "digraph G {\n");
-		for( map<string, map<string, map<string, string> > >::iterator it = conectivity_matrix.begin(); it != conectivity_matrix.end(); it++ ){
-			map<string, map<string, string> > map_bbs = it->second;
-			string fn_name = it->first;
-			for( map<string,map<string, string> >::iterator it2 = map_bbs.begin(); it2 != map_bbs.end(); it2++ ){
-				string bb_1 = it2->first;
-				map<string, string> connected = it2->second;
-				for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
-					string bb_2 = it3->first;
 
-					string bb1_complete = fn_name + "_" + bb_1;
-					string bb2_complete = fn_name + "_" + bb_2;
+		
 
-					fprintf(file, "%s -> %s [label=\"%s\"]\n", bb1_complete.c_str(), bb2_complete.c_str(), conectivity_matrix[fn_name][bb_1][bb_2].c_str() );
-					
-				}
-				
+		mod_iterator(M, fun){
+		fun_iterator(fun,bb){
+		blk_iterator(bb, in){
+			if(CallInst::classof(in)){
+				CallInst* in_c = cast<CallInst>(in);
+
+				string fun_1 = fun->getName().str();
+				string bb_1  = bb->getName().str();
+				string fun_2 = in_c->getCalledFunction()->getName().str();
+
+				calls[pair<string, string>(fun_1, bb_1)].push_back(fun_2);
+			}
+		}}}
+
+
+		for( map<pair<string, string>,vector<string> >::iterator it = calls.begin(); it != calls.end(); it++ ){
+			pair<string, string> src = it->first;
+			vector<string> dst = it->second;
+
+			for( vector<string>::iterator it2 = dst.begin(); it2 != dst.end(); it2++ ){
+				cerr << src.first << "-" << src.second << ":" << *it2 << endl;
 			}
 			
+			
 		}
+
+
+		conectivity_matrix_inlined = inline_calls(conectivity_matrix, calls);
+
+
+		FILE* file = fopen("/tmp/pathfinder.dot", "w");
+		fprintf(file, "digraph G {\n");
+
+		for( map<string, map<string, string> >::iterator it2 = conectivity_matrix_inlined.begin(); it2 != conectivity_matrix_inlined.end(); it2++ ){
+			string bb_1 = it2->first;
+			map<string, string> connected = it2->second;
+			for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
+				string bb_2 = it3->first;
+
+				string bb1_complete = bb_1;
+				string bb2_complete = bb_2;
+
+				fprintf(file, "%s -> %s [label=\"%s\"]\n", bb1_complete.c_str(), bb2_complete.c_str(), conectivity_matrix_inlined[bb_1][bb_2].c_str() );
+
+			}
+
+		}
+			
 		fprintf(file, "}\n");
 		fclose(file);
 		
