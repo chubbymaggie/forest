@@ -709,6 +709,28 @@ void add_paths(set<PathAndConds>& frontier){
 
 }
 
+void get_static_heuristic(){
+
+	make_initial_bc();
+
+	stringstream cmd;
+	string llvm_path   = cmd_option_str("llvm_path");
+
+	// Primer paso de optimización
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestMeasure.so -meas_fillnames < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+
+
+	// Paso de optimización de la heuristica
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestHeuristic.so -pathfinder < file.bc > file-2.bc";
+	systm(cmd.str().c_str());
+
+
+
+}
+
 void print_frontier(set<PathAndConds> frontier){
 
 	printf("frontier: ");
@@ -3485,6 +3507,8 @@ int main(int argc, const char *argv[]) {
 	disables("test_vectors", "compare_klee");
 	disables("get_model", "test");
 	disables("get_model_fn", "test");
+	disables("get_static_heuristic", "test");
+	disables("get_static_heuristic", "check_coverage");
 
 
 	expand_options();
@@ -3538,7 +3562,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("vim")) vim();
 	if(cmd_option_bool("get_model")) get_model();
 	if(cmd_option_bool("get_model_fn")) get_model_fn();
-
+	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();
 
 	return 0;
 

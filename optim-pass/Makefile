@@ -1,4 +1,4 @@
-all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so /llvm-2.9/install/lib/ForestConcurrency.so /llvm-2.9/install/lib/ForestStdlibs.so
+all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so /llvm-2.9/install/lib/ForestConcurrency.so /llvm-2.9/install/lib/ForestStdlibs.so /llvm-2.9/install/lib/ForestHeuristic.so
 
 /llvm-2.9/install/lib/ForestInstr.so: instrumentation_pass.cpp 
 	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_instr/
@@ -32,6 +32,13 @@ all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
 	cd /llvm-2.9/lib/Transforms/Forest_stdlibs/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Forest_stdlibs/; sudo make install;
 
+/llvm-2.9/install/lib/ForestHeuristic.so: heuristic_pass.cpp
+	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo touch /llvm-2.9/lib/Transforms/Forest_heuristic/Forest_heuristic.exports
+	sudo cp make_heuristic /llvm-2.9/lib/Transforms/Forest_heuristic/Makefile
+	sudo cp heuristic_pass.cpp /llvm-2.9/lib/Transforms/Forest_heuristic/Forest_heuristic.cpp 
+	cd /llvm-2.9/lib/Transforms/Forest_heuristic/; sudo make;
+	cd /llvm-2.9/lib/Transforms/Forest_heuristic/; sudo make install;
 
 clean:
 	sudo rm -rf /llvm-2.9/install/lib/ForestInstr.so
