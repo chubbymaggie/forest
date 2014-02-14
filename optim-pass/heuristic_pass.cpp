@@ -106,35 +106,132 @@ void generate_static_conds(Function* fn, BasicBlock* bb, BranchInst* instr, stri
 }
 
 
+typedef struct Node {
+	string name;
+	int next_a;
+	int next_b;
+	string cond_a;
+	string cond_b;
+} Node;
+
+int get_or_insert_node(vector<Node>& nodes, string name){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].name == name)
+			return i;
+	}
+	
+	Node node = {name, -1, -1, "", ""};
+	nodes.push_back(node);
+	return nodes.size()-1;
+}
+
+void set_cond(vector<Node>& nodes, int node1, int node2, string cond){
+
+	if(nodes[node1].cond_a == ""){
+		nodes[node1].cond_a = cond;
+		nodes[node1].next_a = node2;
+	} else {
+		nodes[node1].cond_b = cond;
+		nodes[node1].next_b = node2;
+	}
+
+}
+
 map<string, map<string, string> > inline_calls( map<string, map<string, map<string, string> > > conectivity_matrix, map<pair<string, string>, vector<string> > calls ){
+// bb1, bb2, cond
+//map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond 
+//map<pair<string, string>, vector<string> > calls; // (function and bb), functions called
 
 	map<string, map<string, string> > ret;
+	vector<Node> nodes;
 
+	map<string, map<string, string> > bbs_main = conectivity_matrix["main"]; // bb1, bb2, cond
 
-		for( map<string, map<string, map<string, string> > >::iterator it = conectivity_matrix.begin(); it != conectivity_matrix.end(); it++ ){
-			map<string, map<string, string> > map_bbs = it->second;
-			string fn_name = it->first;
-			for( map<string,map<string, string> >::iterator it2 = map_bbs.begin(); it2 != map_bbs.end(); it2++ ){
-				string bb_1 = it2->first;
-				map<string, string> connected = it2->second;
-				for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
-					string bb_2 = it3->first;
+	for( map<string,map<string, string> >::iterator it = bbs_main.begin(); it != bbs_main.end(); it++ ){
+		string bb_1 = it->first;
+		map<string, string> connected = it->second;
+		for( map<string,string>::iterator it2 = connected.begin(); it2 != connected.end(); it2++ ){
+			string bb_2 = it2->first;
+			string cond = it2->second;
 
-					string bb1_complete = fn_name + "_" + bb_1;
-					string bb2_complete = fn_name + "_" + bb_2;
+			string bb1_complete = "main_" + bb_1;
+			string bb2_complete = "main_" + bb_2;
 
-					ret[bb1_complete][bb2_complete] = conectivity_matrix[fn_name][bb_1][bb_2];
-
-				}
-				
-			}
+			int node1 = get_or_insert_node(nodes, bb1_complete);
+			int node2 = get_or_insert_node(nodes, bb2_complete);
 			
+			set_cond(nodes, node1, node2, cond);
+		}
+	}
+	
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		cerr << "Node"	<< i << ": ";
+		cerr << nodes[i].name << " ";
+		cerr << nodes[i].next_a << " ";
+		cerr << nodes[i].next_b << " ";
+		cerr << nodes[i].cond_a << " ";
+		cerr << nodes[i].cond_b << " ";
+		cerr << endl;
+	}
+
+
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		string name1 = nodes[i].name;
+
+		bool has_next_a = (nodes[i].next_a != -1);
+		bool has_next_b = (nodes[i].next_b != -1);
+
+		if(has_next_a){
+			string name2 = nodes[nodes[i].next_a].name;
+			string cond = nodes[i].cond_a;
+			ret[name1][name2] = cond;
+		}
+
+		if(has_next_b){
+			string name2 = nodes[nodes[i].next_b].name;
+			string cond = nodes[i].cond_b;
+			ret[name1][name2] = cond;
 		}
 
 
+	}
 
+	//for( map<string, map<string, map<string, string> > >::iterator it = conectivity_matrix.begin(); it != conectivity_matrix.end(); it++ ){
+		//map<string, map<string, string> > map_bbs = it->second;
+		//string fn_name = it->first;
+		//for( map<string,map<string, string> >::iterator it2 = map_bbs.begin(); it2 != map_bbs.end(); it2++ ){
+			//string bb_1 = it2->first;
+			//map<string, string> connected = it2->second;
+			//for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
+				//string bb_2 = it3->first;
+
+				//string bb1_complete = fn_name + "_" + bb_1;
+				//string bb2_complete = fn_name + "_" + bb_2;
+
+				//ret[bb1_complete][bb2_complete] = conectivity_matrix[fn_name][bb_1][bb_2];
+
+			//}
+
+		//}
+
+	//}
+
+	//for( map<pair<string, string>,vector<string> >::iterator it = calls.begin(); it != calls.end(); it++ ){
+
+
+		//string fn_1   = it->first.first;
+		//string bb_1   = it->first.second;
+		//string bb_1_c = fn_1 + "_" + bb_1;
+		//cerr << bb_1_c << endl;
+		//for( vector<string>::iterator it2 = (it->second).begin(); it2 != (it->second).end(); it2++ ){
+			//string fn_2 = (*it2);
+			//cerr << " " << fn_2 << endl;
+
+			////inline_calls_rec(conectivity_matrix, ret, it->first, fn_2 );
+		//}
+		
+	//}
 	
-
 	return ret;
 
 }
@@ -149,7 +246,7 @@ struct PathFinder: public ModulePass {
 
 		map<string, map<string, string> > conectivity_matrix_inlined; // bb1, bb2, cond
 		map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond 
-		map<pair<string, string>, vector<string> > calls;
+		map<pair<string, string>, vector<string> > calls; // (function and bb), functions called
 
 
 		mod_iterator(M, fun){
