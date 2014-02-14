@@ -137,6 +137,70 @@ void set_cond(vector<Node>& nodes, int node1, int node2, string cond){
 
 }
 
+
+vector<pair<string, string> > get_calls(map<pair<string, string>, vector<string> > calls, string function){
+
+	vector<pair<string, string> > ret;
+
+	for( map<pair<string, string>, vector<string> >::iterator it = calls.begin(); it != calls.end(); it++ ){
+		string fn1 = it->first.first;
+		string bb       = it->first.second;
+		vector<string> callees = it->second;
+		for( vector<string>::iterator it2 = callees.begin(); it2 != callees.end(); it2++ ){
+			string fn2 = *it2;
+
+			if(fn1 == function){
+				pair<string, string> bb_and_fn2 = pair<string, string>(bb, fn2);
+				ret.push_back(bb_and_fn2);
+			}
+
+		}
+		
+	}
+
+	return ret;
+	
+	
+}
+
+int find_node_by_name(string nodename, vector<Node> nodes){
+	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		if(nodes[i].name == nodename) return i;
+	}
+
+	assert(0 && "Invalid node name");
+}
+
+void inline_function(string function, string nodename, map<string, map<string, map<string, string> > > conectivity_matrix, vector<Node>& nodes){
+	int node_idx = find_node_by_name(nodename, nodes);
+
+	Node node_b = nodes[node_idx];
+	Node node_c = {"hola2", node_idx, -1, "true", ""};
+
+	nodes[node_idx].name   = "hola";
+	nodes[node_idx].next_a = nodes.size();
+	nodes[node_idx].next_b = -1;
+	nodes[node_idx].cond_a = "true";
+	nodes[node_idx].cond_b = "";
+
+
+
+	nodes.push_back(node_b);
+	nodes.push_back(node_c);
+	
+	string name;
+	int next_a;
+	int next_b;
+	string cond_a;
+	string cond_b;
+
+
+
+
+	//Node newnode = {"name", post_node, -1, "true", ""};
+
+}
+
 map<string, map<string, string> > inline_calls( map<string, map<string, map<string, string> > > conectivity_matrix, map<pair<string, string>, vector<string> > calls ){
 // bb1, bb2, cond
 //map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond 
@@ -164,6 +228,8 @@ map<string, map<string, string> > inline_calls( map<string, map<string, map<stri
 		}
 	}
 	
+	vector<pair<string, string> > main_calls = get_calls(calls, "main");
+
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
 		cerr << "Node"	<< i << ": ";
 		cerr << nodes[i].name << " ";
@@ -172,6 +238,13 @@ map<string, map<string, string> > inline_calls( map<string, map<string, map<stri
 		cerr << nodes[i].cond_a << " ";
 		cerr << nodes[i].cond_b << " ";
 		cerr << endl;
+	}
+
+	inline_function("_Z8functioni", "main_entry",  conectivity_matrix, nodes);
+
+	for ( unsigned int i = 0; i < main_calls.size(); i++) {
+		cerr << "main call: " << main_calls[i].first << " " << main_calls[i].second << endl;
+
 	}
 
 
