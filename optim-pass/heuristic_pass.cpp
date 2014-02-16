@@ -239,8 +239,8 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string name_bb){
 
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
 		nodes[i].name = "fn" + nodes[i].name;
-		nodes[i].next_a = base + nodes[i].next_a;
-		nodes[i].next_b = base + nodes[i].next_b;
+		if(nodes[i].next_a != -1) nodes[i].next_a = base + nodes[i].next_a;
+		if(nodes[i].next_b != -1) nodes[i].next_b = base + nodes[i].next_b;
 
 		ret.push_back(nodes[i]);
 	}
