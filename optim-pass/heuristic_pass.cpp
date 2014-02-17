@@ -191,9 +191,11 @@ map<string, vector<string> > get_calls_2(map<pair<string, string>, vector<string
 
 int find_node_by_name(string nodename, vector<Node> nodes){
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
+		//cerr << "nodename " << nodes[i].name << endl;
 		if(nodes[i].name == nodename) return i;
 	}
 
+	cerr << nodename << endl;
 	assert(0 && "Invalid node name");
 }
 
@@ -233,9 +235,21 @@ vector<string> filter(vector<pair<string, string> > fn_calls, string bb_1){
 	return ret;
 }
 
-void add_nodes(vector<Node>& ret, vector<Node> nodes, string name_bb){
+void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini_nodes, string end_nodes){
+
+	cerr << "ini_ret " << ini_ret << " ini_nodes " << ini_nodes << " end_nodes " << end_nodes << endl;
 
 	int base = ret.size();
+
+
+
+	int node_ini_ret = find_node_by_name(ini_ret,ret);
+
+	string cond_a = ret[node_ini_ret].cond_a;
+	string cond_b = ret[node_ini_ret].cond_b;
+	int next_a    = ret[node_ini_ret].next_a;
+	int next_b    = ret[node_ini_ret].next_b;
+
 
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
 		nodes[i].name = nodes[i].name;
@@ -244,6 +258,27 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string name_bb){
 
 		ret.push_back(nodes[i]);
 	}
+
+
+	
+
+	    node_ini_ret = find_node_by_name(ini_ret,ret);
+	int node_ini_nodes = find_node_by_name(ini_nodes, ret);
+	int node_end_ret = find_node_by_name(end_nodes, ret);
+
+	ret[node_ini_ret].next_a = node_ini_nodes;
+	ret[node_ini_ret].cond_a = "true";
+	ret[node_ini_ret].next_b = -1;
+	ret[node_ini_ret].cond_b = "";
+
+	ret[node_end_ret].cond_a = cond_a;
+	ret[node_end_ret].cond_b = cond_b;
+	ret[node_end_ret].next_a = next_a;
+	ret[node_end_ret].next_b = next_b;
+
+
+
+
 
 }
 
@@ -262,12 +297,14 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		cerr << "bb " << bb_1 << endl;
 		map<string, string> connected = it->second;
 
-		vector<string> calls_in_bb = fn_calls[bb_1];
-		for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
-			cerr << "call " << bb_1 << " " << *it2 << endl;
-			vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
-			add_nodes(ret, nodes, bb_1);
-		}
+		//vector<string> calls_in_bb = fn_calls[bb_1];
+		//string ini = bb_1;
+		//string end = bb_1;
+		//for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
+			//cerr << "call " << bb_1 << " " << *it2 << endl;
+			//vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
+			//add_nodes(ret, nodes, ini, end);
+		//}
 
 		for( map<string,string>::iterator it2 = connected.begin(); it2 != connected.end(); it2++ ){
 			string bb_2 = it2->first;
@@ -278,6 +315,16 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 			int node2 = get_or_insert_node(ret, bb2_complete);
 			set_cond(ret, node1, node2, cond);
 		}
+
+		vector<string> calls_in_bb = fn_calls[bb_1];
+		for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
+			cerr << "call " << bb_1 << " " << *it2 << endl;
+			vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
+			add_nodes(ret, nodes, function_name + "_" + bb_1, *it2 + "_entry", *it2 + "_return");
+		}
+
+
+
 
 	}
 
