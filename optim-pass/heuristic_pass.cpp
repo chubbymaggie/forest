@@ -238,7 +238,7 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string name_bb){
 	int base = ret.size();
 
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
-		nodes[i].name = "fn" + nodes[i].name;
+		nodes[i].name = nodes[i].name;
 		if(nodes[i].next_a != -1) nodes[i].next_a = base + nodes[i].next_a;
 		if(nodes[i].next_b != -1) nodes[i].next_b = base + nodes[i].next_b;
 
@@ -272,8 +272,8 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		for( map<string,string>::iterator it2 = connected.begin(); it2 != connected.end(); it2++ ){
 			string bb_2 = it2->first;
 			string cond = it2->second;
-			string bb1_complete = "main_" + bb_1;
-			string bb2_complete = "main_" + bb_2;
+			string bb1_complete = function_name + "_" + bb_1;
+			string bb2_complete = function_name + "_" + bb_2;
 			int node1 = get_or_insert_node(ret, bb1_complete);
 			int node2 = get_or_insert_node(ret, bb2_complete);
 			set_cond(ret, node1, node2, cond);
