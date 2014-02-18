@@ -235,7 +235,17 @@ vector<string> filter(vector<pair<string, string> > fn_calls, string bb_1){
 	return ret;
 }
 
-void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini_nodes, string end_nodes){
+map<string, int> function_names;
+string itos(int i){
+	stringstream i_ss;
+	i_ss << i;
+	return i_ss.str();
+}
+
+
+void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini_nodes, string end_nodes, string function_name){
+
+	function_names[function_name]++;
 
 	cerr << "ini_ret " << ini_ret << " ini_nodes " << ini_nodes << " end_nodes " << end_nodes << endl;
 
@@ -252,19 +262,25 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini
 
 
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
-		nodes[i].name = nodes[i].name;
-		if(nodes[i].next_a != -1) nodes[i].next_a = base + nodes[i].next_a;
-		if(nodes[i].next_b != -1) nodes[i].next_b = base + nodes[i].next_b;
 
-		ret.push_back(nodes[i]);
+		string nodename = nodes[i].name + "_" + itos(function_names[function_name]);
+		int nodenexta = (nodes[i].next_a == -1)?-1:nodes[i].next_a + base;
+		int nodenextb = (nodes[i].next_b == -1)?-1:nodes[i].next_b + base;
+		string nodeconda = nodes[i].cond_a;
+		string nodecondb = nodes[i].cond_b;
+
+
+		Node node = { nodename, nodenexta, nodenextb, nodeconda, nodecondb };
+
+		ret.push_back(node);
 	}
 
 
-	
 
-	    node_ini_ret = find_node_by_name(ini_ret,ret);
-	int node_ini_nodes = find_node_by_name(ini_nodes, ret);
-	int node_end_ret = find_node_by_name(end_nodes, ret);
+	//int node_ini_nodes = find_node_by_name(ini_nodes, ret);
+	//int node_end_ret = find_node_by_name(end_nodes, ret);
+	int node_ini_nodes = find_node_by_name(ini_nodes, nodes) + base;
+	int node_end_ret = find_node_by_name(end_nodes, nodes) + base;
 
 	ret[node_ini_ret].next_a = node_ini_nodes;
 	ret[node_ini_ret].cond_a = "true";
@@ -282,6 +298,7 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini
 
 }
 
+
 vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conectivity_matrix, map<pair<string, string>, vector<string> > calls, string function_name){
 //map<string, map<string, map<string, string> > > conectivity_matrix; // function, bb1, bb2, cond 
 //map<pair<string, string>, vector<string> > calls; // (function and bb), functions called
@@ -297,14 +314,6 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		cerr << "bb " << bb_1 << endl;
 		map<string, string> connected = it->second;
 
-		//vector<string> calls_in_bb = fn_calls[bb_1];
-		//string ini = bb_1;
-		//string end = bb_1;
-		//for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
-			//cerr << "call " << bb_1 << " " << *it2 << endl;
-			//vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
-			//add_nodes(ret, nodes, ini, end);
-		//}
 
 		for( map<string,string>::iterator it2 = connected.begin(); it2 != connected.end(); it2++ ){
 			string bb_2 = it2->first;
@@ -320,7 +329,7 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
 			cerr << "call " << bb_1 << " " << *it2 << endl;
 			vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
-			add_nodes(ret, nodes, function_name + "_" + bb_1, *it2 + "_entry", *it2 + "_return");
+			add_nodes(ret, nodes, function_name + "_" + bb_1, *it2 + "_entry", *it2 + "_return", *it2);
 		}
 
 

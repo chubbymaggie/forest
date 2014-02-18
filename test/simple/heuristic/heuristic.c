@@ -66,8 +66,11 @@ int main() {
 
 	int j;
 	function(1);
-	if(j)
+	if(j){
+		function(1);
 		return 0;
-	else 
+	} else {
+		function(1);
 		return 1;
+	}
 }
