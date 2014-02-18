@@ -243,7 +243,7 @@ string itos(int i){
 }
 
 
-void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini_nodes, string end_nodes, string function_name){
+void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string ini_nodes, string end_nodes, string function_name, string caller_name){
 
 	function_names[function_name]++;
 
@@ -292,8 +292,9 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string ini_ret, string ini
 	ret[node_end_ret].next_a = next_a;
 	ret[node_end_ret].next_b = next_b;
 
+	ini_ret = function_name + "_return_" + itos(function_names[function_name]);
 
-
+	cerr << "ini_ret " << ini_ret << endl;
 
 
 }
@@ -326,10 +327,11 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		}
 
 		vector<string> calls_in_bb = fn_calls[bb_1];
+		bb_1 = function_name + "_" + bb_1;
 		for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
 			cerr << "call " << bb_1 << " " << *it2 << endl;
 			vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
-			add_nodes(ret, nodes, function_name + "_" + bb_1, *it2 + "_entry", *it2 + "_return", *it2);
+			add_nodes(ret, nodes, bb_1, *it2 + "_entry", *it2 + "_return", *it2, function_name);
 		}
 
 

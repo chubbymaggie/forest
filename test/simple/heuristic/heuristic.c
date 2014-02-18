@@ -62,10 +62,15 @@ int function(int a){
 	}
 }
 
+int hola(int a){
+	return a+1;
+}
+
 int main() {
 
 	int j;
 	function(1);
+	hola(1);
 	if(j){
 		function(1);
 		return 0;
