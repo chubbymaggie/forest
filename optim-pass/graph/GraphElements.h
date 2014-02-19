@@ -156,4 +156,13 @@ public:
 		}
 		out_stream << std::endl <<  "*********************************************" << std::endl;
 	}
+
+	std::vector<int> get_vector(){
+		std::vector<int> ret;
+		for(std::vector<BaseVertex*>::const_iterator pos=m_vtVertexList.begin(); pos!=m_vtVertexList.end();++pos) {
+			ret.push_back((*pos)->getID());
+		}
+
+		return ret;
+	}
 };

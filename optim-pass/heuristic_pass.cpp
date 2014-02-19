@@ -442,6 +442,41 @@ void gen_graph_file(map<string, map<string, string> > conectivity_matrix_inlined
 	
 }
 
+map<int, string> inverse(map<string, int> name_to_node){
+	map<int, string> ret;
+
+	for( map<string,int>::iterator it = name_to_node.begin(); it != name_to_node.end(); it++ ){
+		string name = it->first;
+		int    node = it->second;
+		ret[node] = name;
+	}
+
+	return ret;
+	
+}
+
+vector<string> get_edges(vector<int> path, map<int, string> node_to_name, map<string, map<string, string> > conectivity_matrix_inlined ){
+
+	vector<string> ret;
+
+	for ( unsigned int i = 0; i < path.size()-1; i++) {
+		int node1 = path[i];
+		int node2 = path[i+1];
+		string node1_s = node_to_name[node1];
+		string node2_s = node_to_name[node2];
+
+		string cond = conectivity_matrix_inlined[node1_s][node2_s];
+
+		//cerr << cond << endl;
+
+		ret.push_back(cond);
+
+	}
+
+	return ret;
+
+}
+
 
 struct PathFinder: public ModulePass {
 
@@ -524,23 +559,33 @@ struct PathFinder: public ModulePass {
 		conectivity_matrix_inlined = inline_calls(conectivity_matrix, calls);
 
 		map<string, int> name_to_node = get_name_to_node(conectivity_matrix_inlined);
+		map<int, string> node_to_name = inverse(name_to_node);
 		gen_graph_file(conectivity_matrix_inlined, name_to_node);
 
 		Graph my_graph("/tmp/graph");
 
 		YenTopKShortestPathsAlg yenAlg(my_graph, my_graph.get_vertex(name_to_node["main_entry"]), my_graph.get_vertex(name_to_node["_Z7functionv_bb"]));
 
-	int i=0;
-	while(yenAlg.has_next())
-	{
-		cerr << "yenAlg" << endl;
-		++i;
-		yenAlg.next()->PrintOut(cout);
-	}
+		while(yenAlg.has_next())
+		{
+			cerr << "yenAlg" << endl;
+			//yenAlg.next()->PrintOut(cerr);
+			vector<int> path = yenAlg.next()->get_vector();
+			vector<string> conditions = get_edges(path, node_to_name, conectivity_matrix_inlined );
 
-// 	System.out.println("Result # :"+i);
-// 	System.out.println("Candidate # :"+yenAlg.get_cadidate_size());
-// 	System.out.println("All generated : "+yenAlg.get_generated_path_size());
+			//for( vector<int>::iterator it = path.begin(); it != path.end(); it++ ){
+				//cerr << *it << ",";
+			//}
+			//cerr << endl;
+			
+			for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
+				cerr << *it << ",";
+			}
+			cerr << endl;
+			
+
+		}
+
 
 
 		FILE* file = fopen("/tmp/pathfinder.dot", "w");
