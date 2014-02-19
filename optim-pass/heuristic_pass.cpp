@@ -36,6 +36,24 @@
 #include <stdio.h>
 #include <map>
 
+
+#include <limits>
+#include <set>
+#include <map>
+#include <queue>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+#include "GraphElements.h"
+#include "Graph.h"
+#include "DijkstraShortestPathAlg.h"
+#include "YenTopKShortestPathsAlg.h"
+
+
+
+
 #define mod_iterator(mod, fn) for( Module::iterator        fn = mod.begin(),  function_end    = mod.end();  fn != function_end;    ++fn )
 #define glo_iterator(mod, gl) for( Module::global_iterator gl = mod.global_begin(), gl_end    = mod.global_end();  gl != gl_end;   ++gl )
 #define fun_iterator(fun, bb) for( Function::iterator      bb = fun->begin(), block_end       = fun->end(); bb != block_end;       ++bb )
@@ -245,7 +263,7 @@ string itos(int i){
 
 void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string ini_nodes, string end_nodes, string function_name, string caller_name){
 
-	function_names[function_name]++;
+	//function_names[function_name]++;
 
 	cerr << "ini_ret " << ini_ret << " ini_nodes " << ini_nodes << " end_nodes " << end_nodes << endl;
 
@@ -263,7 +281,8 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string in
 
 	for ( unsigned int i = 0; i < nodes.size(); i++) {
 
-		string nodename = nodes[i].name + "_" + itos(function_names[function_name]);
+		string nodename = nodes[i].name + (function_names[function_name] < 2?"":("_" + itos(function_names[function_name])));
+		//string nodename = nodes[i].name + "_" + itos(function_names[function_name]);
 		int nodenexta = (nodes[i].next_a == -1)?-1:nodes[i].next_a + base;
 		int nodenextb = (nodes[i].next_b == -1)?-1:nodes[i].next_b + base;
 		string nodeconda = nodes[i].cond_a;
@@ -292,7 +311,8 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string in
 	ret[node_end_ret].next_a = next_a;
 	ret[node_end_ret].next_b = next_b;
 
-	ini_ret = function_name + "_return_" + itos(function_names[function_name]);
+	ini_ret = function_name + "_return" + (function_names[function_name] < 2?"":("_" + itos(function_names[function_name])));
+	//ini_ret = function_name + "_return_" + itos(function_names[function_name]);
 
 	cerr << "ini_ret " << ini_ret << endl;
 
@@ -378,6 +398,50 @@ map<string, map<string, string> > inline_calls( map<string, map<string, map<stri
 }
 
 
+map<string, int> get_name_to_node( map<string, map<string, string> > conectivity_matrix_inlined ){
+
+	map<string, int> ret;
+	set<string> names;
+
+	for( map<string, map<string, string> >::iterator it = conectivity_matrix_inlined.begin(); it != conectivity_matrix_inlined.end(); it++ ){
+		string name = it->first;
+		names.insert(name);
+	}
+
+	int n = 0;
+	for( set<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		ret[*it] = n++;
+	}
+
+	ret["main_return"] = names.size();
+
+	return ret;
+
+}
+
+void gen_graph_file(map<string, map<string, string> > conectivity_matrix_inlined, map<string, int> name_to_node){
+
+	FILE* graph_file = fopen("/tmp/graph", "w");
+
+	fprintf(graph_file, "%d\n\n", name_to_node.size());
+
+
+	for( map<string, map<string, string> >::iterator it2 = conectivity_matrix_inlined.begin(); it2 != conectivity_matrix_inlined.end(); it2++ ){
+		string bb_1 = it2->first;
+		map<string, string> connected = it2->second;
+		for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
+			string bb_2 = it3->first;
+
+			fprintf(graph_file, "%d %d 1\n", name_to_node[bb_1], name_to_node[bb_2]);
+
+		}
+
+	}
+
+	fclose(graph_file);
+	
+}
+
 
 struct PathFinder: public ModulePass {
 
@@ -459,6 +523,25 @@ struct PathFinder: public ModulePass {
 
 		conectivity_matrix_inlined = inline_calls(conectivity_matrix, calls);
 
+		map<string, int> name_to_node = get_name_to_node(conectivity_matrix_inlined);
+		gen_graph_file(conectivity_matrix_inlined, name_to_node);
+
+		Graph my_graph("/tmp/graph");
+
+		YenTopKShortestPathsAlg yenAlg(my_graph, my_graph.get_vertex(name_to_node["main_entry"]), my_graph.get_vertex(name_to_node["_Z7functionv_bb"]));
+
+	int i=0;
+	while(yenAlg.has_next())
+	{
+		cerr << "yenAlg" << endl;
+		++i;
+		yenAlg.next()->PrintOut(cout);
+	}
+
+// 	System.out.println("Result # :"+i);
+// 	System.out.println("Candidate # :"+yenAlg.get_cadidate_size());
+// 	System.out.println("All generated : "+yenAlg.get_generated_path_size());
+
 
 		FILE* file = fopen("/tmp/pathfinder.dot", "w");
 		fprintf(file, "digraph G {\n");
@@ -469,8 +552,8 @@ struct PathFinder: public ModulePass {
 			for( map<string,string>::iterator it3 = connected.begin(); it3 != connected.end(); it3++ ){
 				string bb_2 = it3->first;
 
-				string bb1_complete = bb_1;
-				string bb2_complete = bb_2;
+				string bb1_complete = bb_1 + "_" + itos(name_to_node[bb_1]);
+				string bb2_complete = bb_2 + "_" + itos(name_to_node[bb_2]);
 
 				fprintf(file, "%s -> %s [label=\"%s\"]\n", bb1_complete.c_str(), bb2_complete.c_str(), conectivity_matrix_inlined[bb_1][bb_2].c_str() );
 

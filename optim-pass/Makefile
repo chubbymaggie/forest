@@ -36,7 +36,14 @@ all: /llvm-2.9/install/lib/ForestInstr.so /llvm-2.9/install/lib/ForestMeasure.so
 	sudo mkdir -p /llvm-2.9/lib/Transforms/Forest_heuristic/
 	sudo touch /llvm-2.9/lib/Transforms/Forest_heuristic/Forest_heuristic.exports
 	sudo cp make_heuristic /llvm-2.9/lib/Transforms/Forest_heuristic/Makefile
-	sudo cp heuristic_pass.cpp /llvm-2.9/lib/Transforms/Forest_heuristic/Forest_heuristic.cpp 
+	sudo cp heuristic_pass.cpp                 /llvm-2.9/lib/Transforms/Forest_heuristic/Forest_heuristic.cpp 
+	sudo cp graph/DijkstraShortestPathAlg.cpp  /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/DijkstraShortestPathAlg.h    /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/Graph.cpp                    /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/Graph.h                      /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/GraphElements.h              /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/YenTopKShortestPathsAlg.cpp  /llvm-2.9/lib/Transforms/Forest_heuristic/
+	sudo cp graph/YenTopKShortestPathsAlg.h    /llvm-2.9/lib/Transforms/Forest_heuristic/
 	cd /llvm-2.9/lib/Transforms/Forest_heuristic/; sudo make;
 	cd /llvm-2.9/lib/Transforms/Forest_heuristic/; sudo make install;
 

@@ -19,63 +19,38 @@
  */
 
 
-/*int funcion(){*/
+int funcion(){
 
-	/*int a;*/
-	/*int i;*/
-	/*for(a = 0; a < i; a++){}*/
+	int a;
+	int i;
+	for(a = 0; a < i; a++){}
 
-	/*if(a == 10)*/
-		/*return 0;   // (A)*/
-	/*else */
-		/*return 1;*/
-/*}*/
-
-/*int main() {*/
-
-
-	/*int j;*/
-	/*int k;*/
-	/*int* l;*/
-
-	/*if(j){*/
-		/*funcion();*/
-	/*}*/
-
-	/*if(k){*/
-		
-	/*} else {*/
-		/*funcion();*/
-	/*}*/
-
-	/*if(*l){*/
-		/*funcion();*/
-	/*}*/
-
-/*}*/
-
-int function(int a){
-	if(a){
+	if(a == 10)
+		return 0;   // (A)
+	else
 		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int hola(int a){
-	return a+1;
 }
 
 int main() {
 
+
 	int j;
-	function(1);
-	hola(1);
+	int k;
+	int* l;
+
 	if(j){
-		function(1);
-		return 0;
-	} else {
-		function(1);
-		return 1;
+		funcion();
 	}
+
+	if(k){
+		
+	} else {
+		funcion();
+	}
+
+	if(*l){
+		funcion();
+	}
+
 }
+
