@@ -694,6 +694,28 @@ void Solver::push_condition(string cond ){
 
 }
 
+void Solver::push_condition_static(string cond ){
+
+
+	string function = operators->get_actual_function();
+	string bb = operators->get_actual_bb();
+
+	string cond_op;
+	if(cond.substr(0,6) == "(not ("){
+		//printf("negate %s\n", cond.substr(6,1).c_str() );
+		cond_op = negateop( cond.substr(6,1) );
+	} else {
+		cond_op = cond.substr(1,1);
+	}
+
+	string condition = function + "_" + bb + "." + cond_op;
+
+
+	printf("condition_static %s %s %s : %s\n", function.c_str(), bb.c_str(), cond.c_str(), condition.c_str());
+
+	conditions_static.push_back( condition );
+
+}
 
 void Solver::push_condition_2(string name, string actual_function, vector<string> joints){
 
@@ -765,6 +787,18 @@ string Solver::negation(string condition){
 	negation_ss << "(not " << string(condition) << ")";
 
 	return negation_ss.str();
+}
+
+string Solver::negateop(string predicate){
+
+	if( predicate == "="  ) return "#";
+	if( predicate == ">"  ) return "<=";
+	if( predicate == ">=" ) return "<";
+	if( predicate == "<"  ) return ">=";
+	if( predicate == "<=" ) return ">";
+	if( predicate == "#"  ) return "=";
+	assert(0 && "Unknown Operation");
+
 }
 
 string Solver::name_without_suffix( string name ){
@@ -1915,6 +1949,19 @@ string Solver::get_comma_stack_conditions(){
 
 }
 
+string Solver::get_comma_stack_conditions_static(){
+
+	stringstream ret;
+
+	for( vector<string>::iterator it = conditions_static.begin(); it != conditions_static.end(); it++ ){
+		string condition = *it;
+		ret << condition << ",";
+	}
+
+
+	return ret.str();
+
+}
 
 vector<Condition> Solver::get_stack_conditions(){
 

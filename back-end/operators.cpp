@@ -726,6 +726,8 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	//solver->print_path_stack();
 	
+	solver->push_condition_static(solver->content(name(cmp)));
+	
 	static int n;
 
 	if(options->cmd_option_bool("follow_path") ){

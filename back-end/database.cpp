@@ -912,9 +912,10 @@ set<NameAndType> Database::get_shared_vars(){
 
 void Database::insert_frontend_interface(){
 	string path = solver->get_path_stack_str();
-	string conditions = solver->get_comma_stack_conditions();
+	//string conditions = solver->get_comma_stack_conditions();
+	string conditions2 = solver->get_comma_stack_conditions_static();
 
 	stringstream action;
-	action << "insert into frontend values ('" << path << "','" << conditions << "');";
+	action << "insert into frontend values ('" << path << "','" << conditions2 << "');";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }

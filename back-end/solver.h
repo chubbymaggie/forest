@@ -76,6 +76,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void push_condition_static(string cond );
+	string get_comma_stack_conditions_static();
 	string get_path_stack_str();
 	void pop_path_stack();
 	void variable_store(string src,string idx_content, int first_address, int last_address );
@@ -141,6 +143,7 @@ public:
 	string get_comma_stack_conditions();
 
 private:
+	string negateop(string predicate);
 	bool need_for_dump(string name, string content);
 	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );
@@ -163,6 +166,7 @@ private:
 	vector<string> flatened_conditions;
 	set<string> flatened_variables;
 	vector<Condition> conditions;
+	vector<string> conditions_static;
 	set<string> forced_free_vars;
 	map<string, vector<Pivot> > pivot_variables;
 	map<string, string> first_content;

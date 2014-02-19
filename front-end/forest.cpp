@@ -768,6 +768,8 @@ void drive_frontend(){
 		add_paths(frontier);
 		print_frontier(frontier);
 
+		exit(0);
+
 	} while(frontier.size());
 
 }
