@@ -265,7 +265,7 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string in
 
 	//function_names[function_name]++;
 
-	cerr << "ini_ret " << ini_ret << " ini_nodes " << ini_nodes << " end_nodes " << end_nodes << endl;
+	//cerr << "ini_ret " << ini_ret << " ini_nodes " << ini_nodes << " end_nodes " << end_nodes << endl;
 
 	int base = ret.size();
 
@@ -314,7 +314,7 @@ void add_nodes(vector<Node>& ret, vector<Node> nodes, string& ini_ret, string in
 	ini_ret = function_name + "_return" + (function_names[function_name] < 2?"":("_" + itos(function_names[function_name])));
 	//ini_ret = function_name + "_return_" + itos(function_names[function_name]);
 
-	cerr << "ini_ret " << ini_ret << endl;
+	//cerr << "ini_ret " << ini_ret << endl;
 
 
 }
@@ -332,7 +332,7 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 	for( map<string,map<string, string> >::iterator it = bbs.begin(); it != bbs.end(); it++ ){
 		string bb_1 = it->first;
 
-		cerr << "bb " << bb_1 << endl;
+		//cerr << "bb " << bb_1 << endl;
 		map<string, string> connected = it->second;
 
 
@@ -349,7 +349,7 @@ vector<Node> get_nodes_fn(map<string, map<string, map<string, string> > > conect
 		vector<string> calls_in_bb = fn_calls[bb_1];
 		bb_1 = function_name + "_" + bb_1;
 		for( vector<string>::iterator it2 = calls_in_bb.begin(); it2 != calls_in_bb.end(); it2++ ){
-			cerr << "call " << bb_1 << " " << *it2 << endl;
+			//cerr << "call " << bb_1 << " " << *it2 << endl;
 			vector<Node> nodes = get_nodes_fn(conectivity_matrix, calls, *it2);
 			add_nodes(ret, nodes, bb_1, *it2 + "_entry", *it2 + "_return", *it2, function_name);
 		}
@@ -566,9 +566,11 @@ struct PathFinder: public ModulePass {
 
 		YenTopKShortestPathsAlg yenAlg(my_graph, my_graph.get_vertex(name_to_node["main_entry"]), my_graph.get_vertex(name_to_node["_Z7functionv_bb"]));
 
+		set<string> conditions_set;
+
 		while(yenAlg.has_next())
 		{
-			cerr << "yenAlg" << endl;
+			//cerr << "yenAlg" << endl;
 			//yenAlg.next()->PrintOut(cerr);
 			vector<int> path = yenAlg.next()->get_vector();
 			vector<string> conditions = get_edges(path, node_to_name, conectivity_matrix_inlined );
@@ -579,12 +581,16 @@ struct PathFinder: public ModulePass {
 			//cerr << endl;
 			
 			for( vector<string>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-				cerr << *it << ",";
+				if(*it != "true") conditions_set.insert(*it);
 			}
-			cerr << endl;
-			
-
 		}
+
+		FILE* file_heuristics = fopen("/tmp/heuristics", "w");
+		for( set<string>::iterator it = conditions_set.begin(); it != conditions_set.end(); it++ ){
+			fprintf(file_heuristics, "%s\n", it->c_str());
+		}
+		fclose(file_heuristics);
+		
 
 
 
