@@ -76,6 +76,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void pop_condition_static();
+	void push_condition_static_neg(string cond );
 	void push_condition_static(string cond );
 	string get_comma_stack_conditions_static();
 	string get_path_stack_str();

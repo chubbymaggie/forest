@@ -5,4 +5,5 @@
 	<option key="explanation" value="Heuristic"/> 
 	<option key="file" value="heuristic.c"/> 
 	<option key="driven_by_frontend" value="true"/> 
+	<option key="max_depth" value="5"/> 
 </options>

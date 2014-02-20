@@ -726,7 +726,6 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	//solver->print_path_stack();
 	
-	solver->push_condition_static(solver->content(name(cmp)));
 	
 	static int n;
 
@@ -743,8 +742,13 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			printf("step %d\n", step);
 			solver->push_path_stack(step);
 
-			if( !solver->get_is_propagated_constant(name(cmp)) )
+			if( !solver->get_is_propagated_constant(name(cmp)) ){
 				solver->push_condition(solver->content(name(cmp)));
+				if(step)
+					solver->push_condition_static(solver->content(name(cmp)));
+				else
+					solver->push_condition_static_neg(solver->content(name(cmp)));
+			}
 			n++;
 			return step;
 		}
@@ -764,13 +768,18 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		solver->push_path_stack( real_value_prev == "true");
 		solver->set_sat(true);
 
+		printf("condition_static_1 %s\n", solver->content(name(cmp)).c_str());
+		solver->push_condition_static_neg(solver->content(name(cmp)));
+
 		//database->insert_problem();
 		database->insert_frontend_interface();
 
 
 
+
 ////////////////////
 		solver->pop_path_stack();
+		solver->pop_condition_static();
 ////////////////////
 
 
@@ -778,7 +787,9 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		if( solver->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
 
-		solver->push_condition_3(name(cmp), actual_function, joints);
+		//printf("push_condition_static %s\n", solver->content(name(cmp)).c_str());
+		printf("condition_static_2 %s\n", solver->content(name(cmp)).c_str());
+		solver->push_condition_static(solver->content(name(cmp)));
 
 		solver->solve_problem();
 
@@ -796,7 +807,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 ////////////////////
 
-
+			printf("exit\n");
 			exit(0);
 
 

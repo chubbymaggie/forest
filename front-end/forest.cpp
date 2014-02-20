@@ -659,11 +659,56 @@ void vim(){
 typedef struct PathAndConds {
 	string path;
 	string conds;
+	int width;
 
 } PathAndConds;
 
 inline bool operator<(const PathAndConds& lhs, const PathAndConds& rhs) {
-  return lhs.path > rhs.path;
+	if(lhs.width != rhs.width) return lhs.width > rhs.width;
+	return lhs.path < rhs.path;
+}
+
+
+set<string> heuristics;
+
+void load_heuristics(){
+
+	printf("load_heuristics\n");
+
+	ifstream input("/tmp/heuristics");
+	string line;
+	
+	while( getline( input, line ) ) {
+		heuristics.insert(line);
+	}
+	
+}
+
+set<string> vtos(vector<string> vect){
+	set<string> ret;
+	for( vector<string>::iterator it = vect.begin(); it != vect.end(); it++ ){
+		ret.insert(*it);
+	}
+
+	return ret;
+	
+}
+
+set<string> setintersection(set<string> set_a, set<string> set_b){
+	set<string> ret;
+	for( set<string>::iterator it = set_a.begin(); it != set_a.end(); it++ ){
+		if(set_b.find(*it) != set_b.end()) ret.insert(*it);
+	}
+
+	return ret;
+	
+}
+
+int width(string conds){
+	vector<string> tokens = tokenize(conds, ",");
+	set<string> tokens_set = vtos(tokens);
+
+	return setintersection( tokens_set,heuristics).size();
 }
 
 void add_paths(set<PathAndConds>& frontier){
@@ -700,7 +745,7 @@ void add_paths(set<PathAndConds>& frontier){
 	assert(paths.size() == conds.size());
 
 	for ( unsigned int i = 0; i < paths.size(); i++) {
-		PathAndConds path_and_cond = {paths[i], conds[i]};
+		PathAndConds path_and_cond = {paths[i], conds[i], width(conds[i])};
 		frontier.insert(path_and_cond);
 	}
 
@@ -735,7 +780,7 @@ void print_frontier(set<PathAndConds> frontier){
 
 	printf("frontier: ");
 	for( set<PathAndConds>::iterator it = frontier.begin(); it != frontier.end(); it++ ){
-		printf("%s, ", it->path.c_str());
+		printf("%s:(%s%d), ", it->path.c_str(), it->conds.c_str(), it->width);
 	}
 	printf("\n");
 }
@@ -749,6 +794,9 @@ void drive_frontend(){
 
 	set<PathAndConds> frontier;
 
+	load_heuristics();
+
+	int n = 0;
 	do {
 		PathAndConds first;
 		if(frontier.size()){
@@ -768,7 +816,8 @@ void drive_frontend(){
 		add_paths(frontier);
 		print_frontier(frontier);
 
-		exit(0);
+		if(n++ == cmd_option_int("max_depth"))
+			exit(0);
 
 	} while(frontier.size());
 

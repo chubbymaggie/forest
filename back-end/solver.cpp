@@ -702,7 +702,7 @@ void Solver::push_condition_static(string cond ){
 
 	string cond_op;
 	if(cond.substr(0,6) == "(not ("){
-		//printf("negate %s\n", cond.substr(6,1).c_str() );
+		printf("negate %s\n", cond.substr(6,1).c_str() );
 		cond_op = negateop( cond.substr(6,1) );
 	} else {
 		cond_op = cond.substr(1,1);
@@ -717,25 +717,67 @@ void Solver::push_condition_static(string cond ){
 
 }
 
+void Solver::push_condition_static_neg(string cond ){
+
+
+	string function = operators->get_actual_function();
+	string bb = operators->get_actual_bb();
+
+	cond = "(not " + cond + ")";
+
+	for ( unsigned int i = 0; i < 10; i++) 
+		myReplace(cond, "(not (not ", "");
+
+	string cond_op;
+	if(cond.substr(0,6) == "(not ("){
+		printf("negate %s\n", cond.substr(6,1).c_str() );
+		cond_op = negateop( cond.substr(6,1) );
+	} else {
+		cond_op = cond.substr(1,1);
+	}
+
+	string condition = function + "_" + bb + "." + cond_op;
+
+
+	printf("condition_static_neg %s %s %s : %s\n", function.c_str(), bb.c_str(), cond.c_str(), condition.c_str());
+
+	conditions_static.push_back( condition );
+
+}
+
+void Solver::pop_condition_static(){
+
+	conditions_static.erase(conditions_static.end()-1);
+
+}
+
 void Solver::push_condition_2(string name, string actual_function, vector<string> joints){
 
 	if( realvalue(name) == "true" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(content(name));
+			push_condition_static(content(name));
 		} else {
-			if(get_comes_from_non_annotated(name))
+			if(get_comes_from_non_annotated(name)){
 				push_condition(content(name));
-			else
+				push_condition_static(content(name));
+			} else {
 				push_condition(content(name), actual_function, joints );
+				push_condition_static(content(name));
+			}
 		}
 	} else if( realvalue(name) == "false" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(negation(content(name)));
+			push_condition_static(negation(content(name)));
 		} else {
-			if(get_comes_from_non_annotated(name))
+			if(get_comes_from_non_annotated(name)){
 				push_condition(negation(content(name)));
-			else
+				push_condition_static(negation(content(name)));
+			} else {
 				push_condition(negation(content(name)), actual_function, joints );
+				push_condition_static(negation(content(name)));
+			}
 		}
 	} else {
 		assert(0 && "Non-boolean value for condition");
@@ -748,20 +790,28 @@ void Solver::push_condition_3(string name, string actual_function, vector<string
 	if( realvalue(name) == "true" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(negation(content(name)));
+			push_condition_static(negation(content(name)));
 		} else {
-			if(get_comes_from_non_annotated(name))
+			if(get_comes_from_non_annotated(name)){
 				push_condition(negation(content(name)));
-			else
+				push_condition_static(negation(content(name)));
+			} else {
 				push_condition(negation(content(name)), actual_function, joints );
+				push_condition_static(negation(content(name)));
+			}
 		}
 	} else if( realvalue(name) == "false" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(content(name));
+			push_condition_static(content(name));
 		} else {
-			if(get_comes_from_non_annotated(name))
+			if(get_comes_from_non_annotated(name)){
 				push_condition(content(name));
-			else
+				push_condition_static(content(name));
+			} else {
 				push_condition(content(name), actual_function, joints );
+				push_condition_static(content(name));
+			}
 		}
 	} else {
 		assert(0 && "Non-boolean value for condition");
