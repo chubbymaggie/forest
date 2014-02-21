@@ -851,7 +851,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			return real_value_prev == "true";
 
 
-		solver->push_condition_2(name(cmp), actual_function, joints);
+		solver->push_condition(name(cmp), actual_function, joints, false);
 
 		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
 
@@ -866,7 +866,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		}
 
 
-		solver->push_condition_3(name(cmp), actual_function, joints);
+		solver->push_condition(name(cmp), actual_function, joints, true);
 
 		see_each_problem && solver->show_problem();
 

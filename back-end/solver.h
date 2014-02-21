@@ -76,6 +76,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void push_condition(string name, string actual_function, vector<string> joints, bool invert);
 	void pop_condition_static();
 	void push_condition_static_neg(string cond );
 	void push_condition_static(string cond );
@@ -86,8 +87,6 @@ public:
 	string content_2( string name );
 	void variable_load(string dst, string content, int first_address, int last_address );
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
-	void push_condition_2(string name, string actual_function, vector<string> joints);
-	void push_condition_3(string name, string actual_function, vector<string> joints);
 	bool is_forced_free_2(string position);
 	void dump_model();
 	void insert_variable_2(string name, string position);
