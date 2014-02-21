@@ -775,8 +775,12 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			solver->push_condition_static_neg(solver->content(name(cmp)));
 		//solver->push_condition_static_neg(solver->content(name(cmp)));
 
-		//database->insert_problem();
-		database->insert_frontend_interface();
+		solver->solve_problem();
+
+		if(solver->solvable_problem()){
+			database->insert_problem();
+			database->insert_frontend_interface();
+		}
 
 
 
@@ -805,7 +809,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 			solver->push_path_stack( real_value_prev != "true");
 
-			//database->insert_problem();
+			database->insert_problem();
 			database->insert_frontend_interface();
 
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);

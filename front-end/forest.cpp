@@ -699,11 +699,11 @@ set<string> vtos(vector<string> vect){
 set<string> setintersection(set<string> set_a, set<string> set_b){
 
 
-	printf("setintersection\n");
+	//printf("setintersection\n");
 
-	for( set<string>::iterator it = set_a.begin(); it != set_a.end(); it++ ){
-		printf("%s,", it->c_str() );
-	} printf("\n");
+	//for( set<string>::iterator it = set_a.begin(); it != set_a.end(); it++ ){
+		//printf("%s,", it->c_str() );
+	//} printf("\n");
 	
 	for( set<string>::iterator it = set_b.begin(); it != set_b.end(); it++ ){
 		printf("%s,", it->c_str() );
@@ -839,6 +839,9 @@ void drive_frontend(){
 		set_option("path", first.path);
 
 		options_to_file();
+
+		db_command("delete from frontend;");
+		db_command("delete from results;");
 
 		// Ejecuta el fichero resultante
 		stringstream cmd;
@@ -2198,6 +2201,8 @@ void clean_concurrency(){
 
 void clean_tables(){
 
+	start_pass("clean_tables");
+
 	stringstream action;
 
 	action.str();
@@ -2272,6 +2277,8 @@ void clean_tables(){
 	action << ");";
 	db_command( action.str() );
 
+
+	end_pass("clean_tables");
 }
 
 void secuencialize(){
