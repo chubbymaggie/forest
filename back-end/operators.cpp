@@ -743,10 +743,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 			if( !solver->get_is_propagated_constant(name(cmp)) ){
 				solver->push_condition(solver->content(name(cmp)));
-				if(step)
-					solver->push_condition_static(solver->content(name(cmp)));
-				else
-					solver->push_condition_static_neg(solver->content(name(cmp)));
+				solver->push_condition_static(solver->content(name(cmp)),!step);
 			}
 			n++;
 			return step;
@@ -760,34 +757,29 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		string real_value_prev = realvalue(cmp);
 
+		solver->save_state();
+
 
 ////////////////////
 		
 
-		solver->push_path_stack( real_value_prev == "true");
-		solver->set_sat(true);
 		bool step = (real_value_prev == "true");
+		solver->push_path_stack(step);
+		solver->set_sat(true);
 
 		printf("condition_static_1 %s\n", solver->content(name(cmp)).c_str());
-		if(step)
-			solver->push_condition_static(solver->content(name(cmp)));
-		else
-			solver->push_condition_static_neg(solver->content(name(cmp)));
-		//solver->push_condition_static_neg(solver->content(name(cmp)));
+		solver->push_condition(solver->content(name(cmp)), false);
+		solver->push_condition_static(solver->content(name(cmp)),!step);
 
-		solver->solve_problem();
 
-		if(solver->solvable_problem()){
-			database->insert_problem();
-			database->insert_frontend_interface();
-		}
+		database->insert_problem();
+		database->insert_frontend_interface();
 
 
 
 
 ////////////////////
-		solver->pop_path_stack();
-		solver->pop_condition_static();
+		solver->load_state();
 ////////////////////
 
 
@@ -797,12 +789,10 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		//printf("push_condition_static %s\n", solver->content(name(cmp)).c_str());
 		printf("condition_static_2 %s\n", solver->content(name(cmp)).c_str());
-		if(!step)
-			solver->push_condition_static(solver->content(name(cmp)));
-		else
-			solver->push_condition_static_neg(solver->content(name(cmp)));
-		//solver->push_condition_static(solver->content(name(cmp)));
+		solver->push_condition(solver->content(name(cmp)), true);
+		solver->push_condition_static(solver->content(name(cmp)), step);
 
+		//solver->show_problem();
 		solver->solve_problem();
 
 		if( solver->solvable_problem() ){

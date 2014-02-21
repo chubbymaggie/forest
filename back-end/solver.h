@@ -76,13 +76,12 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void push_condition_static(string cond, bool invert);
+	void load_state();
+	void save_state();
 	void push_condition(string name, string actual_function, vector<string> joints, bool invert);
-	void pop_condition_static();
-	void push_condition_static_neg(string cond );
-	void push_condition_static(string cond );
 	string get_comma_stack_conditions_static();
 	string get_path_stack_str();
-	void pop_path_stack();
 	void variable_store(string src,string idx_content, int first_address, int last_address );
 	string content_2( string name );
 	void variable_load(string dst, string content, int first_address, int last_address );
@@ -92,7 +91,7 @@ public:
 	void insert_variable_2(string name, string position);
 	void set_content(string name, string content);
 	void clean_pivots();
-	void push_condition(string cond );
+	void push_condition(string cond, bool invert = false );
 	bool get_comes_from_non_annotated(string name);
 	void set_comes_from_non_annotated(string name);
 	int get_last_address(string name);

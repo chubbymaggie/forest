@@ -22,10 +22,10 @@
 int funcion(){
 
 	int a;
-	int i;
+	int i = 3;
 	for(a = 0; a < i; a++){}
 
-	if(a == 10)
+	if(a == 3)
 		return 0;   // (A)
 	else
 		return 1;

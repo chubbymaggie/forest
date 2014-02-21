@@ -497,7 +497,7 @@ bool sat;
 
 void Solver::solve_problem(){
 
-	if(options->cmd_option_str("max_depth") != "" && conditions.size() > options->cmd_option_int("max_depth")){
+	if(options->cmd_option_str("max_depth") != "" && conditions.size()-1 > options->cmd_option_int("max_depth")){
 		sat = 0;
 		return;
 	}
@@ -684,21 +684,29 @@ void Solver::insert_variable_2(string name, string position){
 
 }
 
-void Solver::push_condition(string cond ){
+void Solver::push_condition(string cond, bool invert ){
 
 	set<string> joints_set;
 	string fn = "";
-	Condition condition = { cond, fn, joints_set };
+	Condition condition = { invert?negation(cond):cond, fn, joints_set };
 
 	conditions.push_back( condition );
 
 }
 
-void Solver::push_condition_static(string cond ){
+
+
+void Solver::push_condition_static(string cond, bool invert){
 
 
 	string function = operators->get_actual_function();
 	string bb = operators->get_actual_bb();
+
+	if(invert)
+		cond = "(not " + cond + ")";
+
+	for ( unsigned int i = 0; i < 10; i++) 
+		myReplace(cond, "(not (not ", "");
 
 	string cond_op;
 	if(cond.substr(0,6) == "(not ("){
@@ -717,40 +725,25 @@ void Solver::push_condition_static(string cond ){
 
 }
 
-void Solver::push_condition_static_neg(string cond ){
 
 
-	string function = operators->get_actual_function();
-	string bb = operators->get_actual_bb();
 
-	cond = "(not " + cond + ")";
-
-	for ( unsigned int i = 0; i < 10; i++) 
-		myReplace(cond, "(not (not ", "");
-
-	string cond_op;
-	if(cond.substr(0,6) == "(not ("){
-		printf("negate %s %s\n", cond.substr(6,1).c_str(), cond.c_str() );
-		cond_op = negateop( cond.substr(6,1) );
-	} else {
-		cond_op = cond.substr(1,1);
-	}
-
-	string condition = function + "_" + bb + "." + cond_op;
+vector<bool> path_stack_save;
+vector<string> conditions_static_save;
+vector<Condition> conditions_save;
 
 
-	printf("condition_static_neg %s %s %s : %s\n", function.c_str(), bb.c_str(), cond.c_str(), condition.c_str());
-
-	conditions_static.push_back( condition );
-
+void Solver::save_state(){
+	path_stack_save        = path_stack;
+	conditions_static_save = conditions_static;
+	conditions_save        = conditions;
 }
 
-void Solver::pop_condition_static(){
-
-	conditions_static.erase(conditions_static.end()-1);
-
+void Solver::load_state(){
+	path_stack        = path_stack_save;
+	conditions_static = conditions_static_save;
+	conditions        = conditions_save;
 }
-
 
 void Solver::push_condition(string name, string actual_function, vector<string> joints, bool invert){
 
@@ -1899,11 +1892,6 @@ void Solver::push_path_stack(bool step){
 }
 
 
-void Solver::pop_path_stack(){
-
-	vector<bool>::iterator iter = path_stack.end();iter--;
-	path_stack.erase(iter);
-}
 
 
 void Solver::print_path_stack(){
