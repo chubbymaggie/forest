@@ -24,6 +24,7 @@
 
 extern Solver* solver;
 extern Options* options;
+extern Operators* operators;
 
 vector< pair<string, string> > retsqlite;
 
@@ -142,7 +143,8 @@ void Database::create_tables(){
 	action.str("");
 	action << "create table frontend(";
 	action << "path varchar(5000),";
-	action << "conditions varchar(5000)";
+	action << "conditions varchar(5000),";
+	action << "last_bb varchar(5000)";
 	action << ");";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 
@@ -914,8 +916,11 @@ void Database::insert_frontend_interface(){
 	string path = solver->get_path_stack_str();
 	//string conditions = solver->get_comma_stack_conditions();
 	string conditions2 = solver->get_comma_stack_conditions_static();
+	string function_and_bb = operators->get_actual_function() + "_" + operators->get_actual_bb();
+
+	printf("function_and_bb %s\n", function_and_bb.c_str());
 
 	stringstream action;
-	action << "insert into frontend values ('" << path << "','" << conditions2 << "');";
+	action << "insert into frontend values ('" << path << "','" << conditions2 << "','" << function_and_bb << "');";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 }

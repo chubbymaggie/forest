@@ -5,5 +5,6 @@
 	<option key="explanation" value="Heuristic"/> 
 	<option key="file" value="heuristic.c"/> 
 	<option key="driven_by_frontend" value="true"/> 
-	<option key="max_depth" value="5"/> 
+	<option key="max_depth" value="500"/> 
+	<option key="target_node" value="Z7funcionv_bb2"/> 
 </options>

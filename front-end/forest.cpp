@@ -695,6 +695,19 @@ set<string> vtos(vector<string> vect){
 }
 
 set<string> setintersection(set<string> set_a, set<string> set_b){
+
+
+	printf("setintersection\n");
+
+	for( set<string>::iterator it = set_a.begin(); it != set_a.end(); it++ ){
+		printf("%s,", it->c_str() );
+	} printf("\n");
+	
+	for( set<string>::iterator it = set_b.begin(); it != set_b.end(); it++ ){
+		printf("%s,", it->c_str() );
+	} printf("\n");
+
+
 	set<string> ret;
 	for( set<string>::iterator it = set_a.begin(); it != set_a.end(); it++ ){
 		if(set_b.find(*it) != set_b.end()) ret.insert(*it);
@@ -785,6 +798,23 @@ void print_frontier(set<PathAndConds> frontier){
 	printf("\n");
 }
 
+string get_last_bb(){
+	stringstream command;
+	command << "echo 'select last_bb from frontend;' | sqlite3 database.db > /tmp/last_bb";
+	systm(command.str().c_str());
+	
+
+	ifstream input("/tmp/last_bb");
+	string line;
+	
+	input >> line;
+
+	return line;
+
+
+	
+}
+
 void drive_frontend(){
 
 	printf("drive_frontend\n");
@@ -818,6 +848,13 @@ void drive_frontend(){
 
 		if(n++ == cmd_option_int("max_depth"))
 			exit(0);
+
+		printf("last_bb %s\n", get_last_bb().c_str() );
+		if(get_last_bb() == cmd_option_str("target_node")){
+			printf("Node hitted\n");
+			exit(0);
+		}
+
 
 	} while(frontier.size());
 

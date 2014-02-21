@@ -702,7 +702,7 @@ void Solver::push_condition_static(string cond ){
 
 	string cond_op;
 	if(cond.substr(0,6) == "(not ("){
-		printf("negate %s\n", cond.substr(6,1).c_str() );
+		printf("negate %s %s\n", cond.substr(6,1).c_str(), cond.c_str() );
 		cond_op = negateop( cond.substr(6,1) );
 	} else {
 		cond_op = cond.substr(1,1);
@@ -730,7 +730,7 @@ void Solver::push_condition_static_neg(string cond ){
 
 	string cond_op;
 	if(cond.substr(0,6) == "(not ("){
-		printf("negate %s\n", cond.substr(6,1).c_str() );
+		printf("negate %s %s\n", cond.substr(6,1).c_str(), cond.c_str() );
 		cond_op = negateop( cond.substr(6,1) );
 	} else {
 		cond_op = cond.substr(1,1);

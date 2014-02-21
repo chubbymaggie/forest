@@ -64,6 +64,69 @@ using namespace llvm;
 using namespace std;
 
 
+
+vector<string> tokenize(const string& str,const string& delimiters) {
+	vector<string> tokens;
+    	
+	// skip delimiters at beginning.
+    	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+    	
+	// find first "non-delimiter".
+    	string::size_type pos = str.find_first_of(delimiters, lastPos);
+
+    	while (string::npos != pos || string::npos != lastPos)
+    	{
+		// found a token, add it to the vector.
+		tokens.push_back(str.substr(lastPos, pos - lastPos));
+	
+		// skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+	
+		// find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+    	}
+
+	return tokens;
+}
+
+
+map<string, string> options;
+
+void read_options(){
+
+	FILE *file = fopen ( "/tmp/options", "r" );
+	char line_c [ 128 ]; /* or other suitable maximum line size */
+	
+	while ( fgets ( line_c, sizeof(line_c), file ) != NULL ){
+		line_c[strlen(line_c)-1] = 0;
+		string line = string(line_c);
+		vector<string> tokens = tokenize(line, " ");
+		options[ tokens[0] ] = tokens[1];
+		
+	}
+	fclose ( file );
+}
+
+bool cmd_option_bool(string key){
+	return options[key] == "true";
+}
+
+
+string cmd_option_str(string key){
+	return options[key];
+}
+
+
+
+
+
+
+
+
+
+
+
+
 string get_predicate( CmpInst* instr ){
 	switch( instr->getPredicate() ){
 
@@ -494,7 +557,7 @@ struct PathFinder: public ModulePass {
 		mod_iterator(M, fun){
 		fun_iterator(fun,bb){
 
-			string fn_name = fun->getName().str();
+			string fn_name = fun->getName().str(); if(fn_name[0] == '_') fn_name = fn_name.substr(1);
 			string bb_name =  bb->getName().str();
 
 			Instruction* term = bb->getTerminator();
@@ -541,6 +604,10 @@ struct PathFinder: public ModulePass {
 				string bb_1  = bb->getName().str();
 				string fun_2 = in_c->getCalledFunction()->getName().str();
 
+				if(fun_1[0] == '_') fun_1 = fun_1.substr(1);
+				if(fun_2[0] == '_') fun_2 = fun_2.substr(1);
+
+
 				calls[pair<string, string>(fun_1, bb_1)].push_back(fun_2);
 			}
 		}}}
@@ -564,9 +631,22 @@ struct PathFinder: public ModulePass {
 		map<int, string> node_to_name = inverse(name_to_node);
 		gen_graph_file(conectivity_matrix_inlined, name_to_node);
 
+
+		//for( map<string,int>::iterator it = name_to_node.begin(); it != name_to_node.end(); it++ ){
+			//cerr << it->first << " " << it->second << endl;
+		//}
+		
+
 		Graph my_graph("/tmp/graph");
 
-		YenTopKShortestPathsAlg yenAlg(my_graph, my_graph.get_vertex(name_to_node["main_entry"]), my_graph.get_vertex(name_to_node["_Z7functionv_bb"]));
+		read_options();
+		string target_node_s = cmd_option_str("target_node");
+
+		int target_node_i  = name_to_node[target_node_s];
+
+		//cerr << "target_node " << target_node_s << " " << target_node_i << endl;
+
+		YenTopKShortestPathsAlg yenAlg(my_graph, my_graph.get_vertex(name_to_node["main_entry"]), my_graph.get_vertex(target_node_i));
 
 		set<string> conditions_set;
 
