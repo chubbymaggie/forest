@@ -421,6 +421,8 @@ map<string, int> get_name_to_node( map<string, map<string, string> > conectivity
 
 void gen_graph_file(map<string, map<string, string> > conectivity_matrix_inlined, map<string, int> name_to_node){
 
+	//cerr << "gen_graph_file" << endl;
+
 	FILE* graph_file = fopen("/tmp/graph", "w");
 
 	fprintf(graph_file, "%d\n\n", name_to_node.size());
@@ -587,7 +589,7 @@ struct PathFinder: public ModulePass {
 
 		FILE* file_heuristics = fopen("/tmp/heuristics", "w");
 		for( set<string>::iterator it = conditions_set.begin(); it != conditions_set.end(); it++ ){
-			fprintf(file_heuristics, "%s\n", it->c_str());
+			fprintf(file_heuristics, "%s\n", ((*it)[0]=='_')?it->substr(1).c_str():it->c_str());
 		}
 		fclose(file_heuristics);
 		

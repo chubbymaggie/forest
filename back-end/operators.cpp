@@ -767,9 +767,14 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		solver->push_path_stack( real_value_prev == "true");
 		solver->set_sat(true);
+		bool step = (real_value_prev == "true");
 
 		printf("condition_static_1 %s\n", solver->content(name(cmp)).c_str());
-		solver->push_condition_static_neg(solver->content(name(cmp)));
+		if(step)
+			solver->push_condition_static(solver->content(name(cmp)));
+		else
+			solver->push_condition_static_neg(solver->content(name(cmp)));
+		//solver->push_condition_static_neg(solver->content(name(cmp)));
 
 		//database->insert_problem();
 		database->insert_frontend_interface();
@@ -789,7 +794,11 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		//printf("push_condition_static %s\n", solver->content(name(cmp)).c_str());
 		printf("condition_static_2 %s\n", solver->content(name(cmp)).c_str());
-		solver->push_condition_static(solver->content(name(cmp)));
+		if(!step)
+			solver->push_condition_static(solver->content(name(cmp)));
+		else
+			solver->push_condition_static_neg(solver->content(name(cmp)));
+		//solver->push_condition_static(solver->content(name(cmp)));
 
 		solver->solve_problem();
 

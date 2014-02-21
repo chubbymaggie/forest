@@ -756,27 +756,27 @@ void Solver::push_condition_2(string name, string actual_function, vector<string
 	if( realvalue(name) == "true" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(content(name));
-			push_condition_static(content(name));
+			//push_condition_static(content(name));
 		} else {
 			if(get_comes_from_non_annotated(name)){
 				push_condition(content(name));
-				push_condition_static(content(name));
+				//push_condition_static(content(name));
 			} else {
 				push_condition(content(name), actual_function, joints );
-				push_condition_static(content(name));
+				//push_condition_static(content(name));
 			}
 		}
 	} else if( realvalue(name) == "false" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(negation(content(name)));
-			push_condition_static(negation(content(name)));
+			//push_condition_static(negation(content(name)));
 		} else {
 			if(get_comes_from_non_annotated(name)){
 				push_condition(negation(content(name)));
-				push_condition_static(negation(content(name)));
+				//push_condition_static(negation(content(name)));
 			} else {
 				push_condition(negation(content(name)), actual_function, joints );
-				push_condition_static(negation(content(name)));
+				//push_condition_static(negation(content(name)));
 			}
 		}
 	} else {
@@ -790,27 +790,27 @@ void Solver::push_condition_3(string name, string actual_function, vector<string
 	if( realvalue(name) == "true" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(negation(content(name)));
-			push_condition_static(negation(content(name)));
+			//push_condition_static(negation(content(name)));
 		} else {
 			if(get_comes_from_non_annotated(name)){
 				push_condition(negation(content(name)));
-				push_condition_static(negation(content(name)));
+				//push_condition_static(negation(content(name)));
 			} else {
 				push_condition(negation(content(name)), actual_function, joints );
-				push_condition_static(negation(content(name)));
+				//push_condition_static(negation(content(name)));
 			}
 		}
 	} else if( realvalue(name) == "false" ){
 		if( options->cmd_option_bool("cyclotonic") ){
 			push_condition(content(name));
-			push_condition_static(content(name));
+			//push_condition_static(content(name));
 		} else {
 			if(get_comes_from_non_annotated(name)){
 				push_condition(content(name));
-				push_condition_static(content(name));
+				//push_condition_static(content(name));
 			} else {
 				push_condition(content(name), actual_function, joints );
-				push_condition_static(content(name));
+				//push_condition_static(content(name));
 			}
 		}
 	} else {
