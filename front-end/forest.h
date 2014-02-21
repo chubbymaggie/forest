@@ -48,6 +48,7 @@ void minimal_test_vectors_to_db();
 void db_command(string command);
 void get_result();
 void vim();
+void clean_tables();
 
 
 #endif /* end of include guard: _FOREST_H_ */

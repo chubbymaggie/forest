@@ -65,11 +65,6 @@ public:
 	void end_database();
 
 
-	/**
-	 * @brief Creates needed tables
-	 */
-	void create_tables();
-
 
 	/**
 	 * @brief Inserts a problem in the database 
@@ -187,10 +182,6 @@ private:
 
 
 
-	/**
-	 * @brief Removes all tables from database
-	 */
-	void drop_tables();
 
 	/**
 	 * @brief Number of assertions of a given problem (for statistics)

@@ -696,7 +696,6 @@ void Operators::begin_sim(){
 	exit_on_insert = options->cmd_option_bool("exit_on_insert");
 
 
-	database->create_tables();
 	solver->load_forced_free_vars();
 
 	//debug = true;//options->cmd_option_bool("debug");

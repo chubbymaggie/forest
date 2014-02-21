@@ -52,6 +52,8 @@ void do_pass(string passname){
 		make_bc();
 	else if(passname == "run")
 		run();
+	else if(passname == "clean_tables")
+		clean_tables();
 	else if(passname == "vim")
 		vim();
 	else if(passname == "test")
@@ -2194,6 +2196,84 @@ void clean_concurrency(){
 	db_command( action.str() );
 }
 
+void clean_tables(){
+
+	stringstream action;
+
+	action.str();
+	action << "drop table problems;";
+	action << "drop table variables;";
+	action << "drop table results;";
+	action << "drop table measurements;";
+	action << "drop table frontend;";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table problems(";
+	action << "problem_id INTEGER PRIMARY KEY AUTOINCREMENT,";
+	action << "sat bool,";
+	action << "path varchar(50)";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table variables(";
+	action << "name varchar(50),";
+	action << "type varchar(50),";
+	action << "position varchar(50),";
+	action << "problem_id INTEGER";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table results(";
+	action << "name varchar(50),";
+	action << "value varchar(50),";
+	action << "name_hint varchar(50),";
+	action << "is_free bool,";
+	action << "problem_id INTEGER";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table measurements(";
+	action << "key varchar(50),";
+	action << "value varchar(50)";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table statistics(";
+	action << "problem_id integer,";
+	action << "num_of_assertions integer,";
+	action << "num_of_variables integer,";
+	action << "num_of_mults integer,";
+	action << "num_of_divs integer,";
+	action << "num_of_sums integer,";
+	action << "num_of_subs integer,";
+	action << "time_ms float";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table models(";
+	action << "variable varchar(50),";
+	action << "free varchar(5000),";
+	action << "content varchar(5000),";
+	action << "path varchar(5000)";
+	action << ");";
+	db_command( action.str() );
+
+	action.str("");
+	action << "create table frontend(";
+	action << "path varchar(5000),";
+	action << "conditions varchar(5000),";
+	action << "last_bb varchar(5000)";
+	action << ");";
+	db_command( action.str() );
+
+}
+
 void secuencialize(){
 
 	string fn_seq = cmd_option_str("seq_name");
@@ -3544,6 +3624,7 @@ int main(int argc, const char *argv[]) {
 	needs("test", "run");
 	needs("final", "make_bc");
 	needs("run", "final");
+	needs("run", "clean_tables");
 	needs("make_bc", "clean");
 	needs("check_coverage", "measure_coverage");
 	needs("compare_klee", "run");
@@ -3612,45 +3693,46 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("show_only_constraints")
 	//cmd_option_bool("show_bdd")
 	//cmd_option_bool("bdd_permutation")
-	if(cmd_option_bool("make_bc")) make_bc();
-	if(cmd_option_bool("final")) final();
-	if(cmd_option_bool("compare_bc")) compare_bc();
-	if(cmd_option_bool("compare_measure_bc")) compare_measure_bc();
-	if(cmd_option_bool("compare_libs")) compare_libs();
-	if(cmd_option_bool("view_bc")) view_bc();
-	if(cmd_option_bool("dfg")) view_dfg();
-	if(cmd_option_bool("dfg2")) view_dfg_2();
-	if(cmd_option_bool("run")) run();
-	if(cmd_option_bool("test")) test();
-	if(cmd_option_bool("show_results")) show_results();
-	if(cmd_option_bool("show_argvs")) show_argvs();
-	if(cmd_option_bool("show_test_vectors")) show_test_vectors();
-	if(cmd_option_bool("measure_coverage")) measure_coverage();
-	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();
-	if(cmd_option_bool("show_coverage")) show_coverage();
-	if(cmd_option_bool("check_coverage")) check_coverage();
-	if(cmd_option_bool("random_testing")) random_testing();
-	if(cmd_option_bool("count_branches")) count_branches();
-	if(cmd_option_bool("klee")) do_klee();
-	if(cmd_option_bool("clean_concurrency")) clean_concurrency();
-	if(cmd_option_bool("concurrency")) extract_concurrency();
-	if(cmd_option_bool("compare_concurrency")) compare_concurrency();
-	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();
-	if(cmd_option_bool("show_concurrency_table")) show_concurrency_table();
+	if(cmd_option_bool("make_bc")) make_bc();                                   // generates bc with instrumentation and isolated function
+	if(cmd_option_bool("clean_tables")) clean_tables();                         // removes and creates database tables
+	if(cmd_option_bool("final")) final();                                       // generates final executable code
+	if(cmd_option_bool("compare_bc")) compare_bc();                             // compares raw bc with instrumented one
+	if(cmd_option_bool("compare_measure_bc")) compare_measure_bc();             // compares raw bc with measurement one
+	if(cmd_option_bool("compare_libs")) compare_libs();                         // compares raw bc with changed-stdlibs
+	if(cmd_option_bool("view_bc")) view_bc();                                   // shows bc of the code
+	if(cmd_option_bool("dfg")) view_dfg();                                      // shows dfg of the code
+	if(cmd_option_bool("dfg2")) view_dfg_2();                                   // shows dfg of instrumented code
+	if(cmd_option_bool("run")) run();                                           // run generated executable
+	if(cmd_option_bool("test")) test();                                         // run and check results
+	if(cmd_option_bool("show_results")) show_results();                         // show generated testcases
+	if(cmd_option_bool("show_argvs")) show_argvs();                             // show generated testcases in argv form
+	if(cmd_option_bool("show_test_vectors")) show_test_vectors();               // show generated testvectors
+	if(cmd_option_bool("measure_coverage")) measure_coverage();                 // measure coverage obtained with current test_vectors
+	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();           // transforms data in the database to test_vector format
+	if(cmd_option_bool("show_coverage")) show_coverage();                       // shows coverage obtained with current test_vectors
+	if(cmd_option_bool("check_coverage")) check_coverage();                     // checks if coverage is as good as expected
+	if(cmd_option_bool("random_testing")) random_testing();                     // fuzzes free variables
+	if(cmd_option_bool("count_branches")) count_branches();                     // counts how many branches are executed
+	if(cmd_option_bool("klee")) do_klee();                                      // tests the program with klee
+	if(cmd_option_bool("clean_concurrency")) clean_concurrency();               // drops and creates tables for concurrency
+	if(cmd_option_bool("concurrency")) extract_concurrency();                   // fills concurrency tables
+	if(cmd_option_bool("compare_concurrency")) compare_concurrency();           // compares raw bc and bc instrumented for concurrency
+	if(cmd_option_bool("view_bc_concurrency")) view_bc_concurrency();           // shows instrumented bc for concurrency
+	if(cmd_option_bool("show_concurrency_table")) show_concurrency_table();     // shows filled concurrency table
 	if(cmd_option_bool("secuencialize")) secuencialize();
 	if(cmd_option_bool("compare_secuencialize")) compare_secuencialize();
-	if(cmd_option_bool("check_sync_tables")) check_sync_tables();
+	if(cmd_option_bool("check_sync_tables")) check_sync_tables();               // check that concurrency tables are correct
 	if(cmd_option_bool("check_concurrency")) check_concurrency();
 	if(cmd_option_bool("check_concurrency_2")) check_concurrency_2();
-	if(cmd_option_bool("clean")) clean();
+	if(cmd_option_bool("clean")) clean();                                       // creates and cleans temporal folder
 	if(cmd_option_bool("get_concurrent_functions")) get_concurrent_functions();
 	if(cmd_option_bool("get_concurrent_info")) get_concurrent_info();
-	if(cmd_option_bool("compare_klee")) compare_klee();
-	if(cmd_option_bool("get_result")) get_result();
-	if(cmd_option_bool("vim")) vim();
-	if(cmd_option_bool("get_model")) get_model();
-	if(cmd_option_bool("get_model_fn")) get_model_fn();
-	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();
+	if(cmd_option_bool("compare_klee")) compare_klee();                         // compares times and paths for klee and forest
+	if(cmd_option_bool("get_result")) get_result();                             // copies result to gold_result
+	if(cmd_option_bool("vim")) vim();                                           // shows debug information in vim
+	if(cmd_option_bool("get_model")) get_model();                               // gets a model to be used in repl
+	if(cmd_option_bool("get_model_fn")) get_model_fn();                         // gets a model of a function
+	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();         // generates heuristics to guide the search
 
 	return 0;
 
