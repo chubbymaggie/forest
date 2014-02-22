@@ -662,6 +662,7 @@ typedef struct PathAndConds {
 	string path;
 	string conds;
 	int width;
+	string last_bb;
 
 } PathAndConds;
 
@@ -726,6 +727,23 @@ int width(string conds){
 	return setintersection( tokens_set,heuristics).size();
 }
 
+string get_last_bb(){
+	stringstream command;
+	command << "echo 'select last_bb from frontend;' | sqlite3 database.db > /tmp/last_bb";
+	systm(command.str().c_str());
+	
+
+	ifstream input("/tmp/last_bb");
+	string line;
+	
+	input >> line;
+
+	return line;
+
+
+	
+}
+
 void add_paths(set<PathAndConds>& frontier){
 
 	stringstream action;
@@ -760,7 +778,7 @@ void add_paths(set<PathAndConds>& frontier){
 	assert(paths.size() == conds.size());
 
 	for ( unsigned int i = 0; i < paths.size(); i++) {
-		PathAndConds path_and_cond = {paths[i], conds[i], width(conds[i])};
+		PathAndConds path_and_cond = {paths[i], conds[i], width(conds[i]), get_last_bb()};
 		frontier.insert(path_and_cond);
 	}
 
@@ -795,27 +813,11 @@ void print_frontier(set<PathAndConds> frontier){
 
 	printf("frontier: ");
 	for( set<PathAndConds>::iterator it = frontier.begin(); it != frontier.end(); it++ ){
-		printf("%s:(%s%d), ", it->path.c_str(), it->conds.c_str(), it->width);
+		printf("%s:(%s%d,%s), ", it->path.c_str(), it->conds.c_str(), it->width, it->last_bb.c_str());
 	}
 	printf("\n");
 }
 
-string get_last_bb(){
-	stringstream command;
-	command << "echo 'select last_bb from frontend;' | sqlite3 database.db > /tmp/last_bb";
-	systm(command.str().c_str());
-	
-
-	ifstream input("/tmp/last_bb");
-	string line;
-	
-	input >> line;
-
-	return line;
-
-
-	
-}
 
 void drive_frontend(){
 

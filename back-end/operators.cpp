@@ -743,8 +743,8 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 			if( !solver->get_is_propagated_constant(name(cmp)) ){
 				solver->push_condition(solver->content(name(cmp)));
-				solver->push_condition_static(solver->content(name(cmp)),!step);
 			}
+			solver->push_condition_static(solver->content(name(cmp)),!step);
 			n++;
 			return step;
 		}
