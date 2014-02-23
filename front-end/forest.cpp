@@ -676,7 +676,7 @@ set<string> heuristics;
 
 void load_heuristics(){
 
-	printf("load_heuristics\n");
+	//printf("load_heuristics\n");
 
 	ifstream input("/tmp/heuristics");
 	string line;
@@ -706,9 +706,9 @@ set<string> setintersection(set<string> set_a, set<string> set_b){
 		//printf("%s,", it->c_str() );
 	//} printf("\n");
 	
-	for( set<string>::iterator it = set_b.begin(); it != set_b.end(); it++ ){
-		printf("%s,", it->c_str() );
-	} printf("\n");
+	//for( set<string>::iterator it = set_b.begin(); it != set_b.end(); it++ ){
+		//printf("%s,", it->c_str() );
+	//} printf("\n");
 
 
 	set<string> ret;
@@ -821,7 +821,7 @@ void print_frontier(set<PathAndConds> frontier){
 
 void drive_frontend(){
 
-	printf("drive_frontend\n");
+	//printf("drive_frontend\n");
 
 	set_option("follow_path", "true");
 	set_option("single_step", "true");
@@ -852,15 +852,16 @@ void drive_frontend(){
 		systm(cmd.str().c_str());
 
 		add_paths(frontier);
-		print_frontier(frontier);
+		//print_frontier(frontier);
 
 		if(n++ == cmd_option_int("max_depth"))
 			exit(0);
 
-		printf("last_bb %s\n", get_last_bb().c_str() );
+		//printf("last_bb %s\n", get_last_bb().c_str() );
 		if(get_last_bb() == cmd_option_str("target_node")){
-			printf("Node hitted\n");
-			exit(0);
+			//printf("Node hitted\n");
+			//exit(0);
+			break;
 		}
 
 
