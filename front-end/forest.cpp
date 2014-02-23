@@ -729,7 +729,7 @@ int width(string conds){
 
 string get_last_bb(){
 	stringstream command;
-	command << "echo 'select last_bb from frontend;' | sqlite3 database.db > /tmp/last_bb";
+	command << "echo 'select last_bb from last_bb;' | sqlite3 database.db > /tmp/last_bb";
 	systm(command.str().c_str());
 	
 
@@ -844,6 +844,7 @@ void drive_frontend(){
 
 		db_command("delete from frontend;");
 		db_command("delete from results;");
+		db_command("delete from last_bb;");
 
 		// Ejecuta el fichero resultante
 		stringstream cmd;
@@ -2274,11 +2275,15 @@ void clean_tables(){
 	action.str("");
 	action << "create table frontend(";
 	action << "path varchar(5000),";
-	action << "conditions varchar(5000),";
-	action << "last_bb varchar(5000)";
+	action << "conditions varchar(5000)";
 	action << ");";
 	db_command( action.str() );
 
+	action.str("");
+	action << "create table last_bb(";
+	action << "last_bb varchar(50)";
+	action << ");";
+	db_command( action.str() );
 
 	end_pass("clean_tables");
 }

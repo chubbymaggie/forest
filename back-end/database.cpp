@@ -821,11 +821,33 @@ void Database::insert_frontend_interface(){
 	string path = solver->get_path_stack_str();
 	//string conditions = solver->get_comma_stack_conditions();
 	string conditions2 = solver->get_comma_stack_conditions_static();
-	string function_and_bb = operators->get_actual_function() + "_" + operators->get_actual_bb();
+	//string function_and_bb = operators->get_actual_function() + "_" + operators->get_actual_bb();
+
+	//printf("function_and_bb %s\n", function_and_bb.c_str());
+
+	stringstream action;
+	action << "insert into frontend values ('" << path << "','" << conditions2 << "');";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+}
+
+void Database::insert_last_bb(string function_name, string bb_name){
+
+	//string function_and_bb = operators->get_actual_function() + "_" + operators->get_actual_bb();
+	string function_and_bb = function_name + "_" + bb_name;
 
 	printf("function_and_bb %s\n", function_and_bb.c_str());
 
 	stringstream action;
-	action << "insert into frontend values ('" << path << "','" << conditions2 << "','" << function_and_bb << "');";
+
+	action.str("");
+	action << "delete from last_bb;";
 	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
+	action.str("");
+	action << "insert into last_bb values ('" << function_and_bb << "');";
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+
 }
+
+
+

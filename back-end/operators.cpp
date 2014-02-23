@@ -488,6 +488,14 @@ void Operators::br_instr_incond(){
 void Operators::begin_bb(char* name){
 	actual_bb = string(name);
 
+	database->insert_last_bb(actual_function, actual_bb);
+
+	string function_and_bb = actual_function + "_" + actual_bb;
+	if(options->cmd_option_bool("single_step") && function_and_bb == options->cmd_option_str("target_node")){
+		printf("Node Hitted\n");
+		exit(0);
+	}
+
 	solver->clean_conditions_stack(actual_bb);
 
 	debug && printf("\e[36m begin_bb %s (fn %s)\e[0m\n", name, actual_function.c_str() );
