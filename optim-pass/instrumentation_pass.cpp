@@ -1028,6 +1028,62 @@ struct FunctionNames: public ModulePass {
 	}
 };
 
+
+struct Demangle: public ModulePass {
+	static char ID; // Pass identification, replacement for typeid
+	Demangle() : ModulePass(ID) {}
+
+	string demangle(string fn_name){
+		string command = "c++filt " + fn_name + " > /tmp/forest/demangle";
+
+		system(command.c_str());
+
+		ifstream input("/tmp/forest/demangle");
+		string line;
+		getline( input, line );
+
+		return tokenize(line, "()")[0];
+		
+	}
+
+
+	set<string> get_standard_functions(){
+		read_options();
+		string base_path = cmd_option_str("base_path");
+		string list_of_functions = base_path + "/stdlibs/list_demangle";
+		set<string> functions_v;
+
+		//cerr << list_of_functions << endl;
+		
+		FILE *file = fopen ( list_of_functions.c_str(), "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			functions_v.insert(string(line));
+		}
+		fclose ( file );
+
+		return functions_v;
+	}
+
+	virtual bool runOnModule(Module &M) {
+
+		set<string> functions_v = get_standard_functions();
+
+		mod_iterator(M, fn){
+			string fn_name = fn->getName().str();
+			if( functions_v.find(fn_name) != functions_v.end() ){
+				fn->setName(demangle(fn_name));
+			}
+		}
+
+		return false;
+	}
+};
+
+
+
 struct RmXBool: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	RmXBool() : ModulePass(ID) {}
@@ -3014,7 +3070,8 @@ struct All: public ModulePass {
 
 		{RmXBool          pass;   pass.runOnModule(M);}
 		{MainArgs_2       pass;   pass.runOnModule(M);}
-		//{FunctionNames    pass;   pass.runOnModule(M);}
+		{FunctionNames    pass;   pass.runOnModule(M);}
+		{Demangle         pass;   pass.runOnModule(M);}
 		{SwitchInstr      pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
@@ -3048,6 +3105,9 @@ static RegisterPass<FillNames> FillNames(           "instr_fill_names"      , "F
 
 char FunctionNames::ID = 0;
 static RegisterPass<FunctionNames> FunctionNames(   "instr_function_names"  , "Change names of standard functions" );
+
+char Demangle::ID = 0;
+static RegisterPass<Demangle> Demangle(   "instr_demangle"  , "Demangle names" );
 
 char BinaryOp::ID = 0;
 static RegisterPass<BinaryOp> BinaryOp(             "instr_binaryop"        , "Instrument binary operations" );
