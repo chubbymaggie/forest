@@ -492,6 +492,9 @@ void Operators::begin_bb(char* name){
 
 	string function_and_bb = actual_function + "_" + actual_bb;
 	if(options->cmd_option_bool("single_step") && function_and_bb == options->cmd_option_str("target_node")){
+		//solver->show_problem();
+		solver->solve_problem();
+		database->insert_problem();
 		printf("Node Hitted\n");
 		exit(0);
 	}
