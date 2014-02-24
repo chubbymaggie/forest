@@ -2018,6 +2018,7 @@ struct CallInstr: public ModulePass {
 						if(fn_name == "ReturnInstr" ) continue;
 						if(fn_name == "CallInstr_post" ) continue;
 						if(fn_name == "CallInstr" ) continue;
+						if(fn_name == "end_sim" ) continue;
 
 
 						stringstream operand_list;
@@ -3072,6 +3073,7 @@ struct All: public ModulePass {
 		{MainArgs_2       pass;   pass.runOnModule(M);}
 		{FunctionNames    pass;   pass.runOnModule(M);}
 		{Demangle         pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
 		{SwitchInstr      pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
@@ -3086,7 +3088,6 @@ struct All: public ModulePass {
 		{BrInstr          pass;   pass.runOnModule(M);}
 		{BbMarks          pass;   pass.runOnModule(M);}
 		{AllocaInstr      pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
 		{GetelementPtr    pass;   pass.runOnModule(M);}
 		{FixInstr         pass;   pass.runOnModule(M);}
 
