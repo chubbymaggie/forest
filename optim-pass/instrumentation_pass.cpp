@@ -2344,6 +2344,14 @@ struct BeginEnd: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BeginEnd() : ModulePass(ID) {}
 
+	BasicBlock* return_bb(Function* function){
+		fun_iterator(function, bb){
+			if(bb->getName() == "return") return bb;
+		}
+
+		assert(0 && "No return bb");
+	}
+
 	virtual bool runOnModule(Module &M) {
 
 		{
@@ -2359,8 +2367,10 @@ struct BeginEnd: public ModulePass {
 		}
 
 		{
-			Function::iterator insertpos_f = M.getFunction("main")->end();
-			insertpos_f--;
+			//Function::iterator insertpos_f = M.getFunction("main")->end();
+			//insertpos_f--;
+			Function::iterator insertpos_f = return_bb(M.getFunction("main"));
+
 			BasicBlock::iterator insertpos_b = insertpos_f->end();
 			insertpos_b--;
 
@@ -3073,7 +3083,6 @@ struct All: public ModulePass {
 		{MainArgs_2       pass;   pass.runOnModule(M);}
 		{FunctionNames    pass;   pass.runOnModule(M);}
 		{Demangle         pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
 		{SwitchInstr      pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}
 		{SeparateGetElm   pass;   pass.runOnModule(M);}
@@ -3088,6 +3097,7 @@ struct All: public ModulePass {
 		{BrInstr          pass;   pass.runOnModule(M);}
 		{BbMarks          pass;   pass.runOnModule(M);}
 		{AllocaInstr      pass;   pass.runOnModule(M);}
+		{BeginEnd         pass;   pass.runOnModule(M);}
 		{GetelementPtr    pass;   pass.runOnModule(M);}
 		{FixInstr         pass;   pass.runOnModule(M);}
 
