@@ -1162,6 +1162,13 @@ struct RmXBool: public ModulePass {
 };
 
 
+BasicBlock* return_bb(Function* function){
+	fun_iterator(function, bb){
+		if(bb->getName() == "return") return bb;
+	}
+
+	assert(0 && "No return bb");
+}
 
 struct FixInstr: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
@@ -1190,7 +1197,7 @@ struct FixInstr: public ModulePass {
 			}
 		}
 
-		Function::iterator last_bb = M.getFunction("main")->end(); last_bb--;
+		Function::iterator last_bb = return_bb(M.getFunction("main"));
 		BasicBlock::iterator last_in = last_bb->end(); last_in--;
 		ReturnInst* in_r = cast<ReturnInst>(last_in);
 
@@ -2354,13 +2361,6 @@ struct BeginEnd: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BeginEnd() : ModulePass(ID) {}
 
-	BasicBlock* return_bb(Function* function){
-		fun_iterator(function, bb){
-			if(bb->getName() == "return") return bb;
-		}
-
-		assert(0 && "No return bb");
-	}
 
 	virtual bool runOnModule(Module &M) {
 
