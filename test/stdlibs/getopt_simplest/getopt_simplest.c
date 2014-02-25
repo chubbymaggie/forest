@@ -20,32 +20,26 @@
 
 // from http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
 
-#include <stdio.h>
-#include <unistd.h>
 
-int main (int argc, char **argv) {
-	int aflag = 0;
-	char *cvalue = 0;
-	int i = 0;
-	int c;
+int getopt(int, char* const*, char const*);
 
-	while ((c = getopt (argc, argv, "abc:")) != -1){
-		switch (c)
-		{
-			case 'a':
-				aflag = 1;
-				break;
-			case 'c':
-				cvalue = optarg;
-				break;
-			case '?':
-				fprintf (stderr, "error\n");
-				return 1;
-			default:
-				return 0;
-		}
+int main () {
 
-		if(i++ == 2) break;
+	int argc = 2;
+	char* argv[] = {"ab", "cd"};
+
+	int c = getopt (argc, argv, "ac:");
+
+	switch (c)
+	{
+		case 'a':
+			break;
+		case 'c':
+			break;
+		case '?':
+			return 1;
+		default:
+			return 0;
 	}
 
 	return 0;
