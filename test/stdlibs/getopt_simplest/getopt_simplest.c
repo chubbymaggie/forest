@@ -25,10 +25,9 @@ int getopt(int, char* const*, char const*);
 
 int main () {
 
-	int argc = 2;
-	char* argv[] = {"ab", "cd"};
+	char* argv[] = {"zz", "xx"};
 
-	int c = getopt (argc, argv, "ac:");
+	int c = getopt (2, argv, "ac:");
 
 	switch (c)
 	{
@@ -36,8 +35,6 @@ int main () {
 			break;
 		case 'c':
 			break;
-		case '?':
-			return 1;
 		default:
 			return 0;
 	}

@@ -56,6 +56,8 @@ void do_pass(string passname){
 		clean_tables();
 	else if(passname == "vim")
 		vim();
+	else if(passname == "valgrind")
+		valgrind();
 	else if(passname == "test")
 		test();
 	else if(passname == "clean")
@@ -655,6 +657,36 @@ void vim(){
 	systm(cmd.str().c_str());
 
 	end_pass("vim");
+
+}
+
+void valgrind(){
+
+	start_pass("valgrind");
+
+
+	string base_path   = cmd_option_str("base_path");
+	string llvm_path   = cmd_option_str("llvm_path");
+	string output_file = cmd_option_str("output_file");
+
+	dump_forced_free_vars();
+
+	stringstream cmd;
+
+	set_option("verbose", "true");
+	options_to_file();
+
+	// Ejecuta el fichero resultante
+	cmd.str("");
+	cmd << "valgrind ./" << output_file << " 2>&1 | tee output";
+	systm(cmd.str().c_str());
+
+
+	cmd.str("");
+	cmd << "gvim +AnsiEsc " << "output;";
+	systm(cmd.str().c_str());
+
+	end_pass("valgrind");
 
 }
 
@@ -3646,6 +3678,7 @@ int main(int argc, const char *argv[]) {
 	needs("compare_klee", "klee");
 	needs("get_result", "test");
 	needs("vim", "final");
+	needs("valgrind", "final");
 
 
 	disables("compare_bc", "test");
@@ -3661,6 +3694,7 @@ int main(int argc, const char *argv[]) {
 	disables("dfg2", "check_coverage");
 	disables("run", "test");
 	disables("vim", "test");
+	disables("valgrind", "test");
 	disables("show_results", "test");
 	disables("show_results", "check_concurrency");
 	disables("show_results", "check_concurrency_2");
@@ -3748,6 +3782,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_model")) get_model();                               // gets a model to be used in repl
 	if(cmd_option_bool("get_model_fn")) get_model_fn();                         // gets a model of a function
 	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();         // generates heuristics to guide the search
+	if(cmd_option_bool("valgrind")) valgrind();                                 // tests the output with valgrind
 
 	return 0;
 
