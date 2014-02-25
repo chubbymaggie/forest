@@ -1190,6 +1190,16 @@ struct FixInstr: public ModulePass {
 			}
 		}
 
+		Function::iterator last_bb = M.getFunction("main")->end(); last_bb--;
+		BasicBlock::iterator last_in = last_bb->end(); last_in--;
+		ReturnInst* in_r = cast<ReturnInst>(last_in);
+
+		ConstantInt* constant_0 = ConstantInt::get(M.getContext(), APInt(32, StringRef("0"), 10));
+
+		in_r->setOperand(0, constant_0);
+
+		
+
 		return false;
 	}
 };
@@ -2584,17 +2594,14 @@ struct MainArgs_2: public ModulePass {
 		}
 
 
-		// Set number of argc
-		//new StoreInst(ConstantInt::get(M.getContext(), APInt(32, StringRef(itos(max_argvs)), 10)), argc_addr, false, inbegin);
 
 		// Load argc and argv
 		LoadInst* argc = new LoadInst(argc_addr, "argc", false, inbegin);
 		LoadInst* argv = new LoadInst(argv_addr, "argv", false, inbegin);
 
 		// Cast argv instruction
-		
-		 PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
-		 PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
+		PointerType* PointerTy_2 = PointerType::get(IntegerType::get(M.getContext(), 8), 0);
+		PointerType* PointerTy_1 = PointerType::get(PointerTy_2, 0);
 		CastInst* argv_cast = new BitCastInst(argv_addr, PointerTy_1, "argv_cast", inbegin);
 
 		// Substitute in subsequent instructions
@@ -2621,9 +2628,6 @@ struct MainArgs_2: public ModulePass {
 		ConstantInt* const_int32_4_2 = ConstantInt::get(M.getContext(), APInt(32, StringRef(itos(max_argvs)), 10));
 		ICmpInst* int1_8_2 = new ICmpInst(insertpos_2, ICmpInst::ICMP_SGT,argc, const_int32_4_2, "max");
 
-		// First slice
-		//BasicBlock::iterator splitpos = int1_8_2; splitpos++; splitpos++;
-		//fnbegin->SplitBlockAndInsertIfThen(int1_8, int1_8, true);
 
 		// First slice
 		BasicBlock::iterator splitpos = int1_8_2; splitpos++; splitpos++;
@@ -2638,8 +2642,6 @@ struct MainArgs_2: public ModulePass {
 		Function::iterator bb2 = bb1; bb2++;
 		Function::iterator bb3 = bb2; bb3++;
 		Function::iterator bbl = fn->end(); bbl--;
-
-		//bbl->dump();
 
 		// Change terminator
 		bb1->getTerminator()->eraseFromParent();
