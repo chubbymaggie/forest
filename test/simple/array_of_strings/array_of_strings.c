@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  * /
- * |     Filename:  getopt-2.c
+ * |     Filename:  array_of_strings.c
  * |
  * |  Description:  
  * |
@@ -18,16 +18,11 @@
  * =====================================================================================
  */
 
-// from http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
-
-
-int getopt(int, char* const*, char const*);
-
 int main () {
 
 	char* ar[] = {"zz"};
 
-	if( getopt (2, ar, "ac:") == 'a' )
+	if( ar[0][0] == 'a' )
 		return 1;
 	else
 		return 0;

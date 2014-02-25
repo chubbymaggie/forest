@@ -6,8 +6,6 @@
 	<option key="file" value="getopt_simplest.c"/> 
 	<option key="with_libs" value="true"/> 
 	<option key="cyclotonic" value="true"/> 
-	<option key="forced_free_var" value="mem_8"/> 
-	<option key="forced_free_var" value="mem_9"/> 
-	<option key="forced_free_var" value="mem_11"/> 
-	<option key="forced_free_var" value="mem_12"/> 
+	<option key="forced_free_var" value="mem_4"/> 
+	<option key="forced_free_var" value="mem_5"/> 
 </options>
