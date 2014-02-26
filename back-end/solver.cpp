@@ -1143,7 +1143,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 	//debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s\n", variables[dst].content.c_str(), variables[dst].type.c_str() );
-	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s %s %s\e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d firstaddress %d %d\n",
+	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s %s %s\e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d %d \e[32m lastaddress\e[0m  %d %d \e[32m firstaddress \e[0m %d %d\n",
                  variables[dst].content.c_str(),
 		 variables[src].type.c_str(), variables[dst].type.c_str(), prev_type.c_str(),
 		 realvalue(dst).c_str(), get_is_propagated_constant(src), get_is_propagated_constant(dst),

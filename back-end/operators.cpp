@@ -557,8 +557,8 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 		set_name_hint(mem_var.str(), hint.str());
 
-		solver->set_last_address(mem_var.str(), last_address);
-		solver->set_first_address(mem_var.str(), first_address);
+		//solver->set_last_address(mem_var.str(), last_address);
+		//solver->set_first_address(mem_var.str(), first_address);
 
 
 		alloca_pointer += get_size(types[i]);
@@ -606,8 +606,8 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 			mem_hint << actual_function << "_" << reg << "+" << alloca_pointer - initial_alloca_pointer;
 		set_name_hint(mem_name.str(), mem_hint.str() );
 
-		solver->set_last_address(name(mem_name.str()), last_address);
-		solver->set_first_address(name(mem_name.str()), first_address);
+		//solver->set_last_address(name(mem_name.str()), last_address);
+		//solver->set_first_address(name(mem_name.str()), first_address);
 
 		alloca_pointer += get_size(subtype[i]);
 	}
@@ -670,10 +670,14 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		//exit(0);
 		
 		//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
-		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) )
+		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) ) {
+			debug && printf("\e[33m Access out of bounds dst %d last_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
 			exit(0);
-		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) )
+		}
+		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) ){
+			debug && printf("\e[33m Access out of bounds dst %d first_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
 			exit(0);
+		}
 
 	} else {
 
@@ -690,9 +694,9 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 
 
-	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s realvalue %s lastaddress %d firstaddress %d\n",
+	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s realvalue %s, %s realvalue %s lastaddress %d firstaddress %d\n",
 			dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
-			name(dst).c_str(), realvalue(dst).c_str(), solver->get_last_address(name(pointer)), solver->get_first_address(name(pointer)) );
+			name(dst).c_str(), realvalue(dst).c_str(), name(pointer).c_str(), realvalue(pointer).c_str(), solver->get_last_address(name(pointer)), solver->get_first_address(name(pointer)) );
 
 
 }
