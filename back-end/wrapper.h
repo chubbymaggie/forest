@@ -175,6 +175,7 @@ extern "C" void begin_sim_measurement(char* functions, char* bbs);
 extern "C" void br_instr_cond_measurement(bool value);
 extern "C" void pivot_variable(char* a);
 extern "C" void pivot_hint(char* a);
+extern "C" void pointer_ranges();
 //void pivot_variable(char* a);
 //void pivot_var(int* a);
 

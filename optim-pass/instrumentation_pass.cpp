@@ -3071,6 +3071,11 @@ struct GlobalInit: public ModulePass {
 
 		}
 
+		Value* InitFn = cast<Value> ( M.getOrInsertFunction( "pointer_ranges" , Type::getVoidTy( M.getContext() ), (Type *)0));
+		std::vector<Value*> params;
+		CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+
 		return false;
 	}
 };

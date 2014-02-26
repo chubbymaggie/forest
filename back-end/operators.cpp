@@ -508,6 +508,10 @@ void Operators::end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
+
+map<string, int> first_addresses;
+map<string, int> last_addresses;
+
 void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 	//printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values); fflush(stdout);
@@ -557,19 +561,46 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 		set_name_hint(mem_var.str(), hint.str());
 
-		//solver->set_last_address(mem_var.str(), last_address);
-		//solver->set_first_address(mem_var.str(), first_address);
-
+		first_addresses[mem_var.str()] = first_address;
+		last_addresses[mem_var.str()] = last_address;
 
 		alloca_pointer += get_size(types[i]);
 	}
 
-	solver->set_last_address(varname, last_address);
-	solver->set_first_address(varname, first_address);
-
 	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d last_address %d first_address %d\n", varname.c_str(),type.c_str(),_values 
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer
 		        , last_address, first_address);
+}
+
+
+void Operators::pointer_ranges(){
+
+	debug && printf("\e[31m pointer_ranges \e[0m\n");
+
+	map<string, Variable> variables = solver->get_map_variables();
+
+	debug && printf("\e[31m variables.size \e[0m %d\n", variables.size() );
+
+
+	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
+		string varname = it->first;
+		Variable var = it->second;
+		string type = var.type;
+		
+		debug && printf("\e[31m name \e[0m %s \e[31m type \e[0m %s\n", varname.c_str(), type.c_str() );
+
+		if(type == "PointerTyID"){
+			int first_address = first_addresses["mem_" + solver->realvalue(varname) ];
+			int last_address =  last_addresses["mem_" + solver->realvalue(varname) ];
+
+			solver->set_first_address(name(varname), first_address);
+			solver->set_last_address(name(varname), last_address);
+
+			debug && printf("\e[31m value \e[0m %s \e[31m first \e[0m %d \e[31m last \e[0m %d \n", solver->realvalue(varname).c_str(), first_address, last_address );
+		}
+	}
+
+
 }
 
 void Operators::alloca_instr(char* _reg, char* _subtype){
@@ -606,8 +637,6 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 			mem_hint << actual_function << "_" << reg << "+" << alloca_pointer - initial_alloca_pointer;
 		set_name_hint(mem_name.str(), mem_hint.str() );
 
-		//solver->set_last_address(name(mem_name.str()), last_address);
-		//solver->set_first_address(name(mem_name.str()), first_address);
 
 		alloca_pointer += get_size(subtype[i]);
 	}

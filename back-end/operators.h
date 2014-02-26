@@ -47,6 +47,7 @@ using namespace std;
 
 class Operators {
 public:
+	void pointer_ranges();
 	void pivot_hint(char* _hint);
 	void pivot_variable(char* a);
 	string get_actual_bb();

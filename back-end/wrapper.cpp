@@ -195,6 +195,12 @@ void pivot_hint(char* a){
 	operators->pivot_hint(a);
 }
 
+void pointer_ranges(){
+	operators->pointer_ranges();
+}
+
+
+
 //void pivot_var(int* a){
 
 //}
