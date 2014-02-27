@@ -1506,7 +1506,31 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	}
 
 	if(operation == "#"){
-		set_real_value(dst, ( stoi(realvalue(op1) ) != stoi( realvalue(op2) ) )?"true":"false" );
+		//fflush(stdout); fflush(stderr);
+		//printf("realvalue_op1 %s realvalue_op2 %s\n", realvalue(op1).c_str(), realvalue(op2).c_str() );
+
+		string value_1_s = realvalue(op1);
+		string value_2_s = realvalue(op2);
+		int value_1;
+		int value_2;
+
+		if(value_1_s == "true"){
+			value_1 = 1;
+		} else if(value_1_s == "false"){
+			value_1 = 0;
+		} else {
+			value_1 = stoi(value_1_s);
+		}
+
+		if(value_2_s == "true"){
+			value_2 = 1;
+		} else if(value_2_s == "false"){
+			value_2 = 0;
+		} else {
+			value_2 = stoi(value_2_s);
+		}
+
+		set_real_value(dst, ( value_1 != value_2 )?"true":"false" );
 	}
 
 

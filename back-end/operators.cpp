@@ -700,10 +700,12 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		
 		//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
 		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) ) {
+			//solver->show_problem();
 			debug && printf("\e[33m Access out of bounds dst %d last_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
 			exit(0);
 		}
 		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) ){
+			//solver->show_problem();
 			debug && printf("\e[33m Access out of bounds dst %d first_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
 			exit(0);
 		}
