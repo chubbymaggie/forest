@@ -534,8 +534,8 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
-	solver->settype( name(varname), "Pointer");
 	solver->assign_instruction(name(rvalue.str()), name(varname));
+	solver->settype( name(varname), "Pointer");
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 	int prev_alloca_pointer = alloca_pointer;
@@ -589,7 +589,7 @@ void Operators::pointer_ranges(){
 		
 		debug && printf("\e[31m name \e[0m %s \e[31m type \e[0m %s\n", varname.c_str(), type.c_str() );
 
-		if(type == "PointerTyID"){
+		if(type == "PointerTyID" || type == "Pointer" ){
 			int first_address = first_addresses["mem_" + solver->realvalue(varname) ];
 			int last_address =  last_addresses["mem_" + solver->realvalue(varname) ];
 

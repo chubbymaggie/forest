@@ -1513,12 +1513,15 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	if(operation == "+"){
 
 		stringstream result;
-		if( get_type(dst) == "Real" )
+		if( get_type(dst) == "Real" ){
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
-		else if (get_type(dst) == "Int")
+		} else if (get_type(dst) == "Int") {
 			result << stoi(realvalue(op1)) + stoi(realvalue(op2));
-		else
+		} else if( get_type(dst) == "Pointer" ) {
+			result << stof(realvalue(op1)) + stof(realvalue(op2));
+		} else {
 			assert(0 && "Unknown type");
+		}
 
 		set_real_value(dst, result.str());
 	}
