@@ -315,6 +315,12 @@ bool Operators::is_variable_pointer(string addr){
 
 }
 
+bool Operators::is_expr_pointer(string addr){
+	string content = solver->content_2(name(addr));
+	if(content.substr(0,4) == "exp:") return true;
+	return false;
+}
+
 void Operators::load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
@@ -355,6 +361,9 @@ void Operators::load_instr(char* _dst, char* _addr){
 				//name(src).c_str(), realvalue(src).c_str(),
 				//name(dst).c_str(), realvalue(dst).c_str()
 			       //);
+	} else if(is_expr_pointer(addr)){
+		string content = solver->content(name(addr));
+		solver->expr_load(name(dst), content);
 	} else {
 
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");

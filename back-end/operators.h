@@ -82,6 +82,7 @@ public:
 	vector<string> name( vector<string> input, string fn_name = "" );
 
 private:
+	bool is_expr_pointer(string addr);
 	bool is_variable_pointer(string addr);
 	string get_index_expr(string offset_tree, vector<string> indexes, string base);
 	bool all_constant(vector<string> names);

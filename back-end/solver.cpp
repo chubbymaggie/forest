@@ -2083,6 +2083,65 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 }
 
+string evaluate(string expr){
+	string ret;
+	ret = tokenize(expr, " ()")[2];
+	return ret;
+}
+
+void Solver::expr_load(string dst, string idx_content){
+
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
+
+	vector<string> elements = tokenize(idx_content.substr(5), "{}");
+	string index_expr = elements[0];
+	stringstream result_expr;
+
+
+	printf("index_expr %s\n", index_expr.c_str());
+
+	map<int, string> posvalue;
+
+	for ( unsigned int i = 1; i < elements.size(); i++) {
+		string position_and_value = elements[i];
+		string position_s = tokenize(position_and_value, ",")[0];
+		string value_s    = tokenize(position_and_value, ",")[1];
+		posvalue[stoi(position_s)] = evaluate(value_s); // FIXME: can be non-constant
+		printf("posvalue %s %s %s\n", position_s.c_str(), value_s.c_str(), evaluate(value_s).c_str() );
+	}
+
+
+	string type;
+
+
+	int m = 0;
+	for( map<int,string>::iterator it = posvalue.begin(); it != posvalue.end(); it++ ){
+		string position = it->second;
+		string mem_name = "mem_" + position;
+		type = get_type(mem_name);
+		if(get_name_hint(mem_name) == "") continue;
+		string value = content(mem_name);
+		result_expr << "(ite (= " << index_expr << " " << position << ") " << value << " ";
+		m++;
+	}
+	result_expr << "0";
+	for ( unsigned int i = 0; i < m; i++) {
+		result_expr << ")";
+	}
+
+
+	printf("result_expr %s\n", result_expr.str().c_str());
+
+
+	setcontent(dst, result_expr.str());
+
+	settype(dst, type );
+	printf("\e[32m expr_load \e[0m dst %s content %s result_expr %s type %s\n", dst.c_str(), idx_content.c_str(), result_expr.str().c_str(), type.c_str());
+
+	//exit(0);
+
+
+}
 
 void Solver::variable_load(string dst, string idx_content, int first_address, int last_address ){
 
@@ -2091,19 +2150,44 @@ void Solver::variable_load(string dst, string idx_content, int first_address, in
 	string index_expr = idx_content.substr(5);
 	stringstream result_expr;
 
-	int m = 0;
+
+
+
+
+
+
+
+	//int m = 0;
+	//for ( unsigned int i = first_address; i <= last_address; i++) {
+		//string mem_name = "mem_" + itos(i);
+		//if(get_name_hint(mem_name) == "") continue;
+		//result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
+		//m++;
+	//}
+	//result_expr << "0";
+	//for ( unsigned int i = 0; i < m; i++) {
+		//result_expr << ")";
+	//}
+	result_expr << "exp: {" << index_expr << "}";
 	for ( unsigned int i = first_address; i <= last_address; i++) {
 		string mem_name = "mem_" + itos(i);
 		if(get_name_hint(mem_name) == "") continue;
-		result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
-		m++;
+		result_expr << "{" << i << "," << content(mem_name) << "}";
 	}
 
-	result_expr << "0";
 
-	for ( unsigned int i = 0; i < m; i++) {
-		result_expr << ")";
-	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	setcontent(dst, result_expr.str());
 
