@@ -375,12 +375,13 @@ void Operators::load_instr(char* _dst, char* _addr){
 
 		solver->assign_instruction(name(src),name(dst));
 
-		debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
-				name(addr).c_str(), realvalue(addr).c_str(),
-				name(src).c_str(), realvalue(src).c_str(),
-				name(dst).c_str(), realvalue(dst).c_str()
-			       );
 	}
+
+	debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
+			name(addr).c_str(), realvalue(addr).c_str(),
+			name(src).c_str(), realvalue(src).c_str(),
+			name(dst).c_str(), realvalue(dst).c_str()
+		       );
 
 
 	//exit(0);

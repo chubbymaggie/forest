@@ -335,6 +335,7 @@ bool Solver::need_for_dump(string name, string content){
 		if( name.find("_pivot_") != string::npos ) return false;
 		if( gettype(name) == "Function") return false;
 		if( get_is_propagated_constant(name) ) return false;
+		if( content.substr(0,4) == "exp:") return false;
 		return true;
 }
 
@@ -2116,12 +2117,13 @@ void Solver::expr_load(string dst, string idx_content){
 
 	int m = 0;
 	for( map<int,string>::iterator it = posvalue.begin(); it != posvalue.end(); it++ ){
-		string position = it->second;
-		string mem_name = "mem_" + position;
+		string position_1 = itos(it->first);
+		string position_2 = it->second;
+		string mem_name = "mem_" + position_2;
 		type = get_type(mem_name);
 		if(get_name_hint(mem_name) == "") continue;
 		string value = content(mem_name);
-		result_expr << "(ite (= " << index_expr << " " << position << ") " << value << " ";
+		result_expr << "(ite (= " << index_expr << " " << position_1 << ") " << value << " ";
 		m++;
 	}
 	result_expr << "0";
@@ -2150,29 +2152,33 @@ void Solver::variable_load(string dst, string idx_content, int first_address, in
 	string index_expr = idx_content.substr(5);
 	stringstream result_expr;
 
+	string type = get_type("mem_" + itos(first_address));
+
+
+	//printf("type %s\n", type.c_str());
+	//exit(0);
 
 
 
-
-
-
-
-	//int m = 0;
-	//for ( unsigned int i = first_address; i <= last_address; i++) {
-		//string mem_name = "mem_" + itos(i);
-		//if(get_name_hint(mem_name) == "") continue;
-		//result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
-		//m++;
-	//}
-	//result_expr << "0";
-	//for ( unsigned int i = 0; i < m; i++) {
-		//result_expr << ")";
-	//}
-	result_expr << "exp: {" << index_expr << "}";
-	for ( unsigned int i = first_address; i <= last_address; i++) {
-		string mem_name = "mem_" + itos(i);
-		if(get_name_hint(mem_name) == "") continue;
-		result_expr << "{" << i << "," << content(mem_name) << "}";
+	if(type != "Pointer"){
+		int m = 0;
+		for ( unsigned int i = first_address; i <= last_address; i++) {
+			string mem_name = "mem_" + itos(i);
+			if(get_name_hint(mem_name) == "") continue;
+			result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
+			m++;
+		}
+		result_expr << "0";
+		for ( unsigned int i = 0; i < m; i++) {
+			result_expr << ")";
+		}
+	} else {
+		result_expr << "exp: {" << index_expr << "}";
+		for ( unsigned int i = first_address; i <= last_address; i++) {
+			string mem_name = "mem_" + itos(i);
+			if(get_name_hint(mem_name) == "") continue;
+			result_expr << "{" << i << "," << content(mem_name) << "}";
+		}
 	}
 
 
@@ -2191,7 +2197,7 @@ void Solver::variable_load(string dst, string idx_content, int first_address, in
 
 	setcontent(dst, result_expr.str());
 
-	settype(dst, get_type("mem_" + itos(first_address)));
+	settype(dst, type );
 
 	printf("\e[32m Variable_load \e[0m dst %s content %s first_addr %d last_addr %d result_expr %s\n", dst.c_str(), idx_content.c_str(), first_address, last_address, result_expr.str().c_str());
 

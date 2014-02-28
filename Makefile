@@ -85,7 +85,6 @@ test:
 	@forest ./test/simple/type_of_constant/config.xml          # Problem with type when assigning a constant value
 	@forest ./test/simple/heuristic/config.xml                 # Heuristic
 	@forest ./test/simple/array_of_strings/config.xml          # Array of Strings
-	@forest ./test/simple/deref_variable_double/config.xml     # Double dereference with a free variable
 	@forest ./test/simple/init_local_array/config.xml          # Initialize a local array
 
 
