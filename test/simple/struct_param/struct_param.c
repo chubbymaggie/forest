@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  * /
- * |     Filename:  deref_variable_double.c
+ * |     Filename:  struct.c
  * |
  * |  Description:  
  * |
  * |      Version:  1.0
- * |      Created:  02/27/2014 05:06:32 AM
+ * |      Created:  07/07/2013 07:45:56 AM
  * |     Revision:  none
  * |     Compiler:  gcc
  * `-. .--------------------
@@ -18,20 +18,28 @@
  * =====================================================================================
  */
 
+struct Estructura2{
+	int a;
+	int b;
+};
 
-int a[10] = {0,1,2,3,4,5,6,7,8,9};
-int* b[2];
+struct Estructura {
+	double entero1;
+	int entero2;
+	struct Estructura2 estructura3;
+};
 
-int main() {
+int function(struct Estructura a){
 
-	b[0] = a;
-	b[1] = a+5;
+	return a.estructura3.a;
 
-	int index = 0;
+}
 
-	int c = *(b[index]);
+int main(){
 
-	if(c == 5)
+	struct Estructura a;
+
+	if( function(a) )
 		return 0;
 	else
 		return 1;

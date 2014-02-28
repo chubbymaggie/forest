@@ -2029,13 +2029,14 @@ struct CallInstr: public ModulePass {
 						else
 							fn_name ="";
 
-						if(fn_name == "global_var_init") continue;
-						if(fn_name == "_Z10force_freePi") continue;
-						if(fn_name == "_Z9pivot_varPi") continue;
-						if(fn_name == "ReturnInstr" ) continue;
-						if(fn_name == "CallInstr_post" ) continue;
-						if(fn_name == "CallInstr" ) continue;
-						if(fn_name == "end_sim" ) continue;
+						if( fn_name == "global_var_init"  ) continue;
+						if( fn_name == "_Z10force_freePi" ) continue;
+						if( fn_name == "_Z9pivot_varPi"   ) continue;
+						if( fn_name == "ReturnInstr"      ) continue;
+						if( fn_name == "CallInstr_post"   ) continue;
+						if( fn_name == "CallInstr"        ) continue;
+						if( fn_name == "end_sim"          ) continue;
+						if( fn_name == "pointer_ranges"   ) continue;
 
 
 						stringstream operand_list;
