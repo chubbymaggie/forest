@@ -314,7 +314,7 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
 
-	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(addr)){
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
@@ -674,8 +674,8 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 	} else {
 
-		solver->unset_is_propagated_constant(name(dst));
 		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
+		solver->unset_is_propagated_constant(name(dst));
 
 
 		//string base = pointer;

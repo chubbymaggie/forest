@@ -2143,7 +2143,7 @@ map<set<pair<string, int> > , int > get_idx_val(string idx_content ){
 
 string get_idx_type(string idx_content ){
 
-	printf("\e[31m get_idx_val %s \e[0m\n", idx_content.c_str());
+	printf("\e[31m get_idx_type %s \e[0m\n", idx_content.c_str());
 
 	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
 
@@ -2155,13 +2155,15 @@ string get_idx_type(string idx_content ){
 		return "IntegerTyID32";
 	}
 
-	assert(0 && "wrong get_type");
+	assert(0 && "wrong get_idx_type");
 
 }
 
 void Solver::sym_load(string dst, string idx_content){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for sym_load");
+
+	debug && printf("\e[31m sym_load \e[0m\n");
 
 	stringstream result_expr;
 
@@ -2227,8 +2229,9 @@ void Solver::sym_load(string dst, string idx_content){
 
 	settype(dst, type );
 
-	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
+	unset_is_propagated_constant(dst);
 
+	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
 
 }
 
