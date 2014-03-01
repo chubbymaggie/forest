@@ -307,29 +307,6 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 #define update_store(A,B) concurrency->update_store(A,B);
 
 
-bool Operators::is_variable_pointer(string addr){
-
-	string content = solver->content_2(name(addr));
-	if(content.substr(0,4) == "idx:") return true;
-	return false;
-
-}
-
-bool Operators::is_sym_pointer(string addr){
-
-
-	string content = solver->content_2(name(addr));
-	if(content.substr(0,4) == "idx:") return true;
-	return false;
-
-}
-
-bool Operators::is_expr_pointer(string addr){
-	string content = solver->content_2(name(addr));
-	if(content.substr(0,4) == "exp:") return true;
-	return false;
-}
-
 void Operators::load_instr(char* _dst, char* _addr){
 
 	string dst = string(_dst);
@@ -337,55 +314,15 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
 
-	if(is_sym_pointer(addr)){
-		string content = solver->content(name(addr));
-		solver->sym_load(name(dst), content);
-	} else if(is_variable_pointer(addr)){
-
-		string content = solver->content(name(addr));
-		//string addr_base = tokenize(content, " ")[2];
-		//string addr_base_name = "mem_" + addr_base;
-		//int first_address = solver->get_first_address(addr_base_name);
-		//int last_address = solver->get_last_address(addr_base_name);
-
-		//printf("content %s addr_base %s\n", content.c_str(), addr_base.c_str() );
-		
-		
-		int first_address = solver->get_first_address(name(addr));
-		int last_address = solver->get_last_address(name(addr));
-		
-
-		printf("variable_pointer %d %d\n", first_address, last_address);
-
-		solver->variable_load(name(dst), content, first_address, last_address);
-		
-		//if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
-		//if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
-
-		//if(options->cmd_option_bool("secuencialize")){
-		//database->insert_load(src);
-		//}
-
-		//solver->assign_instruction(name(src),name(dst));
-
-		//debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
-				//name(addr).c_str(), realvalue(addr).c_str(),
-				//name(src).c_str(), realvalue(src).c_str(),
-				//name(dst).c_str(), realvalue(dst).c_str()
-			       //);
-	} else if(is_expr_pointer(addr)){
-		string content = solver->content(name(addr));
-		solver->expr_load(name(dst), content);
-	} else {
-
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(addr)){
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
-		//if(options->cmd_option_bool("secuencialize")){
-		//database->insert_load(src);
-		//}
-
 		solver->assign_instruction(name(src),name(dst));
+	} else {
+
+		string content = solver->content(name(addr));
+		solver->sym_load(name(dst), content);
 
 	}
 
@@ -411,7 +348,30 @@ void Operators::store_instr(char* _src, char* _addr){
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
-	if(is_variable_pointer(addr)){
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(addr)){
+
+
+		if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
+		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
+		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
+
+
+		//if(options->cmd_option_bool("secuencialize")){
+		//solver->content(name(dst));
+
+		//stringstream stack;
+		//solver->dump_conditions(stack);
+		//}
+
+		//if(options->cmd_option_bool("concurrency")){
+		//update_store(dst, solver->content(name(src)));
+		//}
+
+
+
+		solver->assign_instruction(name(src),name(dst));
+
+	} else {
 
 		string content = solver->content(name(addr));
 		//string addr_base = tokenize(content, " ")[2];
@@ -444,34 +404,12 @@ void Operators::store_instr(char* _src, char* _addr){
 				//name(src).c_str(), realvalue(src).c_str(),
 				//name(dst).c_str(), realvalue(dst).c_str()
 			       //);
-	} else {
-
-
-		if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
-		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
-		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
-
-
-		//if(options->cmd_option_bool("secuencialize")){
-		//solver->content(name(dst));
-
-		//stringstream stack;
-		//solver->dump_conditions(stack);
-		//}
-
-		//if(options->cmd_option_bool("concurrency")){
-		//update_store(dst, solver->content(name(src)));
-		//}
-
-
-
-		solver->assign_instruction(name(src),name(dst));
-
-		debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
-				name(src).c_str(), realvalue(src).c_str(),
-				name(addr).c_str(), realvalue(addr).c_str(),
-				name(dst).c_str(), realvalue(dst).c_str() );
 	}
+
+	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
+			name(src).c_str(), realvalue(src).c_str(),
+			name(addr).c_str(), realvalue(addr).c_str(),
+			name(dst).c_str(), realvalue(dst).c_str() );
 
 }
 
@@ -707,6 +645,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	
 
 	if(all_constant(indexes)){
+		solver->set_is_propagated_constant(name(dst));
 		string remaining_tree;
 		int offset = get_offset(indexes, offset_tree, &remaining_tree);
 		solver->set_offset_tree(name(dst), remaining_tree);
@@ -732,13 +671,12 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 			exit(0);
 		}
 
-		solver->set_is_propagated_constant(name(dst));
 
 	} else {
 
+		solver->unset_is_propagated_constant(name(dst));
 		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
 
-		solver->unset_is_propagated_constant(name(dst));
 
 		//string base = pointer;
 		//string index_expr = get_index_expr(offset_tree, indexes, base);

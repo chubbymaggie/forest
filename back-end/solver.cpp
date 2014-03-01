@@ -335,8 +335,6 @@ bool Solver::need_for_dump(string name, string content){
 		if( name.find("_pivot_") != string::npos ) return false;
 		if( gettype(name) == "Function") return false;
 		if( get_is_propagated_constant(name) ) return false;
-		if( content.substr(0,4) == "exp:") return false;
-		if( content.substr(0,4) == "idx:") return false;
 		return true;
 }
 
@@ -2064,7 +2062,7 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 	assert( jmp_offsets.size() == indexes.size() );
 
-	string expr = "idx: (+ " + content(base) + " ";
+	string expr = "(+ " + content(base) + " ";
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
 		stringstream subexpr;
 		subexpr << "(* " << content(indexes[i]) << " " << jmp_offsets[i] << ") ";
@@ -2091,119 +2089,7 @@ string evaluate(string expr){
 	return ret;
 }
 
-void Solver::expr_load(string dst, string idx_content){
 
-	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
-
-	vector<string> elements = tokenize(idx_content.substr(5), "{}");
-	string index_expr = elements[0];
-	stringstream result_expr;
-
-
-	printf("index_expr %s\n", index_expr.c_str());
-
-	map<int, string> posvalue;
-
-	for ( unsigned int i = 1; i < elements.size(); i++) {
-		string position_and_value = elements[i];
-		string position_s = tokenize(position_and_value, ",")[0];
-		string value_s    = tokenize(position_and_value, ",")[1];
-		posvalue[stoi(position_s)] = evaluate(value_s); // FIXME: can be non-constant
-		printf("posvalue %s %s %s\n", position_s.c_str(), value_s.c_str(), evaluate(value_s).c_str() );
-	}
-
-
-	string type;
-
-
-	int m = 0;
-	for( map<int,string>::iterator it = posvalue.begin(); it != posvalue.end(); it++ ){
-		string position_1 = itos(it->first);
-		string position_2 = it->second;
-		string mem_name = "mem_" + position_2;
-		type = get_type(mem_name);
-		if(get_name_hint(mem_name) == "") continue;
-		string value = content(mem_name);
-		result_expr << "(ite (= " << index_expr << " " << position_1 << ") " << value << " ";
-		m++;
-	}
-	result_expr << "0";
-	for ( unsigned int i = 0; i < m; i++) {
-		result_expr << ")";
-	}
-
-
-	printf("result_expr %s\n", result_expr.str().c_str());
-
-
-	setcontent(dst, result_expr.str());
-
-	settype(dst, type );
-	printf("\e[32m expr_load \e[0m dst %s content %s result_expr %s type %s\n", dst.c_str(), idx_content.c_str(), result_expr.str().c_str(), type.c_str());
-
-	//exit(0);
-
-
-}
-
-void Solver::variable_load(string dst, string idx_content, int first_address, int last_address ){
-
-	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
-
-	string index_expr = idx_content.substr(5);
-	stringstream result_expr;
-
-	string type = get_type("mem_" + itos(first_address));
-
-
-	//printf("type %s\n", type.c_str());
-	//exit(0);
-
-
-
-	if(type != "Pointer"){
-		int m = 0;
-		for ( unsigned int i = first_address; i <= last_address; i++) {
-			string mem_name = "mem_" + itos(i);
-			if(get_name_hint(mem_name) == "") continue;
-			result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
-			m++;
-		}
-		result_expr << "0";
-		for ( unsigned int i = 0; i < m; i++) {
-			result_expr << ")";
-		}
-	} else {
-		result_expr << "exp: {" << index_expr << "}";
-		for ( unsigned int i = first_address; i <= last_address; i++) {
-			string mem_name = "mem_" + itos(i);
-			if(get_name_hint(mem_name) == "") continue;
-			result_expr << "{" << i << "," << content(mem_name) << "}";
-		}
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	setcontent(dst, result_expr.str());
-
-	settype(dst, type );
-
-	printf("\e[32m Variable_load \e[0m dst %s content %s first_addr %d last_addr %d result_expr %s\n", dst.c_str(), idx_content.c_str(), first_address, last_address, result_expr.str().c_str());
-
-
-}
 
 map<set<pair<string, int> > , int > get_idx_val(string idx_content ){
 
@@ -2275,15 +2161,12 @@ string get_idx_type(string idx_content ){
 
 void Solver::sym_load(string dst, string idx_content){
 
-	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for sym_load");
 
-	string index_expr = idx_content.substr(5);
 	stringstream result_expr;
 
-	result_expr << "idx: ";
-
-	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(index_expr);
-	string type = get_idx_type(index_expr);
+	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(idx_content);
+	string type = get_idx_type(idx_content);
 
 	int m = 0;
 	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){

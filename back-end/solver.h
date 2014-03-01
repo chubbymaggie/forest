@@ -85,8 +85,6 @@ public:
 	string get_path_stack_str();
 	void variable_store(string src,string idx_content, int first_address, int last_address );
 	string content_2( string name );
-	void variable_load(string dst, string content, int first_address, int last_address );
-	void expr_load(string dst, string content);
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
 	bool is_forced_free_2(string position);
 	void dump_model();
