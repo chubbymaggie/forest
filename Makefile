@@ -81,6 +81,7 @@ test:
 	@forest ./test/simple/deref_variable/config.xml            # Dereferencing a pointer with a free variable
 	@forest ./test/simple/deref_variable_store/config.xml      # Dereferencing a pointer with a free variable in store
 	@forest ./test/simple/deref_variable_double/config.xml     # Double dereference with a free variable
+	@forest ./test/simple/deref_variable_double_2/config.xml   # Double dereference with a free variable
 	@forest ./test/simple/probem_mod/config.xml                # Avoids problematic module 0
 	@forest ./test/simple/type_of_constant/config.xml          # Problem with type when assigning a constant value
 	@forest ./test/simple/heuristic/config.xml                 # Heuristic

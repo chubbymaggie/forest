@@ -76,6 +76,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void sym_load(string dst, string idx_content);
 	void push_condition_static(string cond, bool invert);
 	void load_state();
 	void save_state();
@@ -142,6 +143,8 @@ public:
 	void insert_variable(string name, string position);
 	bool is_constant(string varname);
 	string get_comma_stack_conditions();
+	void set_is_propagated_constant(string varname);
+	void unset_is_propagated_constant(string varname);
 
 private:
 	string negateop(string predicate);
@@ -209,8 +212,6 @@ private:
 	void set_real_value_mangled(string varname, string value );
 	bool get_is_sat(string is_sat);
 	int get_num_fvars();
-	void set_is_propagated_constant(string varname);
-	void unset_is_propagated_constant(string varname);
 	string result_get(string get_str);
 	bool implemented_operation(string operation);
 	string wired_and( string op1, string op2, int nbits );

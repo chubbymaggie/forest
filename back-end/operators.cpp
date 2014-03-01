@@ -315,6 +315,15 @@ bool Operators::is_variable_pointer(string addr){
 
 }
 
+bool Operators::is_sym_pointer(string addr){
+
+
+	string content = solver->content_2(name(addr));
+	if(content.substr(0,4) == "idx:") return true;
+	return false;
+
+}
+
 bool Operators::is_expr_pointer(string addr){
 	string content = solver->content_2(name(addr));
 	if(content.substr(0,4) == "exp:") return true;
@@ -328,7 +337,10 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
 
-	if(is_variable_pointer(addr)){
+	if(is_sym_pointer(addr)){
+		string content = solver->content(name(addr));
+		solver->sym_load(name(dst), content);
+	} else if(is_variable_pointer(addr)){
 
 		string content = solver->content(name(addr));
 		//string addr_base = tokenize(content, " ")[2];
@@ -720,9 +732,13 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 			exit(0);
 		}
 
+		solver->set_is_propagated_constant(name(dst));
+
 	} else {
 
 		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
+
+		solver->unset_is_propagated_constant(name(dst));
 
 		//string base = pointer;
 		//string index_expr = get_index_expr(offset_tree, indexes, base);

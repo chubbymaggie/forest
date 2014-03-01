@@ -336,6 +336,7 @@ bool Solver::need_for_dump(string name, string content){
 		if( gettype(name) == "Function") return false;
 		if( get_is_propagated_constant(name) ) return false;
 		if( content.substr(0,4) == "exp:") return false;
+		if( content.substr(0,4) == "idx:") return false;
 		return true;
 }
 
@@ -2203,6 +2204,151 @@ void Solver::variable_load(string dst, string idx_content, int first_address, in
 
 
 }
+
+map<set<pair<string, int> > , int > get_idx_val(string idx_content ){
+
+	printf("\e[31m get_idx_val %s \e[0m\n", idx_content.c_str());
+
+
+	map<set<pair<string, int> > , int > ret;
+
+
+	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
+
+		{
+			set<pair<string, int> > elem_idx_val;
+			pair<string, int> var_val = pair<string, int>("main_register_index", 0);
+			elem_idx_val.insert(var_val);
+			ret[elem_idx_val] = 40;
+		}
+
+		{
+			set<pair<string, int> > elem_idx_val;
+			pair<string, int> var_val = pair<string, int>("main_register_index", 1);
+			elem_idx_val.insert(var_val);
+			ret[elem_idx_val] = 44;
+		}
+
+
+		return ret;
+	}
+
+	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
+		{
+			set<pair<string, int> > elem_idx_val;
+			pair<string, int> var_val = pair<string, int>("main_register_index", 0);
+			elem_idx_val.insert(var_val);
+			ret[elem_idx_val] = 0;
+		}
+
+		{
+			set<pair<string, int> > elem_idx_val;
+			pair<string, int> var_val = pair<string, int>("main_register_index", 1);
+			elem_idx_val.insert(var_val);
+			ret[elem_idx_val] = 20;
+		}
+
+		return ret;
+	}
+
+	assert(0 && "wrong get_idx_val");
+
+}
+
+string get_idx_type(string idx_content ){
+
+	printf("\e[31m get_idx_val %s \e[0m\n", idx_content.c_str());
+
+	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
+
+		return "Pointer";
+	}
+
+	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
+
+		return "IntegerTyID32";
+	}
+
+	assert(0 && "wrong get_type");
+
+}
+
+void Solver::sym_load(string dst, string idx_content){
+
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for variable_load");
+
+	string index_expr = idx_content.substr(5);
+	stringstream result_expr;
+
+	result_expr << "idx: ";
+
+	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(index_expr);
+	string type = get_idx_type(index_expr);
+
+	int m = 0;
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+		set<pair<string, int> > elem_idx_val = it->first;
+		int val = it->second;
+
+		stringstream and_expr;
+
+		if(elem_idx_val.size() > 1){
+			and_expr << "(and ";
+		}
+		for( set<pair<string, int> >::iterator it2 = elem_idx_val.begin(); it2 != elem_idx_val.end(); it2++ ){
+			pair<string, int> elem = (*it2);
+			string idx = elem.first;
+			int idx_val = elem.second;
+			
+			and_expr << "(= " << idx << " " << idx_val << ")";
+		}
+		if(elem_idx_val.size() > 1){
+			and_expr << ")";
+		}
+
+		string mem_val = content("mem_" + itos(val));
+
+		result_expr << "(ite " << and_expr.str() << " " << mem_val << " ";
+		m++;
+	}
+	result_expr << "0";
+	for ( unsigned int i = 0; i < m; i++) {
+		result_expr << ")";
+	}
+	
+
+	//string type = get_type("mem_" + itos(first_address));
+
+	//if(type != "Pointer"){
+		//int m = 0;
+		//for ( unsigned int i = first_address; i <= last_address; i++) {
+			//string mem_name = "mem_" + itos(i);
+			//if(get_name_hint(mem_name) == "") continue;
+			//result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
+			//m++;
+		//}
+		//result_expr << "0";
+		//for ( unsigned int i = 0; i < m; i++) {
+			//result_expr << ")";
+		//}
+	//} else {
+		//result_expr << "exp: {" << index_expr << "}";
+		//for ( unsigned int i = first_address; i <= last_address; i++) {
+			//string mem_name = "mem_" + itos(i);
+			//if(get_name_hint(mem_name) == "") continue;
+			//result_expr << "{" << i << "," << content(mem_name) << "}";
+		//}
+	//}
+	
+	setcontent(dst, result_expr.str());
+
+	settype(dst, type );
+
+	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
+
+
+}
+
 
 
 
