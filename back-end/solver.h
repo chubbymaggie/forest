@@ -145,6 +145,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	map<set<pair<string, int> > , int > get_idx_val(string idx_content );
 	string negateop(string predicate);
 	bool need_for_dump(string name, string content);
 	string get_anded_stack_conditions();

@@ -2090,13 +2090,168 @@ string evaluate(string expr){
 }
 
 
+set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int > solutions ){
 
-map<set<pair<string, int> > , int > get_idx_val(string idx_content ){
+	set<set<pair<string, int> > > ret;
+	
+	for( map<set<pair<string, int> > , int >::iterator it = solutions.begin(); it != solutions.end(); it++ ){
+		set<pair<string, int> > sol = it->first;
+		ret.insert(sol);
+	}
+
+	return ret;
+	
+
+}
+
+map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
 
 	printf("\e[31m get_idx_val %s \e[0m\n", idx_content.c_str());
 
+	int first_addr;
+	int last_addr;
+
+	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
+		first_addr = 40;
+		last_addr  = 44;
+	}
+	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
+		first_addr = 0;
+		last_addr  = 10;
+	}
+
+	set<int> target_addresses;
+	for ( unsigned int i = first_addr; i <= last_addr; i++) {
+		if( variables["mem_" + itos(i)].type != "" ){
+			target_addresses.insert(i);
+		}
+	}
+
+	set<string> index_vars;
+	index_vars.insert("main_register_index");
 
 	map<set<pair<string, int> > , int > ret;
+
+	bool is_sat;
+
+
+	while(true){
+
+
+		FILE* ftmp = fopen("/tmp/forest/idx_problem.smt2", "w");
+		fprintf(ftmp, "(set-option :produce-models true)\n");
+		fprintf(ftmp, "(set-logic AUFNIRA)\n");
+
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			fprintf(ftmp, "(declare-fun %s () Int)\n", it->c_str());
+		}
+
+		string or_expr;
+		string and_expr;
+
+		if(target_addresses.size() > 1)
+			or_expr += "(or ";
+		for( set<int>::iterator it = target_addresses.begin(); it != target_addresses.end(); it++ ){
+			or_expr += "(= " + idx_content + " " + itos(*it) + ") ";
+		}
+		if(target_addresses.size() > 1)
+			or_expr += ")";
+
+		set<set<pair<string, int> > > exclusions = get_exclusions(ret);
+
+		printf("exclusions.size() %d\n", exclusions.size() );
+
+		and_expr = "(not ";
+		if(exclusions.size() > 1)
+			and_expr += "(or ";
+		for( set<set<pair<string, int> > >::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
+			set<pair<string, int> > fsol = (*it);
+			for( set<pair<string, int> >::iterator it2 = fsol.begin(); it2 != fsol.end(); it2++ ){
+				and_expr += "(= " + it2->first + " " + itos(it2->second) + ") ";
+			}
+		}
+		if(exclusions.size() > 1)
+			and_expr += ")";
+		and_expr += ")";
+
+
+
+		fprintf(ftmp, "(assert %s)\n", or_expr.c_str());
+
+		if(exclusions.size() > 0)
+			fprintf(ftmp, "(assert %s)\n", and_expr.c_str());
+
+
+
+
+
+
+		fprintf(ftmp, "(check-sat)\n");
+
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			fprintf(ftmp, "(get-value (%s))\n", it->c_str());
+		}
+
+		fprintf(ftmp, "(get-value (%s))\n", idx_content.c_str() );
+
+		fclose(ftmp);
+
+		system("z3 /tmp/forest/idx_problem.smt2 > /tmp/forest/idx_out");
+
+
+		ifstream input("/tmp/forest/idx_out");
+		string line;
+		vector<string> result;
+
+		while( getline( input, line ) ) {
+			result.push_back(line);
+		}
+
+		is_sat = (result[0] == "sat");
+
+		if(!is_sat){
+			printf("no sat\n");
+			break;
+		}
+
+		set<pair<string, int> > sub_sol;
+
+		int i = 0;
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			i++;
+			string line = result[i];
+			if(line.find("error") != string::npos )
+				assert(0 && "Error in z3 execution");
+
+			string varname = *it;
+			string value = result_get(line);
+
+			sub_sol.insert(pair<string, int>(varname, stoi(value)));
+
+		}
+		
+		i++;
+		line = result[i];
+		int idx_res = stoi(result_get(line));
+
+		printf("idx_res %d\n", idx_res);
+
+		ret[sub_sol] = idx_res;
+
+		static int p;
+		if(p++ == 3) break;
+
+	}
+
+	//for( set<pair<string, int> >::iterator it = sub_sol.begin(); it != sub_sol.end(); it++ ){
+		//printf("sub_sol %s %d\n", it->first.c_str(), it->second);
+	//}
+	
+	
+	//return ret;
+	exit(0);
+
+
 
 
 	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
