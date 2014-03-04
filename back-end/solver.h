@@ -54,6 +54,7 @@ typedef struct Variable {
 	bool is_propagated_constant;
 	bool comes_from_non_annotated;
 	map<set<pair<string, int> > , int > idx_values;
+	set<string> indexes;
 } Variable;
 
 
@@ -146,10 +147,12 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	bool is_free_var_by_position(string position);
+	void add_indexes(string dst, vector<string> indexes);
 	string get_idx_type(string idx_content );
 	void load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
 	void add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val );
-	map<set<pair<string, int> > , int > get_idx_val(string idx_content, int first_addr, int last_addr );
+	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 	string negateop(string predicate);
 	bool need_for_dump(string name, string content);
 	string get_anded_stack_conditions();

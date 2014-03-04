@@ -967,7 +967,7 @@ bool Solver::is_constant(string varname){
 void Solver::setcontent(string varname, string content){
 
 
-	debug && printf("\e[31m setcontent %s %s\e[0m.\n", varname.c_str(), content.c_str() );
+	debug && printf("\e[32m setcontent %s %s\e[0m.\n", varname.c_str(), content.c_str() );
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for setcontent");
 	variables[varname].content = content;
@@ -1087,6 +1087,7 @@ void Solver::propagate_unary(string src, string dst, bool forcedfree){
 		set_comes_from_non_annotated(dst);
 
 	variables[dst].idx_values = variables[src].idx_values;
+	variables[dst].indexes = variables[src].indexes;
 
 }
 
@@ -1200,6 +1201,11 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 
 	if( get_comes_from_non_annotated(op2) )
 		set_comes_from_non_annotated(dst);
+
+
+	variables[dst].idx_values = variables[op1].idx_values;
+	variables[dst].indexes = variables[op1].indexes;
+
 
 }
 
@@ -2083,6 +2089,16 @@ void Solver::add_range_index(string dst, map<set<pair<string, int> > , int > map
 
 }
 
+void Solver::add_indexes(string dst, vector<string> indexes){
+	if(!check_mangled_name(dst)) assert(0 && "wrong name for add_indexes");
+
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		variables[dst].indexes.insert(*it);
+	}
+	
+
+}
+
 void Solver::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
 
 	debug && printf("\e[32m pointer_instruction \e[0m\n"); fflush(stdout);
@@ -2105,7 +2121,7 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 	expr += ")";
 
-	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(expr, first_address, last_address);
+	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(base,expr, indexes, first_address, last_address);
 
 
 
@@ -2115,9 +2131,10 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 	propagate_unary(base, dst, forcedfree);
 
 	add_range_index(dst, map_idx_val);
+	add_indexes(dst, indexes);
 
 	//printf("range_index %d\n", variables[dst].idx_values.size() );
-	settype(dst, get_idx_type(expr));
+	settype(dst, "Pointer");
 
 	debug && printf("\e[32m pointer_instruction \e[0m  expr %s last_addr %d first_addr %d last_addr %d first_addr %d range_index %d\n",
 			expr.c_str(),
@@ -2151,23 +2168,36 @@ set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int 
 
 }
 
-map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content, int first_address, int last_address){
+bool Solver::is_free_var_by_position(string position){
 
+	printf("free_var_by_position %s %s\n", position.c_str(), content(position).c_str());
 
-	printf("\e[31m get_idx_val %s %d %d\e[0m\n", idx_content.c_str(), first_address, last_address);
-
-	set<string> index_vars;
-	//index_vars.insert("main_register_index");
-
-	if(idx_content == "(+ (+ 0 0) (* main_register_index_1 4) )"){
-		index_vars.insert("main_register_index_1");
-	} else if(idx_content == "(+ 40 (* 0 8) (* main_register_index_2 4) )"){
-		index_vars.insert("main_register_index_2");
-	} else {
-		printf("get_idx_val %s\n", idx_content.c_str() );
-		exit(0);
+	string contnt = content(position);
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		if(it->position == contnt)
+			return true;
 	}
 
+	return false;
+	
+}
+
+map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address){
+
+	printf("\e[32m get_idx_val %s %d %d\e[0m\n", base.c_str(), first_address, last_address);
+	
+
+
+	set<string> index_vars = variables[base].indexes;
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		printf("position %s\n", it->c_str());
+		if(!is_constant(*it) && is_free_var_by_position(*it) ){
+			string contnt = content(*it);
+			printf("\e[32m    index \e[0m %s content %s\n", it->c_str(), contnt.c_str());
+			index_vars.insert(contnt);
+		}
+	}
+	
 	map<set<pair<string, int> > , int > ret;
 
 	bool is_sat;
@@ -2244,6 +2274,11 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content, int 
 			result.push_back(line);
 		}
 
+
+		if(result[0].find("error") != string::npos )
+			assert(0 && "Error in z3 execution");
+
+
 		is_sat = (result[0] == "sat");
 
 		if(!is_sat){
@@ -2290,41 +2325,12 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content, int 
 
 }
 
-string Solver::get_idx_type(string idx_content ){
+string Solver::get_idx_type(string addr){
 
-	printf("\e[31m get_idx_type %s \e[0m\n", idx_content.c_str());
+	printf("\e[32m get_idx_type %s \e[0m\n", addr.c_str());
 
-	if( idx_content == "(+ 20 (* 0 8) (* main_register_index 4) )" ){
+	return get_type( "mem_" + itos(variables[addr].idx_values.begin()->second ));
 
-		return "Pointer";
-	}
-
-	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 28 0) 0))" ){
-
-		return "IntegerTyID32";
-	}
-
-
-	if( idx_content == "(+ 32 (* 0 20) (* main_register_index 4) )"){
-		return "IntegerTyID32";
-	}
-
-	if(idx_content == "(+ (+ 0 0) (* main_register_index_1 4) )"){
-		return "Pointer";
-	}
-
-	if(idx_content == "(+ 40 (* 0 8) (* main_register_index_2 4) )"){
-		return "IntegerTyID32";
-	}
-
-	if(idx_content == "(ite (= main_register_index_2 0) (+ 0 0) (ite (= main_register_index_2 1) (+ (+ 0 0) (* main_register_index_1 4) ) 0))"){
-		return "IntegerTyID32";
-	}
-
-
-
-
-	assert(0 && "wrong get_idx_type");
 }
 
 void Solver::sym_load(string dst, string addr){
@@ -2340,7 +2346,6 @@ void Solver::sym_load(string dst, string addr){
 	stringstream result_expr;
 
 	map<set<pair<string, int> > , int > map_idx_val = variables[addr].idx_values;
-	string type = get_idx_type(idx_content);
 
 	debug && printf("\e[31m sym_load %s %s %d\e[0m\n", dst.c_str(), addr.c_str(), map_idx_val.size() );
 
@@ -2382,7 +2387,7 @@ void Solver::sym_load(string dst, string addr){
 	}
 
 	setcontent(dst, result_expr.str());
-	settype(dst, type );
+
 	unset_is_propagated_constant(dst);
 
 	m = 0;
@@ -2402,6 +2407,9 @@ void Solver::sym_load(string dst, string addr){
 
 
 	load_idx_vals(dst, map_idx_val);
+
+	string type = get_idx_type(addr);
+	settype(dst, type );
 
 	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
 
@@ -2453,7 +2461,7 @@ void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_i
 
 	variables[dst].idx_values = res;
 
-	debug && printf("\e[31m load_idx_vals \e[0m %s\n", dst.c_str());
+	debug && printf("\e[32m load_idx_vals \e[0m %s\n", dst.c_str());
 	for( map<set<pair<string, int> > , int >::iterator it = res.begin(); it != res.end(); it++ ){
 		set<pair<string, int> > idx_idxvals = it->first;
 		set<pair<string, int> > idx_idxval_res;
@@ -2465,7 +2473,7 @@ void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_i
 			string idx = str_int.first;
 			int idxval = str_int.second;
 
-			printf("\e[31m idx_values \e[0m %s %d %d\n", idx.c_str(), idxval, val);
+			printf("\e[32m idx_values \e[0m %s %d %d\n", idx.c_str(), idxval, val);
 		}
 	}
 }
