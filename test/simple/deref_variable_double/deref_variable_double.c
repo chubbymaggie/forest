@@ -19,19 +19,20 @@
  */
 
 
-int a[10] = {0,1,2,3,4,5,6,7,8,9};
-int* b[2];
+int a[5] = {6,7,8,9,0};
+int b[3] = {5,6,7};
+int* c[2];
 
 int main() {
 
-	b[0] = a;
-	b[1] = a+5;
+	c[0] = a;
+	c[1] = b;
 
 	int index = 0;
 
-	int c = *(b[index]);
+	int d = *(c[index]);
 
-	if(c == 5)
+	if(d == 5)
 		return 0;
 	else
 		return 1;

@@ -321,8 +321,7 @@ void Operators::load_instr(char* _dst, char* _addr){
 		solver->assign_instruction(name(src),name(dst));
 	} else {
 
-		string content = solver->content(name(addr));
-		solver->sym_load(name(dst), content);
+		solver->sym_load(name(dst), name(addr));
 
 	}
 

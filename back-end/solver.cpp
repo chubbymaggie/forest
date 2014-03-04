@@ -2056,11 +2056,40 @@ vector<int> jump_offsets(string offset_tree){
 	return ret;
 }
 
+void Solver::add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val ){
+
+	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for add_range_index");
+
+	printf("add_range_index %s\n", dst.c_str());
+
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+		set<pair<string, int> > idx_vals = it->first;
+		for( set<pair<string, int> >::iterator it2 = idx_vals.begin(); it2 != idx_vals.end(); it2++ ){
+			string idx = it2->first;
+			int    val = it2->second;
+			printf("idx_vals %s %d\n", idx.c_str(), val);
+		}
+		
+	}
+	
+	variables[dst].idx_values = map_idx_val;
+
+	//pair<int, int> range = pair<int, int>(first_address, last_address);
+	//pair<string, pair<int, int> > expr_and_range = pair<string, pair<int, int> >(expr, range);
+	//variables[dst].range_indexes.push_back(expr_and_range);
+
+}
+
 void Solver::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
 
 	vector<int> jmp_offsets = jump_offsets(offset_tree);
 
 	assert( jmp_offsets.size() == indexes.size() );
+
+
+	int first_address = get_first_address(base);
+	int last_address = get_last_address(base);
+	
 
 	string expr = "(+ " + content(base) + " ";
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
@@ -2071,15 +2100,22 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 	expr += ")";
 
+	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(expr, first_address, last_address);
+
+	add_range_index(dst, map_idx_val);
+
 	setcontent(dst, expr);
 
 	bool forcedfree = is_forced_free(base);
 	propagate_unary(base, dst, forcedfree);
 
-	debug && printf("\e[32m pointer_instruction \e[0m last_addr %d first_addr %d last_addr %d first_addr %d\n",
+	debug && printf("\e[32m pointer_instruction \e[0m  expr %s last_addr %d first_addr %d last_addr %d first_addr %d\n",
+			expr.c_str(),
 			get_last_address(base), get_first_address(base),
 			get_last_address(dst) , get_first_address(dst)
 			);
+
+	//exit(0);
 
 }
 
@@ -2104,28 +2140,10 @@ set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int 
 
 }
 
-map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
+map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content, int first_address, int last_address){
 
-	printf("\e[31m get_idx_val %s \e[0m\n", idx_content.c_str());
 
-	int first_addr;
-	int last_addr;
-
-	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
-		first_addr = 40;
-		last_addr  = 44;
-	}
-	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
-		first_addr = 0;
-		last_addr  = 10;
-	}
-
-	set<int> target_addresses;
-	for ( unsigned int i = first_addr; i <= last_addr; i++) {
-		if( variables["mem_" + itos(i)].type != "" ){
-			target_addresses.insert(i);
-		}
-	}
+	printf("\e[31m get_idx_val %s %d %d\e[0m\n", idx_content.c_str(), first_address, last_address);
 
 	set<string> index_vars;
 	index_vars.insert("main_register_index");
@@ -2146,40 +2164,35 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
 			fprintf(ftmp, "(declare-fun %s () Int)\n", it->c_str());
 		}
 
-		string or_expr;
-		string and_expr;
+		stringstream excl_expr;
+		stringstream range_expr;
 
-		if(target_addresses.size() > 1)
-			or_expr += "(or ";
-		for( set<int>::iterator it = target_addresses.begin(); it != target_addresses.end(); it++ ){
-			or_expr += "(= " + idx_content + " " + itos(*it) + ") ";
-		}
-		if(target_addresses.size() > 1)
-			or_expr += ")";
+		range_expr << "(and " << "(<= " << first_address << " " << idx_content << " " << last_address << ") " << "(<= " << idx_content << " " << last_address << "))";
+
 
 		set<set<pair<string, int> > > exclusions = get_exclusions(ret);
 
-		printf("exclusions.size() %d\n", exclusions.size() );
+		//printf("exclusions.size() %d\n", exclusions.size() );
 
-		and_expr = "(not ";
+		excl_expr << "(not ";
 		if(exclusions.size() > 1)
-			and_expr += "(or ";
+			excl_expr << "(or ";
 		for( set<set<pair<string, int> > >::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
 			set<pair<string, int> > fsol = (*it);
 			for( set<pair<string, int> >::iterator it2 = fsol.begin(); it2 != fsol.end(); it2++ ){
-				and_expr += "(= " + it2->first + " " + itos(it2->second) + ") ";
+				excl_expr << "(= " << it2->first << " " << it2->second << ") ";
 			}
 		}
 		if(exclusions.size() > 1)
-			and_expr += ")";
-		and_expr += ")";
+			excl_expr << ")";
+		excl_expr << ")";
 
 
 
-		fprintf(ftmp, "(assert %s)\n", or_expr.c_str());
+		fprintf(ftmp, "(assert %s)\n", range_expr.str().c_str());
 
 		if(exclusions.size() > 0)
-			fprintf(ftmp, "(assert %s)\n", and_expr.c_str());
+			fprintf(ftmp, "(assert %s)\n", excl_expr.str().c_str());
 
 
 
@@ -2210,7 +2223,7 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
 		is_sat = (result[0] == "sat");
 
 		if(!is_sat){
-			printf("no sat\n");
+			//printf("no sat\n");
 			break;
 		}
 
@@ -2234,7 +2247,7 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
 		line = result[i];
 		int idx_res = stoi(result_get(line));
 
-		printf("idx_res %d\n", idx_res);
+		//printf("idx_res %d\n", idx_res);
 
 		ret[sub_sol] = idx_res;
 
@@ -2248,51 +2261,8 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string idx_content ){
 	//}
 	
 	
-	//return ret;
-	exit(0);
-
-
-
-
-	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
-
-		{
-			set<pair<string, int> > elem_idx_val;
-			pair<string, int> var_val = pair<string, int>("main_register_index", 0);
-			elem_idx_val.insert(var_val);
-			ret[elem_idx_val] = 40;
-		}
-
-		{
-			set<pair<string, int> > elem_idx_val;
-			pair<string, int> var_val = pair<string, int>("main_register_index", 1);
-			elem_idx_val.insert(var_val);
-			ret[elem_idx_val] = 44;
-		}
-
-
-		return ret;
-	}
-
-	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
-		{
-			set<pair<string, int> > elem_idx_val;
-			pair<string, int> var_val = pair<string, int>("main_register_index", 0);
-			elem_idx_val.insert(var_val);
-			ret[elem_idx_val] = 0;
-		}
-
-		{
-			set<pair<string, int> > elem_idx_val;
-			pair<string, int> var_val = pair<string, int>("main_register_index", 1);
-			elem_idx_val.insert(var_val);
-			ret[elem_idx_val] = 20;
-		}
-
-		return ret;
-	}
-
-	assert(0 && "wrong get_idx_val");
+	return ret;
+	//exit(0);
 
 }
 
@@ -2300,12 +2270,12 @@ string get_idx_type(string idx_content ){
 
 	printf("\e[31m get_idx_type %s \e[0m\n", idx_content.c_str());
 
-	if( idx_content == "(+ 40 (* 0 8) (* main_register_index 4) )" ){
+	if( idx_content == "(+ 20 (* 0 8) (* main_register_index 4) )" ){
 
 		return "Pointer";
 	}
 
-	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 0 20) 0))" ){
+	if( idx_content == "(ite (= main_register_index 0) (+ 0 0) (ite (= main_register_index 1) (+ 28 0) 0))" ){
 
 		return "IntegerTyID32";
 	}
@@ -2314,16 +2284,25 @@ string get_idx_type(string idx_content ){
 
 }
 
-void Solver::sym_load(string dst, string idx_content){
+void Solver::sym_load(string dst, string addr){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for sym_load");
+	if(!check_mangled_name(addr)) assert(0 && "Wrong name for sym_load");
+
+	string idx_content = content(addr);
+
 
 	debug && printf("\e[31m sym_load \e[0m\n");
 
+
 	stringstream result_expr;
 
-	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(idx_content);
+	map<set<pair<string, int> > , int > map_idx_val = variables[addr].idx_values;
 	string type = get_idx_type(idx_content);
+
+
+
+	vector<string> mem_names;
 
 	int m = 0;
 	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
@@ -2348,6 +2327,9 @@ void Solver::sym_load(string dst, string idx_content){
 
 		string mem_val = content("mem_" + itos(val));
 
+
+		mem_names.push_back("mem_" + itos(val));
+
 		result_expr << "(ite " << and_expr.str() << " " << mem_val << " ";
 		m++;
 	}
@@ -2355,42 +2337,95 @@ void Solver::sym_load(string dst, string idx_content){
 	for ( unsigned int i = 0; i < m; i++) {
 		result_expr << ")";
 	}
-	
 
-	//string type = get_type("mem_" + itos(first_address));
-
-	//if(type != "Pointer"){
-		//int m = 0;
-		//for ( unsigned int i = first_address; i <= last_address; i++) {
-			//string mem_name = "mem_" + itos(i);
-			//if(get_name_hint(mem_name) == "") continue;
-			//result_expr << "(ite (= " << index_expr << " " << i << ") " << content(mem_name) << " ";
-			//m++;
-		//}
-		//result_expr << "0";
-		//for ( unsigned int i = 0; i < m; i++) {
-			//result_expr << ")";
-		//}
-	//} else {
-		//result_expr << "exp: {" << index_expr << "}";
-		//for ( unsigned int i = first_address; i <= last_address; i++) {
-			//string mem_name = "mem_" + itos(i);
-			//if(get_name_hint(mem_name) == "") continue;
-			//result_expr << "{" << i << "," << content(mem_name) << "}";
-		//}
-	//}
-	
 	setcontent(dst, result_expr.str());
-
 	settype(dst, type );
-
 	unset_is_propagated_constant(dst);
+
+	m = 0;
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+		set<pair<string, int> > elem_idx_val = it->first;
+		int val = it->second;
+
+		for( set<pair<string, int> >::iterator it2 = elem_idx_val.begin(); it2 != elem_idx_val.end(); it2++ ){
+			pair<string, int> idxv = (*it2);
+			printf("symload %s %d %d %s %s\n", idxv.first.c_str(), idxv.second, val,mem_names[m].c_str(), content(mem_names[m]).c_str() );
+		}
+		m++;
+	}
+
+
+
+
+
+	load_idx_vals(dst, map_idx_val);
 
 	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
 
+	//exit(0);
+
 }
 
+void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val){
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for load_idx_vals");
 
+	map<set<pair<string, int> > , int > res;
+
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+		set<pair<string, int> > idx_idxvals = it->first;
+		set<pair<string, int> > idx_idxval_res;
+
+		int val = it->second;
+
+
+		for( set<pair<string, int> >::iterator it2 = idx_idxvals.begin(); it2 != idx_idxvals.end(); it2++ ){
+			pair<string, int> str_int = (*it2);
+			//string idx = str_int.first;
+			//int idxval = str_int.second;
+
+			idx_idxval_res.insert(str_int);
+
+		}
+
+		set<pair<string, int> > idx_idxval_res_copy = idx_idxval_res;
+
+		string memname = "mem_" + itos(val);
+		map<set<pair<string, int> > , int > mem_idxvals = variables[memname].idx_values;
+		if(mem_idxvals.size()){
+			for( map<set<pair<string, int> > , int >::iterator it3 = mem_idxvals.begin(); it3 != mem_idxvals.end(); it3++ ){
+				set<pair<string, int> > mem_idxvals = it3->first;
+				idx_idxval_res = idx_idxval_res_copy;
+				int mem_val = it3->second;
+				for( set<pair<string, int> >::iterator it4 = mem_idxvals.begin(); it4 != mem_idxvals.end(); it4++ ){
+					pair<string, int> str_int = (*it4);
+					idx_idxval_res.insert(str_int);
+				}
+
+				res[idx_idxval_res] = mem_val;
+			}
+		} else {
+			res[idx_idxval_res] = stoi(realvalue(memname));
+		}
+	}
+
+	variables[dst].idx_values = res;
+
+	debug && printf("\e[31m load_idx_vals \e[0m %s\n", dst.c_str());
+	for( map<set<pair<string, int> > , int >::iterator it = res.begin(); it != res.end(); it++ ){
+		set<pair<string, int> > idx_idxvals = it->first;
+		set<pair<string, int> > idx_idxval_res;
+
+		int val = it->second;
+
+		for( set<pair<string, int> >::iterator it2 = idx_idxvals.begin(); it2 != idx_idxvals.end(); it2++ ){
+			pair<string, int> str_int = (*it2);
+			string idx = str_int.first;
+			int idxval = str_int.second;
+
+			printf("\e[31m idx_values \e[0m %s %d %d\n", idx.c_str(), idxval, val);
+		}
+	}
+}
 
 
 void Solver::variable_store(string src, string idx_content, int first_address, int last_address ){
