@@ -146,6 +146,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	string get_idx_type(string idx_content );
 	void load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
 	void add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val );
 	map<set<pair<string, int> > , int > get_idx_val(string idx_content, int first_addr, int last_addr );

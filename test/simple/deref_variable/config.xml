@@ -4,4 +4,5 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="Dereferencing a pointer with a free variable"/> 
 	<option key="file" value="deref_variable.c"/> 
+	<option key="forced_free_var" value="mem_28"/> 
 </options>

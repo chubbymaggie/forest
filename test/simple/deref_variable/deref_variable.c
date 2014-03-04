@@ -25,7 +25,7 @@
 
 
 int main() {
-	int index;
+	int index = 0;
 	int array[] = {1,2,3,4,5};
 
 
