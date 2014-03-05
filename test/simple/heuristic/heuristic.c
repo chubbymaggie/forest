@@ -41,7 +41,6 @@ int main() {
 
 	int j;
 	int k;
-	int* l;
 
 	if(j){
 		funcion();
@@ -53,9 +52,6 @@ int main() {
 		funcion();
 	}
 
-	if(*l){
-		funcion();
-	}
 
 }
 

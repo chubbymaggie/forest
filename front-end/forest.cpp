@@ -891,12 +891,12 @@ void drive_frontend(){
 		systm(cmd.str().c_str());
 
 		add_paths(frontier);
-		print_frontier(frontier);
+		//print_frontier(frontier);
 
 		if(n++ == cmd_option_int("max_depth"))
 			exit(0);
 
-		printf("last_bb %s\n", get_last_bb().c_str() );
+		//printf("last_bb %s\n", get_last_bb().c_str() );
 		if(get_last_bb() == cmd_option_str("target_node")){
 			//printf("Node hitted\n");
 			//exit(0);
