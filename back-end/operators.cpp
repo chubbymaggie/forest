@@ -347,62 +347,18 @@ void Operators::store_instr(char* _src, char* _addr){
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
 
-	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(addr)){
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
 
 
 		if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
 
-
-		//if(options->cmd_option_bool("secuencialize")){
-		//solver->content(name(dst));
-
-		//stringstream stack;
-		//solver->dump_conditions(stack);
-		//}
-
-		//if(options->cmd_option_bool("concurrency")){
-		//update_store(dst, solver->content(name(src)));
-		//}
-
-
-
 		solver->assign_instruction(name(src),name(dst));
 
 	} else {
 
-		string content = solver->content(name(addr));
-		//string addr_base = tokenize(content, " ")[2];
-		//string addr_base_name = "mem_" + addr_base;
-		//int first_address = solver->get_first_address(addr_base_name);
-		//int last_address = solver->get_last_address(addr_base_name);
-
-		//printf("content %s addr_base %s\n", content.c_str(), addr_base.c_str() );
-		
-		
-		int first_address = solver->get_first_address(name(addr));
-		int last_address = solver->get_last_address(name(addr));
-		
-
-		printf("variable_pointer %d %d\n", first_address, last_address);
-
-		solver->variable_store(name(src), content, first_address, last_address);
-		
-		//if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
-		//if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
-
-		//if(options->cmd_option_bool("secuencialize")){
-		//database->insert_load(src);
-		//}
-
-		//solver->assign_instruction(name(src),name(dst));
-
-		//debug && printf("\e[31m load instruction %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(addr).c_str(),
-				//name(addr).c_str(), realvalue(addr).c_str(),
-				//name(src).c_str(), realvalue(src).c_str(),
-				//name(dst).c_str(), realvalue(dst).c_str()
-			       //);
+		solver->sym_store(name(src), name(addr));
 	}
 
 	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),

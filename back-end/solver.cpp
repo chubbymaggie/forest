@@ -2417,6 +2417,132 @@ void Solver::sym_load(string dst, string addr){
 
 }
 
+
+
+void Solver::sym_store(string src, string addr){
+
+	if(!check_mangled_name(src)) assert(0 && "Wrong name for sym_store");
+	if(!check_mangled_name(addr)) assert(0 && "Wrong name for sym_store");
+
+	string idx_content = content(addr);
+	string src_content = content(src);
+
+
+	map<set<pair<string, int> > , int > map_idx_val = variables[addr].idx_values;
+
+	debug && printf("\e[31m sym_store %s %s %d\e[0m\n", src.c_str(), addr.c_str(), map_idx_val.size() );
+
+
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+
+		stringstream result_expr;
+
+		set<pair<string, int> > elem_idx_val = it->first;
+		int val = it->second;
+
+		stringstream and_expr;
+
+		if(elem_idx_val.size() > 1){
+			and_expr << "(and ";
+		}
+		for( set<pair<string, int> >::iterator it2 = elem_idx_val.begin(); it2 != elem_idx_val.end(); it2++ ){
+			pair<string, int> elem = (*it2);
+			string idx = elem.first;
+			int idx_val = elem.second;
+			
+			and_expr << "(= " << idx << " " << idx_val << ")";
+		}
+		if(elem_idx_val.size() > 1){
+			and_expr << ")";
+		}
+
+		string mem_name = "mem_" + itos(val);
+		string mem_val = content(mem_name);
+
+		result_expr << "(ite " << and_expr.str() << " " << src_content << " " << mem_val << ")";
+
+		debug && printf("\e[32m sym_store \e[0m mem_%d %s\n", val, result_expr.str().c_str() );
+
+		setcontent(mem_name, result_expr.str());
+
+		string type = get_type(src);
+		settype(mem_name, type);
+
+		unset_is_propagated_constant(mem_name);
+
+	
+	}
+
+	store_idx_vals(src, map_idx_val);
+
+	//string type = get_idx_type(addr);
+	//settype(dst, type );
+
+	//printf("\e[32m Variable_store \e[0m src %s content %s result_expr %s\n", src.c_str(), idx_content.c_str(),result_expr.str().c_str());
+
+
+}
+
+// src, variables[addr].idx_values
+void Solver::store_idx_vals(string src, map<set<pair<string, int> > , int > map_idx_val){
+
+	if(!check_mangled_name(src)) assert(0 && "Wrong name for store_idx_vals");
+
+	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
+
+		map<set<pair<string, int> >, int> res;
+
+		set<pair<string, int> > idx_idxvals = it->first;
+		int val = it->second;
+
+		set<pair<string, int> > idx_idxval_res;
+
+		for( set<pair<string, int> >::iterator it2 = idx_idxvals.begin(); it2 != idx_idxvals.end(); it2++ ){
+			pair<string, int> str_int = (*it2);
+			idx_idxval_res.insert(str_int);
+		}
+
+		string memname = "mem_" + itos(val);
+
+		map<set<pair<string, int> > , int > mem_idxvals = variables[src].idx_values;
+		if(mem_idxvals.size()){
+			for( map<set<pair<string, int> > , int >::iterator it3 = mem_idxvals.begin(); it3 != mem_idxvals.end(); it3++ ){
+				set<pair<string, int> > mem_idxvals = it3->first;
+				int mem_val = it3->second;
+				for( set<pair<string, int> >::iterator it4 = mem_idxvals.begin(); it4 != mem_idxvals.end(); it4++ ){
+					pair<string, int> str_int = (*it4);
+					idx_idxval_res.insert(str_int);
+				}
+
+				res[idx_idxval_res] = val;
+			}
+		} else {
+			res[idx_idxval_res] = stoi(realvalue(src));
+		}
+
+		variables[memname].idx_values = res;
+
+		debug && printf("\e[32m store_idx_vals \e[0m %s\n", memname.c_str());
+		for( map<set<pair<string, int> > , int >::iterator it = res.begin(); it != res.end(); it++ ){
+			set<pair<string, int> > idx_idxvals = it->first;
+			set<pair<string, int> > idx_idxval_res;
+
+			int val = it->second;
+
+			for( set<pair<string, int> >::iterator it2 = idx_idxvals.begin(); it2 != idx_idxvals.end(); it2++ ){
+				pair<string, int> str_int = (*it2);
+				string idx = str_int.first;
+				int idxval = str_int.second;
+
+				printf("\e[32m idx_values \e[0m %s %d %d\n", idx.c_str(), idxval, val);
+			}
+		}
+
+	}
+	
+
+}
+
 void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val){
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for load_idx_vals");
 

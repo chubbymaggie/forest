@@ -78,6 +78,8 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void store_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
+	void sym_store(string src, string addr);
 	void sym_load(string dst, string idx_content);
 	void push_condition_static(string cond, bool invert);
 	void load_state();
