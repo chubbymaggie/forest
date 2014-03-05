@@ -845,7 +845,13 @@ void print_frontier(set<PathAndConds> frontier){
 
 	printf("frontier: ");
 	for( set<PathAndConds>::iterator it = frontier.begin(); it != frontier.end(); it++ ){
-		printf("%s:(%s%d,%s), ", it->path.c_str(), it->conds.c_str(), it->width, it->last_bb.c_str());
+		string path = it->path;
+		string path2;
+		for ( unsigned int i = 0; i < path.length(); i++) {
+			path2 += (path[i]=='T')?"\e[32mT\e[0m":"\e[31mF\e[0m";
+		}
+
+		printf("%s:(%s%d,%s), ", path2.c_str(), it->conds.c_str(), it->width, it->last_bb.c_str());
 	}
 	printf("\n");
 }
@@ -877,6 +883,7 @@ void drive_frontend(){
 		db_command("delete from frontend;");
 		db_command("delete from results;");
 		db_command("delete from last_bb;");
+		db_command("delete from variables;");
 
 		// Ejecuta el fichero resultante
 		stringstream cmd;
@@ -884,12 +891,12 @@ void drive_frontend(){
 		systm(cmd.str().c_str());
 
 		add_paths(frontier);
-		//print_frontier(frontier);
+		print_frontier(frontier);
 
 		if(n++ == cmd_option_int("max_depth"))
 			exit(0);
 
-		//printf("last_bb %s\n", get_last_bb().c_str() );
+		printf("last_bb %s\n", get_last_bb().c_str() );
 		if(get_last_bb() == cmd_option_str("target_node")){
 			//printf("Node hitted\n");
 			//exit(0);
@@ -1574,6 +1581,9 @@ vector< map<string, string> > vector_of_test_vectors(){
 
 	vector<FreeVariableInfo> free_variables = get_free_variables();
 	set<vector<string> > test_vectors = minimal_vectors();
+
+	if(test_vectors.size())
+		assert( free_variables.size() == test_vectors.begin()->size() );
 
 	for( set<vector<string> >::iterator it = test_vectors.begin(); it != test_vectors.end(); it++ ){
 		map<string, string> mapa;
