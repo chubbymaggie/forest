@@ -2140,6 +2140,24 @@ struct CallInstr: public ModulePass {
 	}
 };
 
+
+
+struct ExternalFn: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	ExternalFn() : ModulePass(ID) {}
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			if(fn->begin() == fn->end() )
+				cerr << fn->getName().str() << endl;
+		}
+
+		return false;
+	}
+};
+
+
 struct BbMarks: public ModulePass {
 	static char ID; // Pass identification, replacement for typeid
 	BbMarks() : ModulePass(ID) {}
@@ -3166,6 +3184,8 @@ static RegisterPass<SwitchInstr> SwitchInstr(       "instr_switch"         , "In
 char CallInstr::ID = 0;
 static RegisterPass<CallInstr> CallInstr(           "instr_callinstr"       , "Instrument call operations" );
 
+char ExternalFn::ID = 0;
+static RegisterPass<ExternalFn> ExternalFn(           "list_external_functions"       , "Instrument call operations" );
 
 char SpecialCall::ID = 0;
 static RegisterPass<SpecialCall> SpecialCall(           "instr_specialcall"       , "Instrument call operations" );

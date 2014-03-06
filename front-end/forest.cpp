@@ -3661,6 +3661,18 @@ void get_model_fn(){
 
 }
 
+void list_external_functions(){
+	make_initial_bc();
+
+	string llvm_path = cmd_option_str("llvm_path");
+
+	stringstream cmd;
+	cmd.str("");
+	cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -list_external_functions < file.bc";
+	systm(cmd.str().c_str());
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -3737,6 +3749,10 @@ int main(int argc, const char *argv[]) {
 	disables("get_model_fn", "test");
 	disables("get_static_heuristic", "test");
 	disables("get_static_heuristic", "check_coverage");
+	disables("list_external_functions", "test");
+	disables("list_external_functions", "check_concurrency");
+	disables("list_external_functions", "check_concurrency_2");
+	disables("list_external_functions", "check_coverage");
 
 
 	expand_options();
@@ -3792,7 +3808,8 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_model")) get_model();                               // gets a model to be used in repl
 	if(cmd_option_bool("get_model_fn")) get_model_fn();                         // gets a model of a function
 	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();         // generates heuristics to guide the search
-	if(cmd_option_bool("valgrind")) valgrind();                                 // tests the output with valgrind
+	if(cmd_option_bool("valgrind")) valgrind();                                 // tests the output with valgrind 
+	if(cmd_option_bool("list_external_functions")) list_external_functions();   // lists the functions that are not implemented
 
 	return 0;
 
