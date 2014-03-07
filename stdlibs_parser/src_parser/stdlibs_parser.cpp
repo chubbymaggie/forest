@@ -78,6 +78,66 @@ vector<Range> get_ranges(vector<string> names, string type){
 	
 }
 
+
+vector<Range> get_ranges_globals(vector<string> names, string type){
+
+	vector<Range> ret_v;
+
+	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
+		stringstream command;
+		command << "cd /tmp/;";
+		//command << "cat ast | grep " << type << " | egrep '\\<" << *it << "\\>' | grep -v '/usr/'";
+		command << "cat ast | egrep '" << type << " [^<]*<[^>]*> " << *it << "($| .*)'";
+		command << " | grep -v '/usr/'";
+		command << " | grep -v 'extern'";
+		command << " > ast_filter";
+		system(command.str().c_str());
+
+		FILE *file = fopen ( "/tmp/ast_filter", "r" );
+		char line [ 512 ]; /* or other suitable maximum line size */
+		vector<string> lines;
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			lines.push_back(string(line));
+
+		}
+		fclose ( file );
+
+		if(lines.size() != 1){
+			fprintf(stderr, "Multiple or zero definitions of %s %s\n", it->c_str(), type.c_str());
+			assert(0);
+		}
+
+		command.str("");
+		
+
+		FILE *fp;
+		char ret[128];
+		//command << "cat /tmp/ast_filter | sed 's/[^:]*:\([^:]*\):\([^,]*\),[^:]*:\([^:]*\):\([^>]*\)>.*/\1 \2 \3 \4/g'";
+		command << "cat /tmp/ast_filter | sed 's/[^:]*:\\([^:]*\\):.*/\\1/g'";
+
+		int r1, c1, r2, c2;
+		fp = popen(command.str().c_str(), "r");
+		fscanf(fp, "%d %d %d %d", &r1, &c1, &r2, &c2);
+		pclose(fp);
+
+		//printf("%d %d %d %d\n", r1, c1, r2, c2);
+
+
+		Location start = {r1, 0};
+		Location end = {r1, 0};
+		Range range = {start, end};
+		ret_v.push_back(range);
+		
+		
+	}
+
+	return ret_v;
+	
+}
+
+
 void out_line(int count, string line_s, vector<Range> ranges, bool whole_line){
 
 	bool start = false;
@@ -402,6 +462,10 @@ int main() {
 	map<string, string> typedefs_2 = get_typedefs(typedefs_to_extract_2);
 	output_typedefs_2(typedefs_2);
 
+	printf("/* globals */\n\n");
+	vector<string> globals_to_extract = get_names("globals");
+	vector<Range>  globals = get_ranges_globals( globals_to_extract, "VarDecl");
+	output_range(globals, true);
 
 	printf("/* decls */\n\n");
 	vector<string> decls_to_extract = get_names("decls");
