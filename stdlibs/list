@@ -1,11 +1,5 @@
-_Z6getoptiPKPcPKc
-_Z6memcmpPKcS0_m
-_Z6strcmpPcS_
-_Z6strlenPc
-_ZL12read_globalsP11getopt_data
-_ZL13write_globalsP11getopt_data
-_ZL15getopt_internaliPKPcPKcPK6optionPiiP11getopt_data
-_ZL21reverse_argv_elementsPPci
-_ZL7permutePKPcii
-_ZL9is_optionPci
+getopt
+memcmp
 strchr
+strcmp
+strlen
