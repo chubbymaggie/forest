@@ -1,7 +1,0 @@
-getopt
-getopt_internal
-permute
-read_globals
-write_globals
-reverse_argv_elements
-is_option

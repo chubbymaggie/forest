@@ -178,7 +178,8 @@ vector<string> get_names(string filename){
 
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
 		line[strlen(line)-1] = 0;
-		ret.push_back(string(line));
+		if(line[0] != '#' && line != "")
+			ret.push_back(string(line));
 	}
 	fclose ( file );
 
@@ -371,6 +372,7 @@ void output_add(string filename){
 	while ( fgets ( line, sizeof(line), file ) != NULL ){
 		line[strlen(line)-1] = 0;
 		fputs ( line, stdout );
+		printf("\n");
 	}
 	fclose ( file );
 	
@@ -395,6 +397,7 @@ int main() {
 	vector<string> typedefs_to_extract = get_names("typedefs");
 	vector<Range>  typedefs = get_ranges( typedefs_to_extract, "TypedefDecl");
 	output_range(typedefs, true);
+
 	vector<string> typedefs_to_extract_2 = get_names("typedefs_2");
 	map<string, string> typedefs_2 = get_typedefs(typedefs_to_extract_2);
 	output_typedefs_2(typedefs_2);
