@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-lastline=`llvm-g++ salida.cpp --emit-llvm -c -o salida.bc 2>&1 | grep error | head -n 1`
+lastline=`llvm-gcc salida.c --emit-llvm -c -o salida.bc 2>&1 | grep error | head -n 1`
 elem=`echo $lastline | cut -d" " -f3 | sed -e s/‘//g -e s/’//g`
 echo $elem
 cat /tmp/ast | grep $elem

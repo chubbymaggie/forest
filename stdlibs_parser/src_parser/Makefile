@@ -4,7 +4,7 @@ stdlibs_parser: stdlibs_parser.cpp
 	g++ -g stdlibs_parser.cpp -o stdlibs_parser 
 
 extract_library:
-	./stdlibs_parser > salida.cpp
+	./stdlibs_parser > salida.c
 
 compile_extracted:
 	./compile.sh
