@@ -1,6 +1,6 @@
 .PHONY: test
 
-all: frontend backend opt stdlibs_parser
+all: frontend backend opt stdlibs_parser library
 
 stdlibs_parser:
 	make -C stdlibs_parser/src_parser/

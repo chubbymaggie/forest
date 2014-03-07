@@ -21,7 +21,7 @@
 // from http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
 
 
-int getopt(int, char* const*, char const*);
+extern "C" int getopt(int, char* const*, char const*);
 
 int main () {
 
