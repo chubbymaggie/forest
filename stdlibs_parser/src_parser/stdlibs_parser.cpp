@@ -212,7 +212,7 @@ void generate_ast(){
 	system(command.str().c_str());
 
 	vector<string> defines;
-	defines.push_back("__need_getopt_newlib");
+	defines.push_back("errno");
 
 
 	command.str("");

@@ -629,6 +629,13 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 	} else {
 
+		debug && printf("\e[31m non-constant getelementptr \e[0m\n");
+		for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+			debug && printf("%s %d %d\n", it->c_str(), solver->is_constant(name(*it)), solver->get_is_propagated_constant(name(*it)) );
+			//debug && printf("%s\n", it->c_str() );
+		}
+		
+
 		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
 		solver->unset_is_propagated_constant(name(dst));
 

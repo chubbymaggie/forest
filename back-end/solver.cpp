@@ -2275,8 +2275,10 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 		}
 
 
-		if(result[0].find("error") != string::npos )
+		if(result[0].find("error") != string::npos ){
+			printf("Error in z3 execution\n");
 			assert(0 && "Error in z3 execution");
+		}
 
 
 		is_sat = (result[0] == "sat");

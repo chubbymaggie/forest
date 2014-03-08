@@ -1,1 +1,3 @@
 ../musl-0.9.15/src/misc/getopt.c
+../musl-0.9.15/src/multibyte/mbtowc.c 
+../musl-0.9.15/src/multibyte/internal.h

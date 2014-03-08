@@ -25,12 +25,14 @@ extern "C" int getopt(int, char* const*, char const*);
 
 int main () {
 
-	char* str = "zz";
-	char* ar[1];
-	ar[0] = str;
+	char* str_1 = "aa";
+	char* str_2 = "zz";
+	char* ar[2];
+	ar[0] = str_1;
+	ar[1] = str_2;
 
 
-	if( getopt(2, ar, "a") )
+	if( getopt(2, ar, "a") == 'a' )
 		return 1;
 	else
 		return 0;
