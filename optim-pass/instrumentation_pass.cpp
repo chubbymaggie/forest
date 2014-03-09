@@ -2027,12 +2027,14 @@ struct CallInstr: public ModulePass {
 					        if(hasname){
 							fn_name = in_c->getCalledFunction()->getName().str();
 						} else {
-							ConstantExpr* casted = dyn_cast<ConstantExpr>(in_c->getOperand(0));
-							if(casted){
-								fn_name = casted->getOperand(0)->getName().str();
-							} else {
-								fn_name ="";
-							}
+
+							Value* called_v = in_c->getCalledValue();
+							ConstantExpr* called_e = cast<ConstantExpr>(called_v);
+							Function* called_f = cast<Function>(called_e->getOperand(0));
+
+							fn_name = called_f->getName().str();
+							
+
 
 						}
 
