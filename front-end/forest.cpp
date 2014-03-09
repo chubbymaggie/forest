@@ -3673,6 +3673,14 @@ void list_external_functions(){
 
 }
 
+void linked_bc(){
+	make_initial_bc();
+
+	stringstream command;
+	command << "mv " << tmp_file("file.bc") << " " << prj_file("file.bc");
+	systm(command.str());
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -3753,6 +3761,8 @@ int main(int argc, const char *argv[]) {
 	disables("list_external_functions", "check_concurrency");
 	disables("list_external_functions", "check_concurrency_2");
 	disables("list_external_functions", "check_coverage");
+	disables("lbc", "test");
+	disables("lbc", "check_coverage");
 
 
 	expand_options();
@@ -3810,6 +3820,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();         // generates heuristics to guide the search
 	if(cmd_option_bool("valgrind")) valgrind();                                 // tests the output with valgrind 
 	if(cmd_option_bool("list_external_functions")) list_external_functions();   // lists the functions that are not implemented
+	if(cmd_option_bool("lbc")) linked_bc();                                     // get the bc linked with standard libraries
 
 	return 0;
 
