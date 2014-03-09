@@ -134,6 +134,10 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	myReplace(n1, UNDERSCORE, "");
 	myReplace(n2, UNDERSCORE, "");
 
+	assert(n1 != "" && "Empty function_name");
+	assert(n2 != "" && "Empty function_name");
+	
+
 	bool annotated = ( n1 == n2 );
 
 

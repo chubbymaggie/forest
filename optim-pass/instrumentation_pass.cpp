@@ -2024,10 +2024,17 @@ struct CallInstr: public ModulePass {
 						bool hasname = in_c->getCalledFunction();
 
 						string fn_name;
-					        if(hasname)
+					        if(hasname){
 							fn_name = in_c->getCalledFunction()->getName().str();
-						else
-							fn_name ="";
+						} else {
+							ConstantExpr* casted = dyn_cast<ConstantExpr>(in_c->getOperand(0));
+							if(casted){
+								fn_name = casted->getOperand(0)->getName().str();
+							} else {
+								fn_name ="";
+							}
+
+						}
 
 						if( fn_name == "global_var_init"  ) continue;
 						if( fn_name == "_Z10force_freePi" ) continue;
