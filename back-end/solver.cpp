@@ -282,7 +282,7 @@ int Solver::minval(string type){
 
 	if(type == "Int32") return -(1 << 30);
 	if(type == "Int16") return -(1 << 15);
-	if(type == "Int8")  return -(1 << 7);
+	if(type == "Int8")  return 0;
 	if(type == "Int") return   -(1 << 30);
 	if(type == "Pointer") return 0;
 
@@ -295,7 +295,7 @@ int Solver::maxval(string type){
 
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
-	if(type == "Int8") return (1 << 7);
+	if(type == "Int8") return 255;
 	if(type == "Int") return (1 << 30);
 	if(type == "Pointer") return (1 << 30);
 
@@ -320,7 +320,7 @@ void Solver::dump_type_limits(FILE* file){
 		string position = it->position;
 
 		if( get_type(it->name) != "Real" )
-			fprintf(file,"(assert (and (>= %s %d) (< %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
+			fprintf(file,"(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
 		
 	}
 }
@@ -2277,6 +2277,7 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 
 		if(result[0].find("error") != string::npos ){
 			printf("Error in z3 execution\n");
+			solve_problem();
 			assert(0 && "Error in z3 execution");
 		}
 

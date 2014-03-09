@@ -26,7 +26,7 @@ extern "C" int getopt(int, char* const*, char const*);
 int main () {
 
 	char* str_1 = "aa";
-	char* str_2 = "zz";
+	char* str_2 = "-a";
 	char* ar[2];
 	ar[0] = str_1;
 	ar[1] = str_2;
