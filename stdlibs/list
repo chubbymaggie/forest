@@ -3,4 +3,5 @@ mbtowc
 memcmp
 strchr
 strcmp
+strcpy
 strlen
