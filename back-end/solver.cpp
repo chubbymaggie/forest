@@ -2277,7 +2277,16 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 
 	bool is_sat;
 
+	string idx_show;
+	for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+		idx_show += *it + ",";
+	}
+	
 
+	
+	printf("\e[32m base \e[0m %s \e[32m idx_content \e[0m %s \e[32m indexes \e[0m %s \e[32m first_address \e[0m %d \e[32m last_address \e[0m %d\n", base.c_str(), idx_content.c_str(), idx_show.c_str(), first_address, last_address);
+
+	int iters = 0;
 	while(true){
 
 
@@ -2361,6 +2370,11 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 
 		if(!is_sat){
 			//printf("no sat\n");
+			break;
+		}
+
+		if(iters++ == 50){
+			//printf("number of iterations exceeded\n");
 			break;
 		}
 
