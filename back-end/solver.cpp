@@ -2177,7 +2177,14 @@ void Solver::add_indexes(string dst, vector<string> indexes){
 
 void Solver::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
 
-	debug && printf("\e[32m pointer_instruction \e[0m\n"); fflush(stdout);
+	if(!check_mangled_name(dst)) assert(0 && "wrong name for pointer_instruction");
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		if(!check_mangled_name(*it)) assert(0 && "wrong name for pointer_instruction");
+	}
+	
+
+
+	debug && printf("\e[32m pointer_instruction %d\e[0m\n", indexes.size() ); fflush(stdout);
 
 	vector<int> jmp_offsets = jump_offsets(offset_tree);
 
@@ -2196,6 +2203,11 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 	}
 
 	expr += ")";
+
+	
+	for ( unsigned int i = 0; i < indexes.size(); i++) {
+		init_indexes(dst, indexes[i]);
+	}
 
 	map<set<pair<string, int> > , int > map_idx_val = get_idx_val(base,expr, indexes, first_address, last_address);
 
@@ -2244,33 +2256,20 @@ set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int 
 
 }
 
-bool Solver::is_free_var_by_position(string position){
-
-	printf("free_var_by_position %s %s\n", position.c_str(), content(position).c_str());
-
-	string contnt = content(position);
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		if(it->position == contnt)
-			return true;
-	}
-
-	return false;
-	
-}
-
 map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address){
 
-	printf("\e[32m get_idx_val %s %d %d\e[0m\n", base.c_str(), first_address, last_address);
+	debug && printf("\e[32m get_idx_val %s %d %d %d\e[0m\n", base.c_str(), first_address, last_address, indexes.size());
 	
 
 
 	set<string> index_vars = variables[base].indexes;
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-		printf("position %s\n", it->c_str());
-		if(!is_constant(*it) && is_free_var_by_position(*it) ){
-			string contnt = content(*it);
-			printf("\e[32m    index \e[0m %s content %s\n", it->c_str(), contnt.c_str());
-			index_vars.insert(contnt);
+		debug && printf("\e[32m index \e[0m %s\n", it->c_str());
+
+		set<string> indexes_index = variables[*it].indexes;
+		for( set<string>::iterator it2 = indexes_index.begin(); it2 != indexes_index.end(); it2++ ){
+			debug && printf("\e[32m index2 \e[0m %s\n", variables[*it2].name_hint.c_str() );
+			index_vars.insert( variables[*it2].name_hint );
 		}
 	}
 	
