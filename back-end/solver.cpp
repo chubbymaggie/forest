@@ -2425,6 +2425,20 @@ string Solver::get_idx_type(string addr){
 
 }
 
+bool Solver::get_outofbounds(string varname){
+
+	if(!check_mangled_name(varname)) assert(0 && "Wrong name for get_outofbounds");
+
+	return variables[varname].outofbounds;
+}
+
+void Solver::set_outofbounds(string varname, bool outofbounds){
+
+	if(!check_mangled_name(varname)) assert(0 && "Wrong name for get_outofbounds");
+
+	variables[varname].outofbounds = outofbounds;
+}
+
 void Solver::sym_load(string dst, string addr){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for sym_load");

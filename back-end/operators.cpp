@@ -317,6 +317,10 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
+	if(solver->get_outofbounds(name(addr))){
+		printf("Out of Bouds\n");
+		exit(0);
+	}
 
 	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
@@ -349,6 +353,11 @@ void Operators::store_instr(char* _src, char* _addr){
 	string src = string(_src);
 	string addr = string(_addr);
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
+
+	if(solver->get_outofbounds(name(addr))){
+		printf("Out of Bouds\n");
+		exit(0);
+	}
 
 
 	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
@@ -622,12 +631,12 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) ) {
 			//solver->show_problem();
 			debug && printf("\e[33m Access out of bounds dst %d last_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
-			exit(0);
+			solver->set_outofbounds(name(dst));
 		}
 		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) ){
 			//solver->show_problem();
 			debug && printf("\e[33m Access out of bounds dst %d first_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
-			exit(0);
+			solver->set_outofbounds(name(dst));
 		}
 
 
