@@ -1089,7 +1089,8 @@ void Solver::propagate_unary(string src, string dst, bool forcedfree){
 		set_comes_from_non_annotated(dst);
 
 	variables[dst].idx_values = variables[src].idx_values;
-	variables[dst].indexes = variables[src].indexes;
+	
+	init_indexes(dst, src);
 
 }
 
@@ -1206,7 +1207,8 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 
 
 	variables[dst].idx_values = variables[op1].idx_values;
-	variables[dst].indexes = variables[op1].indexes;
+	
+	init_indexes(dst, op1, op2);
 
 
 }
@@ -1415,9 +1417,55 @@ string Solver::or_constant(string op1, string op2){
 
 //}
 
+bool Solver::is_free_var(string name){
+	if(!check_mangled_name(name)) assert(0 && "Wrong name for is_free_var");
 
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		if(it->name == name) return true;
+	}
 
+	return false;
+	
+}
 
+void Solver::init_indexes(string dst, string op1, string op2){
+
+	if(!check_mangled_name(dst)) assert(0 && "Wrong name for init_indexes");
+	if(!check_mangled_name(op1)) assert(0 && "Wrong name for init_indexes");
+	if( op2 != "" && !check_mangled_name(op2)) assert(0 && "Wrong name for init_indexes");
+
+	//printf("variables[%s].indexes.size = %lu\n", op1.c_str(), variables[op1].indexes.size());
+
+	if(is_free_var(op1)){
+		variables[dst].indexes.insert(op1);
+		debug && printf("\e[32m init_indexes \e[0m %s %s\n", dst.c_str(), op1.c_str());
+	}
+	set<string> idx_1 = variables[op1].indexes;
+
+	//printf("idx_size %lu\n", idx_1.size());
+
+	for( set<string>::iterator it = idx_1.begin(); it != idx_1.end(); it++ ){
+		variables[dst].indexes.insert(*it);
+		debug && printf("\e[32m init_indexes \e[0m %s %s\n", dst.c_str(), it->c_str());
+	}
+
+	if(op2 != ""){
+		if(is_free_var(op2)){
+			variables[dst].indexes.insert(op2);
+			debug && printf("\e[32m init_indexes \e[0m %s %s\n", dst.c_str(), op2.c_str());
+		}
+
+		set<string> idx_2 = variables[op2].indexes;
+
+		for( set<string>::iterator it = idx_2.begin(); it != idx_2.end(); it++ ){
+			variables[dst].indexes.insert(*it);
+			debug && printf("\e[32m init_indexes \e[0m %s %s\n", dst.c_str(), it->c_str());
+		}
+	}
+
+	//printf("variables[%s].indexes.size = %lu\n", dst.c_str(), variables[dst].indexes.size());
+	
+}
 
 
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){

@@ -149,6 +149,8 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	bool is_free_var(string name);
+	void init_indexes(string dst, string op1, string op2 = "");
 	bool is_free_var_by_position(string position);
 	void add_indexes(string dst, vector<string> indexes);
 	string get_idx_type(string idx_content );
