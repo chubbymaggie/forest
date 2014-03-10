@@ -88,6 +88,10 @@ test:
 	@forest ./test/simple/array_of_strings/config.xml          # Array of Strings
 	@forest ./test/simple/init_local_array/config.xml          # Initialize a local array
 
+test_stdlib:
+	@forest ./test/stdlibs/getopt/config.xml                   # getopt
+
+
 
 test_concurrency:
 	@forest ./test/concurrent/simple/config.xml
