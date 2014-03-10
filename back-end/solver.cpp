@@ -550,8 +550,10 @@ void Solver::solve_problem(){
 	
 	string         sat_str       = ret_vector[0];
 
-	if(sat_str.find("error") != string::npos )
+	if(sat_str.find("error") != string::npos ){
+		printf("error_in_z3\n");
 		assert(0 && "Error in z3 execution");
+	}
 	if(sat_str.find("unknown") != string::npos )
 		printf("Warning: unknown sat\n");
 
@@ -1661,7 +1663,15 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		set_real_value(dst, realvalue(op1) );
 	}
 
+	if( variables[op1].type == "bool" && op2 == "constant_0" && operation == "<" ){
+		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
 
+		content_ss.str("");
+		content_ss << content(op1);
+		variables[dst].content = "false";
+
+		set_real_value(dst, "false" );
+	}
 
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m last_address\e[0m  %d %d \e[32m firstaddress \e[0m %d %d\n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
