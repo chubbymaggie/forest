@@ -1673,6 +1673,24 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		set_real_value(dst, "false" );
 	}
 
+
+	if( variables[op1].type == "Int" && variables[op2].type == "bool" && operation == "+" ){
+		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
+
+		content_ss.str("");
+		content_ss << content(op1);
+		variables[dst].content = "(+ " + content(op1) + " " + "(ite " + content(op2) + " 1 0)" + ")";
+
+		if( realvalue(op2) == "true" )
+			set_real_value(dst, itos(stoi(realvalue(op1)) + 1) );
+		else if( realvalue(op2) == "false" )
+			set_real_value(dst, itos(stoi(realvalue(op1)) + 0) );
+		else
+			assert(0 && "Invalid boolean value");
+	}
+
+
+
 	debug && printf("\e[32m Content_dst \e[0m %s \e[32m type \e[0m %s \e[32m realvalue \e[0m %s \e[32m propconstant \e[0m %d \e[32m last_address\e[0m  %d %d \e[32m firstaddress \e[0m %d %d\n",
                  variables[dst ].content.c_str(), variables[dst].type.c_str(), realvalue(dst).c_str(),
 		get_is_propagated_constant(dst),
