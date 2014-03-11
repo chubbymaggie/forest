@@ -227,6 +227,11 @@ void generate_ast(){
 	command << " std_files.c > ast 2>/dev/null";
 	system(command.str().c_str());
 
+
+	command.str("");
+	command << "sed -i s/__xpg_basename/basename/g /tmp/ast";
+	system(command.str().c_str());
+
 }
 
 vector<string> get_names(string filename){

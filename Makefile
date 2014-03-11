@@ -94,6 +94,7 @@ test_stdlib:
 	@forest ./test/stdlibs/strlen/config.xml                   # strlen
 	@forest ./test/stdlibs/strcat/config.xml                   # strcat
 	@forest ./test/stdlibs/strcmp/config.xml                   # strcmp
+	@forest ./test/stdlibs/basename/config.xml                 # basename
 
 
 

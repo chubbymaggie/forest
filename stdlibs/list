@@ -1,3 +1,4 @@
+basename
 getopt
 mbtowc
 memcmp
