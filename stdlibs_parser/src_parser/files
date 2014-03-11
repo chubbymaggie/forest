@@ -3,3 +3,4 @@
 ../musl-0.9.15/src/multibyte/internal.h
 ../musl-0.9.15/src/string/strcat.c
 ../musl-0.9.15/src/misc/basename.c
+../musl-0.9.15/src/misc/dirname.c
