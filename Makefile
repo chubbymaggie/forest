@@ -91,6 +91,7 @@ test:
 test_stdlib:
 	@forest ./test/stdlibs/getopt/config.xml                   # getopt
 	@forest ./test/stdlibs/strcpy/config.xml                   # strcpy
+	@forest ./test/stdlibs/strlen/config.xml                   # strlen
 
 
 

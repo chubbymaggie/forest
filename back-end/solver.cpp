@@ -1184,6 +1184,8 @@ bool Solver::implemented_operation(string operation){
 
 void Solver::propagate_binary(string op1, string op2, string dst){
 
+	unset_is_propagated_constant(dst);
+
 	if( get_is_propagated_constant(op1) && get_is_propagated_constant(op2) ){
 		set_is_propagated_constant(dst);
 	}
