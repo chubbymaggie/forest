@@ -1,6 +1,7 @@
 getopt
 mbtowc
 memcmp
+strcat
 strchr
 strcmp
 strcpy

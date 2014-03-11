@@ -7,7 +7,7 @@ lib/library.bc: ../stdlibs_parser/src_parser/salida.c
 	mv lib/library-2.bc lib/library.bc
 
 clean:
-	rm -rf build/*.bc
+	rm -rf build/*.bc lib/library-2.bc
 
 distclean: clean
 	rm -rf lib/library.bc
