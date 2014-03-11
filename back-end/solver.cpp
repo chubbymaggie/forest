@@ -274,6 +274,7 @@ void Solver::dump_check_sat(FILE* file){
 void Solver::dump_header(FILE* file){
 
 	fprintf(file,"(set-option :produce-models true)\n");
+	fprintf(file,"(set-option :pp-decimal true)\n");
 	fprintf(file,"(set-logic AUFNIRA)\n");
 
 }
