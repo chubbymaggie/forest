@@ -79,6 +79,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	void add_int_constraint(string src);
 	void set_outofbounds(string varname, bool outofbounds = true);
 	bool get_outofbounds(string varname);
 	void store_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
@@ -152,6 +153,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	set<string> int_constraints;
 	bool is_free_var(string name);
 	void init_indexes(string dst, string op1, string op2 = "");
 	bool is_free_var_by_position(string position);
@@ -198,6 +200,7 @@ private:
 	void dump_type_limits(FILE* file = stdout);
 	void dump_tail(FILE* file = stdout);
 	void dump_get(FILE* file = stdout);
+	void dump_int_constraints(FILE* file = stdout);
 	void dump_assigns(FILE* file = stdout);
 	void dump_pivots(FILE* file = stdout);
 	void flat_problem();

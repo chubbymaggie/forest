@@ -46,11 +46,14 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 	string dst = string(_dst);
 	string src = string(_src);
 	string type = string(_type);
+	string src_type = solver->get_type(name(src)).c_str();
 
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for cast_instruction");
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for cast_instruction");
 
+	if(src_type == "Real" && type == "IntegerTyID32")
+		solver->add_int_constraint(name(src));
 
 	solver->assign_instruction(name(src),name(dst));
 
@@ -59,7 +62,7 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 	else
 		solver->settype(name(dst), "bool");
 
-	debug && printf("\e[31m Cast_instruction %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(), type.c_str(),
+	debug && printf("\e[31m Cast_instruction %s %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),src_type.c_str(), type.c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
 		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
 

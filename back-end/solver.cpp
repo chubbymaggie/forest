@@ -279,6 +279,12 @@ void Solver::dump_header(FILE* file){
 
 }
 
+void Solver::add_int_constraint(string src){
+	if(!check_mangled_name(src)) assert(0 && "Wrong name for add_int_constraint");
+
+	int_constraints.insert(content(src));
+}
+
 int Solver::minval(string type){
 
 	if(type == "Int32") return -(1 << 30);
@@ -370,6 +376,21 @@ void Solver::dump_get(FILE* file){
 	
 	
 	
+}
+
+void Solver::dump_int_constraints(FILE* file){
+
+
+	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
+		fprintf(file, "(declare-fun int_constraint_%d () Int)\n", i);
+	}
+
+	unsigned int i = 0;
+	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
+		fprintf(file, "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
+		i++;
+	}
+
 }
 
 int Solver::get_num_fvars(){
@@ -521,6 +542,7 @@ void Solver::solve_problem(){
 	dump_pivots(file);
 	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
+	dump_int_constraints(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_get(file);
@@ -1761,6 +1783,7 @@ int Solver::show_problem(){
 	dump_pivots();
 	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits();}
+	dump_int_constraints();
 	dump_conditions();
 	if(!options->cmd_option_bool("show_only_constraints")){
 	dump_check_sat();
@@ -1783,6 +1806,7 @@ int Solver::show_problem(){
 	dump_pivots(file);
 	//concurrency->dump_remaining_variables(free_variables, file);
 	dump_type_limits(file);
+	dump_int_constraints(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_tail(file);

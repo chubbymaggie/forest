@@ -87,6 +87,7 @@ test:
 	@forest ./test/simple/heuristic/config.xml                 # Heuristic
 	@forest ./test/simple/array_of_strings/config.xml          # Array of Strings
 	@forest ./test/simple/init_local_array/config.xml          # Initialize a local array
+	@forest ./test/simple/double_cast/config.xml               # Double casting
 
 test_stdlib:
 	@forest ./test/stdlibs/getopt/config.xml                   # getopt
