@@ -1,10 +1,1 @@
-basename
-dirname
-getopt
-mbtowc
-memcmp
-strcat
-strchr
-strcmp
 strcpy
-strlen

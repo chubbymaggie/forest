@@ -153,7 +153,7 @@ struct ListFunctions: public ModulePass {
 				functions_s.insert(fn_name);
 		}
 
-		FILE* file = fopen(list_of_functions.c_str(), "w");
+		FILE* file = fopen(list_of_functions.c_str(), "a");
 		for( set<string>::iterator it = functions_s.begin(); it != functions_s.end(); it++ ){
 			fprintf(file, "%s\n", it->c_str());
 		}
