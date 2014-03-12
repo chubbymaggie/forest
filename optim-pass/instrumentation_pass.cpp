@@ -2047,6 +2047,8 @@ struct CallInstr: public ModulePass {
 						if( fn_name == "end_sim"          ) continue;
 						if( fn_name == "pointer_ranges"   ) continue;
 
+						if( fn_name.substr(0,11) == "llvm.memcpy" ) continue;
+
 
 						stringstream operand_list;
 						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
@@ -2150,6 +2152,120 @@ struct CallInstr: public ModulePass {
 };
 
 
+struct Memcpy: public ModulePass {
+	static char ID; // Pass identification, replacement for typed
+	Memcpy() : ModulePass(ID) {}
+
+
+	virtual bool runOnModule(Module &M) {
+
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( CallInst::classof(in) ){
+
+						CallInst* in_c = cast<CallInst>(in);
+
+						bool hasname = in_c->getCalledFunction();
+
+						string fn_name;
+					        if(hasname){
+							fn_name = in_c->getCalledFunction()->getName().str();
+						} else {
+
+							Value* called_v = in_c->getCalledValue();
+							ConstantExpr* called_e = cast<ConstantExpr>(called_v);
+							Function* called_f = cast<Function>(called_e->getOperand(0));
+
+							fn_name = called_f->getName().str();
+							
+
+
+						}
+
+
+						if( fn_name.substr(0,11) == "llvm.memcpy" ){
+
+							stringstream operand_list;
+							for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
+								string name = operandname( in_c->getArgOperand(i) );
+								operand_list << name << ",";
+							}
+
+
+							string op2;
+							//in_c->getArgOperand(1)->dump();
+							ConstantExpr* op1_ce = dyn_cast<ConstantExpr>(in_c->getArgOperand(1));
+							if(op1_ce){
+								//op1_ce->getOperand(0)->dump();
+								op2 = "global_" + op1_ce->getOperand(0)->getName().str();
+							} else {
+
+							}
+
+
+
+							string op1 = operandname( in_c->getArgOperand(0) );
+							//string op2 = operandname( in_c->getArgOperand(1) );
+							string op3 = operandname( in_c->getArgOperand(2) );
+							string op4 = operandname( in_c->getArgOperand(3) );
+							string op5 = operandname( in_c->getArgOperand(4) );
+
+							string oplist  = operand_list.str();
+							string ret_to = operandname( in_c );
+							string ret_type = get_type_str( in_c->getType() );
+
+							//cerr << fn_name << endl;
+							//cerr << oplist  << endl;
+							//cerr << fn_oplist << endl;
+
+
+							GlobalVariable* c1 = make_global_str(M, op1 );
+							GlobalVariable* c2 = make_global_str(M, op2 );
+							GlobalVariable* c3 = make_global_str(M, op3 );
+							GlobalVariable* c4 = make_global_str(M, op4 );
+							GlobalVariable* c5 = make_global_str(M, op5 );
+
+							Value* InitFn = cast<Value> ( M.getOrInsertFunction( "Memcpy" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+							Value* InitFn_post = cast<Value> ( M.getOrInsertFunction( "CallInstr_post" ,
+										Type::getVoidTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										Type::getInt8PtrTy( M.getContext() ),
+										(Type *)0
+										));
+
+
+
+							BasicBlock::iterator insertpos = in;
+
+							std::vector<Value*> params;
+							params.push_back(pointerToArray(M,c1));
+							params.push_back(pointerToArray(M,c2));
+							params.push_back(pointerToArray(M,c3));
+							params.push_back(pointerToArray(M,c4));
+							params.push_back(pointerToArray(M,c5));
+							CallInst::Create(InitFn, params.begin(), params.end(), "", insertpos);
+
+						}
+
+
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+};
 
 struct ExternalFn: public ModulePass {
 	static char ID; // Pass identification, replacement for typed
@@ -3135,6 +3251,7 @@ struct All: public ModulePass {
 		{BeginEnd         pass;   pass.runOnModule(M);}
 		{GetelementPtr    pass;   pass.runOnModule(M);}
 		{FixInstr         pass;   pass.runOnModule(M);}
+		{Memcpy           pass;   pass.runOnModule(M);}
 
 		return false;
 	}
@@ -3192,6 +3309,9 @@ static RegisterPass<SwitchInstr> SwitchInstr(       "instr_switch"         , "In
 
 char CallInstr::ID = 0;
 static RegisterPass<CallInstr> CallInstr(           "instr_callinstr"       , "Instrument call operations" );
+
+char Memcpy::ID = 0;
+static RegisterPass<Memcpy> Memcpy(           "instr_memcpy"       , "Instrument memcpy operations" );
 
 char ExternalFn::ID = 0;
 static RegisterPass<ExternalFn> ExternalFn(           "list_external_functions"       , "Instrument call operations" );

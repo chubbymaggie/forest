@@ -1069,4 +1069,7 @@ void Operators::pivot_hint(char* _hint){
 
 }
 
+void Operators::memcpy(char* a, char* b, char* c, char* d, char* e){
+	printf("\e[31m llvm.memcpy \e[31m a \e[0m %s \e[31m b \e[0m %s \e[31m c \e[0m %s \e[31m d \e[0m %s \e[31m e \e[0m %s\n", a, b, c, d, e);
+}
 

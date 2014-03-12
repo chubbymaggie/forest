@@ -199,6 +199,9 @@ void pointer_ranges(){
 	operators->pointer_ranges();
 }
 
+void Memcpy(char* a, char* b, char* c, char* d, char* e){
+	operators->memcpy(a,b,c,d,e);
+}
 
 
 //void pivot_var(int* a){
