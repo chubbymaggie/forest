@@ -1069,7 +1069,31 @@ void Operators::pivot_hint(char* _hint){
 
 }
 
-void Operators::memcpy(char* a, char* b, char* c, char* d, char* e){
-	printf("\e[31m llvm.memcpy \e[31m a \e[0m %s \e[31m b \e[0m %s \e[31m c \e[0m %s \e[31m d \e[0m %s \e[31m e \e[0m %s\n", a, b, c, d, e);
+void Operators::memcpy(char* _addr_dst, char* _addr_src, char* _size_bytes, char* _align, char* _is_volatile){
+
+	string addr_dst = string(_addr_dst);
+	string addr_src = string(_addr_src);
+	string size_bytes = string(_size_bytes);
+	string align = string(_align);
+	string is_volatile = string(_is_volatile);
+
+	int addr_src_i = stoi(solver->realvalue(name(addr_src)));
+	int addr_dst_i = stoi(solver->realvalue(name(addr_dst)));
+	int n_elems = stoi(solver->realvalue(size_bytes))/stoi(solver->realvalue(align));
+	int align_i = stoi(solver->realvalue(align));
+
+
+	for ( unsigned int mem_src = addr_src_i, mem_dst = addr_dst_i; n_elems > 0; mem_src += align_i, mem_dst += align_i, n_elems--) {
+		string mem_name_src = "mem_" + itos(mem_src);
+		string mem_name_dst = "mem_" + itos(mem_dst);
+		solver->assign_instruction(mem_name_src,mem_name_dst);
+	}
+
+	//printf("addr_dst_i %d\n", addr_dst_i);
+	//printf("n_elems %d\n", n_elems);
+	
+
+	printf("\e[31m llvm.memcpy \e[31m addr_dst \e[0m %s \e[31m addr_src \e[0m %s \e[31m size_bytes \e[0m %s \e[31m align \e[0m %s \e[31m is_volatile \e[0m %s\n", addr_dst.c_str(), addr_src.c_str(), size_bytes.c_str(), align.c_str(), is_volatile.c_str());
+	//exit(0);
 }
 

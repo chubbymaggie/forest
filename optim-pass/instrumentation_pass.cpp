@@ -2200,7 +2200,7 @@ struct Memcpy: public ModulePass {
 								//op1_ce->getOperand(0)->dump();
 								op2 = "global_" + op1_ce->getOperand(0)->getName().str();
 							} else {
-
+								op2 = "global_" + in_c->getArgOperand(1)->getName().str();
 							}
 
 
