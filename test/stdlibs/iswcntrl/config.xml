@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="iswcntrl"/> 
+	<option key="file" value="iswcntrl.c"/> 
+	<option key="with_uclibs" value="true"/> 
+	<option key="uclib" value="iswcntrl"/> 
+	<option key="cyclotonic" value="true"/> 
+</options>
