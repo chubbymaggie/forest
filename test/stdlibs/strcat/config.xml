@@ -4,7 +4,8 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="strcat"/> 
 	<option key="file" value="strcat.c"/> 
-	<option key="with_libs" value="true"/> 
+	<option key="with_uclibs" value="true"/> 
+	<option key="uclib" value="strcat"/> 
 	<option key="cyclotonic" value="true"/> 
 	<option key="forced_free_var" value="mem_14"/> 
 </options>

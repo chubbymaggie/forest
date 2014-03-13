@@ -4,7 +4,8 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="getopt"/> 
 	<option key="file" value="getopt.c"/> 
-	<option key="with_libs" value="true"/> 
+	<option key="with_uclibs" value="true"/> 
+	<option key="uclib" value="getopt"/> 
 	<option key="cyclotonic" value="true"/> 
 	<option key="forced_free_var" value="mem_3"/> 
 	<option key="forced_free_var" value="mem_4"/> 
