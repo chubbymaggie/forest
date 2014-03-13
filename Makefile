@@ -97,6 +97,17 @@ test_stdlib:
 	@forest ./test/stdlibs/strcmp/config.xml                   # strcmp
 	@forest ./test/stdlibs/basename/config.xml                 # basename
 	@forest ./test/stdlibs/dirname/config.xml                  # dirname
+	@forest ./test/stdlibs/isalnum/config.xml                  # isalnum
+	@forest ./test/stdlibs/isalpha/config.xml                  # isalpha
+	@forest ./test/stdlibs/isascii/config.xml                  # isascii
+	@forest ./test/stdlibs/isblank/config.xml                  # isblank
+	@forest ./test/stdlibs/isgraph/config.xml                  # isgraph
+	@forest ./test/stdlibs/islower/config.xml                  # islower
+	@forest ./test/stdlibs/isprint/config.xml                  # isprint
+	@forest ./test/stdlibs/ispunct/config.xml                  # ispunct
+	@forest ./test/stdlibs/isspace/config.xml                  # isspace
+	@forest ./test/stdlibs/isupper/config.xml                  # isupper
+	@forest ./test/stdlibs/isxdigit/config.xml                 # isxdigit
 
 
 
