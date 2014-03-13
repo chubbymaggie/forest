@@ -273,6 +273,7 @@ void load_default_options(){
 	options["tmp_dir"] = "/tmp/forest";
 	options["subst_names"] = "true";
 	options["propagate_constants"] = "true";
+	options["max_pointer_deref_combs"] = "500";
 	//options["compare_klee"] = "true";
 	//options["get_result"] = "true";
 }

@@ -2400,7 +2400,7 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 			break;
 		}
 
-		if(iters++ == 50){
+		if(iters++ == options->cmd_option_int("max_pointer_deref_combs")){
 			//printf("number of iterations exceeded\n");
 			break;
 		}
