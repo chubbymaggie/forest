@@ -813,6 +813,15 @@ struct FillNames : public ModulePass {
 
 
 		mod_iterator(M, fun){
+
+
+			Function::arg_iterator arg_begin = fun->arg_begin();
+			Function::arg_iterator arg_end   = fun->arg_end();
+			for( Function::arg_iterator it = arg_begin; it != arg_end; it++ ){
+				if(!it->hasName()) it->setName("a");
+			}
+
+
 			fun_iterator(fun,bb){
 				blk_iterator(bb, in){
 

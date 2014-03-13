@@ -443,13 +443,17 @@ void make_initial_bc(){
 			
 			}
 
-
+			// Primer paso de optimización
 			cmd.str("");
-			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
+			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
 			systm(cmd.str().c_str());
 
 			cmd.str("");
-			cmd << "mv " << tmp_file("file-2.bc") << " " << tmp_file("file.bc");
+			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file-2.bc > file-3.bc";
+			systm(cmd.str().c_str());
+
+			cmd.str("");
+			cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
 			systm(cmd.str().c_str());
 
 		}
