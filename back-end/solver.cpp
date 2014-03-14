@@ -865,9 +865,13 @@ string Solver::get_sized_type(string name){
 	if (variables[name].type == "PointerTyID")
 		return "Pointer";
 
+	if (variables[name].type == "Pointer")
+		return "Pointer";
+
 
 	printf("name %s type %s\n", name.c_str(), variables[name].type.c_str() );
 
+	//fprintf(stderr, "type %s\n", variables[name].type.c_str());
 	assert(0 && "Unknown Type");
 
 	return "Int";
