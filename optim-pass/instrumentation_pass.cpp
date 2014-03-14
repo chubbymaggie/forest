@@ -880,12 +880,25 @@ struct FillNames : public ModulePass {
 
 	}
 
+	void put_global_names(Module &M){
+
+		glo_iterator(M,gl){
+
+
+			GlobalVariable*    global_var   = cast<GlobalVariable>(gl);
+			if( !global_var->hasName() ) global_var->setName("g");
+
+		}
+	}
+
 	static char ID;
 	FillNames() : ModulePass(ID) {}
 	virtual bool runOnModule(Module &M) {
 
 		put_operator_names(M);
 		put_block_names(M);
+		put_global_names(M);
+		
 
 		return false;
 	}
