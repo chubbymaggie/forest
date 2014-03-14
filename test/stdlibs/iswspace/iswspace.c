@@ -21,7 +21,7 @@
 extern "C" int iswspace(int c);
 
 int main() {
-	int c;
+	int c = 31416;
 	if(iswspace(c))
 		return 0;
 	else

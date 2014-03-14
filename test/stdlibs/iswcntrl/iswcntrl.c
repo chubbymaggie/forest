@@ -21,7 +21,7 @@
 extern "C" int iswcntrl(int c);
 
 int main() {
-	int c;
+	int c = 31416;
 	if(iswcntrl(c))
 		return 0;
 	else

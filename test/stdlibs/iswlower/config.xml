@@ -6,6 +6,7 @@
 	<option key="file" value="iswlower.c"/> 
 	<option key="with_uclibs" value="true"/> 
 	<option key="uclib" value="iswlower"/> 
+	<option key="uclib" value="iswctype"/> 
 	<option key="uclib" value="__C_ctype_b"/> 
 	<option key="cyclotonic" value="true"/> 
 </options>

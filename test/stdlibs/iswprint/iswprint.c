@@ -21,7 +21,7 @@
 extern "C" int iswprint(int c);
 
 int main() {
-	int c;
+	int c = 31416;
 	if(iswprint(c))
 		return 0;
 	else
