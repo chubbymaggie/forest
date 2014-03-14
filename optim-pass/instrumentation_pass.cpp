@@ -1112,9 +1112,10 @@ struct RmXBool: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		vector<Instruction*> to_rm;
-
 		mod_iterator(M, fn){
+
+			map<string,vector<Instruction*> > to_rm;
+
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
 
@@ -1162,22 +1163,33 @@ struct RmXBool: public ModulePass {
 						}
 					}
 
-					to_rm.push_back(in_1);
-					to_rm.push_back(in_2);
-					to_rm.push_back(in_3);
-					to_rm.push_back(in_4);
+					to_rm[bb->getName().str()].push_back(in_1);
+					to_rm[bb->getName().str()].push_back(in_2);
+					to_rm[bb->getName().str()].push_back(in_3);
+					to_rm[bb->getName().str()].push_back(in_4);
 
 				}
 
 
 			}
-		}
 
-		for( vector<Instruction*>::iterator it = to_rm.end(); it != to_rm.begin(); ){
-			it--;
-			(*it)->eraseFromParent();
+			// cerr << "fnname: " << fn->getName().str() << endl;
+
+			for( map<string,vector<Instruction*> >::iterator it = to_rm.begin(); it != to_rm.end(); it++){
+
+				vector<Instruction*> vin = it->second;
+				string bb_s = it->first;
+
+				// cerr << "bb: " << bb_s << endl;
+
+				for( vector<Instruction*>::iterator it2 = vin.end(); it2 != vin.begin(); ){
+					it2--;
+					(*it2)->eraseFromParent();
+				}
+
+			}
+
 		}
-		
 
 		return false;
 	}
