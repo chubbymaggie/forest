@@ -1731,15 +1731,15 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	if( variables[op2].type != "" ) variables[dst].type = variables[op2].type;
 
 
-	if( variables[op1].type == "bool" && op2 == "constant_0" && operation == "#" ){
-		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
+	//if( variables[op1].type == "bool" && op2 == "constant_0" && operation == "#" ){
+		//debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
 
-		content_ss.str("");
-		content_ss << content(op1);
-		variables[dst].content = content_ss.str();
+		//content_ss.str("");
+		//content_ss << content(op1);
+		//variables[dst].content = content_ss.str();
 
-		set_real_value(dst, realvalue(op1) );
-	}
+		//set_real_value(dst, realvalue(op1) );
+	//}
 
 	if( variables[op1].type == "bool" && op2 == "constant_0" && operation == "<" ){
 		debug && printf("\e[32m Propagation of bool constraint \e[0m\n");
