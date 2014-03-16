@@ -3733,11 +3733,18 @@ void linked_bc(){
 	systm(command.str());
 }
 
+void create_tmp_path(){
+	stringstream action;
+	action << "mkdir -p " << cmd_option_str("tmp_dir");
+	system(action.str().c_str());
+}
+
 int main(int argc, const char *argv[]) {
 
 
 	load_default_options();
 	set_current_path();
+	create_tmp_path();
 
 	if( argc >= 2 && argv[1][0] != '-' ){
 		set_project_path( string(argv[1]) );

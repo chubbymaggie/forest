@@ -806,7 +806,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	string real_value_prev = realvalue(cmp);
 
-
+	fflush(stdout);
 
 	if( int pid = fork() ){
 

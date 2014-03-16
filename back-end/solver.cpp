@@ -663,8 +663,8 @@ void Solver::set_sat(bool _sat){
 
 void Solver::insert_variable(string name, string position){
 
-	assert( name != "" && "Empty name");
-	assert( position != "" && "Empty position");
+	if( name == "" ){ printf("Empty name %s\n", name.c_str()); assert(0); }
+	if( position == "" ){ printf("Empty position %s\n", position.c_str()); assert(0); }
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
 
@@ -1822,7 +1822,7 @@ int Solver::show_problem(){
 
 	fflush(stdout);
 
-	getchar();
+	//getchar();
 }
 
 string Solver::get_offset_tree( string varname ){
