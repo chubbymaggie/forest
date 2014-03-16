@@ -1153,7 +1153,7 @@ struct RmXBool: public ModulePass {
 					
 					Value* x = in_1_c->getOperand(0);
 					ConstantInt* const_int8_5 = ConstantInt::get(M.getContext(), APInt(8, StringRef("0"), 10));
-					ICmpInst* int1_8 = new ICmpInst(in_1, ICmpInst::ICMP_NE,x,const_int8_5, "");
+					ICmpInst* int1_8 = new ICmpInst(in_1, ICmpInst::ICMP_EQ,x,const_int8_5, "");
 
 					blk_iterator(bb, in2){
 						for ( unsigned int i = 0; i < in2->getNumOperands(); i++) {
