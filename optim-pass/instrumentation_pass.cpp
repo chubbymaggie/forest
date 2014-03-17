@@ -1526,7 +1526,6 @@ struct SeparateGetElm: public ModulePass {
 		}
 
 
-/*
 		mod_iterator(M, fn){
 			fun_iterator(fn, bb){
 				blk_iterator(bb, in){
@@ -1537,7 +1536,8 @@ struct SeparateGetElm: public ModulePass {
 						if(castop){
 
 							Value* pointer = castop->getOperand(0);
-							in->setOperand(0,pointer);
+							CastInst* castinstr = CastInst::Create(Instruction::BitCast, pointer,castop->getType(), "pointer", in);
+							in->setOperand(0,castinstr);
 
 						}
 
@@ -1552,7 +1552,8 @@ struct SeparateGetElm: public ModulePass {
 							if(castop){
 
 								Value* pointer = castop->getOperand(0);
-								in->setOperand(i,pointer);
+								CastInst* castinstr = CastInst::Create(Instruction::BitCast, pointer,castop->getType(), "pointer", in);
+								in->setOperand(i,castinstr);
 
 
 							}
@@ -1572,7 +1573,8 @@ struct SeparateGetElm: public ModulePass {
 							if(castop){
 
 								Value* pointer = castop->getOperand(0);
-								in->setOperand(i,pointer);
+								CastInst* castinstr = CastInst::Create(Instruction::BitCast, pointer,castop->getType(), "pointer", in);
+								in->setOperand(i,castinstr);
 
 							}
 
@@ -1589,7 +1591,8 @@ struct SeparateGetElm: public ModulePass {
 						if(castop){
 
 							Value* pointer = castop->getOperand(0);
-							in->setOperand(0,pointer);
+							CastInst* castinstr = CastInst::Create(Instruction::BitCast, pointer,castop->getType(), "pointer", in);
+							in->setOperand(0,castinstr);
 
 						}
 
@@ -1601,7 +1604,6 @@ struct SeparateGetElm: public ModulePass {
 
 		}
 
-		*/
 
 
 
