@@ -1527,6 +1527,12 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 	if( operation == "#" ){
 		content_ss << "(not (= " << content(op1 ) << " " <<  content(op2 ) << "))";
+
+		if(get_type(op1) == "bool" && op2 == "constant_0"){
+			content_ss.str("");
+			content_ss << "(not (= " << content(op1) << " " << "false" << "))";
+		}
+
 	} else if (operation == "%") {
 		content_ss << "(mod " << content(op1 ) << " " <<  content(op2 ) << ")";
 	} else if (operation == "R" ) {
