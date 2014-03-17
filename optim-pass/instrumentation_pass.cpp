@@ -1428,7 +1428,7 @@ struct SeparateGetElm: public ModulePass {
 					if( LoadInst::classof(in) ){
 
 
-						bool is_getelement = !(in->getOperand(0)->hasName());
+						bool is_getelement = dyn_cast<GEPOperator>(in->getOperand(0));
 
 						if( is_getelement ){
 
@@ -1455,7 +1455,7 @@ struct SeparateGetElm: public ModulePass {
 
 						for ( unsigned int i = 0; i < 2; i++) {
 
-							bool is_getelement = !(in->getOperand(i)->hasName());
+							bool is_getelement = dyn_cast<GEPOperator>(in->getOperand(i));
 							GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(i));
 
 							if( is_getelement && gepop ){
@@ -1484,7 +1484,7 @@ struct SeparateGetElm: public ModulePass {
 
 						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
 
-							bool is_getelement = !(in_c->getArgOperand(i)->hasName());
+							bool is_getelement = dyn_cast<GEPOperator>(in_c->getArgOperand(i));
 							GEPOperator* gepop = dyn_cast<GEPOperator>(in_c->getArgOperand(i));
 
 
@@ -1507,7 +1507,7 @@ struct SeparateGetElm: public ModulePass {
 
 						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
 
-						bool is_getelement = !(in_g->getPointerOperand()->hasName());
+						bool is_getelement = dyn_cast<GEPOperator>(in_g->getPointerOperand());
 						GEPOperator* gepop = dyn_cast<GEPOperator>(in_g->getPointerOperand());
 
 						if( is_getelement && gepop ){
