@@ -489,6 +489,11 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 			stringstream constant_name; constant_name << values[i];
 
 			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
+		} else {
+			stringstream constant_name; constant_name << "constant_0";
+
+			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
+
 		}
 
 		stringstream hint;

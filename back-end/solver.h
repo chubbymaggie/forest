@@ -153,6 +153,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	string z3_type(string type);
 	set<string> int_constraints;
 	bool is_free_var(string name);
 	void init_indexes(string dst, string op1, string op2 = "");

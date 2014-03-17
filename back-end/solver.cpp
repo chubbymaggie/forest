@@ -210,6 +210,13 @@ void Solver::clean_pivots(){
 
 }
 
+string Solver::z3_type(string type){
+	if(type == "Pointer")
+		return "Int";
+
+	return type;
+}
+
 void Solver::dump_variables(FILE* file){
 
 	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
@@ -218,7 +225,7 @@ void Solver::dump_variables(FILE* file){
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 		string position = it->position;
-		string type = get_type(it->name);
+		string type = z3_type(get_type(it->name));
 
 		//dump_variable(position, type, file);
 		fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
@@ -665,6 +672,8 @@ void Solver::insert_variable(string name, string position){
 
 	if( name == "" ){ printf("Empty name %s\n", name.c_str()); assert(0); }
 	if( position == "" ){ printf("Empty position %s\n", position.c_str()); assert(0); }
+	if( variables[name].type == "Pointer" ) printf("Pointer_free_variable\n");
+	if( variables[name].type == "PointerTyID" ) printf("Pointer_free_variable\n");
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
 
