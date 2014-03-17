@@ -1428,11 +1428,10 @@ struct SeparateGetElm: public ModulePass {
 					if( LoadInst::classof(in) ){
 
 
-						bool is_getelement = dyn_cast<GEPOperator>(in->getOperand(0));
+						GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
 
-						if( is_getelement ){
+						if( gepop ){
 
-							GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(0));
 							Value* pointer = gepop->getPointerOperand();
 							User::op_iterator idxbegin = gepop->idx_begin();
 							User::op_iterator idxend   = gepop->idx_end();
@@ -1455,10 +1454,9 @@ struct SeparateGetElm: public ModulePass {
 
 						for ( unsigned int i = 0; i < 2; i++) {
 
-							bool is_getelement = dyn_cast<GEPOperator>(in->getOperand(i));
 							GEPOperator* gepop = dyn_cast<GEPOperator>(in->getOperand(i));
 
-							if( is_getelement && gepop ){
+							if(gepop){
 								//in->dump();
 
 
@@ -1484,11 +1482,10 @@ struct SeparateGetElm: public ModulePass {
 
 						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
 
-							bool is_getelement = dyn_cast<GEPOperator>(in_c->getArgOperand(i));
 							GEPOperator* gepop = dyn_cast<GEPOperator>(in_c->getArgOperand(i));
 
 
-							if( is_getelement && gepop ){
+							if(gepop){
 
 								Value* pointer = gepop->getPointerOperand();
 								User::op_iterator idxbegin = gepop->idx_begin();
@@ -1507,10 +1504,9 @@ struct SeparateGetElm: public ModulePass {
 
 						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
 
-						bool is_getelement = dyn_cast<GEPOperator>(in_g->getPointerOperand());
 						GEPOperator* gepop = dyn_cast<GEPOperator>(in_g->getPointerOperand());
 
-						if( is_getelement && gepop ){
+						if(gepop){
 
 							Value* pointer = gepop->getPointerOperand();
 							User::op_iterator idxbegin = gepop->idx_begin();
@@ -1528,6 +1524,87 @@ struct SeparateGetElm: public ModulePass {
 			}
 
 		}
+
+
+/*
+		mod_iterator(M, fn){
+			fun_iterator(fn, bb){
+				blk_iterator(bb, in){
+					if( LoadInst::classof(in) ){
+
+						ConstantExpr* castop = dyn_cast<ConstantExpr>(in->getOperand(0));
+
+						if(castop){
+
+							Value* pointer = castop->getOperand(0);
+							in->setOperand(0,pointer);
+
+						}
+
+					}
+
+					if( StoreInst::classof(in) ){
+
+						for ( unsigned int i = 0; i < 2; i++) {
+
+							ConstantExpr* castop = dyn_cast<ConstantExpr>(in->getOperand(i));
+
+							if(castop){
+
+								Value* pointer = castop->getOperand(0);
+								in->setOperand(i,pointer);
+
+
+							}
+						}
+
+					}
+
+					if( CallInst::classof(in) ){
+
+						CallInst* in_c = cast<CallInst>(in);
+
+						for ( unsigned int i = 0; i < in_c->getNumOperands()-1; i++) {
+
+							ConstantExpr* castop = dyn_cast<ConstantExpr>(in_c->getArgOperand(i));
+
+
+							if(castop){
+
+								Value* pointer = castop->getOperand(0);
+								in->setOperand(i,pointer);
+
+							}
+
+						}
+
+					}
+
+					if( GetElementPtrInst::classof(in) ){
+
+						GetElementPtrInst* in_g = cast<GetElementPtrInst>(in);
+
+						ConstantExpr* castop = dyn_cast<ConstantExpr>(in_g->getPointerOperand());
+
+						if(castop){
+
+							Value* pointer = castop->getOperand(0);
+							in->setOperand(0,pointer);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
+
+		*/
+
+
+
 
 		return false;
 	}
