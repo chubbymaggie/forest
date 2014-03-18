@@ -19,14 +19,20 @@
  */
 
 extern "C" char *getenv(const char *name);
+char** __environ;
 
 int main () {
+
+	char*  pointer1 = "PATH=hello";
+	char*  pointer2 = 0;
+	char* a[]= {pointer1, pointer2};
+	__environ = a;
 
 	char* pPath;
 	pPath = getenv ("PATH");
 
 	if ( pPath != 0 )
-		return 0;
-	else
 		return 1;
+	else
+		return 0;
 }
