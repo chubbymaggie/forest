@@ -3072,6 +3072,7 @@ struct GlobalInit: public ModulePass {
 		ConstantPointerNull* constant_pointer_null = dyn_cast<ConstantPointerNull>(constant);
 		GlobalValue*         constant_global       = dyn_cast<GlobalValue>(constant);
 		GEPOperator*         gepop                 = dyn_cast<GEPOperator>(constant);
+		ConstantExpr*        castop                = dyn_cast<ConstantExpr>(constant);
 
 		//cerr << "constant_global: ";
 		//constant_global->dump();
@@ -3230,10 +3231,17 @@ struct GlobalInit: public ModulePass {
 				//cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
 
 				return "constant_" + itos(addr);
+			} else if(castop){
+				string name_base = "global_" + castop->getOperand(0)->getName().str();
+
+				int base = given_addr[name_base];
+
+				return "constant_" + itos(base);
 
 
 
 			} else {
+				constant->dump();
 				assert(0 && "Error in global pointer initialization");
 			}
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="getenv"/> 
+	<option key="file" value="getenv.bc"/> 
+	<option key="with_uclibs" value="true"/> 
+	<option key="uclib" value="getenv"/> 
+	<option key="uclib" value="environ"/> 
+	<option key="uclib" value="strlen"/> 
+	<option key="uclib" value="memcmp"/> 
+	<option key="cyclotonic" value="true"/> 
+</options>

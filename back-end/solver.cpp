@@ -857,6 +857,9 @@ string Solver::get_sized_type(string name){
 	if (variables[name].type == "IntegerTyID32")
 		return "Int32";
 
+	if (variables[name].type == "IntegerTyID64")
+		return "Int64";
+
 	if (variables[name].type == "IntegerTyID8")
 		return "Int8";
 

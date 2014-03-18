@@ -356,6 +356,7 @@ void make_initial_bc(){
 	stringstream cmd;
 
 	string llvm_path = cmd_option_str("llvm_path");
+	string base_path = cmd_option_str("base_path");
 
 	if( is_bc(cmd_option_string_vector("file")[0]) ){
 		// Copia el bc a la carpeta temporal
@@ -376,10 +377,6 @@ void make_initial_bc(){
 		systm(cmd.str().c_str());
 
 
-
-		string base_path = cmd_option_str("base_path");
-
-
 		string cflags;
 		if(cmd_option_bool("with_libs"))
 			cflags = "-I" + base_path + "/stdlibs/include/";
@@ -390,77 +387,75 @@ void make_initial_bc(){
 		cmd << "llvm-g++ -O0 --emit-llvm -D NO_INIT " << cflags << " -c file.cpp -o file.bc";
 		systm(cmd.str().c_str());
 
+	}
 
+	if(cmd_option_bool("with_libs")){
 
-		if(cmd_option_bool("with_libs")){
+		// Cambio de nombre de las funciones estándar
+		cmd.str("");
+		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
+		systm(cmd.str().c_str());
 
-			// Cambio de nombre de las funciones estándar
+		cmd.str("");
+		cmd << "llvm-link " << tmp_file("file-2.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-3.bc") << ";";
+		systm(cmd.str().c_str());
+
+		cmd.str("");
+		cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
+		systm(cmd.str().c_str());
+	}
+
+	if(cmd_option_bool("with_uclibs")){
+
+		// rm list of functions
+
+		cmd.str("");
+		cmd << "rm -f " << cmd_option_str("base_path") << "/stdlibs/list";
+		systm(cmd.str());
+
+		// list functions in stdlibs 
+
+		vector<string> uclibs = cmd_option_string_vector("uclib");
+
+		for( vector<string>::iterator it = uclibs.begin(); it != uclibs.end(); it++ ){
+			//printf("uclib %s\n", it->c_str());
 			cmd.str("");
-			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file.bc > file-2.bc";
-			systm(cmd.str().c_str());
-
-			cmd.str("");
-			cmd << "llvm-link " << tmp_file("file-2.bc") << " " << base_path << "/stdlibs/lib/library.bc -o " << tmp_file("file-3.bc") << ";";
-			systm(cmd.str().c_str());
-
-			cmd.str("");
-			cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
-			systm(cmd.str().c_str());
-		}
-
-		if(cmd_option_bool("with_uclibs")){
-
-			// rm list of functions
-
-			cmd.str("");
-			cmd << "rm -f " << cmd_option_str("base_path") << "/stdlibs/list";
+			cmd << "find " << base_path << "/stdlibs_uclib/ -name " << *it << ".os > /tmp/forest/filelib";
 			systm(cmd.str());
 
-			// list functions in stdlibs 
+			ifstream input("/tmp/forest/filelib");
+			string line; input >> line;
 
-			vector<string> uclibs = cmd_option_string_vector("uclib");
 
-			for( vector<string>::iterator it = uclibs.begin(); it != uclibs.end(); it++ ){
-				//printf("uclib %s\n", it->c_str());
-				cmd.str("");
-				cmd << "find " << base_path << "/stdlibs_uclib/ -name " << *it << ".os > /tmp/forest/filelib";
-				systm(cmd.str());
-
-				ifstream input("/tmp/forest/filelib");
-				string line; input >> line;
-
-				
-				cmd.str("");
-				cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestStdlibs.so -stdlibs_list_functions < " << line << " > /dev/null";
-				systm(cmd.str().c_str());
-
-				cmd.str("");
-				cmd << "llvm-link " << tmp_file("file.bc") << " " << line << " -o " << tmp_file("file-2.bc") << ";";
-				systm(cmd.str().c_str());
-				
-				cmd.str("");
-				cmd << "mv " << tmp_file("file-2.bc") << " " << tmp_file("file.bc");
-				systm(cmd.str().c_str());
-			
-			}
-
-			// Primer paso de optimización
 			cmd.str("");
-			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
+			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestStdlibs.so -stdlibs_list_functions < " << line << " > /dev/null";
 			systm(cmd.str().c_str());
 
 			cmd.str("");
-			cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file-2.bc > file-3.bc";
+			cmd << "llvm-link " << tmp_file("file.bc") << " " << line << " -o " << tmp_file("file-2.bc") << ";";
 			systm(cmd.str().c_str());
 
 			cmd.str("");
-			cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
+			cmd << "mv " << tmp_file("file-2.bc") << " " << tmp_file("file.bc");
 			systm(cmd.str().c_str());
 
 		}
 
+		// Primer paso de optimización
+		cmd.str("");
+		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_fill_names < file.bc > file-2.bc";
+		systm(cmd.str().c_str());
+
+		cmd.str("");
+		cmd << "opt -load " << llvm_path << "/Release+Asserts/lib/ForestInstr.so -instr_function_names < file-2.bc > file-3.bc";
+		systm(cmd.str().c_str());
+
+		cmd.str("");
+		cmd << "mv " << tmp_file("file-3.bc") << " " << tmp_file("file.bc");
+		systm(cmd.str().c_str());
 
 	}
+
 }
 
 
