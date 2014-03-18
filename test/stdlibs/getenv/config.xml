@@ -3,7 +3,7 @@
 <options>
 	<option key="test" value="true"/> 
 	<option key="explanation" value="getenv"/> 
-	<option key="file" value="getenv.bc"/> 
+	<option key="file" value="getenv.c"/> 
 	<option key="with_uclibs" value="true"/> 
 	<option key="uclib" value="getenv"/> 
 	<option key="uclib" value="environ"/> 

@@ -20,12 +20,7 @@
 
 extern "C" char *getenv(const char *name);
 
-extern char* __environ[1];
-extern char* str;
-
 int main () {
-
-	__environ[0] = str;
 
 	char* pPath;
 	pPath = getenv ("PATH");

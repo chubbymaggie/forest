@@ -19,5 +19,5 @@
  */
 
 
-char* __environ[1];
-char* str = "PATH\x00hello\x00";
+char*  pointer1 = "PATH\x00hello\x00";
+char** __environ = &pointer1;

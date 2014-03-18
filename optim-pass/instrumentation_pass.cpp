@@ -1035,16 +1035,44 @@ struct FunctionNames: public ModulePass {
 		return functions_v;
 	}
 
+
+	set<string> get_standard_globals(){
+		read_options();
+		string base_path = cmd_option_str("base_path");
+		string list_of_globals = base_path + "/stdlibs/list2";
+		set<string> globals_v;
+
+		
+		FILE *file = fopen ( list_of_globals.c_str(), "r" );
+		char line [ 128 ]; /* or other suitable maximum line size */
+		
+		while ( fgets ( line, sizeof(line), file ) != NULL ){
+			line[strlen(line)-1] = 0;
+			globals_v.insert(string(line));
+		}
+		fclose ( file );
+
+		return globals_v;
+	}
+
+
 	virtual bool runOnModule(Module &M) {
 
 		set<string> functions_v = get_standard_functions();
-
 		mod_iterator(M, fn){
 			string fn_name = fn->getName().str();
 			if( functions_v.find(fn_name) != functions_v.end() ){
 				fn->setName( "uc_" + fn_name );
 			}
 		}
+
+//		set<string> globals_v   = get_standard_globals();
+//		glo_iterator(M,gl){
+//			string gl_name = gl->getName().str();
+//			if( globals_v.find(gl_name) != globals_v.end() ){
+//				gl->setName( "uc_" + gl_name );
+//			}
+//		}
 
 		return false;
 	}

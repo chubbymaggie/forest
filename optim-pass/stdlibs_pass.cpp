@@ -144,8 +144,10 @@ struct ListFunctions: public ModulePass {
 		read_options();
 		string base_path = cmd_option_str("base_path");
 		string list_of_functions = base_path + "/stdlibs/list";
+		string list_of_globals = base_path + "/stdlibs/list2";
 
 		set<string> functions_s;
+		set<string> globals_s;
 
 		mod_iterator(M, fn){
 			string fn_name = fn->getName().str();
@@ -153,11 +155,25 @@ struct ListFunctions: public ModulePass {
 				functions_s.insert(fn_name);
 		}
 
-		FILE* file = fopen(list_of_functions.c_str(), "a");
-		for( set<string>::iterator it = functions_s.begin(); it != functions_s.end(); it++ ){
-			fprintf(file, "%s\n", it->c_str());
+		glo_iterator(M, gl){
+			string gl_name = gl->getName().str();
+			globals_s.insert(gl_name);
 		}
-		fclose(file);
+
+		{
+			FILE* file = fopen(list_of_functions.c_str(), "a");
+			for( set<string>::iterator it = functions_s.begin(); it != functions_s.end(); it++ ){
+				fprintf(file, "%s\n", it->c_str());
+			}
+			fclose(file);
+		}
+//		{
+//			FILE* file = fopen(list_of_globals.c_str(), "a");
+//			for( set<string>::iterator it = globals_s.begin(); it != globals_s.end(); it++ ){
+//				fprintf(file, "%s\n", it->c_str());
+//			}
+//			fclose(file);
+//		}
 		
 
 		return false;
