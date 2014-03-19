@@ -1528,6 +1528,15 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	stringstream content_ss;
 
 
+
+	if( variables[op1].type != "" )
+		settype(dst, get_type(op1));
+	else
+		settype(dst, get_type(op2));
+
+
+
+
 	if( operation == "#" ){
 		content_ss << "(not (= " << content(op1 ) << " " <<  content(op2 ) << "))";
 
@@ -1641,46 +1650,23 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 			set_real_value(dst, result.str());
 		}
 
-	} else {
+	} else if(operation == "<="){
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
-	}
-
-	
-
-	variables[dst].content = content_ss.str();
-
-	if( variables[op1].type != "" )
-		settype(dst, get_type(op1));
-	else
-		settype(dst, get_type(op2));
-
-
-	propagate_binary(op1, op2, dst);
-
-	if(operation == "<="){
 		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == ">="){
+	} else if(operation == ">="){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-
-	if(operation == "<"){
+	} else if(operation == "<"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) < stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == ">"){
+	} else if(operation == ">"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) > stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-	if(operation == "="){
+	} else if(operation == "="){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
-	}
-
-
-
-	if(operation == "+"){
+	} else if(operation == "+"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" ){
@@ -1694,9 +1680,8 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 		}
 
 		set_real_value(dst, result.str());
-	}
-
-	if(operation == "-"){
+	} else if(operation == "-"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 
 		stringstream result;
@@ -1709,9 +1694,8 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 		set_real_value(dst, result.str());
-	}
-
-	if(operation == "*"){
+	} else if(operation == "*"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" )
@@ -1723,10 +1707,8 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 
 		set_real_value(dst, result.str());
-	}
-
-
-	if(operation == "/"){
+	} else if(operation == "/"){
+		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 
 		stringstream result;
@@ -1739,6 +1721,28 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 		set_real_value(dst, result.str());
 	}
+
+
+
+
+
+
+	variables[dst].content = content_ss.str();
+
+
+	propagate_binary(op1, op2, dst);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
