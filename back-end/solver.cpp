@@ -2251,8 +2251,16 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 		subexpr << "(* " << content(indexes[i]) << " " << jmp_offsets[i] << ") ";
 		expr += subexpr.str();
 	}
-
 	expr += ")";
+
+
+	int real_pointer = stoi(realvalue(base));
+	for ( unsigned int i = 0; i < indexes.size(); i++) {
+		// printf("rvii %s %s\n", indexes[i].c_str(), realvalue(indexes[i]).c_str() );
+		real_pointer += (stoi(realvalue(indexes[i])) * jmp_offsets[i]);
+	}
+	// printf("real_pointer %d\n", real_pointer);
+
 
 	
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
@@ -2264,6 +2272,7 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 
 	setcontent(dst, expr);
+	set_real_value(dst, itos(real_pointer));
 
 	bool forcedfree = is_forced_free(base);
 	propagate_unary(base, dst, forcedfree);
@@ -2567,7 +2576,15 @@ void Solver::sym_load(string dst, string addr){
 	string type = get_idx_type(addr);
 	settype(dst, type );
 
-	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str());
+
+	
+	int actual_addr = stoi(realvalue(addr));
+	string actual_value = realvalue("mem_" + itos(actual_addr));
+
+	set_real_value(dst, actual_value);
+
+	printf("\e[32m Variable_load \e[0m dst %s content %s result_expr %s actual_addr %d actual_value %s\n", dst.c_str(), idx_content.c_str(),result_expr.str().c_str(),
+			actual_addr, actual_value.c_str() );
 
 	//exit(0);
 

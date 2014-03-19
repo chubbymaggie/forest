@@ -90,7 +90,7 @@ test:
 	@forest ./test/simple/double_cast/config.xml               # Double casting
 
 test_stdlib:
-	@forest ./test/stdlibs/getopt/config.xml                   # getopt
+	#@forest ./test/stdlibs/getopt/config.xml                   # getopt
 	@forest ./test/stdlibs/strcpy/config.xml                   # strcpy
 	@forest ./test/stdlibs/strlen/config.xml                   # strlen
 	@forest ./test/stdlibs/strcat/config.xml                   # strcat
@@ -108,6 +108,8 @@ test_stdlib:
 	@forest ./test/stdlibs/isspace/config.xml                  # isspace
 	@forest ./test/stdlibs/isupper/config.xml                  # isupper
 	@forest ./test/stdlibs/isxdigit/config.xml                 # isxdigit
+	@forest ./test/stdlibs/iscntrl/config.xml                  # iscntrl
+	@forest ./test/stdlibs/getenv/config.xml                   # getenv
 
 
 

@@ -9,4 +9,5 @@
 	<option key="uclib" value="strlen"/> 
 	<option key="uclib" value="memcmp"/> 
 	<option key="cyclotonic" value="true"/> 
+	<option key="forced_free_var" value="mem_4"/> 
 </options>
