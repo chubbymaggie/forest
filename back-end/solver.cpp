@@ -668,6 +668,14 @@ void Solver::set_sat(bool _sat){
 	sat = _sat;
 }
 
+void Solver::check_name_and_pos(string name, string position){
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+		if(it->position == position && it->name != name) assert(0 && "Duplicated entry in free_variables");
+		if(it->name == name && it->position != position) assert(0 && "Duplicated entry in free_variables");
+	}
+	
+}
+
 void Solver::insert_variable(string name, string position){
 
 	if( name == "" ){ printf("Empty name %s\n", name.c_str()); assert(0); }
@@ -702,6 +710,8 @@ void Solver::insert_variable(string name, string position){
 	if( EXIT_ON_INSERT )
 		exit(0);
 
+	check_name_and_pos(name, position);
+
 	NameAndPosition nandp = {name, position};
 	free_variables.insert(nandp);
 
@@ -713,6 +723,7 @@ void Solver::insert_variable_2(string name, string position){
 		
 	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
 
+	check_name_and_pos(name, position);
 
 	NameAndPosition nandp = {name, position};
 	free_variables.insert(nandp);

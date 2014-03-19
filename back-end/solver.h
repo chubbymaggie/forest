@@ -153,6 +153,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	void check_name_and_pos(string name, string position);
 	string z3_type(string type);
 	set<string> int_constraints;
 	bool is_free_var(string name);
