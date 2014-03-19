@@ -1202,6 +1202,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 bool Solver::implemented_operation(string operation){
 
 	if(operation == "<=") return true;
+	if(operation == "u<=") return true;
 	if(operation == ">=") return true;
 	if(operation == "<" ) return true;
 	if(operation == ">" ) return true;
@@ -1653,6 +1654,14 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 	} else if(operation == "<="){
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
+	} else if(operation == "u<="){
+		content_ss << "(<= " <<
+			"(ite " << "(< " << content(op1) << " 0)" << "(+ 4294967296 " << content(op1) << ") " << content(op1) << ") " <<
+			"(ite " << "(< " << content(op2) << " 0)" << "(+ 4294967296 " << content(op2) << ") " << content(op2) << ") " <<
+			")";
+
+
+		set_real_value(dst, ( (unsigned int)stoi(realvalue(op1) ) <= (unsigned int)stoi( realvalue(op2) ) )?"true":"false" );
 	} else if(operation == ">="){
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );

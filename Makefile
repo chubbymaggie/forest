@@ -108,6 +108,7 @@ test_stdlib:
 	@forest ./test/stdlibs/isspace/config.xml                  # isspace
 	@forest ./test/stdlibs/isupper/config.xml                  # isupper
 	@forest ./test/stdlibs/isxdigit/config.xml                 # isxdigit
+	@forest ./test/stdlibs/isdigit/config.xml                  # isdigit
 	@forest ./test/stdlibs/iscntrl/config.xml                  # iscntrl
 	@forest ./test/stdlibs/getenv/config.xml                   # getenv
 

@@ -1669,7 +1669,7 @@ struct IcmpInstr: public ModulePass {
 			case CmpInst::ICMP_UGT             : return ">";
 			case CmpInst::ICMP_UGE             : return ">=";
 			case CmpInst::ICMP_ULT             : return "<";
-			case CmpInst::ICMP_ULE             : return "<=";
+			case CmpInst::ICMP_ULE             : return "u<=";
 			case CmpInst::ICMP_SGT             : return ">";
 			case CmpInst::ICMP_SGE             : return ">=";
 			case CmpInst::ICMP_SLT             : return "<";
