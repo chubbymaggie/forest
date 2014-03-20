@@ -74,7 +74,8 @@ typedef struct Pivot {
 
 inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 {
-  return (lhs.name + lhs.position) > (rhs.name + rhs.position);
+  //return (lhs.name + lhs.position) > (rhs.name + rhs.position);
+  return lhs.position > rhs.position;
 }
 
 class Solver {

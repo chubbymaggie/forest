@@ -702,7 +702,7 @@ void Solver::insert_variable(string name, string position){
 	//if(variables[name].contents.size() == 0)
 		//return;
 		
-	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
+	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s size %lu\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str(), free_variables.size() );
 
 	if( PAUSE_ON_INSERT )
 		getchar();
@@ -710,10 +710,15 @@ void Solver::insert_variable(string name, string position){
 	if( EXIT_ON_INSERT )
 		exit(0);
 
-	check_name_and_pos(name, position);
+	//check_name_and_pos(name, position);
 
 	NameAndPosition nandp = {name, position};
 	free_variables.insert(nandp);
+
+	//for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+	//	printf("free_variable %s %s\n", it->name.c_str(), it->position.c_str() );
+	//}
+	
 
 }
 
@@ -721,13 +726,16 @@ void Solver::insert_variable_2(string name, string position){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
 		
-	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str() );
+	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s size %lu\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str(), free_variables.size() );
 
-	check_name_and_pos(name, position);
+	//check_name_and_pos(name, position);
 
 	NameAndPosition nandp = {name, position};
 	free_variables.insert(nandp);
 
+	//for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+	//	printf("free_variable %s %s\n", it->name.c_str(), it->position.c_str() );
+	//}
 }
 
 void Solver::push_condition(string cond, bool invert ){
