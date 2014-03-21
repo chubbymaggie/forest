@@ -20,6 +20,27 @@ int setEventCalled  ;
 int customIrp  ;
 int myStatus  ;
 
+
+
+int IofCallDriver(int DeviceObject , int Irp ) ;
+void stub_driver_init(void) ;
+void stubMoreProcessingRequired(void) ;
+int main(void) ;
+void errorFn(void) ;
+void _BLAST_init(void) ;
+int PoCallDriver(int DeviceObject , int Irp ) ;
+int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alertable , int Timeout ) ;
+int KeSetEvent(int Event , int Increment , int Wait ) ;
+int KbFilter_Power(int DeviceObject , int Irp ) ;
+int KbFilter_PnP(int DeviceObject , int Irp ) ;
+int KbFilter_InternIoCtl(int DeviceObject , int Irp ) ;
+int KbFilter_DispatchPassThrough(int DeviceObject , int Irp ) ;
+int KbFilter_CreateClose(int DeviceObject , int Irp ) ;
+int KbFilter_Complete(int DeviceObject , int Irp , int Context ) ;
+void IofCompleteRequest(int Irp , int PriorityBoost ) ;
+
+
+
 void stub_driver_init(void) 
 { 
 

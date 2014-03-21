@@ -22,6 +22,41 @@ int Suspended ;
 int KernelMode ;
 int DeviceUsageTypePaging ;
 
+
+
+void stub_driver_init(void) ;
+void stubMoreProcessingRequired(void) ;
+int main(void) ;
+void errorFn(void) ;
+void _BLAST_init(void) ;
+int ZwClose(int Handle ) ;
+int SendSrbSynchronous(int Extension , int Srb , int Buffer , int BufferLength ) ;
+int PoCallDriver(int DeviceObject , int Irp ) ;
+int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alertable , int Timeout ) ;
+int KeSetEvent(int Event , int Increment , int Wait ) ;
+void IofCompleteRequest(int Irp , int PriorityBoost ) ;
+int IofCallDriver(int DeviceObject , int Irp ) ;
+void HpCdrProcessLastSession(int Toc ) ;
+int HPCdrCompletion(int DeviceObject , int Irp , int Context ) ;
+void CdAudioUnload(int DriverObject ) ;
+int CdAudioStartDevice(int DeviceObject , int Irp ) ;
+int CdAudioSignalCompletion(int DeviceObject , int Irp , int Event ) ;
+int CdAudioSendToNextDriver(int DeviceObject , int Irp ) ;
+int CdAudioPower(int DeviceObject , int Irp ) ;
+int CdAudioPnp(int DeviceObject , int Irp ) ;
+int CdAudioIsPlayActive(int DeviceObject ) ;
+int CdAudioHPCdrDeviceControl(int DeviceObject , int Irp ) ;
+int CdAudioForwardIrpSynchronous(int DeviceObject , int Irp ) ;
+int CdAudioDeviceControl(int DeviceObject , int Irp ) ;
+int CdAudioAtapiDeviceControl(int DeviceObject , int Irp ) ;
+int CdAudio535DeviceControl(int DeviceObject , int Irp ) ;
+int CdAudio435DeviceControl(int DeviceObject , int Irp ) ;
+int AG_SetStatusAndReturn(int status , int Irp , int deviceExtension__TargetDeviceObject ) ;
+
+
+
+
+
 void errorFn(void) 
 { 
 

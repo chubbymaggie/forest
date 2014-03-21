@@ -20,6 +20,37 @@ int pirp  ;
 int Executive ;
 int KernelMode ;
 
+
+
+
+void stub_driver_init(void) ;
+void stubMoreProcessingRequired(void) ;
+int main(void) ;
+void errorFn(void) ;
+void _BLAST_init(void) ;
+int PoCallDriver(int DeviceObject , int Irp ) ;
+int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alertable , int Timeout ) ;
+int KeSetEvent(int Event , int Increment , int Wait ) ;
+void IofCompleteRequest(int Irp , int PriorityBoost ) ;
+int IofCallDriver(int DeviceObject , int Irp ) ;
+int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int InputBuffer , int InputBufferLength , int OutputBuffer , int OutputBufferLength , int InternalDeviceIoControl , int Event , int IoStatusBlock ) ;
+void DiskPerfUnload(int DriverObject ) ;
+void DiskPerfSyncFilterWithTarget(int FilterDevice , int TargetDevice ) ;
+int DiskPerfStartDevice(int DeviceObject , int Irp ) ;
+int DiskPerfShutdownFlush(int DeviceObject , int Irp ) ;
+int DiskPerfSendToNextDriver(int DeviceObject , int Irp ) ;
+int DiskPerfRemoveDevice(int DeviceObject , int Irp ) ;
+int DiskPerfRegisterDevice(int DeviceObject ) ;
+int DiskPerfIrpCompletion(int DeviceObject , int Irp , int Context ) ;
+int DiskPerfIoCompletion(int DeviceObject , int Irp , int Context ) ;
+int DiskPerfForwardIrpSynchronous(int DeviceObject , int Irp ) ;
+int DiskPerfDispatchPower(int DeviceObject , int Irp ) ;
+int DiskPerfDispatchPnp(int DeviceObject , int Irp ) ;
+int DiskPerfDeviceControl(int DeviceObject , int Irp ) ;
+
+
+
+
 void errorFn(void) 
 { 
 

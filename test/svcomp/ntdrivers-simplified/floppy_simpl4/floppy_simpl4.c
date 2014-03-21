@@ -25,6 +25,40 @@ int lowerDriverReturn  ;
 int setEventCalled  ;
 int customIrp  ;
 
+
+
+
+void stub_driver_init(void) ;
+void stubMoreProcessingRequired(void) ;
+int main(void) ;
+void errorFn(void) ;
+void _BLAST_init(void) ;
+int ZwClose(int Handle ) ;
+int PsCreateSystemThread(int ThreadHandle , int DesiredAccess , int ObjectAttributes , int ProcessHandle , int ClientId , int StartRoutine , int StartContext ) ;
+int ObReferenceObjectByHandle(int Handle , int DesiredAccess , int ObjectType , int AccessMode , int Object , int HandleInformation ) ;
+int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alertable , int Timeout ) ;
+int KeSetEvent(int Event , int Increment , int Wait ) ;
+void IofCompleteRequest(int Irp , int PriorityBoost ) ;
+int IofCallDriver(int DeviceObject , int Irp ) ;
+int IoSetDeviceInterfaceState(int SymbolicLinkName , int Enable ) ;
+int IoRegisterDeviceInterface(int PhysicalDeviceObject , int InterfaceClassGuid , int ReferenceString , int SymbolicLinkName ) ;
+int IoQueryDeviceDescription(int BusType , int BusNumber , int ControllerType , int ControllerNumber , int PeripheralType , int PeripheralNumber , int CalloutRoutine , int Context ) ;
+int IoDeleteSymbolicLink(int SymbolicLinkName ) ;
+int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int InputBuffer , int InputBufferLength , int OutputBuffer , int OutputBufferLength , int InternalDeviceIoControl , int Event , int IoStatusBlock ) ;
+int FloppyStartDevice(int DeviceObject , int Irp ) ;
+int FloppyQueueRequest(int DisketteExtension , int Irp ) ;
+void FloppyProcessQueuedRequests(int DisketteExtension ) ;
+int FloppyPnpComplete(int DeviceObject , int Irp , int Context ) ;
+int FloppyPnp(int DeviceObject , int Irp ) ;
+int FloppyDeviceControl(int DeviceObject , int Irp ) ;
+int FloppyCreateClose(int DeviceObject , int Irp ) ;
+int FlQueueIrpToThread(int Irp , int DisketteExtension ) ;
+int FlFdcDeviceIo(int DeviceObject , int Ioctl , int Data ) ;
+int FlCheckFormatParameters(int DisketteExtension , int FormatParameters ) ;
+
+
+
+
 void _BLAST_init(void) 
 { 
 
