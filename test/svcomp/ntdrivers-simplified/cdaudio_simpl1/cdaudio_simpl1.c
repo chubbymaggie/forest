@@ -92,6 +92,12 @@ int SendSrbSynchronous(int Extension , int Srb , int Buffer , int BufferLength )
   int __cil_tmp16 ;
   int __cil_tmp17 ;
   long __cil_tmp18 ;
+#ifdef KLEE
+  klee_make_symbolic(&ioStatus__Status,sizeof(ioStatus__Status),"ioStatus__Status");
+  klee_make_symbolic(&event,sizeof(event),"event");
+  klee_make_symbolic(&status,sizeof(status),"status");
+#endif
+
 
   {
 #line 93
@@ -168,6 +174,13 @@ int CdAudioStartDevice(int DeviceObject , int Irp )
   int tmp ;
   int deviceParameterHandle = __VERIFIER_nondet_int() ;
   int keyValue ;
+#ifdef KLEE
+  klee_make_symbolic(&deviceExtension__Active,sizeof(deviceExtension__Active),"deviceExtension__Active");
+  klee_make_symbolic(&deviceExtension,sizeof(deviceExtension),"deviceExtension");
+  klee_make_symbolic(&srb,sizeof(srb),"srb");
+  klee_make_symbolic(&srb__Cdb,sizeof(srb__Cdb),"srb__Cdb");
+  klee_make_symbolic(&deviceParameterHandle,sizeof(deviceParameterHandle),"deviceParameterHandle");
+#endif
   {
   {
 #line 140
@@ -280,6 +293,15 @@ int CdAudioPnp(int DeviceObject , int Irp )
   int setPagable ;
   int tmp ;
   int tmp___0 ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&irpSp__MinorFunction,sizeof(irpSp__MinorFunction),"irpSp__MinorFunction");
+  klee_make_symbolic(&Irp__IoStatus__Status,sizeof(Irp__IoStatus__Status),"Irp__IoStatus__Status");
+  klee_make_symbolic(&irpSp__Parameters__UsageNotification__Type,sizeof(irpSp__Parameters__UsageNotification__Type),"irpSp__Parameters__UsageNotification__Type");
+  klee_make_symbolic(&deviceExtension__PagingPathCountEvent,sizeof(deviceExtension__PagingPathCountEvent),"deviceExtension__PagingPathCountEvent");
+  klee_make_symbolic(&irpSp__Parameters__UsageNotification__InPath,sizeof(irpSp__Parameters__UsageNotification__InPath),"irpSp__Parameters__UsageNotification__InPath");
+  klee_make_symbolic(&deviceExtension__PagingPathCount,sizeof(deviceExtension__PagingPathCount),"deviceExtension__PagingPathCount");
+#endif
 
   {
 #line 221
@@ -399,7 +421,9 @@ int CdAudioPnp(int DeviceObject , int Irp )
 int CdAudioDeviceControl(int DeviceObject , int Irp ) 
 { int deviceExtension__Active = __VERIFIER_nondet_int() ;
   int status ;
-
+#ifdef KLEE
+  klee_make_symbolic(&deviceExtension__Active,sizeof(deviceExtension__Active),"deviceExtension__Active");
+#endif
   {
 #line 320
   if (deviceExtension__Active == 2) {
@@ -468,6 +492,11 @@ int CdAudioSendToNextDriver(int DeviceObject , int Irp )
   int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
   int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
   int tmp ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
 #line 378
@@ -504,6 +533,15 @@ int CdAudioIsPlayActive(int DeviceObject )
   int returnValue ;
   long __cil_tmp10 ;
   int __cil_tmp11 ;
+#ifdef KLEE
+  klee_make_symbolic(&deviceExtension__PlayActive,sizeof(deviceExtension__PlayActive),"deviceExtension__PlayActive");
+  klee_make_symbolic(&ioStatus__Status,sizeof(ioStatus__Status),"ioStatus__Status");
+  klee_make_symbolic(&currentBuffer__Header__AudioStatus,sizeof(currentBuffer__Header__AudioStatus),"currentBuffer__Header__AudioStatus");
+  klee_make_symbolic(&irp_CdAudioIsPlayActive,sizeof(irp_CdAudioIsPlayActive),"irp_CdAudioIsPlayActive");
+  klee_make_symbolic(&event,sizeof(event),"event");
+  klee_make_symbolic(&status,sizeof(status),"status");
+  klee_make_symbolic(&currentBuffer,sizeof(currentBuffer),"currentBuffer");
+#endif
 
   {
 #line 404
@@ -666,6 +704,39 @@ int CdAudio535DeviceControl(int DeviceObject , int Irp )
   unsigned long __cil_tmp108 ;
   int __cil_tmp109 ;
   int __cil_tmp110 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+  klee_make_symbolic(&Irp__AssociatedIrp__SystemBuffer,sizeof(Irp__AssociatedIrp__SystemBuffer),"Irp__AssociatedIrp__SystemBuffer");
+  klee_make_symbolic(&srb__Cdb,sizeof(srb__Cdb),"srb__Cdb");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength,sizeof(currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength),"currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__InputBufferLength,sizeof(currentIrpStack__Parameters__DeviceIoControl__InputBufferLength),"currentIrpStack__Parameters__DeviceIoControl__InputBufferLength");
+  klee_make_symbolic(&sizeof__READ_CAPACITY_DATA,sizeof(sizeof__READ_CAPACITY_DATA),"sizeof__READ_CAPACITY_DATA");
+  klee_make_symbolic(&lastSession__LogicalBlockAddress,sizeof(lastSession__LogicalBlockAddress),"lastSession__LogicalBlockAddress");
+  klee_make_symbolic(&cdaudioDataOut__FirstTrack,sizeof(cdaudioDataOut__FirstTrack),"cdaudioDataOut__FirstTrack");
+  klee_make_symbolic(&cdaudioDataOut__LastTrack,sizeof(cdaudioDataOut__LastTrack),"cdaudioDataOut__LastTrack");
+  klee_make_symbolic(&sizeof__CDROM_TOC,sizeof(sizeof__CDROM_TOC),"sizeof__CDROM_TOC");
+  klee_make_symbolic(&sizeof__SUB_Q_CURRENT_POSITION,sizeof(sizeof__SUB_Q_CURRENT_POSITION),"sizeof__SUB_Q_CURRENT_POSITION");
+  klee_make_symbolic(&userPtr__Format,sizeof(userPtr__Format),"userPtr__Format");
+  klee_make_symbolic(&sizeof__CDROM_PLAY_AUDIO_MSF,sizeof(sizeof__CDROM_PLAY_AUDIO_MSF),"sizeof__CDROM_PLAY_AUDIO_MSF");
+  klee_make_symbolic(&inputBuffer__StartingM,sizeof(inputBuffer__StartingM),"inputBuffer__StartingM");
+  klee_make_symbolic(&inputBuffer__EndingM,sizeof(inputBuffer__EndingM),"inputBuffer__EndingM");
+  klee_make_symbolic(&inputBuffer__StartingS,sizeof(inputBuffer__StartingS),"inputBuffer__StartingS");
+  klee_make_symbolic(&inputBuffer__EndingS,sizeof(inputBuffer__EndingS),"inputBuffer__EndingS");
+  klee_make_symbolic(&inputBuffer__StartingF,sizeof(inputBuffer__StartingF),"inputBuffer__StartingF");
+  klee_make_symbolic(&inputBuffer__EndingF,sizeof(inputBuffer__EndingF),"inputBuffer__EndingF");
+  klee_make_symbolic(&cdb__PLAY_AUDIO_MSF__OperationCode,sizeof(cdb__PLAY_AUDIO_MSF__OperationCode),"cdb__PLAY_AUDIO_MSF__OperationCode");
+  klee_make_symbolic(&sizeof__CDROM_SEEK_AUDIO_MSF,sizeof(sizeof__CDROM_SEEK_AUDIO_MSF),"sizeof__CDROM_SEEK_AUDIO_MSF");
+  klee_make_symbolic(&srb,sizeof(srb),"srb");
+  klee_make_symbolic(&lastSession,sizeof(lastSession),"lastSession");
+  klee_make_symbolic(&i,sizeof(i),"i");
+  klee_make_symbolic(&bytesTransfered,sizeof(bytesTransfered),"bytesTransfered");
+  klee_make_symbolic(&Toc,sizeof(Toc),"Toc");
+  klee_make_symbolic(&SubQPtr,sizeof(SubQPtr),"SubQPtr");
+#endif
 
   {
 #line 499
@@ -1313,6 +1384,28 @@ int CdAudio435DeviceControl(int DeviceObject , int Irp )
   unsigned long __cil_tmp114 ;
   unsigned long __cil_tmp115 ;
   unsigned long __cil_tmp116 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength,sizeof(currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength),"currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__InputBufferLength,sizeof(currentIrpStack__Parameters__DeviceIoControl__InputBufferLength),"currentIrpStack__Parameters__DeviceIoControl__InputBufferLength");
+  klee_make_symbolic(&TrackData__0,sizeof(TrackData__0),"TrackData__0");
+  klee_make_symbolic(&sizeof__CDROM_TOC,sizeof(sizeof__CDROM_TOC),"sizeof__CDROM_TOC");
+  klee_make_symbolic(&cdaudioDataOut__LastTrack,sizeof(cdaudioDataOut__LastTrack),"cdaudioDataOut__LastTrack");
+  klee_make_symbolic(&cdaudioDataOut__FirstTrack,sizeof(cdaudioDataOut__FirstTrack),"cdaudioDataOut__FirstTrack");
+  klee_make_symbolic(&sizeof__CDROM_PLAY_AUDIO_MSF,sizeof(sizeof__CDROM_PLAY_AUDIO_MSF),"sizeof__CDROM_PLAY_AUDIO_MSF");
+  klee_make_symbolic(&sizeof__CDROM_SEEK_AUDIO_MSF,sizeof(sizeof__CDROM_SEEK_AUDIO_MSF),"sizeof__CDROM_SEEK_AUDIO_MSF");
+  klee_make_symbolic(&deviceExtension__Paused,sizeof(deviceExtension__Paused),"deviceExtension__Paused");
+  klee_make_symbolic(&sizeof__SUB_Q_CHANNEL_DATA,sizeof(sizeof__SUB_Q_CHANNEL_DATA),"sizeof__SUB_Q_CHANNEL_DATA");
+  klee_make_symbolic(&sizeof__SUB_Q_CURRENT_POSITION,sizeof(sizeof__SUB_Q_CURRENT_POSITION),"sizeof__SUB_Q_CURRENT_POSITION");
+  klee_make_symbolic(&deviceExtension,sizeof(deviceExtension),"deviceExtension");
+  klee_make_symbolic(&srb,sizeof(srb),"srb");
+  klee_make_symbolic(&i,sizeof(i),"i");
+  klee_make_symbolic(&Toc,sizeof(Toc),"Toc");
+  klee_make_symbolic(&SubQPtr,sizeof(SubQPtr),"SubQPtr");
+  klee_make_symbolic(&userPtr__Format,sizeof(userPtr__Format),"userPtr__Format");
+  klee_make_symbolic(&SubQPtr___0,sizeof(SubQPtr___0),"SubQPtr___0");
+#endif
 
   {
   {
@@ -2081,6 +2174,11 @@ int CdAudioAtapiDeviceControl(int DeviceObject , int Irp )
   int __cil_tmp16 ;
   int __cil_tmp17 ;
   int __cil_tmp18 ;
+#ifdef KLEE
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&deviceExtension,sizeof(deviceExtension),"deviceExtension");
+  klee_make_symbolic(& ,sizeof( )," ");
+#endif
 
   {
   {
@@ -2148,6 +2246,9 @@ int CdAudioAtapiDeviceControl(int DeviceObject , int Irp )
 #line 1309 "cdaudio_simpl1.cil.c"
 void HpCdrProcessLastSession(int Toc ) 
 { int index = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+	klee_make_symbolic(&srb,sizeof(srb),"srb");
+#endif
 
   {
 #line 1313
@@ -2163,6 +2264,10 @@ void HpCdrProcessLastSession(int Toc )
 int HPCdrCompletion(int DeviceObject , int Irp , int Context ) 
 { int Irp__PendingReturned = __VERIFIER_nondet_int() ;
   int Irp__AssociatedIrp__SystemBuffer = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__PendingReturned,sizeof(Irp__PendingReturned),"Irp__PendingReturned");
+  klee_make_symbolic(&Irp__AssociatedIrp__SystemBuffer,sizeof(Irp__AssociatedIrp__SystemBuffer),"Irp__AssociatedIrp__SystemBuffer");
+#endif
 
   {
 #line 1326
@@ -2201,6 +2306,10 @@ int CdAudioHPCdrDeviceControl(int DeviceObject , int Irp )
   int __cil_tmp10 ;
   int __cil_tmp11 ;
   int __cil_tmp12 ;
+#ifdef KLEE
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
   {
@@ -2263,6 +2372,10 @@ int CdAudioForwardIrpSynchronous(int DeviceObject , int Irp )
   int event = __VERIFIER_nondet_int() ;
   int status ;
   int irpSp__Control ;
+#ifdef KLEE
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+  klee_make_symbolic(&event,sizeof(event),"event");
+#endif
 
   {
 #line 1394
@@ -2321,6 +2434,11 @@ int CdAudioPower(int DeviceObject , int Irp )
   int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
   int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
   int tmp ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
 #line 1441
@@ -2378,6 +2496,14 @@ int main(void)
   int irp_choice = __VERIFIER_nondet_int() ;
   int devobj = __VERIFIER_nondet_int() ;
   int __cil_tmp9 ;
+#ifdef KLEE
+  klee_make_symbolic(&d,sizeof(d),"d");
+  klee_make_symbolic(&status,sizeof(status),"status");
+  klee_make_symbolic(&irp,sizeof(irp),"irp");
+  klee_make_symbolic(&we_should_unload,sizeof(we_should_unload),"we_should_unload");
+  klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
+  klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+#endif
 
   {
   {
@@ -2453,18 +2579,27 @@ int main(void)
 #line 1509
     int tmp_ndt_1;
     tmp_ndt_1 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+#endif
     if (tmp_ndt_1 == 2) {
       goto switch_5_2;
     } else {
 #line 1512
       int tmp_ndt_2;
       tmp_ndt_2 = __VERIFIER_nondet_int();
+#ifdef KLEE
+      klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
+#endif
       if (tmp_ndt_2 == 3) {
         goto switch_5_3;
       } else {
 #line 1515
         int tmp_ndt_3;
         tmp_ndt_3 = __VERIFIER_nondet_int();
+#ifdef KLEE
+	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
+#endif
         if (tmp_ndt_3 == 4) {
           goto switch_5_4;
         } else {
@@ -2609,6 +2744,10 @@ int IofCallDriver(int DeviceObject , int Irp )
   int compRetStatus ;
   int lcontext = __VERIFIER_nondet_int() ;
   unsigned long __cil_tmp8 ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__PendingReturned,sizeof(Irp__PendingReturned),"Irp__PendingReturned");
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
 
   {
 #line 1642
@@ -2648,12 +2787,18 @@ int IofCallDriver(int DeviceObject , int Irp )
 #line 1669
     int tmp_ndt_4;
     tmp_ndt_4 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
+#endif
     if (tmp_ndt_4 == 0) {
       goto switch_6_0;
     } else {
 #line 1672
       int tmp_ndt_5;
       tmp_ndt_5 = __VERIFIER_nondet_int();
+#ifdef KLEE
+      klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
+#endif
       if (tmp_ndt_5 == 1) {
         goto switch_6_1;
       } else {
@@ -2740,6 +2885,9 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 #line 1734 "cdaudio_simpl1.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
 { int l = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+	klee_make_symbolic(&l,sizeof(l),"l");
+#endif
 
   {
 #line 1738
@@ -2786,6 +2934,9 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
 #line 1769
   int tmp_ndt_6;
   tmp_ndt_6 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
+#endif
   if (tmp_ndt_6 == 0) {
     goto switch_7_0;
   } else {
@@ -2810,6 +2961,9 @@ int PoCallDriver(int DeviceObject , int Irp )
   int compRetStatus ;
   int returnVal ;
   int lcontext = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   unsigned long __cil_tmp7 ;
   long __cil_tmp8 ;
 
@@ -2846,12 +3000,18 @@ int PoCallDriver(int DeviceObject , int Irp )
 #line 1817
   int tmp_ndt_7;
   tmp_ndt_7 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
+#endif
   if (tmp_ndt_7 == 0) {
     goto switch_8_0;
   } else {
 #line 1820
     int tmp_ndt_8;
     tmp_ndt_8 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
+#endif
     if (tmp_ndt_8 == 1) {
       goto switch_8_1;
     } else {
@@ -2927,6 +3087,9 @@ int ZwClose(int Handle )
 #line 1871
   int tmp_ndt_9;
   tmp_ndt_9 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
+#endif
   if (tmp_ndt_9 == 0) {
     goto switch_9_0;
   } else {

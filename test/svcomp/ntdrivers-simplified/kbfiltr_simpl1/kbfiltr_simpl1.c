@@ -111,6 +111,14 @@ int KbFilter_PnP(int DeviceObject , int Irp )
   int irpSp__Context ;
   int irpSp__Control ;
   long __cil_tmp23 ;
+#ifdef KLEE
+  klee_make_symbolic(&event,sizeof(event),"event");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&irpStack__MinorFunction,sizeof(irpStack__MinorFunction),"irpStack__MinorFunction");
+  klee_make_symbolic(&devExt__TopOfStack,sizeof(devExt__TopOfStack),"devExt__TopOfStack");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+#endif
 
   {
 #line 101
@@ -381,6 +389,11 @@ int main(void)
   int irp_choice = __VERIFIER_nondet_int() ;
   int devobj = __VERIFIER_nondet_int() ;
   int __cil_tmp8 ;
+#ifdef KLEE
+  klee_make_symbolic(&irp,sizeof(irp),"irp");
+  klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
+  klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+#endif
 
   {
   {
@@ -457,6 +470,9 @@ NP  = 0;
 #line 355
     int tmp_ndt_1;
     tmp_ndt_1 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+#endif
     if (tmp_ndt_1 == 3) {
       goto switch_1_3;
     } else {
@@ -573,6 +589,9 @@ int IofCallDriver(int DeviceObject , int Irp )
   int returnVal2 ;
   int compRetStatus ;
   int lcontext = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   long long __cil_tmp7 ;
 ;
   {
@@ -584,12 +603,18 @@ int IofCallDriver(int DeviceObject , int Irp )
 #line 476
   int tmp_ndt_2;
   tmp_ndt_2 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
+#endif
   if (tmp_ndt_2 == 0) {
     goto switch_2_0;
   } else {
 #line 479
     int tmp_ndt_3;
     tmp_ndt_3 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
+#endif
     if (tmp_ndt_3 == 1) {
       goto switch_2_1;
     } else {
@@ -675,6 +700,9 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 #line 540 "kbfiltr_simpl1.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
 { int l = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+	klee_make_symbolic(&l,sizeof(l),"l");
+#endif
 
   {
 #line 544
@@ -721,6 +749,9 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
 #line 575
   int tmp_ndt_4;
   tmp_ndt_4 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
+#endif
   if (tmp_ndt_4 == 0) {
     goto switch_3_0;
   } else {

@@ -101,6 +101,10 @@ int DiskPerfDispatchPnp(int DeviceObject , int Irp )
   int irpSp ;
   int status ;
   int tmp ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&irpSp__MinorFunction,sizeof(irpSp__MinorFunction),"irpSp__MinorFunction");
+#endif
 
   {
 #line 105
@@ -166,6 +170,10 @@ int DiskPerfStartDevice(int DeviceObject , int Irp )
   int Irp__IoStatus__Status ;
   int deviceExtension ;
   int status ;
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
   {
@@ -197,6 +205,11 @@ int DiskPerfRemoveDevice(int DeviceObject , int Irp )
   int deviceExtension ;
   int wmilibContext ;
 
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__WmilibContext,sizeof(deviceExtension__WmilibContext),"deviceExtension__WmilibContext");
+#endif
+
   {
   {
 #line 180
@@ -224,6 +237,13 @@ int DiskPerfSendToNextDriver(int DeviceObject , int Irp )
   int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
   int deviceExtension ;
   int tmp ;
+
+#ifdef KLEE
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
 #line 199
@@ -258,6 +278,13 @@ int DiskPerfDispatchPower(int DeviceObject , int Irp )
   int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
   int deviceExtension ;
   int tmp ;
+
+#ifdef KLEE
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
 
   {
 #line 224
@@ -299,6 +326,13 @@ int DiskPerfForwardIrpSynchronous(int DeviceObject , int Irp )
   int irpSp__Control ;
   int irpSp___0 ;
   long __cil_tmp15 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+  klee_make_symbolic(&event,sizeof(event),"event");
+#endif
 
   {
 #line 255
@@ -389,6 +423,23 @@ int DiskPerfIoCompletion(int DeviceObject , int Irp , int Context )
   int partitionCounters = __VERIFIER_nondet_int() ;
   int queueLen = __VERIFIER_nondet_int() ;
 
+#ifdef KLEE
+  klee_make_symbolic(&irpStack__MajorFunction,sizeof(irpStack__MajorFunction),"irpStack__MajorFunction");
+  klee_make_symbolic(&partitionCounters__BytesRead__QuadPart,sizeof(partitionCounters__BytesRead__QuadPart),"partitionCounters__BytesRead__QuadPart");
+  klee_make_symbolic(&Irp__IoStatus__Information,sizeof(Irp__IoStatus__Information),"Irp__IoStatus__Information");
+  klee_make_symbolic(&partitionCounters__ReadCount,sizeof(partitionCounters__ReadCount),"partitionCounters__ReadCount");
+  klee_make_symbolic(&partitionCounters__ReadTime__QuadPart,sizeof(partitionCounters__ReadTime__QuadPart),"partitionCounters__ReadTime__QuadPart");
+  klee_make_symbolic(&difference__QuadPart,sizeof(difference__QuadPart),"difference__QuadPart");
+  klee_make_symbolic(&partitionCounters__BytesWritten__QuadPart,sizeof(partitionCounters__BytesWritten__QuadPart),"partitionCounters__BytesWritten__QuadPart");
+  klee_make_symbolic(&partitionCounters__WriteCount,sizeof(partitionCounters__WriteCount),"partitionCounters__WriteCount");
+  klee_make_symbolic(&partitionCounters__WriteTime__QuadPart,sizeof(partitionCounters__WriteTime__QuadPart),"partitionCounters__WriteTime__QuadPart");
+  klee_make_symbolic(&Irp__Flags,sizeof(Irp__Flags),"Irp__Flags");
+  klee_make_symbolic(&partitionCounters__SplitCount,sizeof(partitionCounters__SplitCount),"partitionCounters__SplitCount");
+  klee_make_symbolic(&Irp__PendingReturned,sizeof(Irp__PendingReturned),"Irp__PendingReturned");
+  klee_make_symbolic(&partitionCounters,sizeof(partitionCounters),"partitionCounters");
+  klee_make_symbolic(&queueLen,sizeof(queueLen),"queueLen");
+#endif
+
   {
 #line 322
   if (partitionCounters == 0) {
@@ -471,6 +522,20 @@ int DiskPerfDeviceControl(int DeviceObject , int Irp )
   int __cil_tmp24 ;
   int __cil_tmp25 ;
   int __cil_tmp26 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength,sizeof(currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength),"currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength");
+  klee_make_symbolic(&sizeof__DISK_PERFORMANCE,sizeof(sizeof__DISK_PERFORMANCE),"sizeof__DISK_PERFORMANCE");
+  klee_make_symbolic(&deviceExtension__DiskCounters,sizeof(deviceExtension__DiskCounters),"deviceExtension__DiskCounters");
+  klee_make_symbolic(&Irp__AssociatedIrp__SystemBuffer,sizeof(Irp__AssociatedIrp__SystemBuffer),"Irp__AssociatedIrp__SystemBuffer");
+  klee_make_symbolic(&deviceExtension__Processors,sizeof(deviceExtension__Processors),"deviceExtension__Processors");
+  klee_make_symbolic(&deviceExtension__QueueDepth,sizeof(deviceExtension__QueueDepth),"deviceExtension__QueueDepth");
+#endif
 
   {
 #line 390
@@ -568,6 +633,13 @@ int DiskPerfShutdownFlush(int DeviceObject , int Irp )
   int deviceExtension ;
   int tmp ;
 
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+#endif
+
   {
   {
 #line 452
@@ -632,6 +704,22 @@ int DiskPerfRegisterDevice(int DeviceObject )
   long __cil_tmp37 ;
   int __cil_tmp38 ;
   int __cil_tmp39 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&deviceExtension__TargetDeviceObject,sizeof(deviceExtension__TargetDeviceObject),"deviceExtension__TargetDeviceObject");
+  klee_make_symbolic(&sizeof__number,sizeof(sizeof__number),"sizeof__number");
+  klee_make_symbolic(&ioStatus__Status,sizeof(ioStatus__Status),"ioStatus__Status");
+  klee_make_symbolic(&sizeof__VOLUME_NUMBER,sizeof(sizeof__VOLUME_NUMBER),"sizeof__VOLUME_NUMBER");
+  klee_make_symbolic(&volumeNumber__VolumeManagerName__0,sizeof(volumeNumber__VolumeManagerName__0),"volumeNumber__VolumeManagerName__0");
+  klee_make_symbolic(&ioStatus,sizeof(ioStatus),"ioStatus");
+  klee_make_symbolic(&event,sizeof(event),"event");
+  klee_make_symbolic(&number,sizeof(number),"number");
+  klee_make_symbolic(&sizeof__MOUNTDEV_NAME,sizeof(sizeof__MOUNTDEV_NAME),"sizeof__MOUNTDEV_NAME");
+  klee_make_symbolic(&output__NameLength,sizeof(output__NameLength),"output__NameLength");
+  klee_make_symbolic(&output,sizeof(output),"output");
+  klee_make_symbolic(&volumeNumber,sizeof(volumeNumber),"volumeNumber");
+#endif
 
   {
   {
@@ -862,6 +950,15 @@ int main(void)
   int devobj = __VERIFIER_nondet_int() ;
   int __cil_tmp9 ;
 
+#ifdef KLEE
+  klee_make_symbolic(&d,sizeof(d),"d");
+  klee_make_symbolic(&status,sizeof(status),"status");
+  klee_make_symbolic(&we_should_unload,sizeof(we_should_unload),"we_should_unload");
+  klee_make_symbolic(&irp,sizeof(irp),"irp");
+  klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
+  klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+#endif
+
  s  = 0;
  UNLOADED  = 0;
  NP  = 0;
@@ -931,30 +1028,50 @@ int main(void)
 #line 671
     int tmp_ndt_1;
     tmp_ndt_1 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+#endif
     if (tmp_ndt_1 == 0) {
       goto switch_2_0;
     } else {
 #line 674
       int tmp_ndt_2;
       tmp_ndt_2 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+      klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
+#endif
       if (tmp_ndt_2 == 2) {
         goto switch_2_2;
       } else {
 #line 677
         int tmp_ndt_3;
         tmp_ndt_3 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
+#endif
         if (tmp_ndt_3 == 3) {
           goto switch_2_3;
         } else {
 #line 680
 	  int tmp_ndt_4;
 	  tmp_ndt_4 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+	  klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
+#endif
           if (tmp_ndt_4 == 4) {
             goto switch_2_4;
           } else {
 #line 683
 	    int tmp_ndt_5;
 	    tmp_ndt_5 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+	    klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
+#endif
             if (tmp_ndt_5 == 12) {
               goto switch_2_12;
             } else {
@@ -1099,12 +1216,20 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
 {
   int malloc_ret = __VERIFIER_nondet_int() ;
 
+#ifdef KLEE
+  klee_make_symbolic(&malloc_ret,sizeof(malloc_ret),"malloc_ret");
+#endif
+
   {
 #line 813
   customIrp = 1;
 #line 814
   int tmp_ndt_7;
   tmp_ndt_7 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
+#endif
   if (tmp_ndt_7 == 0) {
     goto switch_3_0;
   } else {
@@ -1148,6 +1273,10 @@ int IofCallDriver(int DeviceObject , int Irp )
   int returnVal2 ;
   int compRetStatus ;
   int lcontext = __VERIFIER_nondet_int() ;
+
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   unsigned long __cil_tmp7 ;
 
   {
@@ -1180,12 +1309,20 @@ int IofCallDriver(int DeviceObject , int Irp )
 #line 872
   int tmp_ndt_8;
   tmp_ndt_8 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
+#endif
   if (tmp_ndt_8 == 0) {
     goto switch_4_0;
   } else {
 #line 875
   int tmp_ndt_9;
   tmp_ndt_9 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
+#endif
     if (tmp_ndt_9 == 1) {
       goto switch_4_1;
     } else {
@@ -1272,6 +1409,10 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 int KeSetEvent(int Event , int Increment , int Wait ) 
 { int l = __VERIFIER_nondet_int() ;
 
+#ifdef KLEE
+	klee_make_symbolic(&l,sizeof(l),"l");
+#endif
+
   {
 #line 940
   setEventCalled = 1;
@@ -1317,6 +1458,10 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
 #line 971
   int tmp_ndt_10;
   tmp_ndt_10 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
+#endif
   if (tmp_ndt_10 == 0) {
     goto switch_5_0;
   } else {
@@ -1341,6 +1486,10 @@ int PoCallDriver(int DeviceObject , int Irp )
   int compRetStatus ;
   int returnVal ;
   int lcontext = __VERIFIER_nondet_int() ;
+
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   unsigned long __cil_tmp7 ;
   long __cil_tmp8 ;
 
@@ -1377,12 +1526,20 @@ int PoCallDriver(int DeviceObject , int Irp )
 #line 1019
   int tmp_ndt_11;
   tmp_ndt_11 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_11,sizeof(tmp_ndt_11),"tmp_ndt_11");
+#endif
   if (tmp_ndt_11 == 0) {
     goto switch_6_0;
   } else {
 #line 1022
   int tmp_ndt_12;
   tmp_ndt_12 = __VERIFIER_nondet_int();
+
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_12,sizeof(tmp_ndt_12),"tmp_ndt_12");
+#endif
     if (tmp_ndt_12 == 1) {
       goto switch_6_1;
     } else {

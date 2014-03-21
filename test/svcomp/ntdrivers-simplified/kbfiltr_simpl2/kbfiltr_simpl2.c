@@ -109,6 +109,14 @@ int KbFilter_PnP(int DeviceObject , int Irp )
   int irpSp__Context ;
   int irpSp__Control ;
   long __cil_tmp23 ;
+#ifdef KLEE
+  klee_make_symbolic(&event,sizeof(event),"event");
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&irpStack__MinorFunction,sizeof(irpStack__MinorFunction),"irpStack__MinorFunction");
+  klee_make_symbolic(&devExt__TopOfStack,sizeof(devExt__TopOfStack),"devExt__TopOfStack");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+#endif
 
   {
 #line 107
@@ -381,6 +389,11 @@ int main(void)
   int irp_choice = __VERIFIER_nondet_int() ;
   int devobj = __VERIFIER_nondet_int() ;
   int __cil_tmp8 ;
+#ifdef KLEE
+  klee_make_symbolic(&irp,sizeof(irp),"irp");
+  klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
+  klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+#endif
 
  KernelMode  = 0;
  Executive  = 0;
@@ -451,30 +464,45 @@ int main(void)
 #line 361
     int tmp_ndt_1;
     tmp_ndt_1 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+#endif
     if (tmp_ndt_1 == 0) {
       goto switch_1_0;
     } else {
 #line 364
       int tmp_ndt_2;
       tmp_ndt_2 = __VERIFIER_nondet_int();
+#ifdef KLEE
+      klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
+#endif
       if (tmp_ndt_2 == 1) {
         goto switch_1_1;
       } else {
 #line 367
         int tmp_ndt_3;
         tmp_ndt_3 = __VERIFIER_nondet_int();
+#ifdef KLEE
+	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
+#endif
         if (tmp_ndt_3 == 3) {
           goto switch_1_3;
         } else {
 #line 370
     	  int tmp_ndt_4;
           tmp_ndt_4 = __VERIFIER_nondet_int();
+#ifdef KLEE
+	  klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
+#endif
           if (tmp_ndt_4 == 4) {
             goto switch_1_4;
           } else {
 #line 373
     	    int tmp_ndt_5;
             tmp_ndt_5 = __VERIFIER_nondet_int();
+#ifdef KLEE
+	    klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
+#endif
             if (tmp_ndt_5 == 8) {
               goto switch_1_8;
             } else {
@@ -621,6 +649,9 @@ int IofCallDriver(int DeviceObject , int Irp )
   int returnVal2 ;
   int compRetStatus ;
   int lcontext = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   long long __cil_tmp7 ;
 
   {
@@ -645,12 +676,18 @@ int IofCallDriver(int DeviceObject , int Irp )
 #line 518
   int tmp_ndt_6;
   tmp_ndt_6 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
+#endif
   if (tmp_ndt_6 == 0) {
     goto switch_2_0;
   } else {
 #line 521
     int tmp_ndt_7;
     tmp_ndt_7 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
+#endif
     if (tmp_ndt_7 == 1) {
       goto switch_2_1;
     } else {
@@ -736,6 +773,9 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 #line 582 "kbfiltr_simpl2.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
 { int l = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+	klee_make_symbolic(&l,sizeof(l),"l");
+#endif
 
   {
 #line 586
@@ -782,6 +822,9 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
 #line 617
   int tmp_ndt_8;
   tmp_ndt_8 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
+#endif
   if (tmp_ndt_8 == 0) {
     goto switch_3_0;
   } else {
@@ -822,6 +865,10 @@ int KbFilter_CreateClose(int DeviceObject , int Irp )
   int Irp__IoStatus__Status ;
   int status ;
   int tmp ;
+#ifdef KLEE
+	klee_make_symbolic(&irpStack__MajorFunction,sizeof(irpStack__MajorFunction),"irpStack__MajorFunction");
+  klee_make_symbolic(&devExt__UpperConnectData__ClassService,sizeof(devExt__UpperConnectData__ClassService),"devExt__UpperConnectData__ClassService");
+#endif
 
   {
 #line 653
@@ -869,6 +916,11 @@ int KbFilter_DispatchPassThrough(int DeviceObject , int Irp )
   int DeviceObject__DeviceExtension__TopOfStack = __VERIFIER_nondet_int() ;
   int irpStack ;
   int tmp ;
+#ifdef KLEE
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&DeviceObject__DeviceExtension__TopOfStack,sizeof(DeviceObject__DeviceExtension__TopOfStack),"DeviceObject__DeviceExtension__TopOfStack");
+#endif
 
   {
 #line 691
@@ -905,6 +957,14 @@ int KbFilter_Power(int DeviceObject , int Irp )
   int devExt__TopOfStack = __VERIFIER_nondet_int() ;
   int powerType = __VERIFIER_nondet_int() ;
   int tmp ;
+#ifdef KLEE
+  klee_make_symbolic(&irpStack__MinorFunction,sizeof(irpStack__MinorFunction),"irpStack__MinorFunction");
+  klee_make_symbolic(&powerState__DeviceState,sizeof(powerState__DeviceState),"powerState__DeviceState");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&devExt__TopOfStack,sizeof(devExt__TopOfStack),"devExt__TopOfStack");
+  klee_make_symbolic(&powerType,sizeof(powerType),"powerType");
+#endif
 
   {
 #line 718
@@ -974,6 +1034,9 @@ int PoCallDriver(int DeviceObject , int Irp )
   int lcontext = __VERIFIER_nondet_int() ;
   unsigned long __cil_tmp7 ;
   long __cil_tmp8 ;
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
 
   {
 #line 774
@@ -997,12 +1060,18 @@ int PoCallDriver(int DeviceObject , int Irp )
 #line 788
   int tmp_ndt_9;
   tmp_ndt_9 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
+#endif
   if (tmp_ndt_9 == 0) {
     goto switch_6_0;
   } else {
 #line 791
     int tmp_ndt_10;
     tmp_ndt_10 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
+#endif
     if (tmp_ndt_10 == 1) {
       goto switch_6_1;
     } else {
@@ -1115,6 +1184,25 @@ int KbFilter_InternIoCtl(int DeviceObject , int Irp )
   int __cil_tmp43 ;
   int __cil_tmp44 = __VERIFIER_nondet_int() ;
   int __cil_tmp45 ;
+#ifdef KLEE
+  klee_make_symbolic(&irpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(irpStack__Parameters__DeviceIoControl__IoControlCode),"irpStack__Parameters__DeviceIoControl__IoControlCode");
+  klee_make_symbolic(&devExt__UpperConnectData__ClassService,sizeof(devExt__UpperConnectData__ClassService),"devExt__UpperConnectData__ClassService");
+  klee_make_symbolic(&irpStack__Parameters__DeviceIoControl__InputBufferLength,sizeof(irpStack__Parameters__DeviceIoControl__InputBufferLength),"irpStack__Parameters__DeviceIoControl__InputBufferLength");
+  klee_make_symbolic(&sizeof__CONNECT_DATA,sizeof(sizeof__CONNECT_DATA),"sizeof__CONNECT_DATA");
+  klee_make_symbolic(&irpStack__Parameters__DeviceIoControl__Type3InputBuffer,sizeof(irpStack__Parameters__DeviceIoControl__Type3InputBuffer),"irpStack__Parameters__DeviceIoControl__Type3InputBuffer");
+  klee_make_symbolic(&sizeof__INTERNAL_I8042_HOOK_KEYBOARD,sizeof(sizeof__INTERNAL_I8042_HOOK_KEYBOARD),"sizeof__INTERNAL_I8042_HOOK_KEYBOARD");
+  klee_make_symbolic(&hookKeyboard__InitializationRoutine,sizeof(hookKeyboard__InitializationRoutine),"hookKeyboard__InitializationRoutine");
+  klee_make_symbolic(&hookKeyboard__IsrRoutine,sizeof(hookKeyboard__IsrRoutine),"hookKeyboard__IsrRoutine");
+  klee_make_symbolic(&__cil_tmp20,sizeof(__cil_tmp20),"__cil_tmp20");
+  klee_make_symbolic(&__cil_tmp24,sizeof(__cil_tmp24),"__cil_tmp24");
+  klee_make_symbolic(&__cil_tmp28,sizeof(__cil_tmp28),"__cil_tmp28");
+  klee_make_symbolic(&__cil_tmp29,sizeof(__cil_tmp29),"__cil_tmp29");
+  klee_make_symbolic(&__cil_tmp32,sizeof(__cil_tmp32),"__cil_tmp32");
+  klee_make_symbolic(&__cil_tmp35,sizeof(__cil_tmp35),"__cil_tmp35");
+  klee_make_symbolic(&__cil_tmp38,sizeof(__cil_tmp38),"__cil_tmp38");
+  klee_make_symbolic(&__cil_tmp41,sizeof(__cil_tmp41),"__cil_tmp41");
+  klee_make_symbolic(&__cil_tmp44,sizeof(__cil_tmp44),"__cil_tmp44");
+#endif
 
   {
 #line 855

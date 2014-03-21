@@ -93,6 +93,14 @@ int FlQueueIrpToThread(int Irp , int DisketteExtension )
   int __cil_tmp12 ;
   int __cil_tmp13 ;
 
+#ifdef KLEE
+  klee_make_symbolic(&threadHandle,sizeof(threadHandle),"threadHandle");
+  klee_make_symbolic(&DisketteExtension__PoweringDown,sizeof(DisketteExtension__PoweringDown),"DisketteExtension__PoweringDown");
+  klee_make_symbolic(&DisketteExtension__ThreadReferenceCount,sizeof(DisketteExtension__ThreadReferenceCount),"DisketteExtension__ThreadReferenceCount");
+  klee_make_symbolic(&DisketteExtension__FloppyThread,sizeof(DisketteExtension__FloppyThread),"DisketteExtension__FloppyThread");
+  klee_make_symbolic(&ObjAttributes,sizeof(ObjAttributes),"ObjAttributes");
+#endif
+
   {
 #line 113
   if (DisketteExtension__PoweringDown == 1) {
@@ -200,6 +208,23 @@ int FloppyPnp(int DeviceObject , int Irp )
   int irpSp__Control ;
   long __cil_tmp29 ;
   long __cil_tmp30 ;
+
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&disketteExtension__IsRemoved,sizeof(disketteExtension__IsRemoved),"disketteExtension__IsRemoved");
+  klee_make_symbolic(&disketteExtension__IsStarted,sizeof(disketteExtension__IsStarted),"disketteExtension__IsStarted");
+  klee_make_symbolic(&disketteExtension__TargetObject,sizeof(disketteExtension__TargetObject),"disketteExtension__TargetObject");
+  klee_make_symbolic(&disketteExtension__FloppyThread,sizeof(disketteExtension__FloppyThread),"disketteExtension__FloppyThread");
+  klee_make_symbolic(&disketteExtension__InterfaceString__Buffer,sizeof(disketteExtension__InterfaceString__Buffer),"disketteExtension__InterfaceString__Buffer");
+  klee_make_symbolic(&disketteExtension__InterfaceString,sizeof(disketteExtension__InterfaceString),"disketteExtension__InterfaceString");
+  klee_make_symbolic(&disketteExtension__ArcName__Length,sizeof(disketteExtension__ArcName__Length),"disketteExtension__ArcName__Length");
+  klee_make_symbolic(&disketteExtension__ArcName,sizeof(disketteExtension__ArcName),"disketteExtension__ArcName");
+  klee_make_symbolic(&irpSp__MinorFunction,sizeof(irpSp__MinorFunction),"irpSp__MinorFunction");
+  klee_make_symbolic(&IoGetConfigurationInformation__FloppyCount,sizeof(IoGetConfigurationInformation__FloppyCount),"IoGetConfigurationInformation__FloppyCount");
+  klee_make_symbolic(&doneEvent,sizeof(doneEvent),"doneEvent");
+#endif
 
   {
 #line 199
@@ -611,6 +636,27 @@ int FloppyStartDevice(int DeviceObject , int Irp )
   int __cil_tmp48 ;
   int __cil_tmp49 ;
 
+
+#ifdef KLEE
+  klee_make_symbolic(&DeviceObject__DeviceExtension,sizeof(DeviceObject__DeviceExtension),"DeviceObject__DeviceExtension");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&disketteExtension__TargetObject,sizeof(disketteExtension__TargetObject),"disketteExtension__TargetObject");
+  klee_make_symbolic(&disketteExtension__DriveType,sizeof(disketteExtension__DriveType),"disketteExtension__DriveType");
+  klee_make_symbolic(&disketteExtension__UnderlyingPDO,sizeof(disketteExtension__UnderlyingPDO),"disketteExtension__UnderlyingPDO");
+  klee_make_symbolic(&disketteExtension__InterfaceString,sizeof(disketteExtension__InterfaceString),"disketteExtension__InterfaceString");
+  klee_make_symbolic(&doneEvent,sizeof(doneEvent),"doneEvent");
+  klee_make_symbolic(&fdcInfo,sizeof(fdcInfo),"fdcInfo");
+  klee_make_symbolic(&fdcInfo__MaxTransferSize,sizeof(fdcInfo__MaxTransferSize),"fdcInfo__MaxTransferSize");
+  klee_make_symbolic(&fdcInfo__AcpiBios,sizeof(fdcInfo__AcpiBios),"fdcInfo__AcpiBios");
+  klee_make_symbolic(&fdcInfo__AcpiFdiSupported,sizeof(fdcInfo__AcpiFdiSupported),"fdcInfo__AcpiFdiSupported");
+  klee_make_symbolic(&fdcInfo__PeripheralNumber,sizeof(fdcInfo__PeripheralNumber),"fdcInfo__PeripheralNumber");
+  klee_make_symbolic(&fdcInfo__ControllerNumber,sizeof(fdcInfo__ControllerNumber),"fdcInfo__ControllerNumber");
+  klee_make_symbolic(&fdcInfo__UnitNumber,sizeof(fdcInfo__UnitNumber),"fdcInfo__UnitNumber");
+  klee_make_symbolic(&fdcInfo__BusNumber,sizeof(fdcInfo__BusNumber),"fdcInfo__BusNumber");
+  klee_make_symbolic(&KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86,sizeof(KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86),"KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86");
+  klee_make_symbolic(&__cil_tmp46,sizeof(__cil_tmp46),"__cil_tmp46");
+#endif
+
   {
 #line 505
   Dc = DiskController;
@@ -815,6 +861,12 @@ int FlFdcDeviceIo(int DeviceObject , int Ioctl , int Data )
   int irpStack__Parameters__DeviceIoControl__Type3InputBuffer ;
   long __cil_tmp11 ;
 
+#ifdef KLEE
+  klee_make_symbolic(&doneEvent,sizeof(doneEvent),"doneEvent");
+  klee_make_symbolic(&ioStatus,sizeof(ioStatus),"ioStatus");
+  klee_make_symbolic(&irp__Tail__Overlay__CurrentStackLocation,sizeof(irp__Tail__Overlay__CurrentStackLocation),"irp__Tail__Overlay__CurrentStackLocation");
+#endif
+
   {
   {
 #line 652
@@ -890,6 +942,11 @@ int main(void)
   int irp_choice = __VERIFIER_nondet_int() ;
   int devobj = __VERIFIER_nondet_int() ;
   int __cil_tmp8 ;
+#ifdef KLEE
+  klee_make_symbolic(&irp,sizeof(irp),"irp");
+  klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
+  klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+#endif
 
  FloppyThread  = 0;
  KernelMode  = 0;
@@ -965,24 +1022,36 @@ int main(void)
 #line 734
     int tmp_ndt_1;
     tmp_ndt_1 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+#endif
     if (tmp_ndt_1 == 0) {
       goto switch_2_0;
     } else {
 #line 737
       int tmp_ndt_2;
       tmp_ndt_2 = __VERIFIER_nondet_int();
+#ifdef KLEE
+      klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
+#endif
       if (tmp_ndt_2 == 1) {
         goto switch_2_1;
       } else {
 #line 740
         int tmp_ndt_3;
         tmp_ndt_3 = __VERIFIER_nondet_int();
+#ifdef KLEE
+        klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
+#endif
         if (tmp_ndt_3 == 2) {
           goto switch_2_2;
         } else {
 #line 743
     	  int tmp_ndt_4;
           tmp_ndt_4 = __VERIFIER_nondet_int();
+#ifdef KLEE
+          klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
+#endif
           if (tmp_ndt_4 == 3) {
             goto switch_2_3;
           } else {
@@ -1112,6 +1181,9 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
                                   int InternalDeviceIoControl , int Event , int IoStatusBlock ) 
 {
   int malloc = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&malloc,sizeof(malloc),"malloc");
+#endif
 
   {
 #line 859
@@ -1119,6 +1191,9 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
 #line 860
   int tmp_ndt_5;
   tmp_ndt_5 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
+#endif
   if (tmp_ndt_5 == 0) {
     goto switch_3_0;
   } else {
@@ -1145,6 +1220,9 @@ int IoDeleteSymbolicLink(int SymbolicLinkName )
 #line 881
   int tmp_ndt_6;
   tmp_ndt_6 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
+#endif
   if (tmp_ndt_6 == 0) {
     goto switch_4_0;
   } else {
@@ -1173,6 +1251,9 @@ int IoQueryDeviceDescription(int BusType , int BusNumber , int ControllerType , 
 #line 904
   int tmp_ndt_7;
   tmp_ndt_7 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
+#endif
   if (tmp_ndt_7 == 0) {
     goto switch_5_0;
   } else {
@@ -1200,6 +1281,9 @@ int IoRegisterDeviceInterface(int PhysicalDeviceObject , int InterfaceClassGuid 
 #line 926
   int tmp_ndt_8;
   tmp_ndt_8 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
+#endif
   if (tmp_ndt_8 == 0) {
     goto switch_6_0;
   } else {
@@ -1226,6 +1310,9 @@ int IoSetDeviceInterfaceState(int SymbolicLinkName , int Enable )
 #line 947
   int tmp_ndt_9;
   tmp_ndt_9 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
+#endif
   if (tmp_ndt_9 == 0) {
     goto switch_7_0;
   } else {
@@ -1269,6 +1356,9 @@ int IofCallDriver(int DeviceObject , int Irp )
   int returnVal2 ;
   int compRetStatus1 ;
   int lcontext = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
+#endif
   unsigned long __cil_tmp7 ;
 
   {
@@ -1293,12 +1383,18 @@ int IofCallDriver(int DeviceObject , int Irp )
 #line 999
   int tmp_ndt_10;
   tmp_ndt_10 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
+#endif
   if (tmp_ndt_10 == 0) {
     goto switch_8_0;
   } else {
 #line 1002
     int tmp_ndt_11;
     tmp_ndt_11 = __VERIFIER_nondet_int();
+#ifdef KLEE
+    klee_make_symbolic(&tmp_ndt_11,sizeof(tmp_ndt_11),"tmp_ndt_11");
+#endif
     if (tmp_ndt_11 == 1) {
       goto switch_8_1;
     } else {
@@ -1384,6 +1480,9 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 #line 1063 "floppy_simpl4.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
 { int l = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+klee_make_symbolic(&l,sizeof(l),"l");
+#endif
 
   {
 #line 1067
@@ -1430,6 +1529,9 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
 #line 1098
   int tmp_ndt_12;
   tmp_ndt_12 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_12,sizeof(tmp_ndt_12),"tmp_ndt_12");
+#endif
   if (tmp_ndt_12 == 0) {
     goto switch_9_0;
   } else {
@@ -1457,6 +1559,9 @@ int ObReferenceObjectByHandle(int Handle , int DesiredAccess , int ObjectType , 
 #line 1120
   int tmp_ndt_13;
   tmp_ndt_13 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_13,sizeof(tmp_ndt_13),"tmp_ndt_13");
+#endif
   if (tmp_ndt_13 == 0) {
     goto switch_10_0;
   } else {
@@ -1484,6 +1589,9 @@ int PsCreateSystemThread(int ThreadHandle , int DesiredAccess , int ObjectAttrib
 #line 1142
   int tmp_ndt_14;
   tmp_ndt_14 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_14,sizeof(tmp_ndt_14),"tmp_ndt_14");
+#endif
   if (tmp_ndt_14 == 0) {
     goto switch_11_0;
   } else {
@@ -1510,6 +1618,9 @@ int ZwClose(int Handle )
 #line 1163
   int tmp_ndt_15;
   tmp_ndt_15 = __VERIFIER_nondet_int();
+#ifdef KLEE
+  klee_make_symbolic(&tmp_ndt_15,sizeof(tmp_ndt_15),"tmp_ndt_15");
+#endif
   if (tmp_ndt_15 == 0) {
     goto switch_12_0;
   } else {
@@ -1641,6 +1752,47 @@ int FloppyDeviceControl(int DeviceObject , int Irp )
   int __cil_tmp89 ;
   int __cil_tmp90 ;
   long __cil_tmp91 ;
+#ifdef KLEE
+  klee_make_symbolic(&disketteExtension__HoldNewRequests,sizeof(disketteExtension__HoldNewRequests),"disketteExtension__HoldNewRequests");
+  klee_make_symbolic(&disketteExtension__IsRemoved,sizeof(disketteExtension__IsRemoved),"disketteExtension__IsRemoved");
+  klee_make_symbolic(&disketteExtension__IsStarted,sizeof(disketteExtension__IsStarted),"disketteExtension__IsStarted");
+  klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
+  klee_make_symbolic(&Irp__Tail__Overlay__CurrentStackLocation,sizeof(Irp__Tail__Overlay__CurrentStackLocation),"Irp__Tail__Overlay__CurrentStackLocation");
+  klee_make_symbolic(&disketteExtension__TargetObject,sizeof(disketteExtension__TargetObject),"disketteExtension__TargetObject");
+  klee_make_symbolic(&irpSp__Parameters__DeviceIoControl__OutputBufferLength,sizeof(irpSp__Parameters__DeviceIoControl__OutputBufferLength),"irpSp__Parameters__DeviceIoControl__OutputBufferLength");
+  klee_make_symbolic(&sizeof__MOUNTDEV_NAME,sizeof(sizeof__MOUNTDEV_NAME),"sizeof__MOUNTDEV_NAME");
+  klee_make_symbolic(&Irp__AssociatedIrp__SystemBuffer,sizeof(Irp__AssociatedIrp__SystemBuffer),"Irp__AssociatedIrp__SystemBuffer");
+  klee_make_symbolic(&disketteExtension__DeviceName__Length,sizeof(disketteExtension__DeviceName__Length),"disketteExtension__DeviceName__Length");
+  klee_make_symbolic(&sizeof__USHORT,sizeof(sizeof__USHORT),"sizeof__USHORT");
+  klee_make_symbolic(&disketteExtension__InterfaceString__Buffer,sizeof(disketteExtension__InterfaceString__Buffer),"disketteExtension__InterfaceString__Buffer");
+  klee_make_symbolic(&disketteExtension__InterfaceString__Length,sizeof(disketteExtension__InterfaceString__Length),"disketteExtension__InterfaceString__Length");
+  klee_make_symbolic(&sizeof__MOUNTDEV_UNIQUE_ID,sizeof(sizeof__MOUNTDEV_UNIQUE_ID),"sizeof__MOUNTDEV_UNIQUE_ID");
+  klee_make_symbolic(&irpSp__Parameters__DeviceIoControl__InputBufferLength,sizeof(irpSp__Parameters__DeviceIoControl__InputBufferLength),"irpSp__Parameters__DeviceIoControl__InputBufferLength");
+  klee_make_symbolic(&sizeof__FORMAT_PARAMETERS,sizeof(sizeof__FORMAT_PARAMETERS),"sizeof__FORMAT_PARAMETERS");
+  klee_make_symbolic(&irpSp__Parameters__DeviceIoControl__IoControlCode___1,sizeof(irpSp__Parameters__DeviceIoControl__IoControlCode___1),"irpSp__Parameters__DeviceIoControl__IoControlCode___1");
+  klee_make_symbolic(&sizeof__FORMAT_EX_PARAMETERS,sizeof(sizeof__FORMAT_EX_PARAMETERS),"sizeof__FORMAT_EX_PARAMETERS");
+  klee_make_symbolic(&formatExParameters__FormatGapLength,sizeof(formatExParameters__FormatGapLength),"formatExParameters__FormatGapLength");
+  klee_make_symbolic(&formatExParameters__SectorsPerTrack,sizeof(formatExParameters__SectorsPerTrack),"formatExParameters__SectorsPerTrack");
+  klee_make_symbolic(&sizeof__DISK_GEOMETRY,sizeof(sizeof__DISK_GEOMETRY),"sizeof__DISK_GEOMETRY");
+  klee_make_symbolic(&disketteExtension,sizeof(disketteExtension),"disketteExtension");
+  klee_make_symbolic(&lowestDriveMediaType,sizeof(lowestDriveMediaType),"lowestDriveMediaType");
+  klee_make_symbolic(&highestDriveMediaType,sizeof(highestDriveMediaType),"highestDriveMediaType");
+  klee_make_symbolic(&formatExParametersSize,sizeof(formatExParametersSize),"formatExParametersSize");
+  klee_make_symbolic(&__cil_tmp41,sizeof(__cil_tmp41),"__cil_tmp41");
+  klee_make_symbolic(&__cil_tmp44,sizeof(__cil_tmp44),"__cil_tmp44");
+  klee_make_symbolic(&__cil_tmp45,sizeof(__cil_tmp45),"__cil_tmp45");
+  klee_make_symbolic(&__cil_tmp50,sizeof(__cil_tmp50),"__cil_tmp50");
+  klee_make_symbolic(&__cil_tmp55,sizeof(__cil_tmp55),"__cil_tmp55");
+  klee_make_symbolic(&__cil_tmp60,sizeof(__cil_tmp60),"__cil_tmp60");
+  klee_make_symbolic(&__cil_tmp65,sizeof(__cil_tmp65),"__cil_tmp65");
+  klee_make_symbolic(&__cil_tmp66,sizeof(__cil_tmp66),"__cil_tmp66");
+  klee_make_symbolic(&__cil_tmp69,sizeof(__cil_tmp69),"__cil_tmp69");
+  klee_make_symbolic(&__cil_tmp72,sizeof(__cil_tmp72),"__cil_tmp72");
+  klee_make_symbolic(&__cil_tmp75,sizeof(__cil_tmp75),"__cil_tmp75");
+  klee_make_symbolic(&__cil_tmp78,sizeof(__cil_tmp78),"__cil_tmp78");
+  klee_make_symbolic(&__cil_tmp81,sizeof(__cil_tmp81),"__cil_tmp81");
+  klee_make_symbolic(&__cil_tmp88,sizeof(__cil_tmp88),"__cil_tmp88");
+#endif
 
   {
 #line 1234
@@ -2076,6 +2228,11 @@ int FlCheckFormatParameters(int DisketteExtension , int FormatParameters )
 { int DriveMediaConstants__driveMediaType__MediaType = __VERIFIER_nondet_int() ;
   int FormatParameters__MediaType = __VERIFIER_nondet_int() ;
   int FAKE_CONDITION = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&DriveMediaConstants__driveMediaType__MediaType,sizeof(DriveMediaConstants__driveMediaType__MediaType),"DriveMediaConstants__driveMediaType__MediaType");
+  klee_make_symbolic(&FormatParameters__MediaType,sizeof(FormatParameters__MediaType),"FormatParameters__MediaType");
+  klee_make_symbolic(&FAKE_CONDITION,sizeof(FAKE_CONDITION),"FAKE_CONDITION");
+#endif
 
   {
 #line 1475
@@ -2101,6 +2258,9 @@ int FloppyQueueRequest(int DisketteExtension , int Irp )
   int Irp__Tail__Overlay__CurrentStackLocation__Control ;
   int ntStatus ;
   int FAKE_CONDITION = __VERIFIER_nondet_int() ;
+#ifdef KLEE
+  klee_make_symbolic(&FAKE_CONDITION,sizeof(FAKE_CONDITION),"FAKE_CONDITION");
+#endif
 
   {
 #line 1494
