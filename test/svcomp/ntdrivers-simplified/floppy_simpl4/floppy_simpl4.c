@@ -1,10 +1,5 @@
-extern char __VERIFIER_nondet_char(void);
-extern int __VERIFIER_nondet_int(void);
-extern long __VERIFIER_nondet_long(void);
-extern void *__VERIFIER_nondet_pointer(void);
 void errorFn(void) ;
 void IofCompleteRequest(int Irp , int PriorityBoost );
-extern int __VERIFIER_nondet_int();
 int FloppyThread  ;
 int KernelMode  ;
 int Suspended  ;
@@ -82,14 +77,14 @@ int FlAcpiConfigureFloppy(int DisketteExtension , int FdcInfo )
 #line 101 "floppy_simpl4.cil.c"
 int FlQueueIrpToThread(int Irp , int DisketteExtension ) 
 { int status ;
-  int threadHandle = __VERIFIER_nondet_int() ;
-  int DisketteExtension__PoweringDown = __VERIFIER_nondet_int() ;
-  int DisketteExtension__ThreadReferenceCount = __VERIFIER_nondet_int() ;
-  int DisketteExtension__FloppyThread = __VERIFIER_nondet_int() ;
+  int threadHandle;
+  int DisketteExtension__PoweringDown;
+  int DisketteExtension__ThreadReferenceCount;
+  int DisketteExtension__FloppyThread;
   int Irp__IoStatus__Status ;
   int Irp__IoStatus__Information ;
   int Irp__Tail__Overlay__CurrentStackLocation__Control ;
-  int ObjAttributes = __VERIFIER_nondet_int() ;
+  int ObjAttributes;
   int __cil_tmp12 ;
   int __cil_tmp13 ;
 
@@ -180,26 +175,26 @@ int FlQueueIrpToThread(int Irp , int DisketteExtension )
 }
 #line 170 "floppy_simpl4.cil.c"
 int FloppyPnp(int DeviceObject , int Irp ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int Irp__Tail__Overlay__CurrentStackLocation;
   int Irp__IoStatus__Information ;
   int Irp__IoStatus__Status ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int disketteExtension__IsRemoved = __VERIFIER_nondet_int() ;
-  int disketteExtension__IsStarted = __VERIFIER_nondet_int() ;
-  int disketteExtension__TargetObject = __VERIFIER_nondet_int() ;
+  int Irp__CurrentLocation;
+  int disketteExtension__IsRemoved;
+  int disketteExtension__IsStarted;
+  int disketteExtension__TargetObject;
   int disketteExtension__HoldNewRequests ;
-  int disketteExtension__FloppyThread = __VERIFIER_nondet_int() ;
-  int disketteExtension__InterfaceString__Buffer = __VERIFIER_nondet_int() ;
-  int disketteExtension__InterfaceString = __VERIFIER_nondet_int() ;
-  int disketteExtension__ArcName__Length = __VERIFIER_nondet_int() ;
-  int disketteExtension__ArcName = __VERIFIER_nondet_int() ;
-  int irpSp__MinorFunction = __VERIFIER_nondet_int() ;
-  int IoGetConfigurationInformation__FloppyCount = __VERIFIER_nondet_int() ;
+  int disketteExtension__FloppyThread;
+  int disketteExtension__InterfaceString__Buffer;
+  int disketteExtension__InterfaceString;
+  int disketteExtension__ArcName__Length;
+  int disketteExtension__ArcName;
+  int irpSp__MinorFunction;
+  int IoGetConfigurationInformation__FloppyCount;
   int irpSp ;
   int disketteExtension ;
   int ntStatus ;
-  int doneEvent = __VERIFIER_nondet_int() ;
+  int doneEvent;
   int irpSp___0 ;
   int nextIrpSp ;
   int nextIrpSp__Control ;
@@ -588,33 +583,33 @@ int FloppyPnp(int DeviceObject , int Irp )
 }
 #line 463 "floppy_simpl4.cil.c"
 int FloppyStartDevice(int DeviceObject , int Irp ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int Irp__Tail__Overlay__CurrentStackLocation;
   int Irp__IoStatus__Status ;
-  int disketteExtension__TargetObject = __VERIFIER_nondet_int() ;
+  int disketteExtension__TargetObject;
   int disketteExtension__MaxTransferSize ;
-  int disketteExtension__DriveType = __VERIFIER_nondet_int() ;
+  int disketteExtension__DriveType;
   int disketteExtension__PerpendicularMode ;
   int disketteExtension__DeviceUnit ;
   int disketteExtension__DriveOnValue ;
-  int disketteExtension__UnderlyingPDO = __VERIFIER_nondet_int() ;
-  int disketteExtension__InterfaceString = __VERIFIER_nondet_int() ;
+  int disketteExtension__UnderlyingPDO;
+  int disketteExtension__InterfaceString;
   int disketteExtension__IsStarted ;
   int disketteExtension__HoldNewRequests ;
   int ntStatus ;
   int pnpStatus ;
-  int doneEvent = __VERIFIER_nondet_int() ;
-  int fdcInfo = __VERIFIER_nondet_int() ;
+  int doneEvent;
+  int fdcInfo;
   int fdcInfo__BufferCount ;
   int fdcInfo__BufferSize ;
-  int fdcInfo__MaxTransferSize = __VERIFIER_nondet_int() ;
-  int fdcInfo__AcpiBios = __VERIFIER_nondet_int() ;
-  int fdcInfo__AcpiFdiSupported = __VERIFIER_nondet_int() ;
-  int fdcInfo__PeripheralNumber = __VERIFIER_nondet_int() ;
+  int fdcInfo__MaxTransferSize;
+  int fdcInfo__AcpiBios;
+  int fdcInfo__AcpiFdiSupported;
+  int fdcInfo__PeripheralNumber;
   int fdcInfo__BusType ;
-  int fdcInfo__ControllerNumber = __VERIFIER_nondet_int() ;
-  int fdcInfo__UnitNumber = __VERIFIER_nondet_int() ;
-  int fdcInfo__BusNumber = __VERIFIER_nondet_int() ;
+  int fdcInfo__ControllerNumber;
+  int fdcInfo__UnitNumber;
+  int fdcInfo__BusNumber;
   int Dc ;
   int Fp ;
   int disketteExtension ;
@@ -626,12 +621,12 @@ int FloppyStartDevice(int DeviceObject , int Irp )
   int irpSp__Control ;
   int irpSp__Context ;
   int InterfaceType ;
-  int KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86 = __VERIFIER_nondet_int() ;
+  int KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86;
   long __cil_tmp42 ;
   int __cil_tmp43 ;
   int __cil_tmp44 ;
   int __cil_tmp45 ;
-  int __cil_tmp46 = __VERIFIER_nondet_int() ;
+  int __cil_tmp46;
   int __cil_tmp47 ;
   int __cil_tmp48 ;
   int __cil_tmp49 ;
@@ -855,9 +850,9 @@ int FlFdcDeviceIo(int DeviceObject , int Ioctl , int Data )
 { int ntStatus ;
   int irp ;
   int irpStack ;
-  int doneEvent = __VERIFIER_nondet_int() ;
-  int ioStatus = __VERIFIER_nondet_int() ;
-  int irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
+  int doneEvent;
+  int ioStatus;
+  int irp__Tail__Overlay__CurrentStackLocation;
   int irpStack__Parameters__DeviceIoControl__Type3InputBuffer ;
   long __cil_tmp11 ;
 
@@ -936,11 +931,11 @@ void stub_driver_init(void)
 #line 696 "floppy_simpl4.cil.c"
 int main(void) 
 { int status ;
-  int irp = __VERIFIER_nondet_int() ;
+  int irp;
   int pirp ;
   int pirp__IoStatus__Status ;
-  int irp_choice = __VERIFIER_nondet_int() ;
-  int devobj = __VERIFIER_nondet_int() ;
+  int irp_choice;
+  int devobj;
   int __cil_tmp8 ;
 #ifdef KLEE
   klee_make_symbolic(&irp,sizeof(irp),"irp");
@@ -1021,7 +1016,7 @@ int main(void)
     }
 #line 734
     int tmp_ndt_1;
-    tmp_ndt_1 = __VERIFIER_nondet_int();
+    tmp_ndt_1;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
 #endif
@@ -1030,7 +1025,7 @@ int main(void)
     } else {
 #line 737
       int tmp_ndt_2;
-      tmp_ndt_2 = __VERIFIER_nondet_int();
+      tmp_ndt_2;
 #ifdef KLEE
       klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
 #endif
@@ -1039,7 +1034,7 @@ int main(void)
       } else {
 #line 740
         int tmp_ndt_3;
-        tmp_ndt_3 = __VERIFIER_nondet_int();
+        tmp_ndt_3;
 #ifdef KLEE
         klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
 #endif
@@ -1048,7 +1043,7 @@ int main(void)
         } else {
 #line 743
     	  int tmp_ndt_4;
-          tmp_ndt_4 = __VERIFIER_nondet_int();
+          tmp_ndt_4;
 #ifdef KLEE
           klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
 #endif
@@ -1180,7 +1175,7 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
                                   int InputBufferLength , int OutputBuffer , int OutputBufferLength ,
                                   int InternalDeviceIoControl , int Event , int IoStatusBlock ) 
 {
-  int malloc = __VERIFIER_nondet_int() ;
+  int malloc;
 #ifdef KLEE
   klee_make_symbolic(&malloc,sizeof(malloc),"malloc");
 #endif
@@ -1190,7 +1185,7 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
   customIrp = 1;
 #line 860
   int tmp_ndt_5;
-  tmp_ndt_5 = __VERIFIER_nondet_int();
+  tmp_ndt_5;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
 #endif
@@ -1219,7 +1214,7 @@ int IoDeleteSymbolicLink(int SymbolicLinkName )
   {
 #line 881
   int tmp_ndt_6;
-  tmp_ndt_6 = __VERIFIER_nondet_int();
+  tmp_ndt_6;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
 #endif
@@ -1250,7 +1245,7 @@ int IoQueryDeviceDescription(int BusType , int BusNumber , int ControllerType , 
   {
 #line 904
   int tmp_ndt_7;
-  tmp_ndt_7 = __VERIFIER_nondet_int();
+  tmp_ndt_7;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
 #endif
@@ -1280,7 +1275,7 @@ int IoRegisterDeviceInterface(int PhysicalDeviceObject , int InterfaceClassGuid 
   {
 #line 926
   int tmp_ndt_8;
-  tmp_ndt_8 = __VERIFIER_nondet_int();
+  tmp_ndt_8;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
 #endif
@@ -1309,7 +1304,7 @@ int IoSetDeviceInterfaceState(int SymbolicLinkName , int Enable )
   {
 #line 947
   int tmp_ndt_9;
-  tmp_ndt_9 = __VERIFIER_nondet_int();
+  tmp_ndt_9;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
 #endif
@@ -1355,7 +1350,7 @@ int IofCallDriver(int DeviceObject , int Irp )
 {
   int returnVal2 ;
   int compRetStatus1 ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
 #ifdef KLEE
   klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
 #endif
@@ -1382,7 +1377,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   }
 #line 999
   int tmp_ndt_10;
-  tmp_ndt_10 = __VERIFIER_nondet_int();
+  tmp_ndt_10;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
 #endif
@@ -1391,7 +1386,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   } else {
 #line 1002
     int tmp_ndt_11;
-    tmp_ndt_11 = __VERIFIER_nondet_int();
+    tmp_ndt_11;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_11,sizeof(tmp_ndt_11),"tmp_ndt_11");
 #endif
@@ -1479,7 +1474,7 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 }
 #line 1063 "floppy_simpl4.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
-{ int l = __VERIFIER_nondet_int() ;
+{ int l;
 #ifdef KLEE
 klee_make_symbolic(&l,sizeof(l),"l");
 #endif
@@ -1528,7 +1523,7 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
   }
 #line 1098
   int tmp_ndt_12;
-  tmp_ndt_12 = __VERIFIER_nondet_int();
+  tmp_ndt_12;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_12,sizeof(tmp_ndt_12),"tmp_ndt_12");
 #endif
@@ -1558,7 +1553,7 @@ int ObReferenceObjectByHandle(int Handle , int DesiredAccess , int ObjectType , 
   {
 #line 1120
   int tmp_ndt_13;
-  tmp_ndt_13 = __VERIFIER_nondet_int();
+  tmp_ndt_13;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_13,sizeof(tmp_ndt_13),"tmp_ndt_13");
 #endif
@@ -1588,7 +1583,7 @@ int PsCreateSystemThread(int ThreadHandle , int DesiredAccess , int ObjectAttrib
   {
 #line 1142
   int tmp_ndt_14;
-  tmp_ndt_14 = __VERIFIER_nondet_int();
+  tmp_ndt_14;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_14,sizeof(tmp_ndt_14),"tmp_ndt_14");
 #endif
@@ -1617,7 +1612,7 @@ int ZwClose(int Handle )
   {
 #line 1163
   int tmp_ndt_15;
-  tmp_ndt_15 = __VERIFIER_nondet_int();
+  tmp_ndt_15;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_15,sizeof(tmp_ndt_15),"tmp_ndt_15");
 #endif
@@ -1663,37 +1658,37 @@ int FloppyCreateClose(int DeviceObject , int Irp )
 int FloppyQueueRequest(int DisketteExtension , int Irp ) ;
 #line 1195 "floppy_simpl4.cil.c"
 int FloppyDeviceControl(int DeviceObject , int Irp ) 
-{ int disketteExtension__HoldNewRequests = __VERIFIER_nondet_int() ;
-  int disketteExtension__IsRemoved = __VERIFIER_nondet_int() ;
+{ int disketteExtension__HoldNewRequests;
+  int disketteExtension__IsRemoved;
   int Irp__IoStatus__Information ;
-  int disketteExtension__IsStarted = __VERIFIER_nondet_int() ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int disketteExtension__TargetObject = __VERIFIER_nondet_int() ;
-  int irpSp__Parameters__DeviceIoControl__OutputBufferLength = __VERIFIER_nondet_int() ;
-  int sizeof__MOUNTDEV_NAME = __VERIFIER_nondet_int() ;
-  int Irp__AssociatedIrp__SystemBuffer = __VERIFIER_nondet_int() ;
+  int disketteExtension__IsStarted;
+  int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int disketteExtension__TargetObject;
+  int irpSp__Parameters__DeviceIoControl__OutputBufferLength;
+  int sizeof__MOUNTDEV_NAME;
+  int Irp__AssociatedIrp__SystemBuffer;
   int mountName__NameLength ;
-  int disketteExtension__DeviceName__Length = __VERIFIER_nondet_int() ;
-  int sizeof__USHORT = __VERIFIER_nondet_int() ;
-  int disketteExtension__InterfaceString__Buffer = __VERIFIER_nondet_int() ;
+  int disketteExtension__DeviceName__Length;
+  int sizeof__USHORT;
+  int disketteExtension__InterfaceString__Buffer;
   int uniqueId__UniqueIdLength ;
-  int disketteExtension__InterfaceString__Length = __VERIFIER_nondet_int() ;
-  int sizeof__MOUNTDEV_UNIQUE_ID = __VERIFIER_nondet_int() ;
-  int irpSp__Parameters__DeviceIoControl__InputBufferLength = __VERIFIER_nondet_int() ;
-  int sizeof__FORMAT_PARAMETERS = __VERIFIER_nondet_int() ;
-  int irpSp__Parameters__DeviceIoControl__IoControlCode___1 = __VERIFIER_nondet_int() ;
-  int sizeof__FORMAT_EX_PARAMETERS = __VERIFIER_nondet_int() ;
-  int formatExParameters__FormatGapLength = __VERIFIER_nondet_int() ;
-  int formatExParameters__SectorsPerTrack = __VERIFIER_nondet_int() ;
-  int sizeof__DISK_GEOMETRY = __VERIFIER_nondet_int() ;
+  int disketteExtension__InterfaceString__Length;
+  int sizeof__MOUNTDEV_UNIQUE_ID;
+  int irpSp__Parameters__DeviceIoControl__InputBufferLength;
+  int sizeof__FORMAT_PARAMETERS;
+  int irpSp__Parameters__DeviceIoControl__IoControlCode___1;
+  int sizeof__FORMAT_EX_PARAMETERS;
+  int formatExParameters__FormatGapLength;
+  int formatExParameters__SectorsPerTrack;
+  int sizeof__DISK_GEOMETRY;
   int Irp__IoStatus__Status___0 ;
-  int disketteExtension = __VERIFIER_nondet_int() ;
+  int disketteExtension;
   int ntStatus ;
   int outputBufferLength ;
-  int lowestDriveMediaType = __VERIFIER_nondet_int() ;
-  int highestDriveMediaType = __VERIFIER_nondet_int() ;
-  int formatExParametersSize = __VERIFIER_nondet_int() ;
+  int lowestDriveMediaType;
+  int highestDriveMediaType;
+  int formatExParametersSize;
   int formatExParameters ;
   int tmp ;
   int mountName ;
@@ -1701,54 +1696,54 @@ int FloppyDeviceControl(int DeviceObject , int Irp )
   int tmp___0 ;
   int __cil_tmp39 ;
   int __cil_tmp40 ;
-  int __cil_tmp41 = __VERIFIER_nondet_int() ;
+  int __cil_tmp41;
   int __cil_tmp42 ;
   int __cil_tmp43 ;
-  int __cil_tmp44 = __VERIFIER_nondet_int() ;
-  int __cil_tmp45 = __VERIFIER_nondet_int() ;
+  int __cil_tmp44;
+  int __cil_tmp45;
   int __cil_tmp46 ;
   int __cil_tmp47 ;
   int __cil_tmp48 ;
   int __cil_tmp49 ;
-  int __cil_tmp50 = __VERIFIER_nondet_int() ;
+  int __cil_tmp50;
   int __cil_tmp51 ;
   int __cil_tmp52 ;
   int __cil_tmp53 ;
   int __cil_tmp54 ;
-  int __cil_tmp55 = __VERIFIER_nondet_int() ;
+  int __cil_tmp55;
   int __cil_tmp56 ;
   int __cil_tmp57 ;
   int __cil_tmp58 ;
   int __cil_tmp59 ;
-  int __cil_tmp60 = __VERIFIER_nondet_int() ;
+  int __cil_tmp60;
   int __cil_tmp61 ;
   int __cil_tmp62 ;
   int __cil_tmp63 ;
   int __cil_tmp64 ;
-  int __cil_tmp65 = __VERIFIER_nondet_int() ;
-  int __cil_tmp66 = __VERIFIER_nondet_int() ;
+  int __cil_tmp65;
+  int __cil_tmp66;
   int __cil_tmp67 ;
   int __cil_tmp68 ;
-  int __cil_tmp69 = __VERIFIER_nondet_int() ;
+  int __cil_tmp69;
   int __cil_tmp70 ;
   int __cil_tmp71 ;
-  int __cil_tmp72 = __VERIFIER_nondet_int() ;
+  int __cil_tmp72;
   int __cil_tmp73 ;
   int __cil_tmp74 ;
-  int __cil_tmp75 = __VERIFIER_nondet_int() ;
+  int __cil_tmp75;
   int __cil_tmp76 ;
   int __cil_tmp77 ;
-  int __cil_tmp78 = __VERIFIER_nondet_int() ;
+  int __cil_tmp78;
   int __cil_tmp79 ;
   int __cil_tmp80 ;
-  int __cil_tmp81 = __VERIFIER_nondet_int() ;
+  int __cil_tmp81;
   int __cil_tmp82 ;
   int __cil_tmp83 ;
   int __cil_tmp84 ;
   int __cil_tmp85 ;
   int __cil_tmp86 ;
   int __cil_tmp87 ;
-  int __cil_tmp88 = __VERIFIER_nondet_int() ;
+  int __cil_tmp88;
   int __cil_tmp89 ;
   int __cil_tmp90 ;
   long __cil_tmp91 ;
@@ -2225,9 +2220,9 @@ int FloppyDeviceControl(int DeviceObject , int Irp )
 }
 #line 1469 "floppy_simpl4.cil.c"
 int FlCheckFormatParameters(int DisketteExtension , int FormatParameters ) 
-{ int DriveMediaConstants__driveMediaType__MediaType = __VERIFIER_nondet_int() ;
-  int FormatParameters__MediaType = __VERIFIER_nondet_int() ;
-  int FAKE_CONDITION = __VERIFIER_nondet_int() ;
+{ int DriveMediaConstants__driveMediaType__MediaType;
+  int FormatParameters__MediaType;
+  int FAKE_CONDITION;
 #ifdef KLEE
   klee_make_symbolic(&DriveMediaConstants__driveMediaType__MediaType,sizeof(DriveMediaConstants__driveMediaType__MediaType),"DriveMediaConstants__driveMediaType__MediaType");
   klee_make_symbolic(&FormatParameters__MediaType,sizeof(FormatParameters__MediaType),"FormatParameters__MediaType");
@@ -2257,7 +2252,7 @@ int FloppyQueueRequest(int DisketteExtension , int Irp )
   int Irp__IoStatus__Information ;
   int Irp__Tail__Overlay__CurrentStackLocation__Control ;
   int ntStatus ;
-  int FAKE_CONDITION = __VERIFIER_nondet_int() ;
+  int FAKE_CONDITION;
 #ifdef KLEE
   klee_make_symbolic(&FAKE_CONDITION,sizeof(FAKE_CONDITION),"FAKE_CONDITION");
 #endif

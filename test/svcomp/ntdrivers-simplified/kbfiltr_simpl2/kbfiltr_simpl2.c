@@ -1,10 +1,5 @@
-extern char __VERIFIER_nondet_char(void);
-extern int __VERIFIER_nondet_int(void);
-extern long __VERIFIER_nondet_long(void);
-extern void *__VERIFIER_nondet_pointer(void);
 void errorFn(void) ;
 void IofCompleteRequest(int Irp , int PriorityBoost );
-extern int __VERIFIER_nondet_int();
 int KernelMode  ;
 int Executive  ;
 int DevicePowerState ;
@@ -91,17 +86,17 @@ int KbFilter_PnP(int DeviceObject , int Irp )
 { int devExt ;
   int irpStack ;
   int status ;
-  int event = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int irpStack__MinorFunction = __VERIFIER_nondet_int() ;
-  int devExt__TopOfStack = __VERIFIER_nondet_int() ;
+  int event;
+  int DeviceObject__DeviceExtension;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int irpStack__MinorFunction;
+  int devExt__TopOfStack;
   int devExt__Started ;
   int devExt__Removed ;
   int devExt__SurpriseRemoved ;
   int Irp__IoStatus__Status ;
   int Irp__IoStatus__Information ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
+  int Irp__CurrentLocation;
   int irpSp ;
   int nextIrpSp ;
   int nextIrpSp__Control ;
@@ -383,11 +378,11 @@ int KbFilter_PnP(int DeviceObject , int Irp )
 #line 323 "kbfiltr_simpl2.cil.c"
 int main(void) 
 { int status ;
-  int irp = __VERIFIER_nondet_int() ;
+  int irp;
   int pirp ;
   int pirp__IoStatus__Status ;
-  int irp_choice = __VERIFIER_nondet_int() ;
-  int devobj = __VERIFIER_nondet_int() ;
+  int irp_choice;
+  int devobj;
   int __cil_tmp8 ;
 #ifdef KLEE
   klee_make_symbolic(&irp,sizeof(irp),"irp");
@@ -463,7 +458,7 @@ int main(void)
     }
 #line 361
     int tmp_ndt_1;
-    tmp_ndt_1 = __VERIFIER_nondet_int();
+    tmp_ndt_1;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
 #endif
@@ -472,7 +467,7 @@ int main(void)
     } else {
 #line 364
       int tmp_ndt_2;
-      tmp_ndt_2 = __VERIFIER_nondet_int();
+      tmp_ndt_2;
 #ifdef KLEE
       klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
 #endif
@@ -481,7 +476,7 @@ int main(void)
       } else {
 #line 367
         int tmp_ndt_3;
-        tmp_ndt_3 = __VERIFIER_nondet_int();
+        tmp_ndt_3;
 #ifdef KLEE
 	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
 #endif
@@ -490,7 +485,7 @@ int main(void)
         } else {
 #line 370
     	  int tmp_ndt_4;
-          tmp_ndt_4 = __VERIFIER_nondet_int();
+          tmp_ndt_4;
 #ifdef KLEE
 	  klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
 #endif
@@ -499,7 +494,7 @@ int main(void)
           } else {
 #line 373
     	    int tmp_ndt_5;
-            tmp_ndt_5 = __VERIFIER_nondet_int();
+            tmp_ndt_5;
 #ifdef KLEE
 	    klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
 #endif
@@ -648,7 +643,7 @@ int IofCallDriver(int DeviceObject , int Irp )
 {
   int returnVal2 ;
   int compRetStatus ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
 #ifdef KLEE
   klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
 #endif
@@ -675,7 +670,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   }
 #line 518
   int tmp_ndt_6;
-  tmp_ndt_6 = __VERIFIER_nondet_int();
+  tmp_ndt_6;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
 #endif
@@ -684,7 +679,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   } else {
 #line 521
     int tmp_ndt_7;
-    tmp_ndt_7 = __VERIFIER_nondet_int();
+    tmp_ndt_7;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
 #endif
@@ -772,7 +767,7 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 }
 #line 582 "kbfiltr_simpl2.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
-{ int l = __VERIFIER_nondet_int() ;
+{ int l;
 #ifdef KLEE
 	klee_make_symbolic(&l,sizeof(l),"l");
 #endif
@@ -821,7 +816,7 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
   }
 #line 617
   int tmp_ndt_8;
-  tmp_ndt_8 = __VERIFIER_nondet_int();
+  tmp_ndt_8;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
 #endif
@@ -860,8 +855,8 @@ int KbFilter_Complete(int DeviceObject , int Irp , int Context )
 }
 #line 645 "kbfiltr_simpl2.cil.c"
 int KbFilter_CreateClose(int DeviceObject , int Irp ) 
-{ int irpStack__MajorFunction = __VERIFIER_nondet_int() ;
-  int devExt__UpperConnectData__ClassService = __VERIFIER_nondet_int() ;
+{ int irpStack__MajorFunction;
+  int devExt__UpperConnectData__ClassService;
   int Irp__IoStatus__Status ;
   int status ;
   int tmp ;
@@ -911,9 +906,9 @@ int KbFilter_CreateClose(int DeviceObject , int Irp )
 }
 #line 683 "kbfiltr_simpl2.cil.c"
 int KbFilter_DispatchPassThrough(int DeviceObject , int Irp ) 
-{ int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension__TopOfStack = __VERIFIER_nondet_int() ;
+{ int Irp__Tail__Overlay__CurrentStackLocation;
+  int Irp__CurrentLocation;
+  int DeviceObject__DeviceExtension__TopOfStack;
   int irpStack ;
   int tmp ;
 #ifdef KLEE
@@ -949,13 +944,13 @@ int KbFilter_DispatchPassThrough(int DeviceObject , int Irp )
 }
 #line 707 "kbfiltr_simpl2.cil.c"
 int KbFilter_Power(int DeviceObject , int Irp ) 
-{ int irpStack__MinorFunction = __VERIFIER_nondet_int() ;
+{ int irpStack__MinorFunction;
   int devExt__DeviceState ;
-  int powerState__DeviceState = __VERIFIER_nondet_int() ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int devExt__TopOfStack = __VERIFIER_nondet_int() ;
-  int powerType = __VERIFIER_nondet_int() ;
+  int powerState__DeviceState;
+  int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int devExt__TopOfStack;
+  int powerType;
   int tmp ;
 #ifdef KLEE
   klee_make_symbolic(&irpStack__MinorFunction,sizeof(irpStack__MinorFunction),"irpStack__MinorFunction");
@@ -1031,7 +1026,7 @@ int PoCallDriver(int DeviceObject , int Irp )
 {
   int compRetStatus ;
   int returnVal ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
   unsigned long __cil_tmp7 ;
   long __cil_tmp8 ;
 #ifdef KLEE
@@ -1059,7 +1054,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   }
 #line 788
   int tmp_ndt_9;
-  tmp_ndt_9 = __VERIFIER_nondet_int();
+  tmp_ndt_9;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
 #endif
@@ -1068,7 +1063,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   } else {
 #line 791
     int tmp_ndt_10;
-    tmp_ndt_10 = __VERIFIER_nondet_int();
+    tmp_ndt_10;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
 #endif
@@ -1142,14 +1137,14 @@ int PoCallDriver(int DeviceObject , int Irp )
 #line 838 "kbfiltr_simpl2.cil.c"
 int KbFilter_InternIoCtl(int DeviceObject , int Irp ) 
 { int Irp__IoStatus__Information ;
-  int irpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
-  int devExt__UpperConnectData__ClassService = __VERIFIER_nondet_int() ;
-  int irpStack__Parameters__DeviceIoControl__InputBufferLength = __VERIFIER_nondet_int() ;
-  int sizeof__CONNECT_DATA = __VERIFIER_nondet_int() ;
-  int irpStack__Parameters__DeviceIoControl__Type3InputBuffer = __VERIFIER_nondet_int() ;
-  int sizeof__INTERNAL_I8042_HOOK_KEYBOARD = __VERIFIER_nondet_int() ;
-  int hookKeyboard__InitializationRoutine = __VERIFIER_nondet_int() ;
-  int hookKeyboard__IsrRoutine = __VERIFIER_nondet_int() ;
+  int irpStack__Parameters__DeviceIoControl__IoControlCode;
+  int devExt__UpperConnectData__ClassService;
+  int irpStack__Parameters__DeviceIoControl__InputBufferLength;
+  int sizeof__CONNECT_DATA;
+  int irpStack__Parameters__DeviceIoControl__Type3InputBuffer;
+  int sizeof__INTERNAL_I8042_HOOK_KEYBOARD;
+  int hookKeyboard__InitializationRoutine;
+  int hookKeyboard__IsrRoutine;
   int Irp__IoStatus__Status ;
   int hookKeyboard ;
   int connectData ;
@@ -1158,31 +1153,31 @@ int KbFilter_InternIoCtl(int DeviceObject , int Irp )
   int __cil_tmp17 ;
   int __cil_tmp18 ;
   int __cil_tmp19 ;
-  int __cil_tmp20 = __VERIFIER_nondet_int() ;
+  int __cil_tmp20;
   int __cil_tmp21 ;
   int __cil_tmp22 ;
   int __cil_tmp23 ;
-  int __cil_tmp24 = __VERIFIER_nondet_int() ;
+  int __cil_tmp24;
   int __cil_tmp25 ;
   int __cil_tmp26 ;
   int __cil_tmp27 ;
-  int __cil_tmp28 = __VERIFIER_nondet_int() ;
-  int __cil_tmp29 = __VERIFIER_nondet_int() ;
+  int __cil_tmp28;
+  int __cil_tmp29;
   int __cil_tmp30 ;
   int __cil_tmp31 ;
-  int __cil_tmp32 = __VERIFIER_nondet_int() ;
+  int __cil_tmp32;
   int __cil_tmp33 ;
   int __cil_tmp34 ;
-  int __cil_tmp35 = __VERIFIER_nondet_int() ;
+  int __cil_tmp35;
   int __cil_tmp36 ;
   int __cil_tmp37 ;
-  int __cil_tmp38 = __VERIFIER_nondet_int() ;
+  int __cil_tmp38;
   int __cil_tmp39 ;
   int __cil_tmp40 ;
-  int __cil_tmp41 = __VERIFIER_nondet_int() ;
+  int __cil_tmp41;
   int __cil_tmp42 ;
   int __cil_tmp43 ;
-  int __cil_tmp44 = __VERIFIER_nondet_int() ;
+  int __cil_tmp44;
   int __cil_tmp45 ;
 #ifdef KLEE
   klee_make_symbolic(&irpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(irpStack__Parameters__DeviceIoControl__IoControlCode),"irpStack__Parameters__DeviceIoControl__IoControlCode");

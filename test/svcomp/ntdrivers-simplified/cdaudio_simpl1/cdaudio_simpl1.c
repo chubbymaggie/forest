@@ -1,9 +1,4 @@
-extern char __VERIFIER_nondet_char(void);
-extern int __VERIFIER_nondet_int(void);
-extern long __VERIFIER_nondet_long(void);
-extern void *__VERIFIER_nondet_pointer(void);
 void IofCompleteRequest(int Irp , int PriorityBoost ) ;
-int __VERIFIER_nondet_int()  ;
 int s  ;
 int UNLOADED  ;
 int NP  ;
@@ -78,11 +73,11 @@ void _BLAST_init(void)
 }
 #line 85 "cdaudio_simpl1.cil.c"
 int SendSrbSynchronous(int Extension , int Srb , int Buffer , int BufferLength ) 
-{ int ioStatus__Status = __VERIFIER_nondet_int() ;
+{ int ioStatus__Status;
   int ioctl ;
-  int event = __VERIFIER_nondet_int() ;
+  int event;
   int irp ;
-  int status = __VERIFIER_nondet_int() ;
+  int status;
   int __cil_tmp10 ;
   int __cil_tmp11 ;
   int __cil_tmp12 ;
@@ -163,16 +158,16 @@ int CdAudioSignalCompletion(int DeviceObject , int Irp , int Event )
 }
 #line 125 "cdaudio_simpl1.cil.c"
 int CdAudioStartDevice(int DeviceObject , int Irp ) 
-{ int deviceExtension__Active = __VERIFIER_nondet_int() ;
-  int deviceExtension = __VERIFIER_nondet_int() ;
+{ int deviceExtension__Active;
+  int deviceExtension;
   int status ;
-  int srb = __VERIFIER_nondet_int() ;
-  int srb__Cdb = __VERIFIER_nondet_int() ;
+  int srb;
+  int srb__Cdb;
   int cdb ;
   int inquiryDataPtr ;
   int attempt ;
   int tmp ;
-  int deviceParameterHandle = __VERIFIER_nondet_int() ;
+  int deviceParameterHandle;
   int keyValue ;
 #ifdef KLEE
   klee_make_symbolic(&deviceExtension__Active,sizeof(deviceExtension__Active),"deviceExtension__Active");
@@ -280,13 +275,13 @@ int CdAudioStartDevice(int DeviceObject , int Irp )
 }
 #line 205 "cdaudio_simpl1.cil.c"
 int CdAudioPnp(int DeviceObject , int Irp ) 
-{ int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int irpSp__MinorFunction = __VERIFIER_nondet_int() ;
+{ int Irp__Tail__Overlay__CurrentStackLocation;
+  int irpSp__MinorFunction;
   int Irp__IoStatus__Status ;
-  int irpSp__Parameters__UsageNotification__Type = __VERIFIER_nondet_int() ;
-  int deviceExtension__PagingPathCountEvent = __VERIFIER_nondet_int() ;
-  int irpSp__Parameters__UsageNotification__InPath = __VERIFIER_nondet_int() ;
-  int deviceExtension__PagingPathCount = __VERIFIER_nondet_int() ;
+  int irpSp__Parameters__UsageNotification__Type;
+  int deviceExtension__PagingPathCountEvent;
+  int irpSp__Parameters__UsageNotification__InPath;
+  int deviceExtension__PagingPathCount;
   int DeviceObject__Flags ;
   int irpSp ;
   int status ;
@@ -419,7 +414,7 @@ int CdAudioPnp(int DeviceObject , int Irp )
 }
 #line 315 "cdaudio_simpl1.cil.c"
 int CdAudioDeviceControl(int DeviceObject , int Irp ) 
-{ int deviceExtension__Active = __VERIFIER_nondet_int() ;
+{ int deviceExtension__Active;
   int status ;
 #ifdef KLEE
   klee_make_symbolic(&deviceExtension__Active,sizeof(deviceExtension__Active),"deviceExtension__Active");
@@ -488,9 +483,9 @@ int CdAudioDeviceControl(int DeviceObject , int Irp )
 }
 #line 371 "cdaudio_simpl1.cil.c"
 int CdAudioSendToNextDriver(int DeviceObject , int Irp ) 
-{ int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int deviceExtension__TargetDeviceObject;
   int tmp ;
 #ifdef KLEE
   klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
@@ -523,13 +518,13 @@ int CdAudioSendToNextDriver(int DeviceObject , int Irp )
 }
 #line 393 "cdaudio_simpl1.cil.c"
 int CdAudioIsPlayActive(int DeviceObject ) 
-{ int deviceExtension__PlayActive = __VERIFIER_nondet_int() ;
-  int ioStatus__Status = __VERIFIER_nondet_int() ;
-  int currentBuffer__Header__AudioStatus = __VERIFIER_nondet_int() ;
-  int irp_CdAudioIsPlayActive = __VERIFIER_nondet_int() ;
-  int event = __VERIFIER_nondet_int() ;
-  int status = __VERIFIER_nondet_int() ;
-  int currentBuffer = __VERIFIER_nondet_int() ;
+{ int deviceExtension__PlayActive;
+  int ioStatus__Status;
+  int currentBuffer__Header__AudioStatus;
+  int irp_CdAudioIsPlayActive;
+  int event;
+  int status;
+  int currentBuffer;
   int returnValue ;
   long __cil_tmp10 ;
   int __cil_tmp11 ;
@@ -596,44 +591,44 @@ int CdAudioIsPlayActive(int DeviceObject )
 }
 #line 441 "cdaudio_simpl1.cil.c"
 int CdAudio535DeviceControl(int DeviceObject , int Irp ) 
-{ int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
-  int Irp__AssociatedIrp__SystemBuffer = __VERIFIER_nondet_int() ;
-  int srb__Cdb = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
+{ int Irp__Tail__Overlay__CurrentStackLocation;
+  int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
+  int Irp__AssociatedIrp__SystemBuffer;
+  int srb__Cdb;
+  int currentIrpStack__Parameters__DeviceIoControl__IoControlCode;
   int Irp__IoStatus__Information ;
-  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__InputBufferLength = __VERIFIER_nondet_int() ;
+  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength;
+  int currentIrpStack__Parameters__DeviceIoControl__InputBufferLength;
   int srb__CdbLength ;
   int cdb__CDB10__OperationCode ;
   int srb__TimeOutValue ;
-  int sizeof__READ_CAPACITY_DATA = __VERIFIER_nondet_int() ;
-  int lastSession__LogicalBlockAddress = __VERIFIER_nondet_int() ;
-  int cdaudioDataOut__FirstTrack = __VERIFIER_nondet_int() ;
-  int cdaudioDataOut__LastTrack = __VERIFIER_nondet_int() ;
-  int sizeof__CDROM_TOC = __VERIFIER_nondet_int() ;
-  int sizeof__SUB_Q_CURRENT_POSITION = __VERIFIER_nondet_int() ;
-  int userPtr__Format = __VERIFIER_nondet_int() ;
-  int sizeof__CDROM_PLAY_AUDIO_MSF = __VERIFIER_nondet_int() ;
-  int inputBuffer__StartingM = __VERIFIER_nondet_int() ;
-  int inputBuffer__EndingM = __VERIFIER_nondet_int() ;
-  int inputBuffer__StartingS = __VERIFIER_nondet_int() ;
-  int inputBuffer__EndingS = __VERIFIER_nondet_int() ;
-  int inputBuffer__StartingF = __VERIFIER_nondet_int() ;
-  int inputBuffer__EndingF = __VERIFIER_nondet_int() ;
-  int cdb__PLAY_AUDIO_MSF__OperationCode = __VERIFIER_nondet_int() ;
-  int sizeof__CDROM_SEEK_AUDIO_MSF = __VERIFIER_nondet_int() ;
+  int sizeof__READ_CAPACITY_DATA;
+  int lastSession__LogicalBlockAddress;
+  int cdaudioDataOut__FirstTrack;
+  int cdaudioDataOut__LastTrack;
+  int sizeof__CDROM_TOC;
+  int sizeof__SUB_Q_CURRENT_POSITION;
+  int userPtr__Format;
+  int sizeof__CDROM_PLAY_AUDIO_MSF;
+  int inputBuffer__StartingM;
+  int inputBuffer__EndingM;
+  int inputBuffer__StartingS;
+  int inputBuffer__EndingS;
+  int inputBuffer__StartingF;
+  int inputBuffer__EndingF;
+  int cdb__PLAY_AUDIO_MSF__OperationCode;
+  int sizeof__CDROM_SEEK_AUDIO_MSF;
   int currentIrpStack ;
   int deviceExtension ;
   int cdaudioDataOut ;
-  int srb = __VERIFIER_nondet_int() ;
-  int lastSession = __VERIFIER_nondet_int() ;
+  int srb;
+  int lastSession;
   int cdb ;
   int status ;
-  int i = __VERIFIER_nondet_int() ;
-  int bytesTransfered = __VERIFIER_nondet_int() ;
-  int Toc = __VERIFIER_nondet_int() ;
+  int i;
+  int bytesTransfered;
+  int Toc;
   int tmp ;
   int tmp___0 ;
   int tmp___1 ;
@@ -644,7 +639,7 @@ int CdAudio535DeviceControl(int DeviceObject , int Irp )
   int tracksOnCd ;
   int tracksInBuffer ;
   int userPtr ;
-  int SubQPtr = __VERIFIER_nondet_int() ;
+  int SubQPtr;
   int tmp___5 ;
   int tmp___6 ;
   int inputBuffer ;
@@ -1270,35 +1265,35 @@ int AG_SetStatusAndReturn(int status , int Irp , int deviceExtension__TargetDevi
 }
 #line 811 "cdaudio_simpl1.cil.c"
 int CdAudio435DeviceControl(int DeviceObject , int Irp ) 
-{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__InputBufferLength = __VERIFIER_nondet_int() ;
-  int TrackData__0 = __VERIFIER_nondet_int() ;
+{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode;
+  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength;
+  int currentIrpStack__Parameters__DeviceIoControl__InputBufferLength;
+  int TrackData__0;
   int Irp__IoStatus__Information ;
   int srb__TimeOutValue ;
   int srb__CdbLength ;
-  int sizeof__CDROM_TOC = __VERIFIER_nondet_int() ;
-  int cdaudioDataOut__LastTrack = __VERIFIER_nondet_int() ;
-  int cdaudioDataOut__FirstTrack = __VERIFIER_nondet_int() ;
-  int sizeof__CDROM_PLAY_AUDIO_MSF = __VERIFIER_nondet_int() ;
-  int sizeof__CDROM_SEEK_AUDIO_MSF = __VERIFIER_nondet_int() ;
-  int deviceExtension__Paused = __VERIFIER_nondet_int() ;
+  int sizeof__CDROM_TOC;
+  int cdaudioDataOut__LastTrack;
+  int cdaudioDataOut__FirstTrack;
+  int sizeof__CDROM_PLAY_AUDIO_MSF;
+  int sizeof__CDROM_SEEK_AUDIO_MSF;
+  int deviceExtension__Paused;
   int deviceExtension__PlayActive ;
-  int sizeof__SUB_Q_CHANNEL_DATA = __VERIFIER_nondet_int() ;
-  int sizeof__SUB_Q_CURRENT_POSITION = __VERIFIER_nondet_int() ;
-  int deviceExtension = __VERIFIER_nondet_int() ;
-  int srb = __VERIFIER_nondet_int() ;
+  int sizeof__SUB_Q_CHANNEL_DATA;
+  int sizeof__SUB_Q_CURRENT_POSITION;
+  int deviceExtension;
+  int srb;
   int status ;
-  int i = __VERIFIER_nondet_int() ;
+  int i;
   int bytesTransfered ;
-  int Toc = __VERIFIER_nondet_int() ;
+  int Toc;
   int tmp ;
   int tracksToReturn ;
   int tracksOnCd ;
   int tracksInBuffer ;
-  int SubQPtr = __VERIFIER_nondet_int() ;
-  int userPtr__Format = __VERIFIER_nondet_int() ;
-  int SubQPtr___0 = __VERIFIER_nondet_int() ;
+  int SubQPtr;
+  int userPtr__Format;
+  int SubQPtr___0;
   int tmp___0 ;
   int tmp___1 ;
   int tmp___2 ;
@@ -2158,15 +2153,15 @@ int CdAudio435DeviceControl(int DeviceObject , int Irp )
 }
 #line 1264 "cdaudio_simpl1.cil.c"
 int CdAudioAtapiDeviceControl(int DeviceObject , int Irp ) 
-{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
+{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode;
   int Irp__IoStatus__Information ;
   int deviceExtension__PlayActive ;
   int srb__CdbLength ;
   int srb__TimeOutValue ;
   int Irp__IoStatus__Status ;
   int status ;
-  int deviceExtension = __VERIFIER_nondet_int() ;
-  int srb = __VERIFIER_nondet_int() ;
+  int deviceExtension;
+  int srb;
   int tmp ;
   int __cil_tmp13 ;
   int __cil_tmp14 ;
@@ -2245,7 +2240,7 @@ int CdAudioAtapiDeviceControl(int DeviceObject , int Irp )
 }
 #line 1309 "cdaudio_simpl1.cil.c"
 void HpCdrProcessLastSession(int Toc ) 
-{ int index = __VERIFIER_nondet_int() ;
+{ int index;
 #ifdef KLEE
 	klee_make_symbolic(&srb,sizeof(srb),"srb");
 #endif
@@ -2262,8 +2257,8 @@ void HpCdrProcessLastSession(int Toc )
 }
 #line 1321 "cdaudio_simpl1.cil.c"
 int HPCdrCompletion(int DeviceObject , int Irp , int Context ) 
-{ int Irp__PendingReturned = __VERIFIER_nondet_int() ;
-  int Irp__AssociatedIrp__SystemBuffer = __VERIFIER_nondet_int() ;
+{ int Irp__PendingReturned;
+  int Irp__AssociatedIrp__SystemBuffer;
 #ifdef KLEE
   klee_make_symbolic(&Irp__PendingReturned,sizeof(Irp__PendingReturned),"Irp__PendingReturned");
   klee_make_symbolic(&Irp__AssociatedIrp__SystemBuffer,sizeof(Irp__AssociatedIrp__SystemBuffer),"Irp__AssociatedIrp__SystemBuffer");
@@ -2296,8 +2291,8 @@ int HPCdrCompletion(int DeviceObject , int Irp , int Context )
 }
 #line 1347 "cdaudio_simpl1.cil.c"
 int CdAudioHPCdrDeviceControl(int DeviceObject , int Irp ) 
-{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int currentIrpStack__Parameters__DeviceIoControl__IoControlCode;
+  int deviceExtension__TargetDeviceObject;
   int irpSp__Control ;
   int tmp ;
   int tmp___0 ;
@@ -2368,8 +2363,8 @@ int CdAudioHPCdrDeviceControl(int DeviceObject , int Irp )
 }
 #line 1387 "cdaudio_simpl1.cil.c"
 int CdAudioForwardIrpSynchronous(int DeviceObject , int Irp ) 
-{ int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
-  int event = __VERIFIER_nondet_int() ;
+{ int deviceExtension__TargetDeviceObject;
+  int event;
   int status ;
   int irpSp__Control ;
 #ifdef KLEE
@@ -2430,9 +2425,9 @@ void CdAudioUnload(int DriverObject )
 }
 #line 1434 "cdaudio_simpl1.cil.c"
 int CdAudioPower(int DeviceObject , int Irp ) 
-{ int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int deviceExtension__TargetDeviceObject;
   int tmp ;
 #ifdef KLEE
   klee_make_symbolic(&Irp__CurrentLocation,sizeof(Irp__CurrentLocation),"Irp__CurrentLocation");
@@ -2489,12 +2484,12 @@ void stub_driver_init(void)
 #line 1470 "cdaudio_simpl1.cil.c"
 int main(void) 
 { int pirp__IoStatus__Status ;
-  int d = __VERIFIER_nondet_int() ;
-  int status = __VERIFIER_nondet_int() ;
-  int irp = __VERIFIER_nondet_int() ;
-  int we_should_unload = __VERIFIER_nondet_int() ;
-  int irp_choice = __VERIFIER_nondet_int() ;
-  int devobj = __VERIFIER_nondet_int() ;
+  int d;
+  int status;
+  int irp;
+  int we_should_unload;
+  int irp_choice;
+  int devobj;
   int __cil_tmp9 ;
 #ifdef KLEE
   klee_make_symbolic(&d,sizeof(d),"d");
@@ -2578,7 +2573,7 @@ int main(void)
     }
 #line 1509
     int tmp_ndt_1;
-    tmp_ndt_1 = __VERIFIER_nondet_int();
+    tmp_ndt_1;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
 #endif
@@ -2587,7 +2582,7 @@ int main(void)
     } else {
 #line 1512
       int tmp_ndt_2;
-      tmp_ndt_2 = __VERIFIER_nondet_int();
+      tmp_ndt_2;
 #ifdef KLEE
       klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
 #endif
@@ -2596,7 +2591,7 @@ int main(void)
       } else {
 #line 1515
         int tmp_ndt_3;
-        tmp_ndt_3 = __VERIFIER_nondet_int();
+        tmp_ndt_3;
 #ifdef KLEE
 	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
 #endif
@@ -2739,10 +2734,10 @@ void stubMoreProcessingRequired(void)
 }
 #line 1634 "cdaudio_simpl1.cil.c"
 int IofCallDriver(int DeviceObject , int Irp ) 
-{ int Irp__PendingReturned = __VERIFIER_nondet_int() ;
+{ int Irp__PendingReturned;
   int returnVal2 ;
   int compRetStatus ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
   unsigned long __cil_tmp8 ;
 #ifdef KLEE
   klee_make_symbolic(&Irp__PendingReturned,sizeof(Irp__PendingReturned),"Irp__PendingReturned");
@@ -2786,7 +2781,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   } else {
 #line 1669
     int tmp_ndt_4;
-    tmp_ndt_4 = __VERIFIER_nondet_int();
+    tmp_ndt_4;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
 #endif
@@ -2795,7 +2790,7 @@ int IofCallDriver(int DeviceObject , int Irp )
     } else {
 #line 1672
       int tmp_ndt_5;
-      tmp_ndt_5 = __VERIFIER_nondet_int();
+      tmp_ndt_5;
 #ifdef KLEE
       klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
 #endif
@@ -2884,7 +2879,7 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 }
 #line 1734 "cdaudio_simpl1.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
-{ int l = __VERIFIER_nondet_int() ;
+{ int l;
 #ifdef KLEE
 	klee_make_symbolic(&l,sizeof(l),"l");
 #endif
@@ -2933,7 +2928,7 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
   }
 #line 1769
   int tmp_ndt_6;
-  tmp_ndt_6 = __VERIFIER_nondet_int();
+  tmp_ndt_6;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_6,sizeof(tmp_ndt_6),"tmp_ndt_6");
 #endif
@@ -2960,7 +2955,7 @@ int PoCallDriver(int DeviceObject , int Irp )
 {
   int compRetStatus ;
   int returnVal ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
 #ifdef KLEE
   klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
 #endif
@@ -2999,7 +2994,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   }
 #line 1817
   int tmp_ndt_7;
-  tmp_ndt_7 = __VERIFIER_nondet_int();
+  tmp_ndt_7;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
 #endif
@@ -3008,7 +3003,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   } else {
 #line 1820
     int tmp_ndt_8;
-    tmp_ndt_8 = __VERIFIER_nondet_int();
+    tmp_ndt_8;
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
 #endif
@@ -3086,7 +3081,7 @@ int ZwClose(int Handle )
   {
 #line 1871
   int tmp_ndt_9;
-  tmp_ndt_9 = __VERIFIER_nondet_int();
+  tmp_ndt_9;
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
 #endif

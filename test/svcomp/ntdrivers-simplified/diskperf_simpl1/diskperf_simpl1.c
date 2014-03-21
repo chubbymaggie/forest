@@ -1,9 +1,4 @@
-extern char __VERIFIER_nondet_char(void);
-extern int __VERIFIER_nondet_int(void);
-extern long __VERIFIER_nondet_long(void);
-extern void *__VERIFIER_nondet_pointer(void);
 void IofCompleteRequest(int Irp , int PriorityBoost );
-int __VERIFIER_nondet_int()  ;
 int s  ;
 int UNLOADED  ;
 int NP  ;
@@ -96,8 +91,8 @@ void DiskPerfSyncFilterWithTarget(int FilterDevice , int TargetDevice )
 }
 #line 97 "diskperf_simpl1.cil.c"
 int DiskPerfDispatchPnp(int DeviceObject , int Irp ) 
-{ int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int irpSp__MinorFunction = __VERIFIER_nondet_int() ;
+{ int Irp__Tail__Overlay__CurrentStackLocation;
+  int irpSp__MinorFunction;
   int irpSp ;
   int status ;
   int tmp ;
@@ -165,8 +160,8 @@ int DiskPerfIrpCompletion(int DeviceObject , int Irp , int Context )
 }
 #line 150 "diskperf_simpl1.cil.c"
 int DiskPerfStartDevice(int DeviceObject , int Irp ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
   int Irp__IoStatus__Status ;
   int deviceExtension ;
   int status ;
@@ -198,8 +193,8 @@ int DiskPerfStartDevice(int DeviceObject , int Irp )
 }
 #line 170 "diskperf_simpl1.cil.c"
 int DiskPerfRemoveDevice(int DeviceObject , int Irp ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__WmilibContext = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int deviceExtension__WmilibContext;
   int Irp__IoStatus__Status ;
   int status ;
   int deviceExtension ;
@@ -231,10 +226,10 @@ int DiskPerfRemoveDevice(int DeviceObject , int Irp )
 }
 #line 190 "diskperf_simpl1.cil.c"
 int DiskPerfSendToNextDriver(int DeviceObject , int Irp ) 
-{ int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
   int deviceExtension ;
   int tmp ;
 
@@ -272,10 +267,10 @@ int DiskPerfSendToNextDriver(int DeviceObject , int Irp )
 }
 #line 215 "diskperf_simpl1.cil.c"
 int DiskPerfDispatchPower(int DeviceObject , int Irp ) 
-{ int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
   int deviceExtension ;
   int tmp ;
 
@@ -313,11 +308,11 @@ int DiskPerfDispatchPower(int DeviceObject , int Irp )
 }
 #line 240 "diskperf_simpl1.cil.c"
 int DiskPerfForwardIrpSynchronous(int DeviceObject , int Irp ) 
-{ int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int Irp__Tail__Overlay__CurrentStackLocation;
+  int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
   int deviceExtension ;
-  int event = __VERIFIER_nondet_int() ;
+  int event;
   int status ;
   int nextIrpSp__Control ;
   int irpSp ;
@@ -407,21 +402,21 @@ int DiskPerfCreate(int DeviceObject , int Irp )
 }
 #line 304 "diskperf_simpl1.cil.c"
 int DiskPerfIoCompletion(int DeviceObject , int Irp , int Context ) 
-{ int irpStack__MajorFunction = __VERIFIER_nondet_int() ;
-  int partitionCounters__BytesRead__QuadPart = __VERIFIER_nondet_int() ;
-  int Irp__IoStatus__Information = __VERIFIER_nondet_int() ;
-  int partitionCounters__ReadCount = __VERIFIER_nondet_int() ;
-  int partitionCounters__ReadTime__QuadPart = __VERIFIER_nondet_int() ;
-  int difference__QuadPart = __VERIFIER_nondet_int() ;
-  int partitionCounters__BytesWritten__QuadPart = __VERIFIER_nondet_int() ;
-  int partitionCounters__WriteCount = __VERIFIER_nondet_int() ;
-  int partitionCounters__WriteTime__QuadPart = __VERIFIER_nondet_int() ;
-  int Irp__Flags = __VERIFIER_nondet_int() ;
-  int partitionCounters__SplitCount = __VERIFIER_nondet_int() ;
-  int Irp__PendingReturned = __VERIFIER_nondet_int() ;
+{ int irpStack__MajorFunction;
+  int partitionCounters__BytesRead__QuadPart;
+  int Irp__IoStatus__Information;
+  int partitionCounters__ReadCount;
+  int partitionCounters__ReadTime__QuadPart;
+  int difference__QuadPart;
+  int partitionCounters__BytesWritten__QuadPart;
+  int partitionCounters__WriteCount;
+  int partitionCounters__WriteTime__QuadPart;
+  int Irp__Flags;
+  int partitionCounters__SplitCount;
+  int Irp__PendingReturned;
   int Irp__Tail__Overlay__CurrentStackLocation__Control ;
-  int partitionCounters = __VERIFIER_nondet_int() ;
-  int queueLen = __VERIFIER_nondet_int() ;
+  int partitionCounters;
+  int queueLen;
 
 #ifdef KLEE
   klee_make_symbolic(&irpStack__MajorFunction,sizeof(irpStack__MajorFunction),"irpStack__MajorFunction");
@@ -498,19 +493,19 @@ int DiskPerfIoCompletion(int DeviceObject , int Irp , int Context )
 }
 #line 366 "diskperf_simpl1.cil.c"
 int DiskPerfDeviceControl(int DeviceObject , int Irp ) 
-{ int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__IoControlCode = __VERIFIER_nondet_int() ;
-  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength = __VERIFIER_nondet_int() ;
-  int sizeof__DISK_PERFORMANCE = __VERIFIER_nondet_int() ;
+{ int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
+  int currentIrpStack__Parameters__DeviceIoControl__IoControlCode;
+  int currentIrpStack__Parameters__DeviceIoControl__OutputBufferLength;
+  int sizeof__DISK_PERFORMANCE;
   int Irp__IoStatus__Information ;
-  int deviceExtension__DiskCounters = __VERIFIER_nondet_int() ;
-  int Irp__AssociatedIrp__SystemBuffer = __VERIFIER_nondet_int() ;
-  int deviceExtension__Processors = __VERIFIER_nondet_int() ;
+  int deviceExtension__DiskCounters;
+  int Irp__AssociatedIrp__SystemBuffer;
+  int deviceExtension__Processors;
   int totalCounters__QueueDepth ;
-  int deviceExtension__QueueDepth = __VERIFIER_nondet_int() ;
+  int deviceExtension__QueueDepth;
   int Irp__IoStatus__Status ;
   int deviceExtension ;
   int currentIrpStack ;
@@ -626,10 +621,10 @@ int DiskPerfDeviceControl(int DeviceObject , int Irp )
 }
 #line 442 "diskperf_simpl1.cil.c"
 int DiskPerfShutdownFlush(int DeviceObject , int Irp ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int Irp__CurrentLocation = __VERIFIER_nondet_int() ;
-  int Irp__Tail__Overlay__CurrentStackLocation = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int Irp__CurrentLocation;
+  int Irp__Tail__Overlay__CurrentStackLocation;
+  int deviceExtension__TargetDeviceObject;
   int deviceExtension ;
   int tmp ;
 
@@ -666,24 +661,24 @@ void DiskPerfUnload(int DriverObject )
 }
 #line 467 "diskperf_simpl1.cil.c"
 int DiskPerfRegisterDevice(int DeviceObject ) 
-{ int DeviceObject__DeviceExtension = __VERIFIER_nondet_int() ;
-  int deviceExtension__TargetDeviceObject = __VERIFIER_nondet_int() ;
-  int sizeof__number = __VERIFIER_nondet_int() ;
-  int ioStatus__Status = __VERIFIER_nondet_int() ;
-  int sizeof__VOLUME_NUMBER = __VERIFIER_nondet_int() ;
-  int volumeNumber__VolumeManagerName__0 = __VERIFIER_nondet_int() ;
+{ int DeviceObject__DeviceExtension;
+  int deviceExtension__TargetDeviceObject;
+  int sizeof__number;
+  int ioStatus__Status;
+  int sizeof__VOLUME_NUMBER;
+  int volumeNumber__VolumeManagerName__0;
   int status ;
-  int ioStatus = __VERIFIER_nondet_int() ;
-  int event = __VERIFIER_nondet_int() ;
+  int ioStatus;
+  int event;
   int deviceExtension ;
   int irp ;
-  int number = __VERIFIER_nondet_int() ;
+  int number;
   int registrationFlag ;
-  int sizeof__MOUNTDEV_NAME = __VERIFIER_nondet_int() ;
-  int output__NameLength = __VERIFIER_nondet_int() ;
+  int sizeof__MOUNTDEV_NAME;
+  int output__NameLength;
   int outputSize ;
-  int output = __VERIFIER_nondet_int() ;
-  int volumeNumber = __VERIFIER_nondet_int() ;
+  int output;
+  int volumeNumber;
   int __cil_tmp20 ;
   int __cil_tmp21 ;
   int __cil_tmp22 ;
@@ -941,13 +936,13 @@ void stub_driver_init(void)
 }
 #line 632 "diskperf_simpl1.cil.c"
 int main(void) 
-{ int d = __VERIFIER_nondet_int() ;
-  int status = __VERIFIER_nondet_int() ;
-  int we_should_unload = __VERIFIER_nondet_int() ;
-  int irp = __VERIFIER_nondet_int() ;
+{ int d;
+  int status;
+  int we_should_unload;
+  int irp;
   int pirp__IoStatus__Status ;
-  int irp_choice = __VERIFIER_nondet_int() ;
-  int devobj = __VERIFIER_nondet_int() ;
+  int irp_choice;
+  int devobj;
   int __cil_tmp9 ;
 
 #ifdef KLEE
@@ -1027,7 +1022,7 @@ int main(void)
     }
 #line 671
     int tmp_ndt_1;
-    tmp_ndt_1 = __VERIFIER_nondet_int();
+    tmp_ndt_1;
 
 #ifdef KLEE
     klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
@@ -1037,7 +1032,7 @@ int main(void)
     } else {
 #line 674
       int tmp_ndt_2;
-      tmp_ndt_2 = __VERIFIER_nondet_int();
+      tmp_ndt_2;
 
 #ifdef KLEE
       klee_make_symbolic(&tmp_ndt_2,sizeof(tmp_ndt_2),"tmp_ndt_2");
@@ -1047,7 +1042,7 @@ int main(void)
       } else {
 #line 677
         int tmp_ndt_3;
-        tmp_ndt_3 = __VERIFIER_nondet_int();
+        tmp_ndt_3;
 
 #ifdef KLEE
 	klee_make_symbolic(&tmp_ndt_3,sizeof(tmp_ndt_3),"tmp_ndt_3");
@@ -1057,7 +1052,7 @@ int main(void)
         } else {
 #line 680
 	  int tmp_ndt_4;
-	  tmp_ndt_4 = __VERIFIER_nondet_int();
+	  tmp_ndt_4;
 
 #ifdef KLEE
 	  klee_make_symbolic(&tmp_ndt_4,sizeof(tmp_ndt_4),"tmp_ndt_4");
@@ -1067,7 +1062,7 @@ int main(void)
           } else {
 #line 683
 	    int tmp_ndt_5;
-	    tmp_ndt_5 = __VERIFIER_nondet_int();
+	    tmp_ndt_5;
 
 #ifdef KLEE
 	    klee_make_symbolic(&tmp_ndt_5,sizeof(tmp_ndt_5),"tmp_ndt_5");
@@ -1214,7 +1209,7 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
                                   int InputBufferLength , int OutputBuffer , int OutputBufferLength ,
                                   int InternalDeviceIoControl , int Event , int IoStatusBlock ) 
 {
-  int malloc_ret = __VERIFIER_nondet_int() ;
+  int malloc_ret;
 
 #ifdef KLEE
   klee_make_symbolic(&malloc_ret,sizeof(malloc_ret),"malloc_ret");
@@ -1225,7 +1220,7 @@ int IoBuildDeviceIoControlRequest(int IoControlCode , int DeviceObject , int Inp
   customIrp = 1;
 #line 814
   int tmp_ndt_7;
-  tmp_ndt_7 = __VERIFIER_nondet_int();
+  tmp_ndt_7;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_7,sizeof(tmp_ndt_7),"tmp_ndt_7");
@@ -1272,7 +1267,7 @@ int IofCallDriver(int DeviceObject , int Irp )
 {
   int returnVal2 ;
   int compRetStatus ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
 
 #ifdef KLEE
   klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
@@ -1308,7 +1303,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   }
 #line 872
   int tmp_ndt_8;
-  tmp_ndt_8 = __VERIFIER_nondet_int();
+  tmp_ndt_8;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_8,sizeof(tmp_ndt_8),"tmp_ndt_8");
@@ -1318,7 +1313,7 @@ int IofCallDriver(int DeviceObject , int Irp )
   } else {
 #line 875
   int tmp_ndt_9;
-  tmp_ndt_9 = __VERIFIER_nondet_int();
+  tmp_ndt_9;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_9,sizeof(tmp_ndt_9),"tmp_ndt_9");
@@ -1407,7 +1402,7 @@ void IofCompleteRequest(int Irp , int PriorityBoost )
 }
 #line 936 "diskperf_simpl1.cil.c"
 int KeSetEvent(int Event , int Increment , int Wait ) 
-{ int l = __VERIFIER_nondet_int() ;
+{ int l;
 
 #ifdef KLEE
 	klee_make_symbolic(&l,sizeof(l),"l");
@@ -1457,7 +1452,7 @@ int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alert
   }
 #line 971
   int tmp_ndt_10;
-  tmp_ndt_10 = __VERIFIER_nondet_int();
+  tmp_ndt_10;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_10,sizeof(tmp_ndt_10),"tmp_ndt_10");
@@ -1485,7 +1480,7 @@ int PoCallDriver(int DeviceObject , int Irp )
 {
   int compRetStatus ;
   int returnVal ;
-  int lcontext = __VERIFIER_nondet_int() ;
+  int lcontext;
 
 #ifdef KLEE
   klee_make_symbolic(&lcontext,sizeof(lcontext),"lcontext");
@@ -1525,7 +1520,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   }
 #line 1019
   int tmp_ndt_11;
-  tmp_ndt_11 = __VERIFIER_nondet_int();
+  tmp_ndt_11;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_11,sizeof(tmp_ndt_11),"tmp_ndt_11");
@@ -1535,7 +1530,7 @@ int PoCallDriver(int DeviceObject , int Irp )
   } else {
 #line 1022
   int tmp_ndt_12;
-  tmp_ndt_12 = __VERIFIER_nondet_int();
+  tmp_ndt_12;
 
 #ifdef KLEE
   klee_make_symbolic(&tmp_ndt_12,sizeof(tmp_ndt_12),"tmp_ndt_12");
