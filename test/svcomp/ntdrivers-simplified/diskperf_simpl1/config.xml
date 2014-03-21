@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<options>
+	<option key="test" value="true"/> 
+	<option key="explanation" value="diskperf simpl"/> 
+	<option key="file" value="diskperf_simpl1.c"/> 
+</options>

@@ -2,6 +2,6 @@
 
 <options>
 	<option key="test" value="true"/> 
-	<option key="explanation" value="svcomp example"/> 
-	<option key="file" value="cdaudio_simpl1_false.cil.c"/> 
+	<option key="explanation" value="cdaudio_simpl"/> 
+	<option key="file" value="cdaudio_simpl1.c"/> 
 </options>
