@@ -1785,6 +1785,8 @@ string get_position(string name){
 
 void minimal_test_vectors_to_db(){
 
+	if(!cmd_option_bool("test_vectors")) return;
+
 	create_table_minimal_test_vectors();
 
 	vector< map<string, string> > vectors = vector_of_test_vectors();

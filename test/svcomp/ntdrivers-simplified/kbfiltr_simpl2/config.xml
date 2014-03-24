@@ -4,4 +4,5 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="kbfiltr simple"/> 
 	<option key="file" value="kbfiltr_simpl2.c"/> 
+	<option key="test_vectors" value="false"/> 
 </options>

@@ -4,4 +4,5 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="diskperf simpl"/> 
 	<option key="file" value="diskperf_simpl1.c"/> 
+	<option key="test_vectors" value="false"/> 
 </options>

@@ -4,4 +4,5 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="floppy simple"/> 
 	<option key="file" value="floppy_simpl4.c"/> 
+	<option key="test_vectors" value="false"/> 
 </options>
