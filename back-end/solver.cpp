@@ -69,7 +69,10 @@ string Solver::content( string name ){
 		//return name;
 
 	} else {
-		return variables[name].content;
+		if(get_is_propagated_constant(name))
+			return variables[name].real_value;
+		else
+			return variables[name].content;
 	}
 }
 
