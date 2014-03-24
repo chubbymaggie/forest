@@ -1,3 +1,10 @@
+
+
+#ifdef KLEE
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif
+
+
 void IofCompleteRequest(int Irp , int PriorityBoost ) ;
 int s  ;
 int UNLOADED  ;
@@ -2207,7 +2214,7 @@ int CdAudioAtapiDeviceControl(int DeviceObject , int Irp )
 #ifdef KLEE
   klee_make_symbolic(&currentIrpStack__Parameters__DeviceIoControl__IoControlCode,sizeof(currentIrpStack__Parameters__DeviceIoControl__IoControlCode),"currentIrpStack__Parameters__DeviceIoControl__IoControlCode");
   klee_make_symbolic(&deviceExtension,sizeof(deviceExtension),"deviceExtension");
-  klee_make_symbolic(& ,sizeof( )," ");
+  klee_make_symbolic(&srb ,sizeof(srb),"srb");
 #endif
 
   {
@@ -2277,7 +2284,7 @@ int CdAudioAtapiDeviceControl(int DeviceObject , int Irp )
 void HpCdrProcessLastSession(int Toc ) 
 { int index;
 #ifdef KLEE
-	klee_make_symbolic(&srb,sizeof(srb),"srb");
+	klee_make_symbolic(&index,sizeof(index),"index");
 #endif
 
   {

@@ -1,3 +1,10 @@
+
+
+#ifdef KLEE
+#include "/llvm-2.9/klee/include/klee/klee.h"
+#endif
+
+
 void IofCompleteRequest(int Irp , int PriorityBoost );
 int FloppyThread  ;
 int KernelMode  ;
