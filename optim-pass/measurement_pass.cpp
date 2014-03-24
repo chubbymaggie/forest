@@ -518,7 +518,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 			if( it->type == "Int16" ){
 
-				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
+				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_short" ,
 							Type::getInt16Ty( mod->getContext() ),
 							Type::getInt8PtrTy( mod->getContext() ),
 							(Type *)0
@@ -537,7 +537,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 			} else if ( it->type == "Int32" ){
 
-				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_short" ,
+				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
 							Type::getInt32Ty( mod->getContext() ),
 							Type::getInt8PtrTy( mod->getContext() ),
 							(Type *)0

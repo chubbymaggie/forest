@@ -104,6 +104,8 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 		while( getline( input, line ) ) {
 			
 			vector<string> tokens = tokenize(line, " ");
+
+			assert(tokens.size() == free_variables.size() && "Different number of tokens in vector and free_variables");
 	
 			for ( unsigned int i = 0; i < tokens.size(); i++) {
 				debug && printf("load_vector %s %s\n", free_variables[i].c_str(), tokens[i].c_str() );
