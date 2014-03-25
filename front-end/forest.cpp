@@ -1370,44 +1370,9 @@ void printvector( vector<string> v ){
 
 }
 
-set<vector<string> > minimal_vectors(){
-
-	// Obtenemos los resultados de la base de datos
-	FILE *fp;
-	stringstream command;
-	char ret[SIZE_STR];
-	vector<string> ret_vector;
-
-	if(project_path != "")
-		command << "cd " << project_path << ";";
 
 
-	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 " << tmp_file("database.db");
-	fp = popen(command.str().c_str(), "r");
-	while (fgets(ret,SIZE_STR, fp) != NULL)
-		ret_vector.push_back(ret);
-	pclose(fp);
-
-
-	// Obtenemos los nombres
-	set<string> names;
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		vector<string> tokens = tokenize(*it, "|");
-		string name = tokens[0];
-		names.insert(name);
-	}
-
-	
-	// por cada problema, una relación entre nombre de variable, y valor
-	map< int, map<string, string> > values;
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		vector<string> tokens = tokenize(*it, "|");
-		string name = tokens[0];
-		string value = tokens[1];
-		int problem_id; sscanf(tokens[2].c_str(), "%d", &problem_id);
-		values[problem_id][name] = value;
-	}
-
+set<vector<string> > pivot( map< int, map<string, string> > values, set<string> names ){
 
 	// Cambio los "" por X
 	debug && printf("\e[31m Map \e[0m\n");
@@ -1474,19 +1439,6 @@ set<vector<string> > minimal_vectors(){
 			}
 			debug && printf("\n");
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		for( set<vector<string> >::iterator v1 = values_set.begin(); v1 != values_set.end(); v1++ ){
 			for( set<vector<string> >::iterator v2 = values_set.begin(); v2 != values_set.end(); v2++ ){
@@ -1564,6 +1516,52 @@ set<vector<string> > minimal_vectors(){
 	}
 
 	return values_set2;
+
+}
+
+int stoi(string str);
+
+
+set<vector<string> > minimal_vectors(){
+
+	// Obtenemos los resultados de la base de datos
+	FILE *fp;
+	stringstream command;
+	char ret[SIZE_STR];
+	vector<string> ret_vector;
+
+	if(project_path != "")
+		command << "cd " << project_path << ";";
+
+
+	command << "echo 'select name,value,problem_id from results where is_free;' | sqlite3 " << tmp_file("database.db");
+	fp = popen(command.str().c_str(), "r");
+	while (fgets(ret,SIZE_STR, fp) != NULL)
+		ret_vector.push_back(ret);
+	pclose(fp);
+
+
+	// Obtenemos los nombres
+	set<string> names;
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "|");
+		string name = tokens[0];
+		names.insert(name);
+	}
+
+	
+	// por cada problema, una relación entre nombre de variable, y valor
+	map< int, map<string, string> > values;
+	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
+		vector<string> tokens = tokenize(*it, "|");
+		string name = tokens[0];
+		string value = tokens[1];
+		int problem_id = stoi(tokens[2]);
+		values[problem_id][name] = value;
+	}
+
+	return pivot(values, names);
+
 	
 }
 
@@ -3743,6 +3741,105 @@ void create_tmp_path(){
 	system(action.str().c_str());
 }
 
+
+void tests_from_klee(){
+
+	ifstream input( tmp_file("output_klee").c_str() );
+	string line;
+	vector<string> lines;
+	
+	while( getline( input, line ) ) {
+		lines.push_back(line);
+	}
+
+	set<string> free_variables;
+	for( vector<string>::iterator it = lines.begin(); it != lines.end(); it++ ){
+		if( it->find(":") != string::npos ){
+			vector<string> tokens = tokenize(*it, ":");
+			if(tokens[1] == " name"){
+				free_variables.insert(tokenize(*it, "'")[1]);
+			}
+		}
+	}
+
+	
+	map<string, int> free_variables_size;
+	//for( vector<string>::iterator it = lines.begin(); it != lines.end(); it++ ){
+	for ( unsigned int i = 0; i < lines.size(); i++) {
+		if( lines[i].find(":") != string::npos ){
+			vector<string> tokens = tokenize(lines[i], ":");
+			if(tokens[1] == " name"){
+				string name = tokenize(lines[i], "'")[1];
+				int size = stoi( tokenize(lines[i+1],":")[2] );
+				free_variables_size[name] = size;
+			}
+		}
+	}
+	
+	FILE* file = fopen(tmp_file("free_variables").c_str(), "w");
+	for( map<string,int>::iterator it = free_variables_size.begin(); it != free_variables_size.end(); it++ ){
+		string name = it->first;
+		int size = it->second;
+		string type;
+
+		if(size == 4)
+			type = "Int32";
+
+		fprintf(file, "%s %s\n",type.c_str(), name.c_str());
+	}
+	fclose(file);
+	
+	
+
+	
+	set<string> names = free_variables;
+	map< int, map<string, string> > values;
+	int n = 0;
+
+	for ( unsigned int i = 0; i < lines.size(); i++) {
+		string line = lines[i];
+		if(line == "()") n++;
+
+		if( lines[i].find(":") != string::npos ){
+			vector<string> tokens = tokenize(lines[i], ":");
+			if(tokens[1] == " name"){
+				string name = tokenize(lines[i], "'")[1];
+				string data = tokenize(lines[i+2],": ")[3];
+				values[n][name] = data;
+			}
+		}
+	}
+
+	set<vector<string> > vectors = pivot(values, names);
+
+
+
+
+	vector<string> output_file;
+	for( set<vector<string> >::iterator it = vectors.begin(); it != vectors.end(); it++ ){
+		vector<string> vect = *it;
+
+		string line;
+		for( vector<string>::iterator it2 = vect.begin(); it2 != vect.end(); it2++ ){
+			line += *it2 + " ";
+		}
+		
+		output_file.push_back(line);
+	}
+
+
+	string filename;
+
+	filename = tmp_file("vectors");
+
+	FILE* file2 = fopen( filename.c_str(), "w");
+	for( vector<string>::iterator it = output_file.begin(); it != output_file.end(); it++ ){
+		fprintf(file2, "%s\n", it->c_str());
+	}
+	fclose(file2);
+
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -3828,6 +3925,8 @@ int main(int argc, const char *argv[]) {
 	disables("lbc", "test");
 	disables("lbc", "check_coverage");
 	disables("measure_coverage", "test");
+	disables("tests_from_klee", "test");
+	disables("tests_from_klee", "check_coverage");
 
 
 	expand_options();
@@ -3886,6 +3985,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("valgrind")) valgrind();                                 // tests the output with valgrind 
 	if(cmd_option_bool("list_external_functions")) list_external_functions();   // lists the functions that are not implemented
 	if(cmd_option_bool("lbc")) linked_bc();                                     // get the bc linked with standard libraries
+	if(cmd_option_bool("tests_from_klee")) tests_from_klee();                   // get the test_vectors from klee output
 
 	return 0;
 
