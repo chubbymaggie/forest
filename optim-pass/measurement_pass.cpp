@@ -470,6 +470,8 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 	stringstream number_of_times_ss; number_of_times_ss << values.size();
 	string number_of_times = number_of_times_ss.str();
 
+	if(number_of_times == "0") number_of_times = "1";
+
 
 	std::vector<const Type*>FuncTy_3_args;
 	FuncTy_3_args.push_back(IntegerType::get(mod->getContext(), 32));

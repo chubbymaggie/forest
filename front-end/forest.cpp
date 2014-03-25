@@ -337,6 +337,7 @@ void clean(){
 	// Crea y limpia la carpeta temporal
 	cmd.str("");
 	cmd << "rm -rf " << cmd_option_str("tmp_dir") << "/*;";
+	cmd << "rm -f /tmp/options;";
 	cmd << "mkdir -p " << cmd_option_str("tmp_dir") << ";";
 	systm(cmd.str().c_str());
 
@@ -495,6 +496,8 @@ void make_initial_bc_klee(){
 void make_bc(){
 
 	start_pass("make_bc");
+
+	options_to_file();
 
 	string base_path = cmd_option_str("base_path");
 	string llvm_path = cmd_option_str("llvm_path");
@@ -1785,7 +1788,7 @@ string get_position(string name){
 
 void minimal_test_vectors_to_db(){
 
-	if(!cmd_option_bool("test_vectors")) return;
+	//if(!cmd_option_bool("test_vectors")) return;
 
 	create_table_minimal_test_vectors();
 
@@ -3855,7 +3858,6 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("measure_coverage")) measure_coverage();                 // measure coverage obtained with current test_vectors
 	if(cmd_option_bool("test_vectors")) minimal_test_vectors_to_db();           // transforms data in the database to test_vector format
 	if(cmd_option_bool("show_coverage")) show_coverage();                       // shows coverage obtained with current test_vectors
-	if(cmd_option_bool("check_coverage")) check_coverage();                     // checks if coverage is as good as expected
 	if(cmd_option_bool("random_testing")) random_testing();                     // fuzzes free variables
 	if(cmd_option_bool("count_branches")) count_branches();                     // counts how many branches are executed
 	if(cmd_option_bool("klee")) do_klee();                                      // tests the program with klee
@@ -3875,6 +3877,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("compare_klee")) compare_klee();                         // compares times and paths for klee and forest
 	if(cmd_option_bool("get_result")) get_result();                             // copies result to gold_result
 	if(cmd_option_bool("vim")) vim();                                           // shows debug information in vim
+	if(cmd_option_bool("check_coverage")) check_coverage();                     // checks if coverage is as good as expected
 	if(cmd_option_bool("get_model")) get_model();                               // gets a model to be used in repl
 	if(cmd_option_bool("get_model_fn")) get_model_fn();                         // gets a model of a function
 	if(cmd_option_bool("get_static_heuristic")) get_static_heuristic();         // generates heuristics to guide the search
