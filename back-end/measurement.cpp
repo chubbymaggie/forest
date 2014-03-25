@@ -75,7 +75,6 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 
 	FILE* file;
 
-	debug && printf("loading free_variables\n"); fflush(stdout);
 
 
 
@@ -92,10 +91,10 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 		}
 		
 }
+	debug && printf("loading free_variables %lu\n", free_variables.size()); fflush(stdout);
 	
 
 
-	debug && printf("loading test_vectors\n"); fflush(stdout);
 
 {
 		ifstream input("vectors");
@@ -112,6 +111,8 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 				ret[ free_variables[i] ].push_back(tokens[i]);
 			}
 		}
+
+		debug && printf("loading test_vectors %lu\n", ret[ free_variables[0] ].size()); fflush(stdout);
 }
 	
 

@@ -537,7 +537,7 @@ void insert_main_function_calling(Value* func_test, Module* mod, vector<FreeVari
 
 
 
-			} else if ( it->type == "Int32" ){
+			} else if ( it->type == "Int32" || it->type == "Int"){
 
 				 func_vector_int = cast<Function>( mod->getOrInsertFunction( "vector_int" ,
 							Type::getInt32Ty( mod->getContext() ),

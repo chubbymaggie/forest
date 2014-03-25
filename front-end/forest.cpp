@@ -2116,7 +2116,7 @@ void do_klee(){
 
 
 	cmd.str("");
-	cmd << "ktest-tool --write-ints klee-last/test*.ktest";
+	cmd << "ktest-tool --write-ints klee-last/test*.ktest | tee output_klee";
 	systm(cmd.str());
 
 
@@ -3803,6 +3803,7 @@ int main(int argc, const char *argv[]) {
 	disables("count_branches", "test");
 	disables("klee", "test");
 	disables("klee", "compare_klee");
+	disables("klee", "check_coverage");
 	disables("check_concurrency_2", "check_concurrency");
 	disables("compare_bc", "test");
 	disables("compare_bc", "check_concurrency");
@@ -3826,6 +3827,7 @@ int main(int argc, const char *argv[]) {
 	disables("list_external_functions", "check_coverage");
 	disables("lbc", "test");
 	disables("lbc", "check_coverage");
+	disables("measure_coverage", "test");
 
 
 	expand_options();
