@@ -50,6 +50,7 @@ void get_result();
 void vim();
 void valgrind();
 void clean_tables();
+void klee_coverage();
 
 
 #endif /* end of include guard: _FOREST_H_ */

@@ -72,6 +72,8 @@ void do_pass(string passname){
 		do_klee();
 	else if(passname == "get_result")
 		get_result();
+	else if(passname == "klee_coverage")
+		klee_coverage();
 	else {
 		printf("Pass %s\n", passname.c_str());
 		assert(0 && "Unknown pass");
@@ -1057,33 +1059,7 @@ void show_results(){
 void show_coverage(){
 
 
-	stringstream cmd;
-
-	// Muestro los resultados de la base de datos
-	cmd.str("");
 	db_command( ".mode columns\\n.width 20 15\\n.headers on\\nselect * from measurements;" );
-
-
-
-	FILE *fp;
-	stringstream command;
-	char ret[SIZE_STR];
-	vector<string> ret_vector;
-	
-	fp = popen(cmd.str().c_str(), "r");
-	
-	while (fgets(ret,SIZE_STR, fp) != NULL)
-		ret_vector.push_back(ret);
-	
-	pclose(fp);
-	
-
-	for( vector<string>::iterator it = ret_vector.begin(); it != ret_vector.end(); it++ ){
-		printf("%s", it->c_str());
-	}
-	
-
-
 
 }
 
@@ -1718,6 +1694,8 @@ void gen_final_for_measurement(){
 	systm(cmd.str().c_str());
 
 }
+
+
 
 void measure_coverage(){
 
@@ -3776,18 +3754,16 @@ void tests_from_klee(){
 		}
 	}
 	
-	FILE* file = fopen(tmp_file("free_variables").c_str(), "w");
-	for( map<string,int>::iterator it = free_variables_size.begin(); it != free_variables_size.end(); it++ ){
-		string name = it->first;
-		int size = it->second;
-		string type;
-
-		if(size == 4)
-			type = "Int32";
-
-		fprintf(file, "%s %s\n",type.c_str(), name.c_str());
-	}
-	fclose(file);
+	//FILE* file = fopen(tmp_file("free_variables").c_str(), "w");
+	//for( map<string,int>::iterator it = free_variables_size.begin(); it != free_variables_size.end(); it++ ){
+		//string name = it->first;
+		//int size = it->second;
+		//string type;
+		//if(size == 4)
+			//type = "Int32";
+		//fprintf(file, "%s %s\n",type.c_str(), name.c_str());
+	//}
+	//fclose(file);
 	
 	
 
@@ -3840,6 +3816,31 @@ void tests_from_klee(){
 
 }
 
+void klee_coverage(){
+
+	//start_pass("klee_coverage");
+
+	measure_coverage();
+	do_klee();
+	tests_from_klee();
+
+
+	gen_final_for_measurement();
+	set_option("measurement", "true");
+	options_to_file();
+	string output_file = cmd_option_str("output_file");
+	stringstream cmd;
+	cmd.str("");
+	cmd << "./" << output_file;
+	systm(cmd.str().c_str());
+
+
+
+	show_coverage();
+
+	//end_pass("klee_coverage");
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -3869,6 +3870,8 @@ int main(int argc, const char *argv[]) {
 	needs("get_result", "test");
 	needs("vim", "final");
 	needs("valgrind", "final");
+	//needs("klee_coverage", "measure_coverage");
+	//needs("klee_coverage", "klee");
 
 
 	disables("compare_bc", "test");
@@ -3927,6 +3930,8 @@ int main(int argc, const char *argv[]) {
 	disables("measure_coverage", "test");
 	disables("tests_from_klee", "test");
 	disables("tests_from_klee", "check_coverage");
+	disables("show_coverage", "test");
+	disables("show_coverage", "check_coverage");
 
 
 	expand_options();
@@ -3986,6 +3991,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("list_external_functions")) list_external_functions();   // lists the functions that are not implemented
 	if(cmd_option_bool("lbc")) linked_bc();                                     // get the bc linked with standard libraries
 	if(cmd_option_bool("tests_from_klee")) tests_from_klee();                   // get the test_vectors from klee output
+	if(cmd_option_bool("klee_coverage")) klee_coverage();                       // get the coverage of tests generaged by klee
 
 	return 0;
 

@@ -22,10 +22,10 @@ int main(void) {
 
 #ifdef KLEE
 
-	klee_make_symbolic(&a, sizeof(a), "a");
-	klee_make_symbolic(&b, sizeof(b), "b");
-	klee_make_symbolic(&c, sizeof(c), "c");
-	klee_make_symbolic(&d, sizeof(d), "d");
+	klee_make_symbolic(&a, sizeof(a), "main_register_a");
+	klee_make_symbolic(&b, sizeof(b), "main_register_b");
+	klee_make_symbolic(&c, sizeof(c), "main_register_c");
+	klee_make_symbolic(&d, sizeof(d), "main_register_d");
 
 #endif
 
