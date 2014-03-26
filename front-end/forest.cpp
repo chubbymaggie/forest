@@ -3765,6 +3765,21 @@ void tests_from_klee(){
 	//}
 	//fclose(file);
 	
+	set<pair<string, string> > free_variables_split;
+	ifstream input2(tmp_file("free_variables").c_str());
+	while( getline( input2, line ) ) {
+		vector<string> tokens = tokenize(line, " ");
+		free_variables_split.insert( pair<string, string>(tokens[2], tokens[0] + " " + tokens[1]) );
+	}
+	
+	FILE* file = fopen(tmp_file("free_variables").c_str(), "w");
+	for( set<pair<string, string> >::iterator it = free_variables_split.begin(); it != free_variables_split.end(); it++ ){
+		string name = it->first;
+		string posandtype = it->second;
+		fprintf(file, "%s %s\n", posandtype.c_str(), name.c_str());
+	}
+	fclose(file);
+	
 	
 
 	
