@@ -51,6 +51,7 @@ void vim();
 void valgrind();
 void clean_tables();
 void klee_coverage();
+void tests_from_klee();
 
 
 #endif /* end of include guard: _FOREST_H_ */

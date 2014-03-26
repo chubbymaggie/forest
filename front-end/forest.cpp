@@ -2649,6 +2649,8 @@ void compare_klee(){
 	int paths_forest;
 	int time_klee;
 	int time_forest;
+	int coverage_forest;
+	int coverage_klee;
 
 	stringstream command;
 	
@@ -2687,6 +2689,41 @@ void compare_klee(){
 
 
 
+	{
+
+		measure_coverage();
+		do_klee();
+		tests_from_klee();
+	
+	
+		gen_final_for_measurement();
+		set_option("measurement", "true");
+		options_to_file();
+		string output_file = cmd_option_str("output_file");
+		stringstream cmd;
+		cmd.str("");
+		cmd << "./" << output_file;
+		systm(cmd.str().c_str());
+	
+	
+		systm("echo 'select * from measurements;' | sqlite3 database.db > coverage_measurements;");
+	
+		
+		ifstream input(tmp_file("coverage_measurements").c_str());
+		string line;
+		vector<string> lines;
+		
+		while( getline( input, line ) ) {
+			lines.push_back(line);
+		}
+	
+	
+		coverage_forest = stoi(tokenize(lines[lines.size()-3], "() ")[1]);
+		coverage_klee   = stoi(tokenize(lines[lines.size()-1], "() ")[1]);
+		
+		
+	}
+
 	string explanation = cmd_option_str("explanation") + " ";
 	while( explanation.length() < 50 )
 		explanation = explanation + ".";
@@ -2694,6 +2731,7 @@ void compare_klee(){
 
 	char color_p[] = "\e[0m";
 	char color_t[] = "\e[0m";
+	char color_c[] = "\e[0m";
 	
 	if(paths_forest < paths_klee)
 		strcpy(color_p, "\e[31m"); // rojo
@@ -2710,10 +2748,18 @@ void compare_klee(){
 		strcpy(color_t, "\e[33m"); // amarillo
 
 
+	if(coverage_forest < coverage_klee)
+		strcpy(color_c, "\e[31m"); // rojo
+	else if(coverage_forest > coverage_klee)
+		strcpy(color_c, "\e[32m"); // verde
+	else
+		strcpy(color_c, "\e[33m"); // amarillo
 
 
 
-	printf("%s Paths_klee %-3d Paths_forest %-3d\e[0m %s Time_klee %-3d Time_forest %-3d\e[0m\n", color_p, paths_klee, paths_forest, color_t, time_klee, time_forest);
+	printf("%s Paths_klee %-3d Paths_forest %-3d\e[0m %s Time_klee %-3d Time_forest %-3d %s Coverage_forest %-3d Coverage_klee %-3d\e[0m\n", color_p, paths_klee, paths_forest,
+		 																color_t, time_klee, time_forest,
+																		color_c, coverage_forest, coverage_klee);
 
 	end_pass("compare_klee");
 
@@ -3849,6 +3895,35 @@ void klee_coverage(){
 	cmd << "./" << output_file;
 	systm(cmd.str().c_str());
 
+
+	systm("echo 'select * from measurements;' | sqlite3 database.db > coverage_measurements;");
+
+	
+	ifstream input(tmp_file("coverage_measurements").c_str());
+	string line;
+	vector<string> lines;
+	
+	while( getline( input, line ) ) {
+		lines.push_back(line);
+	}
+
+
+	int coverage_forest = stoi(tokenize(lines[lines.size()-3], "() ")[1]);
+	int coverage_klee   = stoi(tokenize(lines[lines.size()-1], "() ")[1]);
+	
+	
+	char color[] = "\e[0m";
+	
+	if(coverage_forest < coverage_klee)
+		strcpy(color, "\e[31m"); // rojo
+	else if(coverage_forest > coverage_klee)
+		strcpy(color, "\e[32m"); // verde
+	else
+		strcpy(color, "\e[33m"); // amarillo
+
+
+
+	printf("%s coverage_forest %d coverage_klee %d \e[0m\n", color,coverage_forest,coverage_klee);
 
 
 	show_coverage();
