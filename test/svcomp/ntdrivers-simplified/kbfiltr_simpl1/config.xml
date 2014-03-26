@@ -4,7 +4,7 @@
 	<option key="test" value="true"/> 
 	<option key="explanation" value="kbfilt simple"/> 
 	<option key="check_coverage" value="true"/> 
-	<option key="file" value="kbfiltr_simpl1.c"/> 
+	<option key="file" value="kbfiltr_reduced.c"/> 
 	<option key="cyclomatic" value="true"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 

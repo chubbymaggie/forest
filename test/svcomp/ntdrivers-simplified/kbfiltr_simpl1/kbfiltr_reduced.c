@@ -31,9 +31,8 @@ int main() {
 	int devobj = 0;
 	int __cil_tmp8 ;
 #ifdef KLEE
-	klee_make_symbolic(&irp,sizeof(irp),"irp");
-	klee_make_symbolic(&irp_choice,sizeof(irp_choice),"irp_choice");
-	klee_make_symbolic(&devobj,sizeof(devobj),"devobj");
+	klee_make_symbolic(&irp,sizeof(irp),"main_register_irp");
+	klee_make_symbolic(&irp_choice,sizeof(irp_choice),"main_register_irp_choice");
 #endif
 
 	{
@@ -91,7 +90,7 @@ int main() {
 			}
 			int tmp_ndt_1 = 0;
 #ifdef KLEE
-			klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"tmp_ndt_1");
+			klee_make_symbolic(&tmp_ndt_1,sizeof(tmp_ndt_1),"main_register_tmp_ndt_1");
 #endif
 			if (tmp_ndt_1 == 3) {
 				goto switch_1_3;
