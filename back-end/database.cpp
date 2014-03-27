@@ -119,6 +119,8 @@ void Database::insert_problem(){
 		string position = it->position;
 		action << "insert into variables values ('" << name << "','" << type << "','" << position << "'," << id << ");";
 	}
+
+	action << "insert into times values (" << id << ",'" << solver->get_solve_time() << "');";
 	
 	if( solver->solvable_problem() ){
 

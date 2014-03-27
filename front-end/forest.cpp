@@ -1690,7 +1690,7 @@ void gen_final_for_measurement(){
 
 	// linka
 	cmd.str("");
-	cmd << "g++ file-3.o " << base_path << "/lib/forest.a -lpthread -ldl -o " << output_file;
+	cmd << "g++ file-3.o " << base_path << "/lib/forest.a -lpthread -ldl -lrt -o " << output_file;
 	systm(cmd.str().c_str());
 
 }
@@ -2357,6 +2357,14 @@ void clean_tables(){
 	action.str("");
 	action << "create table last_bb(";
 	action << "last_bb varchar(50)";
+	action << ");";
+	db_command( action.str() );
+
+
+	action.str("");
+	action << "create table times(";
+	action << "problem_id integer,";
+	action << "time_ms float";
 	action << ");";
 	db_command( action.str() );
 

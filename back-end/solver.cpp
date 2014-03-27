@@ -572,7 +572,24 @@ void Solver::solve_problem(){
 
 	command << "z3 " << filename.str();
 	command << " > /tmp/z3_output";
+
+
+struct timespec ping_time;
+struct timespec pong_time;
+clock_gettime(CLOCK_MONOTONIC, &ping_time);
+
+
 	system(command.str().c_str());
+
+clock_gettime(CLOCK_MONOTONIC, &pong_time);
+spent_time = 0;
+spent_time += pong_time.tv_sec - ping_time.tv_sec;
+spent_time *= 1e9;
+spent_time += pong_time.tv_nsec - ping_time.tv_nsec;
+spent_time /= 1e6;
+
+
+
 
 	ifstream input("/tmp/z3_output");
 	string line;
@@ -659,6 +676,11 @@ void Solver::solve_problem(){
 
 }
 
+
+float Solver::get_solve_time(){
+	return spent_time;
+}
+
 bool Solver::solvable_problem(){
 
 
@@ -668,6 +690,7 @@ bool Solver::solvable_problem(){
 
 void Solver::set_sat(bool _sat){
 
+	spent_time = 0;
 	sat = _sat;
 }
 

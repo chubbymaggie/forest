@@ -80,6 +80,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class Solver {
 public:
+	float get_solve_time();
 	void add_int_constraint(string src);
 	void set_outofbounds(string varname, bool outofbounds = true);
 	bool get_outofbounds(string varname);
@@ -154,6 +155,7 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	float spent_time;
 	void check_name_and_pos(string name, string position);
 	string z3_type(string type);
 	set<string> int_constraints;
