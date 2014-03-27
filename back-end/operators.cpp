@@ -796,12 +796,12 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 		//solver->show_problem();
 		solver->solve_problem();
+		database->insert_problem();
 
 		if( solver->solvable_problem() ){
 
 			solver->push_path_stack( real_value_prev != "true");
 
-			database->insert_problem();
 			database->insert_frontend_interface();
 
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
@@ -863,6 +863,7 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		see_each_problem && solver->show_problem();
 
 		solver->solve_problem();
+		database->insert_problem();
 
 		if( solver->solvable_problem() ){
 			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
@@ -873,7 +874,6 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 			//if(yet_covered()) exit(0);
 
 			//solver->solve_problem();
-			database->insert_problem();
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {
