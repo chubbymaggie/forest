@@ -71,22 +71,24 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 }
 
 void load_instr(char* _dst, char* _addr){
-	timer->start_timer();
-	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize"))
+	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize")){
 		concurrency->load_instr(_dst, _addr);
-	else
+	} else {
+		timer->start_timer();
 		operators->load_instr(_dst, _addr);
+		timer->end_timer("load_instr");
+	}
 
-	timer->end_timer("load_instr");
 }
 
 void store_instr(char* _src, char* _addr){
-	timer->start_timer();
-	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize"))
+	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize")){
 		concurrency->store_instr(_src, _addr);
-	else
+	} else {
+		timer->start_timer();
 		operators->store_instr(_src, _addr);
-	timer->end_timer("store_instr");
+		timer->end_timer("store_instr");
+	}
 }
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
@@ -102,12 +104,13 @@ void br_instr_incond(){
 }
 
 void begin_bb(char* name){
-	timer->start_timer();
-	if(options->cmd_option_bool("measurement"))
+	if(options->cmd_option_bool("measurement")){
 		measurement->begin_bb(name);
-	else
+	} else {
+		timer->start_timer();
 		operators->begin_bb(name);
-	timer->end_timer("begin_bb");
+		timer->end_timer("begin_bb");
+	}
 }
 
 void end_bb(char* name){
@@ -128,9 +131,9 @@ void global_var_init(char* _varname, char* _type, char* _values){
 void alloca_instr(char* _reg, char* _subtype){
 	timer->start_timer();
 	operators->alloca_instr(_reg, _subtype);
+	timer->end_timer("alloca_instr");
 	if(options->cmd_option_bool("concurrency"))
 		concurrency->alloca_instr(_reg, _subtype);
-	timer->end_timer("alloca_instr");
 }
 
 void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
@@ -175,9 +178,9 @@ void end_sim(){
 }
 
 bool br_instr_cond(char* _cmp, char* _joints){
-	timer->start_timer();
+	//timer->start_timer();
 	bool ret = operators->br_instr_cond(_cmp, _joints);
-	timer->end_timer("br_instr_cond");
+	//timer->end_timer("br_instr_cond");
 
 	return ret;
 }

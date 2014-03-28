@@ -57,7 +57,7 @@ void Timer::print_times(){
 
 
 	for( map<string,float>::iterator it = times.begin(); it != times.end(); it++ ){
-		printf("Time %s %f\n", it->first.c_str(), it->second);
+		printf("Timer %s %f\n", it->first.c_str(), it->second);
 	}
 	
 }
