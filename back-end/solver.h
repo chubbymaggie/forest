@@ -29,6 +29,7 @@
 #include <vector>
 #include "operators.h"
 #include "utils.h"
+#include "timer.h"
 
 
 using namespace std;

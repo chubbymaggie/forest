@@ -30,6 +30,7 @@ extern Options* options;
 extern Operators* operators;
 extern Database* database;
 extern Concurrency* concurrency;
+extern Timer* timer;
 
 
 Solver::Solver(){
@@ -534,6 +535,8 @@ void Solver::solve_problem(){
 		return;
 	}
 
+	timer->start_timer();
+
 	vector<string> ret_vector;
 
 	sat = 0;
@@ -542,11 +545,12 @@ void Solver::solve_problem(){
 	filename << "z3_" << rand() << ".smt2";
 
 
-	FILE* file = fopen(filename.str().c_str(), "w");
 
 
 	options->read_options();
 
+	timer->start_timer();
+	FILE* file = fopen(filename.str().c_str(), "w");
 	dump_header(file);
 	dump_variables(file);
 	dump_pivots(file);
@@ -557,8 +561,8 @@ void Solver::solve_problem(){
 	dump_check_sat(file);
 	dump_get(file);
 	dump_tail(file);
-
 	fclose(file);
+	timer->end_timer("dump");
 
 	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.str().c_str() );
 
@@ -611,7 +615,10 @@ spent_time /= 1e6;
 
 	debug && printf("\e[31m problem solved \e[0m\n" );
 
-	if(!sat) return;
+	if(!sat){
+		timer->end_timer("solver");
+		return;
+	}
 
 
 	bool sat = 0;
@@ -621,6 +628,7 @@ spent_time /= 1e6;
 
 	set<NameAndPosition> free_variables_aux;
 
+	timer->start_timer();
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++,it_ret++ ){
 
 		string line = *it_ret;
@@ -673,7 +681,9 @@ spent_time /= 1e6;
 
 		it_ret++;
 	}
+	timer->end_timer("get_values");
 
+	timer->end_timer("solver");
 }
 
 
