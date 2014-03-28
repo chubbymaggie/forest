@@ -38,10 +38,11 @@ public:
 	void end_timer(string id);
 
 private:
-	struct timespec ping_time;
+	struct timespec ping_time[100];
 	struct timespec pong_time;
 	float spent_time_ms = 0;
 	map<string, float> times;
+	int n;
 };
 
 

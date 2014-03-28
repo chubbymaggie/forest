@@ -22,6 +22,8 @@
 #include "timer.h"
 
 Timer::Timer(){
+
+	n=0;
 	
 }
 
@@ -32,7 +34,9 @@ Timer::~Timer(){
 void Timer::start_timer(){
 
 	
-	clock_gettime(CLOCK_MONOTONIC, &ping_time);
+	clock_gettime(CLOCK_MONOTONIC, &(ping_time[n]));
+
+	n++;
 	
 
 }
@@ -40,12 +44,14 @@ void Timer::start_timer(){
 
 void Timer::end_timer(string id){
 
+	n--;
+
 	clock_gettime(CLOCK_MONOTONIC, &pong_time);
 	
 	spent_time_ms = 0;
-	spent_time_ms += pong_time.tv_sec - ping_time.tv_sec;
+	spent_time_ms += pong_time.tv_sec - (ping_time[n]).tv_sec;
 	spent_time_ms *= 1e9;
-	spent_time_ms += pong_time.tv_nsec - ping_time.tv_nsec;
+	spent_time_ms += pong_time.tv_nsec - (ping_time[n]).tv_nsec;
 	spent_time_ms /= 1e6;
 
 	times[id] += spent_time_ms;
