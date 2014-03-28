@@ -67,3 +67,7 @@ void Timer::print_times(){
 	}
 	
 }
+
+map<string, float> Timer::get_times(){
+	return times;
+}

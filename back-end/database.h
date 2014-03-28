@@ -31,6 +31,7 @@
 #include "operators.h"
 #include "solver.h"
 #include "utils.h"
+#include "timer.h"
 
 using namespace std;
 
@@ -43,6 +44,7 @@ typedef struct NameAndType {
 
 class Database {
 public:
+	void save_times();
 	void insert_last_bb(string function_name, string bb_name);
 	void insert_frontend_interface();
 	void insert_model_entry(string name,string free_vars, string content, string path);

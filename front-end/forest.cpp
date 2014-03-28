@@ -2368,6 +2368,15 @@ void clean_tables(){
 	action << ");";
 	db_command( action.str() );
 
+
+	action.str("");
+	action << "create table timer(";
+	action << "id varchar(50),";
+	action << "time_ms float";
+	action << ");";
+	db_command( action.str() );
+
+
 	end_pass("clean_tables");
 }
 
@@ -3939,6 +3948,58 @@ void klee_coverage(){
 	//end_pass("klee_coverage");
 }
 
+float stof(string str){
+	float ret;
+	sscanf(str.c_str(), "%f", &ret);
+	return ret;
+}
+
+
+
+void show_timer(){
+	systm("echo 'select * from timer;' | sqlite3 database.db > timer_file;");
+
+	ifstream input(tmp_file("timer_file").c_str());
+	string line;
+
+	map<string, float> times;
+	
+	while( getline( input, line ) ) {
+		vector<string> tokens = tokenize(line, "|");
+		string id = tokens[0];
+		float time = stof(tokens[1]);
+		times[id] += time;
+	}
+
+	FILE* file = fopen(tmp_file("gnuplot_data").c_str(), "w");
+	int n = 1;
+	float max_val = -9999;
+	for( map<string,float>::iterator it = times.begin(); it != times.end(); it++ ){
+		fprintf(file,"%d %f %s\n",n++, it->second, it->first.c_str());
+		if(it->second > max_val)
+			max_val = it->second;
+	}
+	fclose(file);
+
+	file = fopen(tmp_file("gnuplot_script").c_str(), "w");
+	fprintf(file, "set terminal png size '400x8000'\n");
+	fprintf(file, "set output 'demo.png'\n");
+	fprintf(file, "set nokey\n");
+	fprintf(file, "unset border\n");
+	fprintf(file, "unset xtics\n");
+	fprintf(file, "set yrange [-80:%f]\n", max_val);
+	fprintf(file, "plot 'gnuplot_data' using 1:(-1):3 with labels rotate right, \\\n");
+	fprintf(file, "     'gnuplot_data' using 1:2 with boxes	\n");
+	//fprintf(file, "plot 'gnuplot_data.dat' using 1:2 with boxes\n");
+	fclose(file);
+
+	systm("gnuplot gnuplot_script");
+	systm("convert -rotate 90 demo.png demo2.png");
+	systm("eog demo2.png");
+	
+	
+}
+
 int main(int argc, const char *argv[]) {
 
 
@@ -4030,6 +4091,8 @@ int main(int argc, const char *argv[]) {
 	disables("tests_from_klee", "check_coverage");
 	disables("show_coverage", "test");
 	disables("show_coverage", "check_coverage");
+	disables("show_timer", "test");
+	disables("show_timer", "check_coverage");
 
 
 	expand_options();
@@ -4090,6 +4153,7 @@ int main(int argc, const char *argv[]) {
 	if(cmd_option_bool("lbc")) linked_bc();                                     // get the bc linked with standard libraries
 	if(cmd_option_bool("tests_from_klee")) tests_from_klee();                   // get the test_vectors from klee output
 	if(cmd_option_bool("klee_coverage")) klee_coverage();                       // get the coverage of tests generaged by klee
+	if(cmd_option_bool("show_timer")) show_timer();                             // draws a graph with timer
 
 	return 0;
 

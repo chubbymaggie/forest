@@ -35,6 +35,7 @@
 #include "utils.h"
 #include "options.h"
 #include "concurrency.h"
+#include "timer.h"
 
 using namespace std;
 

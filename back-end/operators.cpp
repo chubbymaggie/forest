@@ -31,6 +31,7 @@ extern Operators* operators;
 extern Solver* solver;
 extern Database* database;
 extern Concurrency* concurrency;
+extern Timer* timer;
 
 extern map<string, string> map_pos_to_last_store;
 
@@ -463,8 +464,10 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 	vector<string> types = tokenize(string(_type), ",");
 	vector<string> values = tokenize(string(_values), ",");
 
+	timer->start_timer();
 	int last_address = alloca_pointer + get_size(type) - get_size(types[types.size()-1]);
 	int first_address = alloca_pointer;
+	timer->end_timer("global_boundaries");
 
 
 	if( types.size() != values.size() ){
@@ -475,13 +478,16 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 	if(!check_mangled_name(name(varname))) assert(0 && "Wrong name for global_var_init");
 
 
+	timer->start_timer();
 	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
 	solver->assign_instruction(name(rvalue.str()), name(varname));
 	solver->settype( name(varname), "Pointer");
+	timer->end_timer("global_assign");
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 	int prev_alloca_pointer = alloca_pointer;
 
+	timer->start_timer();
 	for ( unsigned int i = 0; i < values.size(); i++) {
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
@@ -513,6 +519,8 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 		alloca_pointer += get_size(types[i]);
 	}
+
+	timer->end_timer("global_values");
 
 	debug && printf("\e[31m global_var_init %s %s %s\e[0m. %s %s %s %s allocapointer %d last_address %d first_address %d\n", varname.c_str(),type.c_str(),_values 
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer
@@ -710,6 +718,7 @@ void Operators::begin_sim(){
 void Operators::end_sim(){
 
 	solver->dump_model();
+	database->save_times();
 	database->end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
 	

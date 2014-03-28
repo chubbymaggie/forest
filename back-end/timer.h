@@ -30,6 +30,7 @@ using namespace std;
 
 class Timer {
 public:
+	map<string, float> get_times();
 	void print_times();
 	Timer ();
 	virtual ~Timer ();

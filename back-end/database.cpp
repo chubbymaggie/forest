@@ -25,6 +25,7 @@
 extern Solver* solver;
 extern Options* options;
 extern Operators* operators;
+extern Timer* timer;
 
 vector< pair<string, string> > retsqlite;
 
@@ -851,5 +852,26 @@ void Database::insert_last_bb(string function_name, string bb_name){
 
 }
 
+void Database::save_times(){
+
+	printf("save timer\n");
+
+	map<string, float> times = timer->get_times();
+
+	for( map<string,float>::iterator it = times.begin(); it != times.end(); it++ ){
+		stringstream action;
+		action.str("");
+		action << "insert into timer values ('" << it->first << "','" << it->second << "');";
+
+		printf("action %s\n", action.str().c_str());
+
+		sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+	}
+	
+	
+
+
+
+}
 
 
