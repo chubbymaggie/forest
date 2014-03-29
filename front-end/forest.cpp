@@ -3974,23 +3974,30 @@ void show_timer(){
 	FILE* file = fopen(tmp_file("gnuplot_data").c_str(), "w");
 	int n = 1;
 	float max_val = -9999;
+	int max_len = 0;
 	for( map<string,float>::iterator it = times.begin(); it != times.end(); it++ ){
 		fprintf(file,"%d %f %s\n",n++, it->second, it->first.c_str());
 		if(it->second > max_val)
 			max_val = it->second;
+		if(it->first.length() > max_len)
+			max_len = it->first.length();
 	}
 	fclose(file);
 
+	float min_x = max_val/480.0*max_len*15;
+
+	printf("max_val %f max_len %d min_x %f\n", max_val, max_len, min_x);
+
 	file = fopen(tmp_file("gnuplot_script").c_str(), "w");
-	fprintf(file, "set terminal png size '400x8000'\n");
+	fprintf(file, "set terminal png size '%dx8000'\n", times.size()*20);
 	fprintf(file, "set output 'demo.png'\n");
 	fprintf(file, "set nokey\n");
 	fprintf(file, "unset border\n");
 	fprintf(file, "unset xtics\n");
-	fprintf(file, "set yrange [-80:%f]\n", max_val);
+	fprintf(file, "set yrange [-%f:%f]\n",min_x, max_val);
+	//fprintf(file, "set yrange [-%d:%f]\n",max_len*250, max_val);
 	fprintf(file, "plot 'gnuplot_data' using 1:(-1):3 with labels rotate right, \\\n");
 	fprintf(file, "     'gnuplot_data' using 1:2 with boxes	\n");
-	//fprintf(file, "plot 'gnuplot_data.dat' using 1:2 with boxes\n");
 	fclose(file);
 
 	systm("gnuplot gnuplot_script");
