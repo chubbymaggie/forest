@@ -95,11 +95,8 @@ public:
 	string get_comma_stack_conditions_static();
 	string get_path_stack_str();
 	void variable_store(string src,string idx_content, int first_address, int last_address );
-	string content_2( string name );
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
-	bool is_forced_free_2(string position);
 	void dump_model();
-	void insert_variable_2(string name, string position);
 	void set_content(string name, string content);
 	void clean_pivots();
 	void push_condition(string cond, bool invert = false );
@@ -148,7 +145,7 @@ public:
 	string get_position(string name);
 	string find_by_name_hint(string hint);
 	void setcontent(string varname, string content);
-	bool is_forced_free(string position);
+	bool is_forced_free(string position, bool colateral_effect = true);
 	void insert_variable(string name, string position);
 	bool is_constant(string varname);
 	string get_comma_stack_conditions();
@@ -156,6 +153,8 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	vector<int> jump_offsets(string offset_tree);
+	set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int > solutions );
 	vector<bool> path_stack_save;
 	vector<string> conditions_static_save;
 	vector<Condition> conditions_save;

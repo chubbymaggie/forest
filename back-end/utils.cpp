@@ -259,19 +259,23 @@ string locknames(string condition){
 		//printf("locknames_option %s\n", it->c_str());
 
 	}
-	
 
-	//myReplace(condition, "_Z3fn1Pv_sync_1", "a");
-	//myReplace(condition, "_Z3fn1Pv_sync_3", "g");
-	//myReplace(condition, "_Z3fn1Pv_sync_2", "b");
-	//myReplace(condition, "_Z3fn1Pv_sync_4", "c");
-
-	//myReplace(condition, "_Z3fn2Pv_sync_1", "d");
-	//myReplace(condition, "_Z3fn2Pv_sync_3", "e");
-	//myReplace(condition, "_Z3fn2Pv_sync_5", "f");
-	//myReplace(condition, "_Z3fn2Pv_sync_7", "h");
-	
 	return condition;
 
+}
+
+string binary_rep(int n){
+
+	stringstream ret;
+
+	for( int c = 30; c >= 0; c--){
+		int k = n >> c;
+		if(k & 1)
+			ret << 1;
+		else 
+			ret << 0;
+	}
+
+	return ret.str();
 }
 

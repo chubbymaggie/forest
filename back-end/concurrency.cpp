@@ -29,6 +29,7 @@ extern Options* options;
 extern Operators* operators;
 
 Concurrency::Concurrency(){;}
+
 Concurrency::~Concurrency(){;}
 
 void Concurrency::insert_global_types(){

@@ -548,13 +548,6 @@ set<string> Database::list_sync_points(){
 
 	}
 
-
-
-	//ret.insert("entry");
-	//ret.insert("bb");
-	//ret.insert("bb4");
-	//ret.insert("bb2");
-	//ret.insert("bb1");
 	return ret;
 }
 
@@ -610,12 +603,6 @@ set<string> Database::list_store_sync_points(){
 
 	return ret;
 
-	//set<string> ret;
-	//ret.insert("entry");
-	//ret.insert("bb");
-	//ret.insert("bb1");
-	//ret.insert("bb2");
-	//return ret;
 }
 
 void Database::insert_global_type(string name, string type, string position){

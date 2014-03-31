@@ -40,11 +40,6 @@ typedef struct MutexInfo {
 	string conds;
 } MutexInfo;
 
-//typedef struct NameAndPosition {
-	//string name;
-	//string position;
-//} NameAndPosition;
-
 inline bool operator<(const MutexInfo& lhs, const MutexInfo& rhs) {
   return (lhs.lockunlock + lhs.mutex_name + lhs.sync_name + lhs.conds) < (rhs.lockunlock + rhs.mutex_name + rhs.sync_name + rhs.conds);
 }

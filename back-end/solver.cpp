@@ -75,29 +75,6 @@ string Solver::content( string name ){
 	}
 }
 
-string Solver::content_2( string name ){
-
-	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
-
-	if(name.find("constant_") != string::npos ) return name.substr(9);
-
-	if( variables[name].content == "" || is_forced_free(name) ){
-		string position;
-	        if(name.substr(0,7) == "global_")
-			position = operators->get_actual_function() + UNDERSCORE + variables[name].name_hint;
-		else
-			position = variables[name].name_hint;
-		//insert_variable(name, position );
-
-		if(is_number(name)) return name;
-		else return position;
-		//return name;
-
-	} else {
-		return variables[name].content;
-	}
-}
-
 void Solver::dump_model(){
 
 
@@ -700,22 +677,6 @@ void Solver::insert_variable(string name, string position){
 
 }
 
-void Solver::insert_variable_2(string name, string position){
-
-	if(!check_mangled_name(name)) assert(0 && "Wrong name for insert_variable");
-		
-	debug && printf("\e[35m Insert_variable \e[0m name %s hint %s position %s size %lu\n", name.c_str(), variables[name].name_hint.c_str(), position.c_str(), free_variables.size() );
-
-	//check_name_and_pos(name, position);
-
-	NameAndPosition nandp = {name, position};
-	free_variables.insert(nandp);
-
-	//for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-	//	printf("free_variable %s %s\n", it->name.c_str(), it->position.c_str() );
-	//}
-}
-
 void Solver::push_condition(string cond, bool invert ){
 
 	set<string> joints_set;
@@ -995,33 +956,34 @@ void Solver::setcontent(string varname, string content){
 	variables[varname].content = content;
 }
 
-bool Solver::is_forced_free(string position){
+bool Solver::is_forced_free(string position, bool colateral_effect){
 
-	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+	if(colateral_effect){
 
-	if( forced_free_vars.find(position) != forced_free_vars.end() ){
-		if( already_forced_free.find(position) != already_forced_free.end() ){
+		if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+
+		if( forced_free_vars.find(position) != forced_free_vars.end() ){
+			if( already_forced_free.find(position) != already_forced_free.end() ){
+				return false;
+			} else{
+				already_forced_free.insert(position);
+				return true;
+			}
+		} else {
 			return false;
-		} else{
-			already_forced_free.insert(position);
-			return true;
 		}
+
 	} else {
-		return false;
+
+		if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+
+		if( forced_free_vars.find(position) != forced_free_vars.end() ){
+			return true;
+		} else {
+			return false;
+		}
+
 	}
-
-}
-
-bool Solver::is_forced_free_2(string position){
-
-	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
-
-	if( forced_free_vars.find(position) != forced_free_vars.end() ){
-		return true;
-	} else {
-		return false;
-	}
-
 }
 
 void Solver::load_forced_free_vars(){
@@ -1205,20 +1167,6 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 
 }
 
-string binary_rep(int n){
-
-	stringstream ret;
-
-	for( int c = 30; c >= 0; c--){
-		int k = n >> c;
-		if(k & 1)
-			ret << 1;
-		else 
-			ret << 0;
-	}
-
-	return ret.str();
-}
 
 string Solver::and_constant(string op1, string op2){
 
@@ -1781,7 +1729,7 @@ bool Solver::check_mangled_name(string name){
 bool Solver::get_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
-	if(is_forced_free_2(varname)) return false;
+	if(is_forced_free(varname, false)) return false;
 	return variables[varname].is_propagated_constant;
 }
 
@@ -2061,7 +2009,7 @@ void Solver::pivot_variable(string variable, string name){
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
 
-vector<int> jump_offsets(string offset_tree){
+vector<int> Solver::jump_offsets(string offset_tree){
 
 	vector<int> ret;
 
@@ -2180,13 +2128,7 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 }
 
-string evaluate(string expr){
-	string ret;
-	ret = tokenize(expr, " ()")[2];
-	return ret;
-}
-
-set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int > solutions ){
+set<set<pair<string, int> > > Solver::get_exclusions( map<set<pair<string, int> > , int > solutions ){
 
 	set<set<pair<string, int> > > ret;
 	
