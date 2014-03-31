@@ -156,6 +156,11 @@ public:
 	void unset_is_propagated_constant(string varname);
 
 private:
+	vector<bool> path_stack_save;
+	vector<string> conditions_static_save;
+	vector<Condition> conditions_save;
+
+	bool sat;
 	float spent_time;
 	void check_name_and_pos(string name, string position);
 	string z3_type(string type);

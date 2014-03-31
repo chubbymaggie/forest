@@ -32,7 +32,6 @@ extern Solver* solver;
 extern Database* database;
 extern Concurrency* concurrency;
 extern Timer* timer;
-
 extern map<string, string> map_pos_to_last_store;
 
 Operators::Operators(){
@@ -40,6 +39,7 @@ Operators::Operators(){
 	alloca_pointer = 0;
 
 }
+
 Operators::~Operators(){}
 
 void Operators::cast_instruction(char* _dst, char* _src, char* _type){
@@ -79,20 +79,11 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 
 }
 
-
-vector<string> oplist_gl;
-string ret_to_gl;
-string ret_gl;
-int callstack_size;
-
-
-
 void Operators::pr_callstack(){
 	for( vector<pair<string, string> >::iterator it = callstack.begin(); it != callstack.end(); it++ ){
 		printf("\e[36m callstack %s %s\e[0m \n", it->first.c_str(), it->second.c_str() );
 	}
 }
-
 
 void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 
@@ -130,7 +121,6 @@ void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 	pr_callstack();
 
 }
-
 
 void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 
@@ -202,8 +192,6 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 
 }
 
-map<string, int> nonannotated_call_count;
-
 void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
 
@@ -235,7 +223,6 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
 }
-
 
 void Operators::CallInstr( char* _oplist, char* _ret_to ){
 
@@ -297,7 +284,6 @@ void Operators::select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 }
 
-
 void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 	string dst = string(_dst);
@@ -320,9 +306,7 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 }
 
-
 #define update_store(A,B) concurrency->update_store(A,B);
-
 
 void Operators::load_instr(char* _dst, char* _addr){
 
@@ -451,10 +435,6 @@ void Operators::end_bb(char* name){
 	debug && printf("\e[31m end_bb %s\e[0m\n", name );
 }
 
-
-map<string, int> first_addresses;
-map<string, int> last_addresses;
-
 void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 	//printf("\e[33m global_var_init %s %s %s\e[0m.\n", _varname, _type, _values); fflush(stdout);
@@ -526,7 +506,6 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 			, name(varname).c_str(), realvalue(name(varname)).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer
 		        , last_address, first_address);
 }
-
 
 void Operators::pointer_ranges(){
 
@@ -923,7 +902,6 @@ vector<string> Operators::name( vector<string> input, string fn_name ){
 
 }
 
-
 string Operators::name( string input, string fn_name ){
 
 	if(input.substr(0,9) != "constant" UNDERSCORE &&
@@ -1120,5 +1098,6 @@ void Operators::memcpy(char* _addr_dst, char* _addr_src, char* _size_bytes, char
 
 	printf("\e[31m llvm.memcpy \e[31m addr_dst \e[0m %s \e[31m addr_src \e[0m %s \e[31m size_bytes \e[0m %s \e[31m align \e[0m %s \e[31m is_volatile \e[0m %s\n", addr_dst.c_str(), addr_src.c_str(), size_bytes.c_str(), align.c_str(), is_volatile.c_str());
 	//exit(0);
+	
 }
 

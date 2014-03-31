@@ -18,7 +18,6 @@
  * =====================================================================================
  */
 
-
 #include "timer.h"
 
 Timer::Timer(){
@@ -41,7 +40,6 @@ void Timer::start_timer(){
 
 }
 
-
 void Timer::end_timer(string id){
 
 	n--;
@@ -58,7 +56,6 @@ void Timer::end_timer(string id){
 
 }
 
-
 void Timer::print_times(){
 
 
@@ -71,3 +68,4 @@ void Timer::print_times(){
 map<string, float> Timer::get_times(){
 	return times;
 }
+

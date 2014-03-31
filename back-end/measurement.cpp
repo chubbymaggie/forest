@@ -30,17 +30,6 @@ using namespace std;
 
 extern Database* database;
 
-set<string> visited_bbs;
-set<string> visited_fns;
-set<string> available_fns;
-set<string> available_bbs;
-map<string, vector<string> > test_vectors;
-vector<string> fn_stack;
-vector<bool> path_stack;
-
-string actual_fn_name;
-
-
 Measurement::Measurement(){
 	
 }
@@ -48,10 +37,6 @@ Measurement::Measurement(){
 Measurement::~Measurement(){
 	
 }
-
-
-
-
 
 void Measurement::begin_bb(char* _name){
 
@@ -122,7 +107,6 @@ map<string, vector<string> > Measurement::load_test_vectors(){
 	return ret;
 	
 }
-
 
 int Measurement::vector_int(char* _name){
 	
@@ -298,13 +282,12 @@ void Measurement::end_sim(){
 
 }
 
-int branches_count = 0;
-
 void Measurement::br_count(){
 	branches_count++;
 }
 
 void Measurement::end_count(){
 	printf("Number of branches %d\n", branches_count);
+
 }
 

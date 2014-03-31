@@ -94,7 +94,6 @@ int get_size(string type){
 
 }
 
-
 int get_ini_elem(int nelem_target, string offset_tree){
 
 	int depth = -1;
@@ -159,11 +158,6 @@ bool has_index(string offset_tree, int index){
 	return false;
 }
 
-
-
-
-
-
 void myReplace(std::string& str, const std::string& oldStr, const std::string& newStr) {
 	size_t pos = 0;
 	while((pos = str.find(oldStr, pos)) != std::string::npos){
@@ -171,7 +165,6 @@ void myReplace(std::string& str, const std::string& oldStr, const std::string& n
 		pos += newStr.length();
 	}
 }
-
 
 string itos(int i){
 	stringstream i_ss;
@@ -203,7 +196,6 @@ bool is_number(const std::string& s) {
 	return !s.empty() && it == s.end();
 }
 
-
 int count(string name, string character){
 
     int n = 0;
@@ -217,13 +209,11 @@ int count(string name, string character){
 
 }
 
-
 int stoi(string str){
 	int ret;
 	sscanf(str.c_str(), "%d", &ret);
 	return ret;
 }
-
 
 short stos(string str){
 	short ret;
@@ -233,7 +223,6 @@ short stos(string str){
 	return ret;
 }
 
-
 short stoc(string str){
 	char ret;
 	int ret_i;
@@ -241,7 +230,6 @@ short stoc(string str){
 	ret = ret_i;
 	return ret;
 }
-
 
 float stof(string str){
 	float ret;
@@ -284,8 +272,6 @@ string locknames(string condition){
 	//myReplace(condition, "_Z3fn2Pv_sync_7", "h");
 	
 	return condition;
+
 }
-
-
-
 

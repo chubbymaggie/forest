@@ -21,6 +21,7 @@
 #include "options.h"
 
 Options::Options(){}
+
 Options::~Options(){}
 
 void Options::read_options(){
@@ -75,3 +76,4 @@ string Options::cmd_option_str(string option){
 int Options::cmd_option_int(string option){
 	return atoi( options[option].c_str() );
 }
+

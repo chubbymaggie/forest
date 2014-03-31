@@ -84,6 +84,16 @@ public:
 	vector<string> name( vector<string> input, string fn_name = "" );
 
 private:
+
+
+	map<string, int> first_addresses;
+	map<string, int> last_addresses;
+	map<string, int> nonannotated_call_count;
+	vector<string> oplist_gl;
+	string ret_to_gl;
+	string ret_gl;
+	int callstack_size;
+
 	bool is_variable_pointer(string addr);
 	string get_index_expr(string offset_tree, vector<string> indexes, string base);
 	bool all_constant(vector<string> names);

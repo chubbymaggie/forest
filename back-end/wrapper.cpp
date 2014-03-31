@@ -185,11 +185,9 @@ bool br_instr_cond(char* _cmp, char* _joints){
 	return ret;
 }
 
-
 void br_instr_cond_measurement(bool value){
 	measurement->br_instr_cond_measurement(value);
 }
-
 
 void mutex_lock(char* _mutex_name, char* _sync_name){
 	if(options->cmd_option_bool("concurrency") && !options->cmd_option_bool("secuencialize"))
@@ -214,7 +212,6 @@ void begin_concurrency(){
 void end_concurrency(){
 	concurrency->end_concurrency();
 }
-
 
 void Free_fn( char* _oplist ){
 	timer->start_timer();
@@ -242,7 +239,6 @@ void pivot_variable(char* a){
 
 }
 
-
 void pivot_hint(char* a){
 	operators->pivot_hint(a);
 }
@@ -257,7 +253,3 @@ void Memcpy(char* a, char* b, char* c, char* d, char* e){
 	timer->end_timer("Memcpy");
 }
 
-
-//void pivot_var(int* a){
-
-//}

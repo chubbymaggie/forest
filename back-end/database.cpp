@@ -29,10 +29,8 @@ extern Timer* timer;
 
 vector< pair<string, string> > retsqlite;
 
-Database::Database(){
+Database::Database(){ }
 
-
-}
 Database::~Database(){;}
 
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -57,7 +55,6 @@ void Database::end_database(){
 	debug && printf("\e[31m end_database \e[0m\n"); fflush(stdout);
 	sqlite3_close(db);
 }
-
 
 void Database::insert_model_entry(string name,string free_vars, string content, string path_condition){
 
@@ -250,7 +247,6 @@ void Database::insert_store(string pos, string content, string sync_name){
 
 }
 
-
 bool Database::exists_in_stores(string pos, string content, string sync_name){
 
 	stringstream action;
@@ -269,7 +265,6 @@ bool Database::exists_in_stores(string pos, string content, string sync_name){
 
 
 }
-
 
 bool Database::exists_in_sync(string syncname, set<string> sync_points){
 
@@ -463,7 +458,6 @@ set<string> Database::list_lock_points(){
 	return ret;
 
 }
-
 
 set<vector<string> > Database::get_paths_to(string dest){
 
@@ -674,7 +668,6 @@ set<pair<string, string> > Database::get_sync_global_types(){
 	return ret;
 }
 
-
 bool Database::exists_in_concurrency(string lockunlock, string mutex_name, string sync_name, string conds){
 
 	stringstream action;
@@ -734,17 +727,9 @@ void Database::insert_problem_measurement(){
 
 }
 
-
-
-
-
-
-
 inline bool operator<(const NameAndType& lhs, const NameAndType& rhs) {
   return (lhs.name + lhs.type) < (rhs.name+rhs.type);
 }
-
-
 
 set<string> Database::global_stores(string sync_name){
 
@@ -770,7 +755,6 @@ set<string> Database::global_stores(string sync_name){
 
 
 }
-
 
 set<string> Database::global_variables(){
 
@@ -867,11 +851,5 @@ void Database::save_times(){
 
 		sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
 	}
-	
-	
-
-
-
 }
-
 

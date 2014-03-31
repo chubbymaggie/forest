@@ -78,6 +78,16 @@ public:
 	map<string, vector<string> > load_test_vectors();
 
 private:
+
+	set<string> visited_bbs;
+	set<string> visited_fns;
+	set<string> available_fns;
+	set<string> available_bbs;
+	map<string, vector<string> > test_vectors;
+	vector<string> fn_stack;
+	vector<bool> path_stack;
+	string actual_fn_name;
+	int branches_count = 0;
 	
 };
 

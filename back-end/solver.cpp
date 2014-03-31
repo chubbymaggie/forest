@@ -25,13 +25,11 @@
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
 
-
 extern Options* options;
 extern Operators* operators;
 extern Database* database;
 extern Concurrency* concurrency;
 extern Timer* timer;
-
 
 Solver::Solver(){
 
@@ -39,8 +37,8 @@ Solver::Solver(){
 	debug = options->cmd_option_bool("verbose");
 
 }
-Solver::~Solver(){}
 
+Solver::~Solver(){}
 
 void Solver::free_var(string var){
 
@@ -77,7 +75,6 @@ string Solver::content( string name ){
 	}
 }
 
-
 string Solver::content_2( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
@@ -100,8 +97,6 @@ string Solver::content_2( string name ){
 		return variables[name].content;
 	}
 }
-
-
 
 void Solver::dump_model(){
 
@@ -131,7 +126,6 @@ void Solver::dump_model(){
 	
 }
 
-
 void Solver::set_last_address(string name, int last_address){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_last_address");
@@ -158,7 +152,6 @@ int Solver::get_last_address(string name){
 	return variables[name].last_address;
 
 }
-
 
 int Solver::get_first_address(string name){
 
@@ -472,61 +465,11 @@ void Solver::set_real_value_hint(string hint, string value ){
 	
 }
 
-
-
-#define INITIAL_LINE_LENGTH	256
-char* fgetln(register FILE* fp, size_t *lenp) {
-
-	char c;
-	size_t n, siz;
-	size_t len, new_len;
-	char *buf;
-	char *p;
-
-	len = INITIAL_LINE_LENGTH;
-	n = siz = 0;
-
-	if ((buf = (char*)malloc(INITIAL_LINE_LENGTH + 1)) == NULL)
-		return (NULL);
-
-	p = buf;
-	for (;;) {
-		if ((c = getc(fp)) == EOF) {
-			if (siz != 0)
-				break;
-			free(buf);
-			return (NULL);
-		}
-
-		++siz;
-
-		if (c == '\n') {
-			*p++ = c;
-			break;
-		}
-		if (n++ >= len) {
-			new_len = len << 1;
-			if ((buf = (char*)realloc(buf, new_len + 1)) == NULL)
-	                        return (NULL);
-			len = new_len;
-			p = buf;
-	                p += len >> 1;
-		}
-		*p++ = c;
-	}
-	*p = 0;
-	if (lenp != NULL)
-		*lenp = siz;
-	return (buf);
-}
-
 bool Solver::get_is_sat(string is_sat){
 
 	if( is_sat == "sat" ) return true;
 	else return false;
 }
-
-bool sat;
 
 void Solver::solve_problem(){
 
@@ -686,7 +629,6 @@ spent_time /= 1e6;
 	timer->end_timer("solver");
 }
 
-
 float Solver::get_solve_time(){
 	return spent_time;
 }
@@ -784,8 +726,6 @@ void Solver::push_condition(string cond, bool invert ){
 
 }
 
-
-
 void Solver::push_condition_static(string cond, bool invert){
 
 
@@ -814,14 +754,6 @@ void Solver::push_condition_static(string cond, bool invert){
 	conditions_static.push_back( condition );
 
 }
-
-
-
-
-vector<bool> path_stack_save;
-vector<string> conditions_static_save;
-vector<Condition> conditions_save;
-
 
 void Solver::save_state(){
 	path_stack_save        = path_stack;
@@ -968,12 +900,6 @@ bool Solver::get_comes_from_non_annotated(string name){
 
 void Solver::clean_conditions_stack(string name){
 
-//typedef struct Condition {
-	//string cond;
-	//string function;
-	//set<string> joints;
-//} Condition;
-	
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 
 		if( it->joints.size() == 0 && it->function == "" ){
@@ -1044,7 +970,6 @@ void Solver::set_is_propagated_constant(string varname){
 
 }
 
-
 void Solver::unset_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for unset_is_propagated_constant");
@@ -1087,7 +1012,6 @@ bool Solver::is_forced_free(string position){
 
 }
 
-
 bool Solver::is_forced_free_2(string position){
 
 	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
@@ -1100,7 +1024,6 @@ bool Solver::is_forced_free_2(string position){
 
 }
 
-
 void Solver::load_forced_free_vars(){
 
 
@@ -1112,32 +1035,6 @@ void Solver::load_forced_free_vars(){
 	}
 	
 }
-
-//void Solver::substitute_pivots(string& src){
-
-	//for( map<string,vector<string> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-		////printf("subst_pivot %s\n", it->first.c_str() );
-		////if( get_name_hint(src) == it->first ){
-		//if( src == it->first ){
-			//vector<string> pivots = it->second;
-			//string subst_to = pivots[pivots.size()-1];
-			//printf("\n\e[33m Substitute_pivot_point\e[0m %s %s\n", it->first.c_str(), subst_to.c_str());
-			//src = subst_to;
-			////set_name_hint(src, subst_to);
-		//}
-	//}
-
-//}
-
-//bool Solver::is_pivot(string src){
-	////string content_var = variables[src].content;
-	////if(content_var.find("_pivot_") == string::npos)
-	//if(src.find("_pivot_") == string::npos)
-		//return false;
-	//else
-		//return true;
-	////printf("is_pivot %s\n", content(src).c_str());
-//}
 
 void Solver::set_first_content(string src, string content){
 
@@ -1161,7 +1058,6 @@ string Solver::get_first_content(string src){
 	return first_content[src];
 
 }
-
 
 void Solver::propagate_unary(string src, string dst, bool forcedfree){
 
@@ -1188,8 +1084,6 @@ void Solver::propagate_unary(string src, string dst, bool forcedfree){
 	init_indexes(dst, src);
 
 }
-
-
 
 void Solver::assign_instruction(string src, string dst, string fn_name){
 
@@ -1326,36 +1220,6 @@ string binary_rep(int n){
 	return ret.str();
 }
 
-//string Solver::and_constant(string op1, string op2){
-
-	//stringstream ret;
-	//int op2_i = stoi(op2);
-	//string op2_b = binary_rep(op2_i);
-	//string op1_content = content(op1);
-
-	//printf("and_constant %s %s %s %s\n", op1.c_str(),op1_content.c_str(), op2.c_str(), op2_b.c_str());
-
-	//ret << "(+ ";
-
-	//for ( unsigned int i = 0,mult=1,mult2=2; i < op2_b.length()-1; i++,mult*=2, mult2*=2) {
-		//char byte = op2_b[op2_b.length()-i-1];
-		//printf("byte %c mult %d\n", byte, mult);
-
-		//stringstream bit;
-
-		//bit << "(/ (- (mod " << op1_content << " " << mult2 << ") (mod " << op1_content << " " << mult << ")) " << mult <<  ")";
-
-		//if( byte == '1' )
-			//ret << "(* " << bit.str() << " " << mult << ") ";
-
-	//}
-
-	//ret << ")";
-
-	//return ret.str();
-
-//}
-
 string Solver::and_constant(string op1, string op2){
 
 	stringstream ret;
@@ -1406,7 +1270,6 @@ string Solver::and_constant(string op1, string op2){
 	return ret.str();
 
 }
-
 
 string Solver::complement_op(string op1){
 
@@ -1474,47 +1337,6 @@ string Solver::or_constant(string op1, string op2){
 
 }
 
-//string wired_and( string op1, string op2, int nbits ){
-
-	//vector<string> z_bits;
-
-	//for ( unsigned int i = 0; i < nbits; i++) {
-		//int mod1 = ( 1 << i+1 );
-		//int mod2 = ( 1 << i   );
-
-		//string content1 = content(name(op1));
-		//string content2 = content(name(op2));
-		
-		////printf("content %s %s\n", content1.c_str(), content2.c_str() );
-
-		//stringstream x_bit_i;
-		//stringstream y_bit_i;
-		//stringstream z_bit_i;
-		//stringstream z_bit_i_sh;
-		//x_bit_i << "(/ (- (mod " << content1 << " " << mod1 << ") (mod " << content1 << " " << mod2 << ")) " << mod2 << ")";
-		//y_bit_i << "(/ (- (mod " << content2 << " " << mod1 << ") (mod " << content2 << " " << mod2 << ")) " << mod2 << ")";
-
-		//z_bit_i << "(* " << x_bit_i.str() << " " << y_bit_i.str() << ")";
-
-		//z_bit_i_sh << "(* " << z_bit_i.str() << " " << mod2 << ")";
-
-		//z_bits.push_back(z_bit_i_sh.str());
-	//}
-
-	//string res;
-
-	//for ( unsigned int i = 0; i < nbits; i++) {
-		//res += z_bits[i] + " ";
-	//}
-
-	//res = "(+ " + res + ")";
-
-	////printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
-
-	//return res;
-
-//}
-
 bool Solver::is_free_var(string name){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for is_free_var");
 
@@ -1564,7 +1386,6 @@ void Solver::init_indexes(string dst, string op1, string op2){
 	//printf("variables[%s].indexes.size = %lu\n", dst.c_str(), variables[dst].indexes.size());
 	
 }
-
 
 void Solver::binary_instruction(string dst, string op1, string op2, string operation){
 
@@ -2122,9 +1943,6 @@ void Solver::push_path_stack(bool step){
 	path_stack.push_back(step);
 }
 
-
-
-
 void Solver::print_path_stack(){
 
 
@@ -2161,7 +1979,6 @@ string Solver::get_anded_stack_conditions(){
 	
 
 }
-
 
 string Solver::get_comma_stack_conditions(){
 
@@ -2243,7 +2060,6 @@ void Solver::pivot_variable(string variable, string name){
 
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
-
 
 vector<int> jump_offsets(string offset_tree){
 
@@ -2369,7 +2185,6 @@ string evaluate(string expr){
 	ret = tokenize(expr, " ()")[2];
 	return ret;
 }
-
 
 set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int > solutions ){
 
@@ -2660,8 +2475,6 @@ void Solver::sym_load(string dst, string addr){
 
 }
 
-
-
 void Solver::sym_store(string src, string addr){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for sym_store");
@@ -2726,7 +2539,6 @@ void Solver::sym_store(string src, string addr){
 
 }
 
-// src, variables[addr].idx_values
 void Solver::store_idx_vals(string src, map<set<pair<string, int> > , int > map_idx_val){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for store_idx_vals");
@@ -2847,7 +2659,6 @@ void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_i
 	}
 }
 
-
 void Solver::variable_store(string src, string idx_content, int first_address, int last_address ){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for variable_store");
@@ -2877,6 +2688,7 @@ void Solver::variable_store(string src, string idx_content, int first_address, i
 
 	printf("\e[32m Variable_store \e[0m src %s content %s first_addr %d last_addr %d \n",src.c_str(),
 			idx_content.c_str(), first_address, last_address);
+
 
 
 }
