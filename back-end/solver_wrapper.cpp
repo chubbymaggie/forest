@@ -19,7 +19,7 @@
  */
 
 
-#include "solver.h"
+#include "solver_wrapper.h"
 
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
@@ -31,16 +31,16 @@ extern Database* database;
 extern Concurrency* concurrency;
 extern Timer* timer;
 
-Solver::Solver(){
+SolverWrapper::SolverWrapper(){
 
 	options->read_options();
 	debug = options->cmd_option_bool("verbose");
 
 }
 
-Solver::~Solver(){}
+SolverWrapper::~SolverWrapper(){}
 
-void Solver::free_var(string var){
+void SolverWrapper::free_var(string var){
 
 	if(!check_mangled_name(var)) assert(0 && "Wrong name for content");
 
@@ -49,7 +49,7 @@ void Solver::free_var(string var){
 
 }
 
-string Solver::content( string name ){
+string SolverWrapper::content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
@@ -75,7 +75,7 @@ string Solver::content( string name ){
 	}
 }
 
-void Solver::dump_model(){
+void SolverWrapper::dump_model(){
 
 
 	vector<string> outputs = options->cmd_option_vector_str("output");
@@ -103,7 +103,7 @@ void Solver::dump_model(){
 	
 }
 
-void Solver::set_last_address(string name, int last_address){
+void SolverWrapper::set_last_address(string name, int last_address){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_last_address");
 
@@ -113,7 +113,7 @@ void Solver::set_last_address(string name, int last_address){
 
 }
 
-void Solver::set_first_address(string name, int first_address){
+void SolverWrapper::set_first_address(string name, int first_address){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for set_first_address");
 
@@ -123,21 +123,21 @@ void Solver::set_first_address(string name, int first_address){
 
 }
 
-int Solver::get_last_address(string name){
+int SolverWrapper::get_last_address(string name){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for get_last_address");
 	return variables[name].last_address;
 
 }
 
-int Solver::get_first_address(string name){
+int SolverWrapper::get_first_address(string name){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for get_first_address");
 	return variables[name].first_address;
 
 }
 
-void Solver::dump_pivots(FILE* file){
+void SolverWrapper::dump_pivots(FILE* file){
 
 	//printf("dump pivots\n");
 
@@ -165,7 +165,7 @@ void Solver::dump_pivots(FILE* file){
 	
 }
 
-void Solver::clean_pivots(){
+void SolverWrapper::clean_pivots(){
 
 	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
 
@@ -184,14 +184,14 @@ void Solver::clean_pivots(){
 
 }
 
-string Solver::z3_type(string type){
+string SolverWrapper::z3_type(string type){
 	if(type == "Pointer")
 		return "Int";
 
 	return type;
 }
 
-void Solver::dump_variables(FILE* file){
+void SolverWrapper::dump_variables(FILE* file){
 
 	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
 
@@ -210,7 +210,7 @@ void Solver::dump_variables(FILE* file){
 
 }
 
-void Solver::dump_conditions(FILE* file){
+void SolverWrapper::dump_conditions(FILE* file){
 
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
@@ -219,7 +219,7 @@ void Solver::dump_conditions(FILE* file){
 	
 }
 
-string Solver::find_mem_of_id(string id){
+string SolverWrapper::find_mem_of_id(string id){
 
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
@@ -234,7 +234,7 @@ string Solver::find_mem_of_id(string id){
 
 }
 
-void Solver::dump_conditions( stringstream& sstr ){
+void SolverWrapper::dump_conditions( stringstream& sstr ){
 
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
@@ -245,14 +245,14 @@ void Solver::dump_conditions( stringstream& sstr ){
 
 }
 
-void Solver::dump_check_sat(FILE* file){
+void SolverWrapper::dump_check_sat(FILE* file){
 
 
 	fprintf(file,"(check-sat)\n");
 
 }
 
-void Solver::dump_header(FILE* file){
+void SolverWrapper::dump_header(FILE* file){
 
 	fprintf(file,"(set-option :produce-models true)\n");
 	fprintf(file,"(set-option :pp-decimal true)\n");
@@ -260,13 +260,13 @@ void Solver::dump_header(FILE* file){
 
 }
 
-void Solver::add_int_constraint(string src){
+void SolverWrapper::add_int_constraint(string src){
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for add_int_constraint");
 
 	int_constraints.insert(content(src));
 }
 
-int Solver::minval(string type){
+int SolverWrapper::minval(string type){
 
 	if(type == "Int32") return -(1 << 30);
 	if(type == "Int16") return -(1 << 15);
@@ -279,7 +279,7 @@ int Solver::minval(string type){
 	return 0;
 }
 
-int Solver::maxval(string type){
+int SolverWrapper::maxval(string type){
 
 	if(type == "Int32") return (1 << 30);
 	if(type == "Int16") return (1 << 15);
@@ -293,7 +293,7 @@ int Solver::maxval(string type){
 
 }
 
-void Solver::dump_type_limits(FILE* file){
+void SolverWrapper::dump_type_limits(FILE* file){
 
 	if(options->cmd_option_bool("unconstrained")) return;
 
@@ -313,12 +313,12 @@ void Solver::dump_type_limits(FILE* file){
 	}
 }
 
-void Solver::dump_tail(FILE* file){
+void SolverWrapper::dump_tail(FILE* file){
 
 	fprintf(file,"(exit)\n");
 }
 
-bool Solver::need_for_dump(string name, string content){
+bool SolverWrapper::need_for_dump(string name, string content){
 		if( content == "" ) return false;
 		if( name.find("_pivot_") != string::npos ) return false;
 		if( gettype(name) == "Function") return false;
@@ -326,7 +326,7 @@ bool Solver::need_for_dump(string name, string content){
 		return true;
 }
 
-void Solver::dump_get(FILE* file){
+void SolverWrapper::dump_get(FILE* file){
 
 
 
@@ -359,7 +359,7 @@ void Solver::dump_get(FILE* file){
 	
 }
 
-void Solver::dump_int_constraints(FILE* file){
+void SolverWrapper::dump_int_constraints(FILE* file){
 
 
 	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
@@ -374,14 +374,14 @@ void Solver::dump_int_constraints(FILE* file){
 
 }
 
-int Solver::get_num_fvars(){
+int SolverWrapper::get_num_fvars(){
 
 
 	return free_variables.size();
 
 }
 
-string Solver::result_get(string get_str){
+string SolverWrapper::result_get(string get_str){
 
 
 	get_str.erase(get_str.find_last_not_of(" \n\r\t")+1);
@@ -405,7 +405,7 @@ string Solver::result_get(string get_str){
 	return ret;
 }
 
-void Solver::set_real_value(string varname, string value){
+void SolverWrapper::set_real_value(string varname, string value){
 
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
@@ -414,7 +414,7 @@ void Solver::set_real_value(string varname, string value){
 	variables[varname].real_value = value;
 }
 
-void Solver::set_real_value_mangled(string varname, string value ){
+void SolverWrapper::set_real_value_mangled(string varname, string value ){
 
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
@@ -422,7 +422,7 @@ void Solver::set_real_value_mangled(string varname, string value ){
 	variables[varname].real_value = value;
 }
 
-void Solver::set_real_value_hint(string hint, string value ){
+void SolverWrapper::set_real_value_hint(string hint, string value ){
 
 
 
@@ -442,13 +442,13 @@ void Solver::set_real_value_hint(string hint, string value ){
 	
 }
 
-bool Solver::get_is_sat(string is_sat){
+bool SolverWrapper::get_is_sat(string is_sat){
 
 	if( is_sat == "sat" ) return true;
 	else return false;
 }
 
-void Solver::solve_problem(){
+void SolverWrapper::solve_problem(){
 
 	if(options->cmd_option_str("max_depth") != "" && conditions.size()-1 > options->cmd_option_int("max_depth")){
 		sat = 0;
@@ -606,24 +606,24 @@ spent_time /= 1e6;
 	timer->end_timer("solver");
 }
 
-float Solver::get_solve_time(){
+float SolverWrapper::get_solve_time(){
 	return spent_time;
 }
 
-bool Solver::solvable_problem(){
+bool SolverWrapper::solvable_problem(){
 
 
 	return sat;
 	
 }
 
-void Solver::set_sat(bool _sat){
+void SolverWrapper::set_sat(bool _sat){
 
 	spent_time = 0;
 	sat = _sat;
 }
 
-void Solver::check_name_and_pos(string name, string position){
+void SolverWrapper::check_name_and_pos(string name, string position){
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 		if(it->position == position && it->name != name) assert(0 && "Duplicated entry in free_variables");
 		if(it->name == name && it->position != position) assert(0 && "Duplicated entry in free_variables");
@@ -631,7 +631,7 @@ void Solver::check_name_and_pos(string name, string position){
 	
 }
 
-void Solver::insert_variable(string name, string position){
+void SolverWrapper::insert_variable(string name, string position){
 
 	if( name == "" ){ printf("Empty name %s\n", name.c_str()); assert(0); }
 	if( position == "" ){ printf("Empty position %s\n", position.c_str()); assert(0); }
@@ -677,7 +677,7 @@ void Solver::insert_variable(string name, string position){
 
 }
 
-void Solver::push_condition(string cond, bool invert ){
+void SolverWrapper::push_condition(string cond, bool invert ){
 
 	set<string> joints_set;
 	string fn = "";
@@ -687,7 +687,7 @@ void Solver::push_condition(string cond, bool invert ){
 
 }
 
-void Solver::push_condition_static(string cond, bool invert){
+void SolverWrapper::push_condition_static(string cond, bool invert){
 
 
 	string function = operators->get_actual_function();
@@ -716,19 +716,19 @@ void Solver::push_condition_static(string cond, bool invert){
 
 }
 
-void Solver::save_state(){
+void SolverWrapper::save_state(){
 	path_stack_save        = path_stack;
 	conditions_static_save = conditions_static;
 	conditions_save        = conditions;
 }
 
-void Solver::load_state(){
+void SolverWrapper::load_state(){
 	path_stack        = path_stack_save;
 	conditions_static = conditions_static_save;
 	conditions        = conditions_save;
 }
 
-void Solver::push_condition(string name, string actual_function, vector<string> joints, bool invert){
+void SolverWrapper::push_condition(string name, string actual_function, vector<string> joints, bool invert){
 
 	if( (!invert && realvalue(name) == "true") || (invert && realvalue(name) == "false") ){
 		if( options->cmd_option_bool("cyclotonic") ){
@@ -755,7 +755,7 @@ void Solver::push_condition(string name, string actual_function, vector<string> 
 	}
 }
 
-void Solver::push_condition(string cond, string fn, vector<string> joints ){
+void SolverWrapper::push_condition(string cond, string fn, vector<string> joints ){
 
 	//printf("condition comes_from_non_annotated %d\n", get_comes_from_non_annotated(cond) );
 
@@ -766,7 +766,7 @@ void Solver::push_condition(string cond, string fn, vector<string> joints ){
 	conditions.push_back( condition );
 }
 
-string Solver::negation(string condition){
+string SolverWrapper::negation(string condition){
 
 
 	stringstream negation_ss;
@@ -775,7 +775,7 @@ string Solver::negation(string condition){
 	return negation_ss.str();
 }
 
-string Solver::negateop(string predicate){
+string SolverWrapper::negateop(string predicate){
 
 	if( predicate == "="  ) return "#";
 	if( predicate == ">"  ) return "<=";
@@ -787,7 +787,7 @@ string Solver::negateop(string predicate){
 
 }
 
-string Solver::name_without_suffix( string name ){
+string SolverWrapper::name_without_suffix( string name ){
 
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for name_without_suffix");
@@ -797,7 +797,7 @@ string Solver::name_without_suffix( string name ){
 	return name.substr(0,s2);
 }
 
-string Solver::get_sized_type(string name){
+string SolverWrapper::get_sized_type(string name){
 
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for sized type");
@@ -839,7 +839,7 @@ string Solver::get_sized_type(string name){
 
 }
 
-void Solver::set_comes_from_non_annotated(string name){
+void SolverWrapper::set_comes_from_non_annotated(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_comes_from_non_annotated");
 
@@ -850,7 +850,7 @@ void Solver::set_comes_from_non_annotated(string name){
 	
 }
 
-bool Solver::get_comes_from_non_annotated(string name){
+bool SolverWrapper::get_comes_from_non_annotated(string name){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for get_comes_from_non_annotated");
 
@@ -859,7 +859,7 @@ bool Solver::get_comes_from_non_annotated(string name){
 	
 }
 
-void Solver::clean_conditions_stack(string name){
+void SolverWrapper::clean_conditions_stack(string name){
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 
@@ -881,7 +881,7 @@ void Solver::clean_conditions_stack(string name){
 
 }
 
-string Solver::realvalue_mangled(string varname){
+string SolverWrapper::realvalue_mangled(string varname){
 
 
 	//printf("\e[33m realvalue_mangled \e[0m %s\n", varname.c_str() );
@@ -898,7 +898,7 @@ string Solver::realvalue_mangled(string varname){
 	}
 }
 
-string Solver::realvalue(string varname){
+string SolverWrapper::realvalue(string varname){
 
 
 	//printf("\e[33m realvalue \e[0m %s\n", varname.c_str() );
@@ -923,7 +923,7 @@ string Solver::realvalue(string varname){
 
 }
 
-void Solver::set_is_propagated_constant(string varname){
+void SolverWrapper::set_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for set_is_propagated_constant");
 
@@ -931,7 +931,7 @@ void Solver::set_is_propagated_constant(string varname){
 
 }
 
-void Solver::unset_is_propagated_constant(string varname){
+void SolverWrapper::unset_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for unset_is_propagated_constant");
 
@@ -939,7 +939,7 @@ void Solver::unset_is_propagated_constant(string varname){
 
 }
 
-bool Solver::is_constant(string varname){
+bool SolverWrapper::is_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for is_constant");
 
@@ -947,7 +947,7 @@ bool Solver::is_constant(string varname){
 
 }
 
-void Solver::setcontent(string varname, string content){
+void SolverWrapper::setcontent(string varname, string content){
 
 
 	debug && printf("\e[32m setcontent %s %s\e[0m.\n", varname.c_str(), content.c_str() );
@@ -956,7 +956,7 @@ void Solver::setcontent(string varname, string content){
 	variables[varname].content = content;
 }
 
-bool Solver::is_forced_free(string position, bool colateral_effect){
+bool SolverWrapper::is_forced_free(string position, bool colateral_effect){
 
 	if(colateral_effect){
 
@@ -986,7 +986,7 @@ bool Solver::is_forced_free(string position, bool colateral_effect){
 	}
 }
 
-void Solver::load_forced_free_vars(){
+void SolverWrapper::load_forced_free_vars(){
 
 
 	ifstream input("free_vars");
@@ -998,7 +998,7 @@ void Solver::load_forced_free_vars(){
 	
 }
 
-void Solver::set_first_content(string src, string content){
+void SolverWrapper::set_first_content(string src, string content){
 
 	printf("\e[36m set_first_content %s %s\e[0m\n", src.c_str(), content.c_str());
 
@@ -1006,22 +1006,22 @@ void Solver::set_first_content(string src, string content){
 
 }
 
-void Solver::set_first_content_value(string var, string value){
+void SolverWrapper::set_first_content_value(string var, string value){
 	printf("\e[36m set_first_content_value %s %s\e[0m\n", var.c_str(), value.c_str() );
 	first_content_value[var] = value;
 }
 
-string Solver::get_first_content_value(string var){
+string SolverWrapper::get_first_content_value(string var){
 	return first_content_value[var];
 }
 
-string Solver::get_first_content(string src){
+string SolverWrapper::get_first_content(string src){
 
 	return first_content[src];
 
 }
 
-void Solver::propagate_unary(string src, string dst, bool forcedfree){
+void SolverWrapper::propagate_unary(string src, string dst, bool forcedfree){
 
 	//bool forcedfree = is_forced_free(src);
 
@@ -1047,7 +1047,7 @@ void Solver::propagate_unary(string src, string dst, bool forcedfree){
 
 }
 
-void Solver::assign_instruction(string src, string dst, string fn_name){
+void SolverWrapper::assign_instruction(string src, string dst, string fn_name){
 
 	//substitute_pivots(src);
 	
@@ -1110,7 +1110,7 @@ void Solver::assign_instruction(string src, string dst, string fn_name){
 
 }
 
-bool Solver::implemented_operation(string operation){
+bool SolverWrapper::implemented_operation(string operation){
 
 	if(operation == "<=") return true;
 	if(operation == "u<=") return true;
@@ -1134,7 +1134,7 @@ bool Solver::implemented_operation(string operation){
 	return false;
 }
 
-void Solver::propagate_binary(string op1, string op2, string dst){
+void SolverWrapper::propagate_binary(string op1, string op2, string dst){
 
 	unset_is_propagated_constant(dst);
 
@@ -1168,7 +1168,7 @@ void Solver::propagate_binary(string op1, string op2, string dst){
 }
 
 
-string Solver::and_constant(string op1, string op2){
+string SolverWrapper::and_constant(string op1, string op2){
 
 	stringstream ret;
 	int op2_i = stoi(op2);
@@ -1219,7 +1219,7 @@ string Solver::and_constant(string op1, string op2){
 
 }
 
-string Solver::complement_op(string op1){
+string SolverWrapper::complement_op(string op1){
 
 	stringstream ret;
 	string content1 = content(op1);
@@ -1234,7 +1234,7 @@ string Solver::complement_op(string op1){
 
 }
 
-string Solver::or_constant(string op1, string op2){
+string SolverWrapper::or_constant(string op1, string op2){
 
 	stringstream ret;
 	int op2_i = stoi(op2);
@@ -1285,7 +1285,7 @@ string Solver::or_constant(string op1, string op2){
 
 }
 
-bool Solver::is_free_var(string name){
+bool SolverWrapper::is_free_var(string name){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for is_free_var");
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
@@ -1296,7 +1296,7 @@ bool Solver::is_free_var(string name){
 	
 }
 
-void Solver::init_indexes(string dst, string op1, string op2){
+void SolverWrapper::init_indexes(string dst, string op1, string op2){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for init_indexes");
 	if(!check_mangled_name(op1)) assert(0 && "Wrong name for init_indexes");
@@ -1335,7 +1335,7 @@ void Solver::init_indexes(string dst, string op1, string op2){
 	
 }
 
-void Solver::binary_instruction(string dst, string op1, string op2, string operation){
+void SolverWrapper::binary_instruction(string dst, string op1, string op2, string operation){
 
 	//substitute_pivots(op1);
 	//substitute_pivots(op2);
@@ -1634,7 +1634,7 @@ void Solver::binary_instruction(string dst, string op1, string op2, string opera
 
 }
 
-int Solver::show_problem(){
+int SolverWrapper::show_problem(){
 
 
 	options->read_options();
@@ -1682,14 +1682,14 @@ int Solver::show_problem(){
 	//getchar();
 }
 
-string Solver::get_offset_tree( string varname ){
+string SolverWrapper::get_offset_tree( string varname ){
 
 	//assert(check_mangled_name(varname) && "Incorrect name for get_offset_tree");
 	//printf("get_offset_tree %s %s\n", varname.c_str(), variables[varname].tree.c_str() );
 	return variables[varname].tree;
 }
 
-bool Solver::check_mangled_name(string name){
+bool SolverWrapper::check_mangled_name(string name){
 
 	//printf("check_mangled_name %s\n", name.c_str());
 
@@ -1726,14 +1726,14 @@ bool Solver::check_mangled_name(string name){
 
 }
 
-bool Solver::get_is_propagated_constant(string varname){
+bool SolverWrapper::get_is_propagated_constant(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong src for get_is_propagated_constant");
 	if(is_forced_free(varname, false)) return false;
 	return variables[varname].is_propagated_constant;
 }
 
-string Solver::gettype(string name){
+string SolverWrapper::gettype(string name){
 
 	//printf("gettype %s\n", name.c_str());
 
@@ -1745,7 +1745,7 @@ string Solver::gettype(string name){
 	return variables[name].type;
 }
 
-void Solver::set_name_hint(string name, string hint){
+void SolverWrapper::set_name_hint(string name, string hint){
 
 	debug && printf("\e[35m set_name_hint \e[0m name %s hint %s \n", name.c_str(), hint.c_str() );
 
@@ -1754,14 +1754,14 @@ void Solver::set_name_hint(string name, string hint){
 	variables[name].name_hint = hint;
 }
 
-string Solver::get_name_hint(string name){
+string SolverWrapper::get_name_hint(string name){
 
 	//debug && printf("\e[33m get_name_hint %s %s\e[0m\n", name.c_str(), variables[name].name_hint.c_str() );
 
 	return variables[name].name_hint;
 }
 
-string Solver::find_by_name_hint(string hint){
+string SolverWrapper::find_by_name_hint(string hint){
 
 	myReplace(hint, "underscore", "_");
 	string suffix = hint.substr(hint.find("_") + 1);
@@ -1785,14 +1785,14 @@ string Solver::find_by_name_hint(string hint){
 	
 }
 
-void Solver::set_offset_tree( string varname, string tree ){
+void SolverWrapper::set_offset_tree( string varname, string tree ){
 
 	//assert(check_mangled_name(varname) && "Incorrect name for set_offset_tree");
 	//printf("set_offset_tree %s %s\n", varname.c_str(), tree.c_str() );
 	variables[varname].tree = tree;
 }
 
-void Solver::settype(string name, string type){
+void SolverWrapper::settype(string name, string type){
 
 	// debug && printf("\e[32m Settype \e[0m. %s %s\n", name.c_str(), type.c_str() );
 
@@ -1801,7 +1801,7 @@ void Solver::settype(string name, string type){
 
 }
 
-string Solver::get_type(string name){
+string SolverWrapper::get_type(string name){
 
 	//printf("get_type %s\n", name.c_str());
 
@@ -1868,12 +1868,12 @@ string Solver::get_type(string name){
 
 }
 
-vector<bool> Solver::get_path_stack(){
+vector<bool> SolverWrapper::get_path_stack(){
 
 	return path_stack;
 }
 
-string Solver::get_path_stack_str(){
+string SolverWrapper::get_path_stack_str(){
 
 	string ret;
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
@@ -1886,12 +1886,12 @@ string Solver::get_path_stack_str(){
 	return ret;
 }
 
-void Solver::push_path_stack(bool step){
+void SolverWrapper::push_path_stack(bool step){
 
 	path_stack.push_back(step);
 }
 
-void Solver::print_path_stack(){
+void SolverWrapper::print_path_stack(){
 
 
 
@@ -1906,12 +1906,12 @@ void Solver::print_path_stack(){
 
 }
 
-map<string, Variable> Solver::get_map_variables(){
+map<string, Variable> SolverWrapper::get_map_variables(){
 
 	return variables;
 }
 
-string Solver::get_anded_stack_conditions(){
+string SolverWrapper::get_anded_stack_conditions(){
 
 	stringstream ret;
 
@@ -1928,7 +1928,7 @@ string Solver::get_anded_stack_conditions(){
 
 }
 
-string Solver::get_comma_stack_conditions(){
+string SolverWrapper::get_comma_stack_conditions(){
 
 	stringstream ret;
 
@@ -1943,7 +1943,7 @@ string Solver::get_comma_stack_conditions(){
 
 }
 
-string Solver::get_comma_stack_conditions_static(){
+string SolverWrapper::get_comma_stack_conditions_static(){
 
 	stringstream ret;
 
@@ -1957,23 +1957,23 @@ string Solver::get_comma_stack_conditions_static(){
 
 }
 
-vector<Condition> Solver::get_stack_conditions(){
+vector<Condition> SolverWrapper::get_stack_conditions(){
 
 	return conditions;
 }
 
-set<NameAndPosition> Solver::get_free_variables(){
+set<NameAndPosition> SolverWrapper::get_free_variables(){
 	return free_variables;
 }
 
-string Solver::get_position(string name){
+string SolverWrapper::get_position(string name){
 
 
 	return variables[name].name_hint;
 
 }
 
-void Solver::pivot_variable(string variable, string name){
+void SolverWrapper::pivot_variable(string variable, string name){
 
 
 	myReplace(variable, "underscore", "_");
@@ -2009,7 +2009,7 @@ void Solver::pivot_variable(string variable, string name){
 	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
 
-vector<int> Solver::jump_offsets(string offset_tree){
+vector<int> SolverWrapper::jump_offsets(string offset_tree){
 
 	vector<int> ret;
 
@@ -2024,7 +2024,7 @@ vector<int> Solver::jump_offsets(string offset_tree){
 	return ret;
 }
 
-void Solver::add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val ){
+void SolverWrapper::add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val ){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for add_range_index");
 
@@ -2049,7 +2049,7 @@ void Solver::add_range_index(string dst, map<set<pair<string, int> > , int > map
 
 }
 
-void Solver::add_indexes(string dst, vector<string> indexes){
+void SolverWrapper::add_indexes(string dst, vector<string> indexes){
 	if(!check_mangled_name(dst)) assert(0 && "wrong name for add_indexes");
 
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
@@ -2059,7 +2059,7 @@ void Solver::add_indexes(string dst, vector<string> indexes){
 
 }
 
-void Solver::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
+void SolverWrapper::pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base){
 
 	if(!check_mangled_name(dst)) assert(0 && "wrong name for pointer_instruction");
 	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
@@ -2128,7 +2128,7 @@ void Solver::pointer_instruction(string dst, string offset_tree, vector<string> 
 
 }
 
-set<set<pair<string, int> > > Solver::get_exclusions( map<set<pair<string, int> > , int > solutions ){
+set<set<pair<string, int> > > SolverWrapper::get_exclusions( map<set<pair<string, int> > , int > solutions ){
 
 	set<set<pair<string, int> > > ret;
 	
@@ -2142,7 +2142,7 @@ set<set<pair<string, int> > > Solver::get_exclusions( map<set<pair<string, int> 
 
 }
 
-map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address){
+map<set<pair<string, int> > , int > SolverWrapper::get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address){
 
 	debug && printf("\e[32m get_idx_val %s %d %d %d\e[0m\n", base.c_str(), first_address, last_address, indexes.size());
 	
@@ -2303,7 +2303,7 @@ map<set<pair<string, int> > , int > Solver::get_idx_val(string base,string idx_c
 
 }
 
-string Solver::get_idx_type(string addr){
+string SolverWrapper::get_idx_type(string addr){
 
 	printf("\e[32m get_idx_type %s \e[0m\n", addr.c_str());
 
@@ -2311,21 +2311,21 @@ string Solver::get_idx_type(string addr){
 
 }
 
-bool Solver::get_outofbounds(string varname){
+bool SolverWrapper::get_outofbounds(string varname){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for get_outofbounds");
 
 	return variables[varname].outofbounds;
 }
 
-void Solver::set_outofbounds(string varname, bool outofbounds){
+void SolverWrapper::set_outofbounds(string varname, bool outofbounds){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for get_outofbounds");
 
 	variables[varname].outofbounds = outofbounds;
 }
 
-void Solver::sym_load(string dst, string addr){
+void SolverWrapper::sym_load(string dst, string addr){
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for sym_load");
 	if(!check_mangled_name(addr)) assert(0 && "Wrong name for sym_load");
@@ -2417,7 +2417,7 @@ void Solver::sym_load(string dst, string addr){
 
 }
 
-void Solver::sym_store(string src, string addr){
+void SolverWrapper::sym_store(string src, string addr){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for sym_store");
 	if(!check_mangled_name(addr)) assert(0 && "Wrong name for sym_store");
@@ -2481,7 +2481,7 @@ void Solver::sym_store(string src, string addr){
 
 }
 
-void Solver::store_idx_vals(string src, map<set<pair<string, int> > , int > map_idx_val){
+void SolverWrapper::store_idx_vals(string src, map<set<pair<string, int> > , int > map_idx_val){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for store_idx_vals");
 
@@ -2540,7 +2540,7 @@ void Solver::store_idx_vals(string src, map<set<pair<string, int> > , int > map_
 
 }
 
-void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val){
+void SolverWrapper::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val){
 	if(!check_mangled_name(dst)) assert(0 && "Wrong name for load_idx_vals");
 
 	map<set<pair<string, int> > , int > res;
@@ -2601,7 +2601,7 @@ void Solver::load_idx_vals(string dst, map<set<pair<string, int> > , int > map_i
 	}
 }
 
-void Solver::variable_store(string src, string idx_content, int first_address, int last_address ){
+void SolverWrapper::variable_store(string src, string idx_content, int first_address, int last_address ){
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong name for variable_store");
 

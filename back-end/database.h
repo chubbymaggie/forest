@@ -29,7 +29,7 @@
 #include <set>
 #include <vector>
 #include "operators.h"
-#include "solver.h"
+#include "solver_wrapper.h"
 #include "utils.h"
 #include "timer.h"
 

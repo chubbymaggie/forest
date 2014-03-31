@@ -22,7 +22,7 @@
 
 #define debug true
 
-extern Solver* solver;
+extern SolverWrapper* solver;
 extern Options* options;
 extern Operators* operators;
 extern Timer* timer;

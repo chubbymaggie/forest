@@ -24,12 +24,10 @@
 
 #include <stdio.h>
 #include "database.h"
-#include "solver.h"
+#include "solver_wrapper.h"
 #include <sstream>
 #include "utils.h"
 #include <set>
-
-#include "solver.h"
 
 using namespace std;
 

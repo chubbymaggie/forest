@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  * /
- * |     Filename:  solver.h
+ * |     Filename:  solver_wrapper.h
  * |
  * |  Description:  
  * |
@@ -18,8 +18,8 @@
  * =====================================================================================
  */
 
-#ifndef _SOLVER_H_
-#define _SOLVER_H_
+#ifndef _SOLVER_WRAPPER_H_
+#define _SOLVER_WRAPPER_H_
 
 #include <stdio.h>
 #include <string>
@@ -79,7 +79,7 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
   return lhs.position > rhs.position;
 }
 
-class Solver {
+class  SolverWrapper{
 public:
 	float get_solve_time();
 	void add_int_constraint(string src);
@@ -110,8 +110,8 @@ public:
 	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
-	Solver ();
-	virtual ~Solver ();
+	SolverWrapper ();
+	virtual ~SolverWrapper ();
 	void assign_instruction(string src, string dst, string fn_name = "");
 	void binary_instruction(string dst, string op1, string op2, string operation);
 	string content( string name );
@@ -247,24 +247,6 @@ private:
 
 	bool debug;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif /* end of include guard: _SOLVER_H_ */
 

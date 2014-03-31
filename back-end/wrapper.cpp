@@ -22,7 +22,7 @@
 
 Options* options = new Options();
 Operators* operators = new Operators();
-Solver* solver = new Solver();
+SolverWrapper* solver = new SolverWrapper();
 Database* database = new Database();
 Concurrency* concurrency = new Concurrency();
 Measurement* measurement = new Measurement();

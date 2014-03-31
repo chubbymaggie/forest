@@ -19,7 +19,7 @@
  */
 
 #include "operators.h"
-#include "solver.h"
+#include "solver_wrapper.h"
 #include <sys/wait.h>
 
 #define UNDERSCORE "_"
@@ -28,7 +28,7 @@
 
 extern Options* options;
 extern Operators* operators;
-extern Solver* solver;
+extern SolverWrapper* solver;
 extern Database* database;
 extern Concurrency* concurrency;
 extern Timer* timer;

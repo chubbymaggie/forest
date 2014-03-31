@@ -23,7 +23,7 @@
 
 using namespace std;
 
-extern Solver* solver;
+extern SolverWrapper* solver;
 extern Database* database;
 extern Options* options;
 extern Operators* operators;

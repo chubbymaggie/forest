@@ -23,7 +23,7 @@
 
 #include "options.h"
 #include "operators.h"
-#include "solver.h"
+#include "solver_wrapper.h"
 #include "operators.h"
 #include "concurrency.h"
 #include "measurement.h"
