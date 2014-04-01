@@ -3381,7 +3381,7 @@ struct All: public ModulePass {
 
 		{RmXBool          pass;   pass.runOnModule(M);}
 		{MainArgs_2       pass;   pass.runOnModule(M);}
-		{FunctionNames    pass;   pass.runOnModule(M);}
+		//{FunctionNames    pass;   pass.runOnModule(M);}
 		{Demangle         pass;   pass.runOnModule(M);}
 		{SwitchInstr      pass;   pass.runOnModule(M);}
 		{FillNames        pass;   pass.runOnModule(M);}

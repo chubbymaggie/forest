@@ -117,7 +117,7 @@ public:
 	void push_condition(string condition, string function, vector<string> joints);
 	string negation(string condition);
 	int show_problem();
-	void solve_problem();
+	virtual void solve_problem() = 0;
 	void free_var(string name);
 	bool solvable_problem();
 	bool get_is_propagated_constant(string varname);

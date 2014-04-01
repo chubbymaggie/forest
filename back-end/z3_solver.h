@@ -29,6 +29,7 @@ class Z3Solver : public SolverWrapper {
 public:
 	Z3Solver ();
 	virtual ~Z3Solver ();
+	void solve_problem();
 
 protected:
 	
