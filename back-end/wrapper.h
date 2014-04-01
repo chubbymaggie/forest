@@ -21,13 +21,6 @@
 #ifndef _WRAPPER_H_
 #define _WRAPPER_H_
 
-#include "options.h"
-#include "operators.h"
-#include "solver_wrapper.h"
-#include "operators.h"
-#include "concurrency.h"
-#include "measurement.h"
-#include "timer.h"
 
 /**
  * @brief Called when a binary operation is performed among two variables

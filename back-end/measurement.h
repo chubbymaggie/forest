@@ -28,11 +28,11 @@
 #include <sstream>
 #include <string.h>
 #include <assert.h>
-#include "utils.h"
-#include "database.h"
 #include <fstream>
 #include <iostream>
+#include <map>
 
+using namespace std;
 
 class Measurement {
 public:

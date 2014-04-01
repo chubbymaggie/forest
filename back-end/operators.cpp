@@ -19,8 +19,13 @@
  */
 
 #include "operators.h"
-#include "solver_wrapper.h"
 #include <sys/wait.h>
+#include "database.h"
+#include "utils.h"
+#include "options.h"
+#include "concurrency.h"
+#include "timer.h"
+#include "z3_solver.h"
 
 #define UNDERSCORE "_"
 
@@ -28,7 +33,7 @@
 
 extern Options* options;
 extern Operators* operators;
-extern SolverWrapper* solver;
+extern Z3Solver* solver;
 extern Database* database;
 extern Concurrency* concurrency;
 extern Timer* timer;

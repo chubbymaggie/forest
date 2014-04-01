@@ -19,10 +19,19 @@
  */
 
 #include "wrapper.h"
+#include "options.h"
+#include "operators.h"
+#include "solver_wrapper.h"
+#include "operators.h"
+#include "concurrency.h"
+#include "measurement.h"
+#include "timer.h"
+#include "z3_solver.h"
+#include "database.h"
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solver = new SolverWrapper();
+Z3Solver* solver = new Z3Solver();
 Database* database = new Database();
 Concurrency* concurrency = new Concurrency();
 Measurement* measurement = new Measurement();

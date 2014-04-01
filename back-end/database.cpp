@@ -19,10 +19,16 @@
  */
 
 #include "database.h"
+#include "operators.h"
+#include "solver_wrapper.h"
+#include "utils.h"
+#include "timer.h"
+#include "z3_solver.h"
+#include "options.h"
 
 #define debug true
 
-extern SolverWrapper* solver;
+extern Z3Solver* solver;
 extern Options* options;
 extern Operators* operators;
 extern Timer* timer;

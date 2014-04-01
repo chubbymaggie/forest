@@ -1,8 +1,8 @@
 
 all: ../lib/forest.a 
 
-../lib/forest.a: ../build/database.o ../build/operators.o ../build/solver_wrapper.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o ../build/concurrency.o ../build/measurement.o ../build/timer.o
-	ar rcs ../lib/forest.a ../build/database.o ../build/operators.o ../build/solver_wrapper.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o ../build/concurrency.o ../build/measurement.o ../build/timer.o
+../lib/forest.a: ../build/database.o ../build/operators.o ../build/solver_wrapper.o ../build/z3_solver.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o ../build/concurrency.o ../build/measurement.o ../build/timer.o
+	ar rcs ../lib/forest.a ../build/database.o ../build/operators.o ../build/solver_wrapper.o ../build/z3_solver.o ../build/sqlite.o ../build/utils.o ../build/options.o ../build/wrapper.o ../build/concurrency.o ../build/measurement.o ../build/timer.o
 
 ../build/wrapper.o: wrapper.cpp
 	g++ -g -c wrapper.cpp -o ../build/wrapper.o
@@ -21,6 +21,9 @@ all: ../lib/forest.a
 
 ../build/solver_wrapper.o: solver_wrapper.cpp
 	g++ -g -c solver_wrapper.cpp -o ../build/solver_wrapper.o
+
+../build/z3_solver.o: z3_solver.cpp
+	g++ -g -c z3_solver.cpp -o ../build/z3_solver.o
 
 ../build/sqlite.o: sqlite3.c
 	gcc -g -c sqlite3.c -o ../build/sqlite.o

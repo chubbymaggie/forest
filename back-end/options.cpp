@@ -19,6 +19,7 @@
  */
 
 #include "options.h"
+#include "utils.h"
 
 Options::Options(){}
 

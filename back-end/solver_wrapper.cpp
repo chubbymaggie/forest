@@ -20,6 +20,12 @@
 
 
 #include "solver_wrapper.h"
+#include "operators.h"
+#include "utils.h"
+#include "timer.h"
+#include "options.h"
+#include "database.h"
+#include "concurrency.h"
 
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
@@ -1166,7 +1172,6 @@ void SolverWrapper::propagate_binary(string op1, string op2, string dst){
 
 
 }
-
 
 string SolverWrapper::and_constant(string op1, string op2){
 

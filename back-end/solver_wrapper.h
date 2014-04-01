@@ -27,9 +27,6 @@
 #include <set>
 #include <map>
 #include <vector>
-#include "operators.h"
-#include "utils.h"
-#include "timer.h"
 
 
 using namespace std;
@@ -152,7 +149,7 @@ public:
 	void set_is_propagated_constant(string varname);
 	void unset_is_propagated_constant(string varname);
 
-private:
+protected:
 	vector<int> jump_offsets(string offset_tree);
 	set<set<pair<string, int> > > get_exclusions( map<set<pair<string, int> > , int > solutions );
 	vector<bool> path_stack_save;

@@ -23,11 +23,9 @@
 #define _CONCURRENCY_H_
 
 #include <stdio.h>
-#include "database.h"
-#include "solver_wrapper.h"
 #include <sstream>
-#include "utils.h"
 #include <set>
+#include <map>
 
 using namespace std;
 

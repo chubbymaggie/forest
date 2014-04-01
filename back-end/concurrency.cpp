@@ -19,11 +19,18 @@
  */
 
 #include "concurrency.h"
+#include "database.h"
+#include "solver_wrapper.h"
+#include "utils.h"
+#include "z3_solver.h"
+#include "options.h"
+#include "operators.h"
+
 #define debug true
 
 using namespace std;
 
-extern SolverWrapper* solver;
+extern Z3Solver* solver;
 extern Database* database;
 extern Options* options;
 extern Operators* operators;

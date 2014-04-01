@@ -21,17 +21,13 @@
 #ifndef _DATABASE_H_
 #define _DATABASE_H_
 
-#include "sqlite3.h"
 #include <string>
 #include <sstream>
 #include <map>
 #include <utility>
 #include <set>
 #include <vector>
-#include "operators.h"
-#include "solver_wrapper.h"
-#include "utils.h"
-#include "timer.h"
+#include "sqlite3.h"
 
 using namespace std;
 

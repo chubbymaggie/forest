@@ -31,11 +31,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "database.h"
-#include "utils.h"
-#include "options.h"
-#include "concurrency.h"
-#include "timer.h"
 
 using namespace std;
 

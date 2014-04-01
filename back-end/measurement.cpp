@@ -20,6 +20,8 @@
 
 
 #include "measurement.h"
+#include "utils.h"
+#include "database.h"
 
 using namespace std;
 
