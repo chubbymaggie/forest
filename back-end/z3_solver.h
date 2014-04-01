@@ -43,6 +43,8 @@ private:
 	void dump_pivots(FILE* file);
 	void dump_variables(FILE* file);
 	void dump_header(FILE* file);
+	string and_constant(string op1, string op2);
+	string or_constant(string op1, string op2);
 	
 };
 
