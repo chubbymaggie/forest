@@ -31,7 +31,16 @@ public:
 	virtual ~Z3Solver ();
 	void solve_problem();
 
-protected:
+private:
+	void dump_tail(FILE* file);
+	void dump_get(FILE* file);
+	void dump_check_sat(FILE* file);
+	void dump_conditions(FILE* file);
+	void dump_int_constraints(FILE* file);
+	void dump_type_limits(FILE* file);
+	void dump_pivots(FILE* file);
+	void dump_variables(FILE* file);
+	void dump_header(FILE* file);
 	
 };
 

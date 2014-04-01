@@ -25,7 +25,6 @@
 #include "timer.h"
 #include "options.h"
 #include "database.h"
-#include "concurrency.h"
 
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
@@ -34,7 +33,6 @@
 extern Options* options;
 extern Operators* operators;
 extern Database* database;
-extern Concurrency* concurrency;
 extern Timer* timer;
 
 SolverWrapper::SolverWrapper(){
@@ -143,7 +141,7 @@ int SolverWrapper::get_first_address(string name){
 
 }
 
-void SolverWrapper::dump_pivots(FILE* file){
+void SolverWrapper::show_pivots(){
 
 	//printf("dump pivots\n");
 
@@ -163,7 +161,7 @@ void SolverWrapper::dump_pivots(FILE* file){
 			//printf("gettype %s %s\n", name.c_str(), get_type(name).c_str() );
 			string type = get_type(name);
 			//printf("gettype\n");
-			fprintf(file, "(declare-fun %s () %s)\n", name.c_str(), type.c_str() );
+			printf("(declare-fun %s () %s)\n", name.c_str(), type.c_str() );
 		}
 		
 
@@ -197,7 +195,7 @@ string SolverWrapper::z3_type(string type){
 	return type;
 }
 
-void SolverWrapper::dump_variables(FILE* file){
+void SolverWrapper::show_variables(){
 
 	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
 
@@ -208,7 +206,7 @@ void SolverWrapper::dump_variables(FILE* file){
 		string type = z3_type(get_type(it->name));
 
 		//dump_variable(position, type, file);
-		fprintf(file,"(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
+		printf("(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
 
 		
 	}
@@ -216,11 +214,11 @@ void SolverWrapper::dump_variables(FILE* file){
 
 }
 
-void SolverWrapper::dump_conditions(FILE* file){
+void SolverWrapper::show_conditions(){
 
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", locknames(it->cond).c_str() );
+		printf("(assert %s)\n", locknames(it->cond).c_str() );
 	}
 	
 }
@@ -251,18 +249,18 @@ void SolverWrapper::dump_conditions( stringstream& sstr ){
 
 }
 
-void SolverWrapper::dump_check_sat(FILE* file){
+void SolverWrapper::show_check_sat(){
 
 
-	fprintf(file,"(check-sat)\n");
+	printf("(check-sat)\n");
 
 }
 
-void SolverWrapper::dump_header(FILE* file){
+void SolverWrapper::show_header(){
 
-	fprintf(file,"(set-option :produce-models true)\n");
-	fprintf(file,"(set-option :pp-decimal true)\n");
-	fprintf(file,"(set-logic AUFNIRA)\n");
+	printf("(set-option :produce-models true)\n");
+	printf("(set-option :pp-decimal true)\n");
+	printf("(set-logic AUFNIRA)\n");
 
 }
 
@@ -299,7 +297,7 @@ int SolverWrapper::maxval(string type){
 
 }
 
-void SolverWrapper::dump_type_limits(FILE* file){
+void SolverWrapper::show_type_limits(){
 
 	if(options->cmd_option_bool("unconstrained")) return;
 
@@ -314,14 +312,14 @@ void SolverWrapper::dump_type_limits(FILE* file){
 		string position = it->position;
 
 		if( get_type(it->name) != "Real" )
-			fprintf(file,"(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
+			printf("(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
 		
 	}
 }
 
-void SolverWrapper::dump_tail(FILE* file){
+void SolverWrapper::show_tail(){
 
-	fprintf(file,"(exit)\n");
+	printf("(exit)\n");
 }
 
 bool SolverWrapper::need_for_dump(string name, string content){
@@ -332,15 +330,15 @@ bool SolverWrapper::need_for_dump(string name, string content){
 		return true;
 }
 
-void SolverWrapper::dump_get(FILE* file){
+void SolverWrapper::show_get(){
 
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->name.c_str() );
+		printf("(get-value (%s)); %s\n", locknames(it->position).c_str(), it->name.c_str() );
 	}
 	
-	fprintf(file,"; --- ↑free ↓non-free \n" );
+	printf("; --- ↑free ↓non-free \n" );
 
 	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
@@ -348,33 +346,33 @@ void SolverWrapper::dump_get(FILE* file){
 		
 		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
-		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
+		printf("(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
 	}
 
-	fprintf(file,"; --- ↑non-free ↓forced_free \n" );
+	printf("; --- ↑non-free ↓forced_free \n" );
 
 	//for( set<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
 		//fprintf(file,"(get-value (%s));\n", get_first_content(*it).c_str() );
 	//}
 	
 	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		fprintf(file, "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
+		printf( "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
 	}
 	
 	
 	
 }
 
-void SolverWrapper::dump_int_constraints(FILE* file){
+void SolverWrapper::show_int_constraints(){
 
 
 	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
-		fprintf(file, "(declare-fun int_constraint_%d () Int)\n", i);
+		printf( "(declare-fun int_constraint_%d () Int)\n", i);
 	}
 
 	unsigned int i = 0;
 	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
-		fprintf(file, "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
+		printf( "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
 		i++;
 	}
 
@@ -1488,41 +1486,16 @@ int SolverWrapper::show_problem(){
 	options->read_options();
 	
 	if(!options->cmd_option_bool("show_only_constraints")){
-	dump_header();
-	dump_variables();
-	dump_pivots();
-	//concurrency->dump_remaining_variables(free_variables, file);
-	dump_type_limits();}
-	dump_int_constraints();
-	dump_conditions();
+	show_header();
+	show_variables();
+	show_pivots();
+	show_type_limits();}
+	show_int_constraints();
+	show_conditions();
 	if(!options->cmd_option_bool("show_only_constraints")){
-	dump_check_sat();
-	dump_get();
-	dump_tail();}
-
-
-
-
-
-
-	stringstream filename; filename << "z3-" << rand() << ".smt2";
-
-	debug && printf("\e[31m filename \e[0m %s\n", filename.str().c_str() );
-
-	FILE* file = fopen(filename.str().c_str(), "w");
-
-	dump_header(file);
-	dump_variables(file);
-	dump_pivots(file);
-	//concurrency->dump_remaining_variables(free_variables, file);
-	dump_type_limits(file);
-	dump_int_constraints(file);
-	dump_conditions(file);
-	dump_check_sat(file);
-	dump_tail(file);
-
-	fclose(file);
-
+	show_check_sat();
+	show_get();
+	show_tail();}
 
 
 	fflush(stdout);

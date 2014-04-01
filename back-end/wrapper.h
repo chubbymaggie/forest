@@ -159,8 +159,6 @@ extern "C" void select_op(char* dest, char* cond, char* sel1, char* sel2 );
 
 extern "C" void mutex_lock(char* _mutex_name, char* _sync_name);
 extern "C" void mutex_unlock(char* _mutex_name, char* _sync_name);
-extern "C" void begin_concurrency();
-extern "C" void end_concurrency();
 extern "C" void Free_fn( char* _oplist );
 extern "C" short vector_short(char* _name);
 extern "C" int vector_int(char* _name);

@@ -23,7 +23,6 @@
 #include "database.h"
 #include "utils.h"
 #include "options.h"
-#include "concurrency.h"
 #include "timer.h"
 #include "z3_solver.h"
 
@@ -35,7 +34,6 @@ extern Options* options;
 extern Operators* operators;
 extern Z3Solver* solver;
 extern Database* database;
-extern Concurrency* concurrency;
 extern Timer* timer;
 extern map<string, string> map_pos_to_last_store;
 
@@ -311,7 +309,6 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 
 }
 
-#define update_store(A,B) concurrency->update_store(A,B);
 
 void Operators::load_instr(char* _dst, char* _addr){
 
@@ -383,7 +380,6 @@ void Operators::store_instr(char* _src, char* _addr){
 
 }
 
-#undef update_store
 
 void Operators::cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 

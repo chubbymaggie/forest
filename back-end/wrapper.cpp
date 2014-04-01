@@ -23,7 +23,6 @@
 #include "operators.h"
 #include "solver_wrapper.h"
 #include "operators.h"
-#include "concurrency.h"
 #include "measurement.h"
 #include "timer.h"
 #include "z3_solver.h"
@@ -33,7 +32,6 @@ Options* options = new Options();
 Operators* operators = new Operators();
 Z3Solver* solver = new Z3Solver();
 Database* database = new Database();
-Concurrency* concurrency = new Concurrency();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();
 
@@ -80,24 +78,16 @@ void binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 }
 
 void load_instr(char* _dst, char* _addr){
-	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize")){
-		concurrency->load_instr(_dst, _addr);
-	} else {
-		timer->start_timer();
-		operators->load_instr(_dst, _addr);
-		timer->end_timer("load_instr");
-	}
+	timer->start_timer();
+	operators->load_instr(_dst, _addr);
+	timer->end_timer("load_instr");
 
 }
 
 void store_instr(char* _src, char* _addr){
-	if( options->cmd_option_bool("concurrency") || options->cmd_option_bool("secuencialize")){
-		concurrency->store_instr(_src, _addr);
-	} else {
-		timer->start_timer();
-		operators->store_instr(_src, _addr);
-		timer->end_timer("store_instr");
-	}
+	timer->start_timer();
+	operators->store_instr(_src, _addr);
+	timer->end_timer("store_instr");
 }
 
 void cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
@@ -141,8 +131,6 @@ void alloca_instr(char* _reg, char* _subtype){
 	timer->start_timer();
 	operators->alloca_instr(_reg, _subtype);
 	timer->end_timer("alloca_instr");
-	if(options->cmd_option_bool("concurrency"))
-		concurrency->alloca_instr(_reg, _subtype);
 }
 
 void getelementptr(char* _dst, char* _pointer, char* _indexes, char* _offset_tree){
@@ -196,30 +184,6 @@ bool br_instr_cond(char* _cmp, char* _joints){
 
 void br_instr_cond_measurement(bool value){
 	measurement->br_instr_cond_measurement(value);
-}
-
-void mutex_lock(char* _mutex_name, char* _sync_name){
-	if(options->cmd_option_bool("concurrency") && !options->cmd_option_bool("secuencialize"))
-		concurrency->mutex_lock_info(_mutex_name, _sync_name);
-	if(options->cmd_option_bool("secuencialize"))
-		concurrency->mutex_lock_constraints(_mutex_name, _sync_name);
-}
-
-void mutex_unlock(char* _mutex_name, char* _sync_name){
-	if(options->cmd_option_bool("concurrency") && !options->cmd_option_bool("secuencialize"))
-		concurrency->mutex_unlock_info(_mutex_name, _sync_name);
-	if(options->cmd_option_bool("secuencialize"))
-		concurrency->mutex_unlock_constraints(_mutex_name, _sync_name);
-}
-
-void begin_concurrency(){
-	timer->start_timer();
-	concurrency->begin_concurrency();
-	timer->end_timer("begin_concurrency");
-}
-
-void end_concurrency(){
-	concurrency->end_concurrency();
 }
 
 void Free_fn( char* _oplist ){

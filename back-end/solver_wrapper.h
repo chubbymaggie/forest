@@ -199,18 +199,17 @@ protected:
 	map<string, string> first_content_value;
 
 
-	void dump_conditions(FILE* file = stdout);
-	void dump_variables(FILE* file = stdout);
-	void dump_concurrency_constraints(FILE* file = stdout);
-	void dump_check_sat(FILE* file = stdout);
-	void dump_header(FILE* file = stdout);
-	void dump_type_limits(FILE* file = stdout);
-	void dump_tail(FILE* file = stdout);
-	void dump_get(FILE* file = stdout);
-	void dump_int_constraints(FILE* file = stdout);
-	void dump_assigns(FILE* file = stdout);
-	void dump_pivots(FILE* file = stdout);
-	void flat_problem();
+	void show_conditions();
+	void show_variables();
+	void show_concurrency_constraints();
+	void show_check_sat();
+	void show_header();
+	void show_type_limits();
+	void show_tail();
+	void show_get();
+	void show_int_constraints();
+	void show_assigns();
+	void show_pivots();
 	string extract_condition(string content);
 	string get_last_condition(string name);
 	string actual(string name);
