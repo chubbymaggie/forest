@@ -78,6 +78,11 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class  SolverWrapper{
 public:
+	virtual void assign_instruction(string src, string dst, string fn_name = "") = 0;
+	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
+	virtual void solve_problem() = 0;
+
+	virtual ~SolverWrapper ();
 	float get_solve_time();
 	void add_int_constraint(string src);
 	void set_outofbounds(string varname, bool outofbounds = true);
@@ -108,16 +113,12 @@ public:
 	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
 	SolverWrapper ();
-	virtual ~SolverWrapper ();
-	void assign_instruction(string src, string dst, string fn_name = "");
-	void binary_instruction(string dst, string op1, string op2, string operation);
 	string content( string name );
 	void clean_conditions_stack(string name);
 	void set_sat(bool);
 	void push_condition(string condition, string function, vector<string> joints);
 	string negation(string condition);
 	int show_problem();
-	virtual void solve_problem() = 0;
 	void free_var(string name);
 	bool solvable_problem();
 	bool get_is_propagated_constant(string varname);

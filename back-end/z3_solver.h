@@ -27,6 +27,8 @@
 
 class Z3Solver : public SolverWrapper {
 public:
+	void assign_instruction(string src, string dst, string fn_name = "");
+	void binary_instruction(string dst, string op1, string op2, string operation);
 	Z3Solver ();
 	virtual ~Z3Solver ();
 	void solve_problem();
