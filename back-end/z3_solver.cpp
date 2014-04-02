@@ -289,7 +289,7 @@ void Z3Solver::dump_conditions(FILE* file){
 
 
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
-		fprintf(file,"(assert %s)\n", locknames(it->cond).c_str() );
+		fprintf(file,"(assert %s)\n",it->cond.c_str() );
 	}
 	
 }
@@ -306,7 +306,7 @@ void Z3Solver::dump_get(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n", locknames(it->position).c_str(), it->name.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n",it->position.c_str(), it->name.c_str() );
 	}
 	
 	fprintf(file,"; --- ↑free ↓non-free \n" );
@@ -317,7 +317,7 @@ void Z3Solver::dump_get(FILE* file){
 		
 		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
-		fprintf(file,"(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n",it->second.content.c_str(), it->first.c_str() );
 	}
 
 	fprintf(file,"; --- ↑non-free ↓forced_free \n" );
@@ -809,5 +809,40 @@ string Z3Solver::z3_type(string type){
 		return "Int";
 
 	return type;
+}
+
+int Z3Solver::minval(string type){
+
+	if(type == "Int32") return -(1 << 30);
+	if(type == "Int16") return -(1 << 15);
+	if(type == "Int8")  return 0;
+	if(type == "Int") return   -(1 << 30);
+	if(type == "Pointer") return 0;
+
+	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+}
+
+int Z3Solver::maxval(string type){
+
+	if(type == "Int32") return (1 << 30);
+	if(type == "Int16") return (1 << 15);
+	if(type == "Int8") return 255;
+	if(type == "Int") return (1 << 30);
+	if(type == "Pointer") return (1 << 30);
+
+	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+
+}
+
+bool Z3Solver::need_for_dump(string name, string content){
+		if( content == "" ) return false;
+		if( name.find("_pivot_") != string::npos ) return false;
+		if( gettype(name) == "Function") return false;
+		if( get_is_propagated_constant(name) ) return false;
+		return true;
 }
 

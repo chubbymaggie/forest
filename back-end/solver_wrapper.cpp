@@ -244,97 +244,9 @@ void SolverWrapper::add_int_constraint(string src){
 	int_constraints.insert(content(src));
 }
 
-int SolverWrapper::minval(string type){
-
-	if(type == "Int32") return -(1 << 30);
-	if(type == "Int16") return -(1 << 15);
-	if(type == "Int8")  return 0;
-	if(type == "Int") return   -(1 << 30);
-	if(type == "Pointer") return 0;
-
-	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
-	assert(0 && "Unknown type");
-	return 0;
-}
-
-int SolverWrapper::maxval(string type){
-
-	if(type == "Int32") return (1 << 30);
-	if(type == "Int16") return (1 << 15);
-	if(type == "Int8") return 255;
-	if(type == "Int") return (1 << 30);
-	if(type == "Pointer") return (1 << 30);
-
-	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
-	assert(0 && "Unknown type");
-	return 0;
-
-}
-
-void SolverWrapper::show_type_limits(){
-
-	if(options->cmd_option_bool("unconstrained")) return;
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-
-		vector<string> tokens = tokenize(it->name, " ");
-
-		string name = tokens[0];
-		string type = get_sized_type(it->name);
-
-		string position = it->position;
-
-		if( get_type(it->name) != "Real" )
-			printf("(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
-		
-	}
-}
-
 void SolverWrapper::show_tail(){
 
 	printf("(exit)\n");
-}
-
-bool SolverWrapper::need_for_dump(string name, string content){
-		if( content == "" ) return false;
-		if( name.find("_pivot_") != string::npos ) return false;
-		if( gettype(name) == "Function") return false;
-		if( get_is_propagated_constant(name) ) return false;
-		return true;
-}
-
-void SolverWrapper::show_get(){
-
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		printf("(get-value (%s)); %s\n", locknames(it->position).c_str(), it->name.c_str() );
-	}
-	
-	printf("; --- ↑free ↓non-free \n" );
-
-	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-
-		if(!need_for_dump(it->first, it->second.content)) continue;
-		
-		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
-
-		printf("(get-value (%s)); %s\n", locknames(it->second.content).c_str(), it->first.c_str() );
-	}
-
-	printf("; --- ↑non-free ↓forced_free \n" );
-
-	//for( set<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
-		//fprintf(file,"(get-value (%s));\n", get_first_content(*it).c_str() );
-	//}
-	
-	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		printf( "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
-	}
-	
-	
-	
 }
 
 void SolverWrapper::show_int_constraints(){
@@ -996,13 +908,11 @@ int SolverWrapper::show_problem(){
 	
 	if(!options->cmd_option_bool("show_only_constraints")){
 	show_header();
-	show_pivots();
-	show_type_limits();}
+	show_pivots();}
 	show_int_constraints();
 	show_conditions();
 	if(!options->cmd_option_bool("show_only_constraints")){
 	show_check_sat();
-	show_get();
 	show_tail();}
 
 

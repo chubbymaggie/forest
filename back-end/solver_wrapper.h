@@ -203,9 +203,7 @@ protected:
 	void show_concurrency_constraints();
 	void show_check_sat();
 	void show_header();
-	void show_type_limits();
 	void show_tail();
-	void show_get();
 	void show_int_constraints();
 	void show_assigns();
 	void show_pivots();
@@ -228,8 +226,6 @@ protected:
 	string or_paths(string dest);
 	string and_stores(string sync_point);
 	string stack(string sync_point);
-	int minval(string type);
-	int maxval(string type);
 	void set_real_value_mangled(string varname, string value );
 	bool get_is_sat(string is_sat);
 	int get_num_fvars();

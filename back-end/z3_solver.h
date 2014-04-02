@@ -34,6 +34,9 @@ public:
 	void solve_problem();
 
 private:
+	bool need_for_dump(string name, string content);
+	int minval(string type);
+	int maxval(string type);
 	string z3_type(string type);
 	void dump_tail(FILE* file);
 	void dump_get(FILE* file);
