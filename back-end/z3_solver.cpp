@@ -804,3 +804,10 @@ string Z3Solver::or_constant(string op1, string op2){
 
 }
 
+string Z3Solver::z3_type(string type){
+	if(type == "Pointer")
+		return "Int";
+
+	return type;
+}
+

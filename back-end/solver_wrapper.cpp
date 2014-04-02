@@ -188,32 +188,6 @@ void SolverWrapper::clean_pivots(){
 
 }
 
-string SolverWrapper::z3_type(string type){
-	if(type == "Pointer")
-		return "Int";
-
-	return type;
-}
-
-void SolverWrapper::show_variables(){
-
-	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-
-		string position = it->position;
-		string type = z3_type(get_type(it->name));
-
-		//dump_variable(position, type, file);
-		printf("(declare-fun %s () %s)\n", locknames(position).c_str(), type.c_str());
-
-		
-	}
-	
-
-}
-
 void SolverWrapper::show_conditions(){
 
 
@@ -1022,7 +996,6 @@ int SolverWrapper::show_problem(){
 	
 	if(!options->cmd_option_bool("show_only_constraints")){
 	show_header();
-	show_variables();
 	show_pivots();
 	show_type_limits();}
 	show_int_constraints();

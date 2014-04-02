@@ -34,6 +34,7 @@ public:
 	void solve_problem();
 
 private:
+	string z3_type(string type);
 	void dump_tail(FILE* file);
 	void dump_get(FILE* file);
 	void dump_check_sat(FILE* file);
