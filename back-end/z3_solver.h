@@ -34,6 +34,23 @@ public:
 	void solve_problem();
 
 private:
+	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void sub_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void add_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void eq_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void bt_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void lt_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void geq_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void uleq_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void leq_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
+	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
+	void rem_operator(string op1, string op2, string dst, stringstream& content_ss);
+	void neq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	string complement_op(string op1);
 	bool need_for_dump(string name, string content);
 	int minval(string type);

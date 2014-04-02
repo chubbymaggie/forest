@@ -208,7 +208,7 @@ void Z3BitVector::dump_variables(FILE* file){
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 		string position = it->position;
-		string type = z3_type(get_type(it->name));
+		string type = get_type(it->name);
 		int bits;
 
 		bits = 8;
@@ -468,7 +468,7 @@ void Z3BitVector::binary_instruction(string dst, string op1, string op2, string 
 		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
 	} else if(operation == "+"){
-		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvadd " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" ){
@@ -497,7 +497,7 @@ void Z3BitVector::binary_instruction(string dst, string op1, string op2, string 
 
 		set_real_value(dst, result.str());
 	} else if(operation == "*"){
-		content_ss << "(" << operation << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvmul " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" )
