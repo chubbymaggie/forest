@@ -31,7 +31,7 @@
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solver = new Z3Solver();
+SolverWrapper* solver = new Z3BitVector();
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();

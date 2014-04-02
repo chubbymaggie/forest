@@ -559,7 +559,7 @@ void Z3BitVector::neq_operation(string op1, string op2, string dst, stringstream
 
 void Z3BitVector::rem_operator(string op1, string op2, string dst, stringstream& content_ss){
 
-		content_ss << "(mod " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvsmod " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
 		set_real_value(dst, result.str());
@@ -568,16 +568,8 @@ void Z3BitVector::rem_operator(string op1, string op2, string dst, stringstream&
 
 void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& content_ss){
 
+		content_ss << "(bvshr " << content(op1) << " " << conent(op2) << ")";
 
-
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
-		int factor = 1 << exponent;
-
-		content_ss << "(/ " << content(op1) << " " << factor << ")";
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
 		int places = stoi( op2 );
 
 		int result_i = stoi(realvalue(op1)) >> places;
@@ -585,77 +577,57 @@ void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& 
 		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
-		//printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
-
-
 }
 
 void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& content_ss){
 
 
 
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
-		int factor = 1 << exponent;
+		content_ss << "(bvshl " << content(op1) << " " << conent(op2) << ")";
 
-		content_ss << "(* " << content(op1) << " " << factor << ")";
+		int places = stoi( op2 );
+
+		int result_i = stoi(realvalue(op1)) << places;
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
 
 }
 
 void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
+		content_ss << "(bvand " << content(op1) << " " << conent(op2) << ")";
 
-		//if( is_constant(op2) )
-			//content_ss << and_constant( op1, realvalue(op2) );
-		//else
-			//assert(0 && "Non-Supported Operation");
+		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
-
-		int op1_i = stoi(realvalue(op1));
-		int op2_i = stoi(realvalue(op2));
-		int res = op1_i & op2_i;
-		stringstream result; result << res;
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
-
 
 }
 
 void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
+		content_ss << "(bvor " << content(op1) << " " << conent(op2) << ")";
 
-		//if( is_constant(op2) )
-			//content_ss << or_constant( op1, realvalue(op2) );
-		//else
-			//assert(0 && "Non-Supported Operation");
+		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
-		int op1_i = stoi(realvalue(op1));
-		int op2_i = stoi(realvalue(op2));
-		int res = op1_i | op2_i;
-		stringstream result; result << res;
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
-
-
-
 
 }
 
 void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		//if( is_constant(op2) && realvalue(op2) == "-1" )
-			//content_ss  << complement_op( op1 );
-		//else
-			//assert(0 && "Non-Supported Operation");
+		content_ss << "(bvxor " << content(op1) << " " << conent(op2) << ")";
 
-		if( is_constant(op2) && realvalue(op2) == "-1" ){
-			int op1_i = stoi(realvalue(op1));
-			int res = ~op1_i;
-			stringstream result; result << res;
-			set_real_value(dst, result.str());
-		}
+		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
 
 }
 
@@ -679,7 +651,6 @@ void Z3BitVector::uleq_operation(string op1, string op2, string dst, stringstrea
 }
 
 void Z3BitVector::geq_operation(string op1, string op2, string dst, stringstream& content_ss){
-
 
 		content_ss << "(>= " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
@@ -709,7 +680,7 @@ void Z3BitVector::eq_operation(string op1, string op2, string dst, stringstream&
 void Z3BitVector::add_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(+ " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvadd " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" ){
@@ -728,7 +699,7 @@ void Z3BitVector::add_operation(string op1, string op2, string dst, stringstream
 void Z3BitVector::sub_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(- " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvsub " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 
 		stringstream result;
@@ -746,7 +717,7 @@ void Z3BitVector::sub_operation(string op1, string op2, string dst, stringstream
 void Z3BitVector::mul_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(* " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(bvmul " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" )
