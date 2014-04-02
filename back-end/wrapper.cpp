@@ -26,11 +26,12 @@
 #include "measurement.h"
 #include "timer.h"
 #include "z3_solver.h"
+#include "z3_bitvector.h"
 #include "database.h"
 
 Options* options = new Options();
 Operators* operators = new Operators();
-Z3Solver* solver = new Z3Solver();
+SolverWrapper* solver = new Z3BitVector();
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();

@@ -28,7 +28,7 @@
 
 #define debug true
 
-extern Z3Solver* solver;
+extern SolverWrapper* solver;
 extern Options* options;
 extern Operators* operators;
 extern Timer* timer;

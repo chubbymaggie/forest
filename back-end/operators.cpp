@@ -32,7 +32,7 @@
 
 extern Options* options;
 extern Operators* operators;
-extern Z3Solver* solver;
+extern SolverWrapper* solver;
 extern Database* database;
 extern Timer* timer;
 extern map<string, string> map_pos_to_last_store;
