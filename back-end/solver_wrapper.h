@@ -174,7 +174,6 @@ protected:
 	bool need_for_dump(string name, string content);
 	string get_anded_stack_conditions();
 	void set_real_value_hint(string hint, string value );
-	string complement_op(string op1);
 	//void propagate_unary(string src, string dst);
 	void propagate_unary(string src, string dst, bool forcedfree);
 	void propagate_binary(string op1, string op2, string dst);

@@ -34,6 +34,7 @@ public:
 	void solve_problem();
 
 private:
+	string complement_op(string op1);
 	bool need_for_dump(string name, string content);
 	int minval(string type);
 	int maxval(string type);

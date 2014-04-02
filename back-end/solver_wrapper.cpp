@@ -836,21 +836,6 @@ void SolverWrapper::propagate_binary(string op1, string op2, string dst){
 
 }
 
-string SolverWrapper::complement_op(string op1){
-
-	stringstream ret;
-	string content1 = content(op1);
-
-	printf("complement_operation %s \n", op1.c_str());
-
-	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 1)))";
-	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 2)))";
-	ret << "(- (+ " << content1 << " 1))";
-
-	return ret.str();
-
-}
-
 bool SolverWrapper::is_free_var(string name){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for is_free_var");
 

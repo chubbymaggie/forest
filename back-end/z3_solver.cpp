@@ -846,3 +846,18 @@ bool Z3Solver::need_for_dump(string name, string content){
 		return true;
 }
 
+string Z3Solver::complement_op(string op1){
+
+	stringstream ret;
+	string content1 = content(op1);
+
+	printf("complement_operation %s \n", op1.c_str());
+
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 1)))";
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 2)))";
+	ret << "(- (+ " << content1 << " 1))";
+
+	return ret.str();
+
+}
+
