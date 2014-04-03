@@ -144,7 +144,7 @@ spent_time /= 1e6;
 			assert(0 && "Error in z3 execution");
 
 		string varname = it->name;
-		string value = result_get(*it_ret);
+		string value = canonical_representation(result_get(*it_ret));
 		string hint = it->position;
 
 
@@ -172,7 +172,7 @@ spent_time /= 1e6;
 			assert(0 && "Error in z3 execution");
 
 		string name = it->first;
-		string value = result_get(*it_ret);
+		string value = canonical_representation(result_get(*it_ret));
 
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
@@ -185,7 +185,7 @@ spent_time /= 1e6;
 
 
 	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		set_first_content_value(it->first, result_get(*it_ret));
+		set_first_content_value(it->first, canonical_representation(result_get(*it_ret)));
 
 		it_ret++;
 	}
@@ -749,9 +749,25 @@ void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream
 }
 
 string Z3BitVector::internal_representation(string in){
-	return "#x0" + in;
+	int a = stoi(in);
+	char b[10];
+	sprintf(b, "%02x", a);
+
+	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
+	return "#x" + string(b);
 }
 
 string Z3BitVector::canonical_representation(string in){
-	return in.substr(3);
+
+	if(in == "false") return "false";
+	if(in == "true") return "true";
+
+	int a;
+	char ret_str[10];
+	sscanf(in.substr(2).c_str(), "%x", &a);
+	sprintf(ret_str, "%d", a);
+
+	printf("canonical_representation in %s a %d ret %s\n", in.c_str(), a, ret_str );
+
+	return string(ret_str);
 }

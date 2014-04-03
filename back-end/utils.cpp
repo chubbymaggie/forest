@@ -172,6 +172,26 @@ string itos(int i){
 	return i_ss.str();
 }
 
+bool is_hex_digit(char a){
+	if(a == '0') return true;
+	if(a == '1') return true;
+	if(a == '2') return true;
+	if(a == '3') return true;
+	if(a == '4') return true;
+	if(a == '5') return true;
+	if(a == '6') return true;
+	if(a == '7') return true;
+	if(a == '8') return true;
+	if(a == '9') return true;
+	if(a == 'a') return true;
+	if(a == 'b') return true;
+	if(a == 'c') return true;
+	if(a == 'd') return true;
+	if(a == 'e') return true;
+	if(a == 'f') return true;
+	return false;
+}
+
 bool is_number(const std::string& s) {
 
 	//printf("\e[33m is_number \e[0m %s\n", s.c_str() );
@@ -194,7 +214,7 @@ bool is_number(const std::string& s) {
 		is_number(s.substr(s.find("e")+1));
 
 	std::string::const_iterator it = s.begin();
-	while (it != s.end() && std::isdigit(*it)) ++it;
+	while (it != s.end() && is_hex_digit(*it)) ++it;
 	return !s.empty() && it == s.end();
 }
 
