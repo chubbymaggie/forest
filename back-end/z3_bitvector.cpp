@@ -208,10 +208,15 @@ void Z3BitVector::dump_variables(FILE* file){
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 
 		string position = it->position;
-		string type = get_type(it->name);
+		string type = gettype(it->name);
 		int bits;
 
-		bits = 8;
+		printf("dump_variables_type %s\n", type.c_str());
+
+		if(type == "IntegerTyID32")
+			bits = 32;
+		else
+			assert(0 && "Unknown Type");
 
 		//dump_variable(position, type, file);
 		fprintf(file,"(declare-const %s (_ BitVec %d))\n", position.c_str(), bits);
