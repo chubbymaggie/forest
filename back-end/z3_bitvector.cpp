@@ -568,7 +568,7 @@ void Z3BitVector::rem_operator(string op1, string op2, string dst, stringstream&
 
 void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& content_ss){
 
-		content_ss << "(bvshr " << content(op1) << " " << conent(op2) << ")";
+		content_ss << "(bvshr " << content(op1) << " " << content(op2) << ")";
 
 		int places = stoi( op2 );
 
@@ -583,7 +583,7 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 
 
 
-		content_ss << "(bvshl " << content(op1) << " " << conent(op2) << ")";
+		content_ss << "(bvshl " << content(op1) << " " << content(op2) << ")";
 
 		int places = stoi( op2 );
 
@@ -598,7 +598,7 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(bvand " << content(op1) << " " << conent(op2) << ")";
+		content_ss << "(bvand " << content(op1) << " " << content(op2) << ")";
 
 		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
@@ -610,7 +610,7 @@ void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream
 void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(bvor " << content(op1) << " " << conent(op2) << ")";
+		content_ss << "(bvor " << content(op1) << " " << content(op2) << ")";
 
 		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
@@ -622,7 +622,7 @@ void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream&
 void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(bvxor " << content(op1) << " " << conent(op2) << ")";
+		content_ss << "(bvxor " << content(op1) << " " << content(op2) << ")";
 
 		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
@@ -748,4 +748,10 @@ void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream
 		set_real_value(dst, result.str());
 }
 
+string Z3BitVector::internal_representation(string in){
+	return "#x0" + in;
+}
 
+string Z3BitVector::canonical_representation(string in){
+	return in.substr(3);
+}
