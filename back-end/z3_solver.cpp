@@ -926,6 +926,6 @@ void Z3Solver::div_operation(string op1, string op2, string dst, stringstream& c
 		set_real_value(dst, result.str());
 }
 
-string Z3Solver::internal_representation(string in, string type){
+string Z3Solver::internal_representation(string in){
 	return in;
 }

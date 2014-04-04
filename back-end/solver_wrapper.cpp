@@ -53,12 +53,12 @@ void SolverWrapper::free_var(string var){
 
 }
 
-string SolverWrapper::content( string name, string type ){
+string SolverWrapper::content( string name ){
 
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if(name.find("constant_") != string::npos )
-		return internal_representation(name.substr(9),type);
+		return internal_representation(name.substr(9));
 
 	if( variables[name].content == "" || is_forced_free(name) ){
 		string position;

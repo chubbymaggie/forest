@@ -68,9 +68,9 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 
 	if(solver->get_type(name(src)) == "bool" && type == "IntegerTyID8"){
 
-		solver->setcontent(name(dst), "(ite " + solver->content(name(src), type) + " 1 0)");
+		solver->setcontent(name(dst), "(ite " + solver->content(name(src)) + " 1 0)");
 		solver->settype(name(dst), "IntegerTyID8");
-		printf("casting bool to integertyid8 %s\n", solver->content(name(dst), type).c_str());
+		printf("casting bool to integertyid8 %s\n", solver->content(name(dst)).c_str());
 
 	}
 
