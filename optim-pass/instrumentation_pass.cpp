@@ -161,19 +161,46 @@ string floatvalue( ConstantFP * CF ){
 
 }
 
-string operandname( Value* operand ){
+string casted_value( Value* operand ){
 
 	if( ConstantInt::classof(operand) ){
 		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
 		int64_t val = CI->getSExtValue();
-		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
-		return nameop1_ss.str();
+
+		//if(cmd_option_str("solver") == "bitvector"){
+			string type = get_type_str(operand->getType());
+			if(type == "IntegerTyID32"){
+				char a[20];
+				sprintf(a, "#x%08x",val);
+				//cerr << "casted_value " << string(a) << enel;
+				return string(a);
+
+			} else {
+				cerr << type << endl;
+				assert(0 && "Unknown type");
+			}
+		//} else {
+			//stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			//return nameop1_ss.str();
+		//}
 	} else if( ConstantFP::classof(operand) ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
 		stringstream nameop1_ss;
 		nameop1_ss << "constant" UNDERSCORE << floatvalue(CF);
 
+		return nameop1_ss.str();
+	}
+
+}
+
+string operandname( Value* operand ){
+
+	if( ConstantInt::classof(operand) ){
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << casted_value(operand);
+		return nameop1_ss.str();
+	} else if( ConstantFP::classof(operand) ){
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << casted_value(operand);
 		return nameop1_ss.str();
 	} else if ( ConstantPointerNull::classof(operand) ){
 		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE "0";

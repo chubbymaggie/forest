@@ -32,7 +32,6 @@ public:
 	void assign_instruction(string src, string dst, string fn_name = "");
 	void binary_instruction(string dst, string op1, string op2, string operation);
 	void solve_problem();
-	string internal_representation(string in);
 	string canonical_representation(string in);
 
 private:

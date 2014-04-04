@@ -753,15 +753,6 @@ void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream
 		set_real_value(dst, result.str());
 }
 
-string Z3BitVector::internal_representation(string in){
-	int a = stoi(in);
-	char b[10];
-	sprintf(b, "%02x", a);
-
-	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
-	return "#x" + string(b);
-}
-
 string Z3BitVector::canonical_representation(string in){
 
 	if(in == "false") return "false";
@@ -772,7 +763,7 @@ string Z3BitVector::canonical_representation(string in){
 	sscanf(in.substr(2).c_str(), "%x", &a);
 	sprintf(ret_str, "%d", a);
 
-	printf("canonical_representation in %s a %d ret %s\n", in.c_str(), a, ret_str );
+	//printf("canonical_representation in %s a %d ret %s\n", in.c_str(), a, ret_str );
 
 	return string(ret_str);
 }

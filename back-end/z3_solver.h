@@ -32,7 +32,6 @@ public:
 	Z3Solver ();
 	virtual ~Z3Solver ();
 	void solve_problem();
-	string internal_representation(string in);
 
 private:
 	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
