@@ -81,7 +81,7 @@ public:
 	virtual void assign_instruction(string src, string dst, string fn_name = "") = 0;
 	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
 	virtual void solve_problem() = 0;
-	virtual string internal_representation(string in) = 0;
+	virtual string internal_representation(string in, string type) = 0;
 
 	virtual ~SolverWrapper ();
 	float get_solve_time();
@@ -114,7 +114,7 @@ public:
 	void dump_variable(string name, string type, FILE* file);
 	void pivot_variable(string variable, string name);
 	SolverWrapper ();
-	string content( string name );
+	string content( string name, string type = "" );
 	void clean_conditions_stack(string name);
 	void set_sat(bool);
 	void push_condition(string condition, string function, vector<string> joints);

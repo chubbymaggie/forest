@@ -753,7 +753,7 @@ void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream
 		set_real_value(dst, result.str());
 }
 
-string Z3BitVector::internal_representation(string in){
+string Z3BitVector::internal_representation(string in, string type){
 	int a = stoi(in);
 	char b[10];
 	sprintf(b, "%02x", a);
