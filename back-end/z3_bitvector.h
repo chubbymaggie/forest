@@ -37,12 +37,9 @@ private:
 	string internal_representation(int in);
 	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
 	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
-	void rem_operator(string op1, string op2, string dst, stringstream& content_ss);
-	void neq_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void dump_tail(FILE* file);
-	void dump_get(FILE* file);
 	void dump_header(FILE* file);
 	void dump_variables(FILE* file);
 	

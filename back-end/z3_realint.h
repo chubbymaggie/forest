@@ -31,9 +31,16 @@ public:
 	void dump_variables(FILE* file);
 	void dump_header(FILE* file);
 
+	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
+
 private:
 	string name_operation(string operation);
 	string canonical_representation(string in);
+	string and_constant(string op1, string op2);
+	string or_constant(string op1, string op2);
+	string complement_op(string op1);
 	
 };
 

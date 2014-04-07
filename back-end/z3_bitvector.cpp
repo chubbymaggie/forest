@@ -227,89 +227,6 @@ void Z3BitVector::dump_variables(FILE* file){
 
 }
 
-void Z3BitVector::dump_get(FILE* file){
-
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n",it->position.c_str(), it->name.c_str() );
-	}
-	
-	fprintf(file,"; --- ↑free ↓non-free \n" );
-
-	for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
-
-		if(!need_for_dump(it->first, it->second.content)) continue;
-		
-		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
-
-		fprintf(file,"(get-value (%s)); %s\n",it->second.content.c_str(), it->first.c_str() );
-	}
-
-	fprintf(file,"; --- ↑non-free ↓forced_free \n" );
-
-	//for( set<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
-		//fprintf(file,"(get-value (%s));\n", get_first_content(*it).c_str() );
-	//}
-	
-	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		fprintf(file, "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
-	}
-	
-	
-	
-}
-
-void Z3BitVector::dump_tail(FILE* file){
-
-	fprintf(file,"(exit)\n");
-}
-
-void Z3BitVector::neq_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-		content_ss << "(not (= " << content(op1 ) << " " <<  content(op2 ) << "))";
-
-		if(get_type(op1) == "bool" && op2 == "constant_0"){
-			content_ss.str("");
-			content_ss << "(not (= " << content(op1) << " " << "false" << "))";
-		}
-
-		//fflush(stdout); fflush(stderr);
-		//printf("realvalue_op1 %s realvalue_op2 %s\n", realvalue(op1).c_str(), realvalue(op2).c_str() );
-
-		string value_1_s = realvalue(op1);
-		string value_2_s = realvalue(op2);
-		int value_1;
-		int value_2;
-
-		if(value_1_s == "true"){
-			value_1 = 1;
-		} else if(value_1_s == "false"){
-			value_1 = 0;
-		} else {
-			value_1 = stoi(value_1_s);
-		}
-
-		if(value_2_s == "true"){
-			value_2 = 1;
-		} else if(value_2_s == "false"){
-			value_2 = 0;
-		} else {
-			value_2 = stoi(value_2_s);
-		}
-
-		set_real_value(dst, ( value_1 != value_2 )?"true":"false" );
-}
-
-void Z3BitVector::rem_operator(string op1, string op2, string dst, stringstream& content_ss){
-
-		content_ss << "(bvsmod " << content(op1 ) << " " <<  content(op2 ) << ")";
-
-		stringstream result; result << internal_representation(stoi(canonical_representation(realvalue(op1))) % stoi(canonical_representation(realvalue(op2))));
-		set_real_value(dst, result.str());
-
-}
-
 void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& content_ss){
 
 		content_ss << "(bvshr " << content(op1) << " " << content(op2) << ")";
@@ -393,5 +310,18 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "/") return "bvdiv";
 
 	assert(0 && "Unknown operation");
+}
+
+
+void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
+
+
+		content_ss << "(bvxor " << content(op1) << " " << content(op2) << ")";
+
+		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
+
+		stringstream result; result << internal_representation(result_i);
+		set_real_value(dst, result.str());
+
 }
 
