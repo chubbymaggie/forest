@@ -682,76 +682,6 @@ void Z3BitVector::eq_operation(string op1, string op2, string dst, stringstream&
 		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) == stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
-void Z3BitVector::add_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvadd " << content(op1 ) << " " <<  content(op2 ) << ")";
-
-		stringstream result;
-		if( get_type(dst) == "Real" ){
-			result << stof(realvalue(op1)) + stof(realvalue(op2));
-		} else if (get_type(dst) == "Int") {
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) + stoi(canonical_representation(realvalue(op2))));
-		} else if( get_type(dst) == "Pointer" ) {
-			result << stof(realvalue(op1)) + stof(realvalue(op2));
-		} else {
-			assert(0 && "Unknown type");
-		}
-
-		set_real_value(dst, result.str());
-}
-
-void Z3BitVector::sub_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvsub " << content(op1 ) << " " <<  content(op2 ) << ")";
-
-
-		stringstream result;
-		if( get_type(dst) == "Real" )
-			result << stof(realvalue(op1)) - stof(realvalue(op2));
-		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) - stoi(canonical_representation(realvalue(op2))));
-		else
-			assert(0 && "Unknown type");
-
-
-		set_real_value(dst, result.str());
-}
-
-void Z3BitVector::mul_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvmul " << content(op1 ) << " " <<  content(op2 ) << ")";
-
-		stringstream result;
-		if( get_type(dst) == "Real" )
-			result << stof(realvalue(op1)) * stof(realvalue(op2));
-		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) * stoi(canonical_representation(realvalue(op2))));
-		else
-			assert(0 && "Unknown type");
-
-
-		set_real_value(dst, result.str());
-}
-
-void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(/ " << content(op1 ) << " " <<  content(op2 ) << ")";
-
-
-		stringstream result;
-		if( get_type(dst) == "Real" )
-			result << stof(realvalue(op1)) / stof(realvalue(op2));
-		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) / stoi(canonical_representation(realvalue(op2))));
-		else
-			assert(0 && "Unknown type");
-
-		set_real_value(dst, result.str());
-}
 
 string Z3BitVector::canonical_representation(string in){
 
@@ -776,5 +706,12 @@ string Z3BitVector::internal_representation(int in){
 	return "#x" + string(b);
 }
 
+string Z3BitVector::name_operation(string operation){
+	if(operation == "*") return "bvmul";
+	if(operation == "+") return "bvadd";
+	if(operation == "-") return "bvsub";
+	if(operation == "/") return "bvdiv";
 
+	assert(0 && "Unknown operation");
+}
 

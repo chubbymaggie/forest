@@ -35,11 +35,8 @@ public:
 	string canonical_representation(string in);
 
 private:
+	string name_operation(string operation);
 	string internal_representation(int in);
-	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void sub_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void add_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void eq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void bt_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void lt_operation(string op1, string op2, string dst, stringstream& content_ss);
@@ -59,8 +56,8 @@ private:
 	void dump_check_sat(FILE* file);
 	void dump_conditions(FILE* file);
 	void dump_pivots(FILE* file);
-	void dump_variables(FILE* file);
 	void dump_header(FILE* file);
+	void dump_variables(FILE* file);
 	
 };
 

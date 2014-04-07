@@ -32,8 +32,11 @@ public:
 	Z3Solver ();
 	virtual ~Z3Solver ();
 	void solve_problem();
+	virtual void dump_variables(FILE* file) = 0;
+	string z3_type(string type);
 
-private:
+protected:
+	virtual string canonical_representation(string in) = 0;
 	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void sub_operation(string op1, string op2, string dst, stringstream& content_ss);
@@ -55,7 +58,6 @@ private:
 	bool need_for_dump(string name, string content);
 	int minval(string type);
 	int maxval(string type);
-	string z3_type(string type);
 	void dump_tail(FILE* file);
 	void dump_get(FILE* file);
 	void dump_check_sat(FILE* file);
@@ -63,11 +65,11 @@ private:
 	void dump_int_constraints(FILE* file);
 	void dump_type_limits(FILE* file);
 	void dump_pivots(FILE* file);
-	void dump_variables(FILE* file);
-	void dump_header(FILE* file);
+	virtual void dump_header(FILE* file) = 0;
 	string and_constant(string op1, string op2);
 	string or_constant(string op1, string op2);
 	string internal_representation(int in);
+	virtual string name_operation(string operation) = 0;
 	
 };
 

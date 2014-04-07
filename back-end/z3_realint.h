@@ -28,8 +28,12 @@ public:
 	Z3RealInt();
 	virtual ~Z3RealInt();
 
+	void dump_variables(FILE* file);
+	void dump_header(FILE* file);
 
 private:
+	string name_operation(string operation);
+	string canonical_representation(string in);
 	
 };
 
