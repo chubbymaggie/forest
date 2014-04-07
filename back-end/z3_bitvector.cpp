@@ -434,9 +434,9 @@ void Z3BitVector::binary_instruction(string dst, string op1, string op2, string 
 		variables[dst].content = "(+ " + content(op1) + " " + "(ite " + content(op2) + " 1 0)" + ")";
 
 		if( realvalue(op2) == "true" )
-			set_real_value(dst, itos(stoi(realvalue(op1)) + 1) );
+			set_real_value(dst, internal_representation(stoi(realvalue(op1)) + 1) );
 		else if( realvalue(op2) == "false" )
-			set_real_value(dst, itos(stoi(realvalue(op1)) + 0) );
+			set_real_value(dst, internal_representation(stoi(realvalue(op1)) + 0) );
 		else
 			assert(0 && "Invalid boolean value");
 	}
@@ -566,7 +566,7 @@ void Z3BitVector::rem_operator(string op1, string op2, string dst, stringstream&
 
 		content_ss << "(bvsmod " << content(op1 ) << " " <<  content(op2 ) << ")";
 
-		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
+		stringstream result; result << internal_representation(stoi(canonical_representation(realvalue(op1))) % stoi(canonical_representation(realvalue(op2))));
 		set_real_value(dst, result.str());
 
 }
@@ -575,11 +575,11 @@ void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& 
 
 		content_ss << "(bvshr " << content(op1) << " " << content(op2) << ")";
 
-		int places = stoi( op2 );
+		int places = stoi( canonical_representation(op2) );
 
-		int result_i = stoi(realvalue(op1)) >> places;
+		int result_i = stoi(canonical_representation(realvalue(op1))) >> places;
 
-		stringstream result; result << result_i;
+		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
 
 }
@@ -590,11 +590,11 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 
 		content_ss << "(bvshl " << content(op1) << " " << content(op2) << ")";
 
-		int places = stoi( op2 );
+		int places = stoi( canonical_representation(op2) );
 
-		int result_i = stoi(realvalue(op1)) << places;
+		int result_i = stoi(canonical_representation(realvalue(op1))) << places;
 
-		stringstream result; result << result_i;
+		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
 
 
@@ -605,9 +605,9 @@ void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream
 
 		content_ss << "(bvand " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
+		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
 
-		stringstream result; result << result_i;
+		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
 
 }
@@ -617,9 +617,9 @@ void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream&
 
 		content_ss << "(bvor " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
+		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
 
-		stringstream result; result << result_i;
+		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
 
 }
@@ -629,9 +629,9 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 		content_ss << "(bvxor " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
+		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
 
-		stringstream result; result << result_i;
+		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
 
 }
@@ -640,7 +640,7 @@ void Z3BitVector::leq_operation(string op1, string op2, string dst, stringstream
 
 
 		content_ss << "(<= " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) <= stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::uleq_operation(string op1, string op2, string dst, stringstream& content_ss){
@@ -652,34 +652,34 @@ void Z3BitVector::uleq_operation(string op1, string op2, string dst, stringstrea
 			")";
 
 
-		set_real_value(dst, ( (unsigned int)stoi(realvalue(op1) ) <= (unsigned int)stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( (unsigned int)stoi(canonical_representation(realvalue(op1)) ) <= (unsigned int)stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::geq_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 		content_ss << "(>= " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) >= stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::lt_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
 		content_ss << "(< " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) < stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) < stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::bt_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
 		content_ss << "(> " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) > stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) > stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::eq_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
 		content_ss << "(= " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, ( stoi(canonical_representation(realvalue(op1)) ) == stoi( canonical_representation(realvalue(op2)) ) )?"true":"false" );
 }
 
 void Z3BitVector::add_operation(string op1, string op2, string dst, stringstream& content_ss){
@@ -691,7 +691,7 @@ void Z3BitVector::add_operation(string op1, string op2, string dst, stringstream
 		if( get_type(dst) == "Real" ){
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else if (get_type(dst) == "Int") {
-			result << stoi(realvalue(op1)) + stoi(realvalue(op2));
+			result << internal_representation(stoi(canonical_representation(realvalue(op1))) + stoi(canonical_representation(realvalue(op2))));
 		} else if( get_type(dst) == "Pointer" ) {
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else {
@@ -711,7 +711,7 @@ void Z3BitVector::sub_operation(string op1, string op2, string dst, stringstream
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) - stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << stoi(realvalue(op1)) - stoi(realvalue(op2));
+			result << internal_representation(stoi(canonical_representation(realvalue(op1))) - stoi(canonical_representation(realvalue(op2))));
 		else
 			assert(0 && "Unknown type");
 
@@ -728,7 +728,7 @@ void Z3BitVector::mul_operation(string op1, string op2, string dst, stringstream
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) * stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << stoi(realvalue(op1)) * stoi(realvalue(op2));
+			result << internal_representation(stoi(canonical_representation(realvalue(op1))) * stoi(canonical_representation(realvalue(op2))));
 		else
 			assert(0 && "Unknown type");
 
@@ -746,7 +746,7 @@ void Z3BitVector::div_operation(string op1, string op2, string dst, stringstream
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) / stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << stoi(realvalue(op1)) / stoi(realvalue(op2));
+			result << internal_representation(stoi(canonical_representation(realvalue(op1))) / stoi(canonical_representation(realvalue(op2))));
 		else
 			assert(0 && "Unknown type");
 
@@ -767,3 +767,14 @@ string Z3BitVector::canonical_representation(string in){
 
 	return string(ret_str);
 }
+
+string Z3BitVector::internal_representation(int in){
+	char b[10];
+	sprintf(b, "%02x", in);
+
+	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
+	return "#x" + string(b);
+}
+
+
+

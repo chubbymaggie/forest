@@ -645,7 +645,7 @@ string SolverWrapper::realvalue(string varname){
 		return varname.substr(9);
 	} else if( variables[varname].real_value == "" ){
 		//printf("empty\n");
-		return "0";
+		return internal_representation(0);
 	}else{
 		//printf("else\n");
 		if( variables.find(varname) == variables.end() ){

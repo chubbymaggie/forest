@@ -35,6 +35,7 @@ public:
 	string canonical_representation(string in);
 
 private:
+	string internal_representation(int in);
 	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void sub_operation(string op1, string op2, string dst, stringstream& content_ss);
