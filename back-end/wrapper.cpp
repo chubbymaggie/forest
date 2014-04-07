@@ -32,7 +32,7 @@
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solver;
+SolverWrapper* solver = new Z3RealInt();
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();

@@ -186,7 +186,7 @@ void Measurement::begin_sim_measurement(char* functions, char* bbs){
 		}
 	}
 
-	debug && printf("\e[31m Begin Simulation\e[0m %s %s\n", functions, bbs );
+	debug && printf("\e[31m Begin Measurement\e[0m %s %s\n", functions, bbs );
 }
 
 void Measurement::BeginFn(char* _fn_name){

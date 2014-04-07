@@ -4116,6 +4116,7 @@ int main(int argc, const char *argv[]) {
 	//cmd_option_bool("show_only_constraints")
 	//cmd_option_bool("show_bdd")
 	//cmd_option_bool("bdd_permutation")
+	//cmd_option_bool("solver")
 	if(cmd_option_bool("make_bc")) make_bc();                                   // generates bc with instrumentation and isolated function
 	if(cmd_option_bool("clean_tables")) clean_tables();                         // removes and creates database tables
 	if(cmd_option_bool("final")) final();                                       // generates final executable code
