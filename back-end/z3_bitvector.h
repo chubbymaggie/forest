@@ -22,9 +22,9 @@
 #ifndef _Z3_BITVECTOR_H_
 #define _Z3_BITVECTOR_H_
 
-#include "solver_wrapper.h"
+#include "z3_solver.h"
 
-class Z3BitVector : public SolverWrapper {
+class Z3BitVector : public Z3Solver{
 public:
 	Z3BitVector ();
 	virtual ~Z3BitVector ();

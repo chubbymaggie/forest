@@ -67,6 +67,7 @@ private:
 	void dump_header(FILE* file);
 	string and_constant(string op1, string op2);
 	string or_constant(string op1, string op2);
+	string internal_representation(int in);
 	
 };
 

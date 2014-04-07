@@ -27,11 +27,12 @@
 #include "timer.h"
 #include "z3_solver.h"
 #include "z3_bitvector.h"
+#include "z3_realint.h"
 #include "database.h"
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solver = new Z3BitVector();
+SolverWrapper* solver;
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();
@@ -147,6 +148,16 @@ void begin_sim_measurement(char* functions, char* bbs){
 }
 
 void begin_sim(){
+	
+	options->read_options();
+	if(options->cmd_option_str("solver") == "bitvector")
+		solver = new Z3BitVector();
+	else if(options->cmd_option_str("solver") == "real_integer")
+		solver = new Z3RealInt();
+	else
+		assert(0 && "Unknown solver");
+
+
 	timer->start_timer();
 	operators->begin_sim();
 	timer->end_timer("begin_sim");

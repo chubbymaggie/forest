@@ -167,7 +167,7 @@ string casted_value( Value* operand ){
 		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
 		int64_t val = CI->getSExtValue();
 
-		//if(cmd_option_str("solver") == "bitvector"){
+		if(cmd_option_str("solver") == "bitvector"){
 			string type = get_type_str(operand->getType());
 			if(type == "IntegerTyID32"){
 				char a[20];
@@ -176,13 +176,13 @@ string casted_value( Value* operand ){
 				return string(a);
 
 			} else {
-				cerr << type << endl;
+				//cerr << type << endl;
 				assert(0 && "Unknown type");
 			}
-		//} else {
-			//stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
-			//return nameop1_ss.str();
-		//}
+		} else {
+			stringstream nameop1_ss; nameop1_ss << val;
+			return nameop1_ss.str();
+		}
 	} else if( ConstantFP::classof(operand) ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
