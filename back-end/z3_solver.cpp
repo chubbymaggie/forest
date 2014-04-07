@@ -403,9 +403,9 @@ void Z3Solver::binary_instruction(string dst, string op1, string op2, string ope
 		variables[dst].content = "(+ " + content(op1) + " " + "(ite " + content(op2) + " 1 0)" + ")";
 
 		if( realvalue(op2) == "true" )
-			set_real_value(dst, itos(stoi(realvalue(op1)) + 1) );
+			set_real_value(dst, internal_representation(stoi(realvalue(op1)) + 1) );
 		else if( realvalue(op2) == "false" )
-			set_real_value(dst, itos(stoi(realvalue(op1)) + 0) );
+			set_real_value(dst, internal_representation(stoi(realvalue(op1)) + 0) );
 		else
 			assert(0 && "Invalid boolean value");
 	}

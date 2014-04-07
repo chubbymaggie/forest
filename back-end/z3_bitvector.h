@@ -29,8 +29,6 @@ public:
 	Z3BitVector ();
 	virtual ~Z3BitVector ();
 
-	void assign_instruction(string src, string dst, string fn_name = "");
-	void binary_instruction(string dst, string op1, string op2, string operation);
 	void solve_problem();
 	string canonical_representation(string in);
 
