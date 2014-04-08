@@ -254,3 +254,116 @@ string Z3RealInt::complement_op(string op1){
 
 }
 
+void Z3RealInt::dump_extra(FILE* file){
+	dump_type_limits(file);
+	dump_int_constraints(file);
+}
+
+void Z3RealInt::dump_type_limits(FILE* file){
+
+	if(options->cmd_option_bool("unconstrained")) return;
+
+
+	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
+
+		vector<string> tokens = tokenize(it->name, " ");
+
+		string name = tokens[0];
+		string type = get_sized_type(it->name);
+
+		string position = it->position;
+
+		if( get_type(it->name) != "Real" )
+			fprintf(file,"(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
+		
+	}
+}
+
+void Z3RealInt::dump_int_constraints(FILE* file){
+
+
+	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
+		fprintf(file, "(declare-fun int_constraint_%d () Int)\n", i);
+	}
+
+	unsigned int i = 0;
+	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
+		fprintf(file, "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
+		i++;
+	}
+
+}
+
+
+int Z3RealInt::minval(string type){
+
+	if(type == "Int32") return -(1 << 30);
+	if(type == "Int16") return -(1 << 15);
+	if(type == "Int8")  return 0;
+	if(type == "Int") return   -(1 << 30);
+	if(type == "Pointer") return 0;
+
+	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+}
+
+int Z3RealInt::maxval(string type){
+
+	if(type == "Int32") return (1 << 30);
+	if(type == "Int16") return (1 << 15);
+	if(type == "Int8") return 255;
+	if(type == "Int") return (1 << 30);
+	if(type == "Pointer") return (1 << 30);
+
+	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
+	assert(0 && "Unknown type");
+	return 0;
+
+}
+
+
+void Z3RealInt::right_shift(string op1, string op2, string dst, stringstream& content_ss){
+
+
+
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
+		int factor = 1 << exponent;
+
+		content_ss << "(/ " << content(op1) << " " << factor << ")";
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
+		int places = stoi( op2 );
+
+		int result_i = stoi(realvalue(op1)) >> places;
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+		//printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
+
+
+}
+
+void Z3RealInt::left_shift(string op1, string op2, string dst, stringstream& content_ss){
+
+
+
+		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
+		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
+		int exponent = stoi( op2.substr(9) );
+		int factor = 1 << exponent;
+
+		content_ss << "(* " << content(op1) << " " << factor << ")";
+
+}
+
+string Z3RealInt::internal_representation(int in){
+	char b[10];
+	sprintf(b, "%d", in);
+
+	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
+	return string(b);
+}

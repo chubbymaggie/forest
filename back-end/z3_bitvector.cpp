@@ -325,3 +325,7 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 }
 
+
+
+void Z3BitVector::dump_extra(FILE* file){
+}

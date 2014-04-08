@@ -64,8 +64,7 @@ void Z3Solver::solve_problem(){
 	dump_header(file);
 	dump_variables(file);
 	dump_pivots(file);
-	dump_type_limits(file);
-	dump_int_constraints(file);
+	dump_extra(file);
 	dump_conditions(file);
 	dump_check_sat(file);
 	dump_get(file);
@@ -145,7 +144,7 @@ spent_time /= 1e6;
 			assert(0 && "Error in z3 execution");
 
 		string varname = it->name;
-		string value = result_get(*it_ret);
+		string value = canonical_representation(result_get(*it_ret));
 		string hint = it->position;
 
 
@@ -173,7 +172,7 @@ spent_time /= 1e6;
 			assert(0 && "Error in z3 execution");
 
 		string name = it->first;
-		string value = result_get(*it_ret);
+		string value = canonical_representation(result_get(*it_ret));
 
 
 		debug && printf("\e[32m name \e[0m %s \e[32m value \e[0m %s\n", name.c_str(), value.c_str() ); fflush(stdout);
@@ -186,7 +185,7 @@ spent_time /= 1e6;
 
 
 	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		set_first_content_value(it->first, result_get(*it_ret));
+		set_first_content_value(it->first, canonical_representation(result_get(*it_ret)));
 
 		it_ret++;
 	}
@@ -223,40 +222,6 @@ void Z3Solver::dump_pivots(FILE* file){
 	
 }
 
-void Z3Solver::dump_type_limits(FILE* file){
-
-	if(options->cmd_option_bool("unconstrained")) return;
-
-
-	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-
-		vector<string> tokens = tokenize(it->name, " ");
-
-		string name = tokens[0];
-		string type = get_sized_type(it->name);
-
-		string position = it->position;
-
-		if( get_type(it->name) != "Real" )
-			fprintf(file,"(assert (and (>= %s %d) (<= %s %d)))\n", position.c_str(), minval(type), position.c_str(), maxval(type) );
-		
-	}
-}
-
-void Z3Solver::dump_int_constraints(FILE* file){
-
-
-	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
-		fprintf(file, "(declare-fun int_constraint_%d () Int)\n", i);
-	}
-
-	unsigned int i = 0;
-	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
-		fprintf(file, "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
-		i++;
-	}
-
-}
 
 void Z3Solver::dump_conditions(FILE* file){
 
@@ -491,32 +456,6 @@ string Z3Solver::z3_type(string type){
 	return type;
 }
 
-int Z3Solver::minval(string type){
-
-	if(type == "Int32") return -(1 << 30);
-	if(type == "Int16") return -(1 << 15);
-	if(type == "Int8")  return 0;
-	if(type == "Int") return   -(1 << 30);
-	if(type == "Pointer") return 0;
-
-	printf("MinVal unknown type %s\n", type.c_str()); fflush(stdout);
-	assert(0 && "Unknown type");
-	return 0;
-}
-
-int Z3Solver::maxval(string type){
-
-	if(type == "Int32") return (1 << 30);
-	if(type == "Int16") return (1 << 15);
-	if(type == "Int8") return 255;
-	if(type == "Int") return (1 << 30);
-	if(type == "Pointer") return (1 << 30);
-
-	printf("MaxVal unknown type %s\n", type.c_str()); fflush(stdout);
-	assert(0 && "Unknown type");
-	return 0;
-
-}
 
 bool Z3Solver::need_for_dump(string name, string content){
 		if( content == "" ) return false;
@@ -568,43 +507,6 @@ void Z3Solver::rem_operator(string op1, string op2, string dst, stringstream& co
 
 		stringstream result; result << internal_representation(stoi(canonical_representation(realvalue(op1))) % stoi(canonical_representation(realvalue(op2))));
 		set_real_value(dst, result.str());
-
-}
-
-void Z3Solver::right_shift(string op1, string op2, string dst, stringstream& content_ss){
-
-
-
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
-		int factor = 1 << exponent;
-
-		content_ss << "(/ " << content(op1) << " " << factor << ")";
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int places = stoi( op2 );
-
-		int result_i = stoi(realvalue(op1)) >> places;
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-		//printf("rotate %s %s\n", realvalue(op1).c_str(), result.str().c_str());
-
-
-}
-
-void Z3Solver::left_shift(string op1, string op2, string dst, stringstream& content_ss){
-
-
-
-		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
-		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
-		int factor = 1 << exponent;
-
-		content_ss << "(* " << content(op1) << " " << factor << ")";
 
 }
 

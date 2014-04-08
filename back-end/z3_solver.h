@@ -37,9 +37,15 @@ public:
 
 protected:
 	virtual string canonical_representation(string in) = 0;
+	virtual string internal_representation(int in) = 0;
 	virtual void xor_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void or_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void and_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
+	virtual void left_shift(string op1, string op2, string dst, stringstream& content_ss) = 0;
+	virtual void right_shift(string op1, string op2, string dst, stringstream& content_ss) = 0;
+	virtual void dump_extra(FILE* file) = 0;
+	virtual void dump_header(FILE* file) = 0;
+	virtual string name_operation(string operation) = 0;
 
 	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
@@ -51,25 +57,14 @@ protected:
 	void geq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void uleq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void leq_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
-	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
 	void rem_operator(string op1, string op2, string dst, stringstream& content_ss);
 	void neq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	bool need_for_dump(string name, string content);
-	int minval(string type);
-	int maxval(string type);
 	void dump_tail(FILE* file);
 	void dump_get(FILE* file);
 	void dump_check_sat(FILE* file);
 	void dump_conditions(FILE* file);
-	void dump_int_constraints(FILE* file);
-	void dump_type_limits(FILE* file);
 	void dump_pivots(FILE* file);
-	virtual void dump_header(FILE* file) = 0;
-	string and_constant(string op1, string op2);
-	string or_constant(string op1, string op2);
-	string internal_representation(int in);
-	virtual string name_operation(string operation) = 0;
 	
 };
 

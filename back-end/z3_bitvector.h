@@ -42,6 +42,7 @@ private:
 	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
 	void dump_header(FILE* file);
 	void dump_variables(FILE* file);
+	void dump_extra(FILE* file);
 	
 };
 
