@@ -68,6 +68,7 @@ void Z3RealInt::dump_variables(FILE* file){
 }
 
 string Z3RealInt::name_operation(string operation){
+	if(operation == "%") return "mod";
 	return operation;
 }
 

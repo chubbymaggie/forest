@@ -187,7 +187,7 @@ string casted_value( Value* operand ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
 		stringstream nameop1_ss;
-		nameop1_ss << "constant" UNDERSCORE << floatvalue(CF);
+		nameop1_ss << floatvalue(CF);
 
 		return nameop1_ss.str();
 	}
