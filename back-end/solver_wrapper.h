@@ -150,6 +150,7 @@ public:
 	string get_comma_stack_conditions();
 	void set_is_propagated_constant(string varname);
 	void unset_is_propagated_constant(string varname);
+	virtual string canonical_representation(string in) = 0;
 
 protected:
 	vector<int> jump_offsets(string offset_tree);

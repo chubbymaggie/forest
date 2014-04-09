@@ -557,7 +557,7 @@ void Z3Solver::eq_operation(string op1, string op2, string dst, stringstream& co
 
 
 		content_ss << "(= " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, ( stoi(realvalue(op1) ) == stoi( realvalue(op2) ) )?"true":"false" );
+		set_real_value(dst, (stoi(canonical_representation(realvalue(op1))) == stoi(canonical_representation(realvalue(op2))))?"true":"false" );
 }
 
 void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& content_ss){

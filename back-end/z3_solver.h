@@ -34,9 +34,9 @@ public:
 	void solve_problem();
 	virtual void dump_variables(FILE* file) = 0;
 	string z3_type(string type);
+	virtual string canonical_representation(string in) = 0;
 
 protected:
-	virtual string canonical_representation(string in) = 0;
 	virtual string internal_representation(int in) = 0;
 	virtual void xor_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void or_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;

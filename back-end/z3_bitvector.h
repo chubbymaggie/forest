@@ -29,7 +29,6 @@ public:
 	Z3BitVector ();
 	virtual ~Z3BitVector ();
 
-	void solve_problem();
 	string canonical_representation(string in);
 
 private:
