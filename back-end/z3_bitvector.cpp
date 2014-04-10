@@ -61,6 +61,10 @@ void Z3BitVector::dump_variables(FILE* file){
 
 		if(type == "IntegerTyID32")
 			bits = 32;
+		else if(type == "IntegerTyID16")
+			bits = 16;
+		else if(type == "IntegerTyID8")
+			bits = 8;
 		else
 			assert(0 && "Unknown Type");
 
@@ -75,11 +79,11 @@ void Z3BitVector::dump_variables(FILE* file){
 
 void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& content_ss){
 
-		content_ss << "(bvshr " << content(op1) << " " << content(op2) << ")";
+		content_ss << "(bvlshr " << content(op1) << " " << content(op2) << ")";
 
-		int places = stoi( canonical_representation(op2) );
+		int places = stoi( realvalue(op2) );
 
-		int result_i = stoi(canonical_representation(realvalue(op1))) >> places;
+		int result_i = stoi(realvalue(op1)) >> places;
 
 		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
@@ -92,9 +96,9 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 
 		content_ss << "(bvshl " << content(op1) << " " << content(op2) << ")";
 
-		int places = stoi( canonical_representation(op2) );
+		int places = stoi( realvalue(op2) );
 
-		int result_i = stoi(canonical_representation(realvalue(op1))) << places;
+		int result_i = stoi(realvalue(op1)) << places;
 
 		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
@@ -107,7 +111,7 @@ void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream
 
 		content_ss << "(bvand " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
+		int result_i = stoi(realvalue(op1)) & stoi(realvalue(op2));
 
 		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());
@@ -119,9 +123,9 @@ void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream&
 
 		content_ss << "(bvor " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
+		int result_i = stoi(realvalue(op1)) | stoi(realvalue(op2));
 
-		stringstream result; result << internal_representation(result_i);
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
 }
@@ -169,7 +173,7 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 		content_ss << "(bvxor " << content(op1) << " " << content(op2) << ")";
 
-		int result_i = stoi(canonical_representation(realvalue(op1))) && stoi(canonical_representation(realvalue(op2)));
+		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
 		stringstream result; result << internal_representation(result_i);
 		set_real_value(dst, result.str());

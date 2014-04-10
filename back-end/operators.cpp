@@ -68,7 +68,7 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 
 	if(solver->get_type(name(src)) == "bool" && type == "IntegerTyID8"){
 
-		solver->setcontent(name(dst), "(ite " + solver->content(name(src)) + " 1 0)");
+		solver->setcontent(name(dst), "(ite " + solver->content(name(src)) + " " + solver->internal_representation(1) + " " + solver->internal_representation(0) + ")");
 		solver->settype(name(dst), "IntegerTyID8");
 		printf("casting bool to integertyid8 %s\n", solver->content(name(dst)).c_str());
 
@@ -627,7 +627,8 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 		stringstream offset_ss; offset_ss << offset;
 		string offset_constant_s = offset_ss.str();
-		offset_constant_s = "constant_" + offset_constant_s;
+		//offset_constant_s = "constant_" + offset_constant_s;
+		offset_constant_s = "constant_" + solver->internal_representation(offset);
 
 		printf("offset_constant_s %s\n", offset_constant_s.c_str());
 

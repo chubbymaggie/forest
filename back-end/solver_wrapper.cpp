@@ -74,7 +74,7 @@ string SolverWrapper::content( string name ){
 
 	} else {
 		if(get_is_propagated_constant(name))
-			return variables[name].real_value;
+			return internal_representation(stoi(realvalue(name)));
 		else
 			return variables[name].content;
 	}

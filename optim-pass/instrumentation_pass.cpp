@@ -182,6 +182,8 @@ string internal_representation_int(int in, string type){
 			sprintf(b, "#x%02x", in);
 		else if (type == "Int")
 			sprintf(b, "#x%02x", in);
+		else if(type == "PointerTyID")
+			sprintf(b, "#x%08x", in);
 		else {
 			cerr << "type " << type << endl;
 			assert(0 && "Unknown type");
@@ -425,7 +427,7 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
 		if(CI){
 			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, "PointerTyID");
 			ret.push_back( nameop1_ss.str() );
 		} else {
 			Value* value = it->get();
