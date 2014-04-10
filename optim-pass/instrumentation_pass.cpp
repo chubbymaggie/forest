@@ -161,28 +161,60 @@ string floatvalue( ConstantFP * CF ){
 
 }
 
+float floatvalue_fl( ConstantFP * CF ){
+
+	if( CF->getType()->getTypeID() == 1)
+		return CF->getValueAPF().convertToFloat();
+	else
+		return CF->getValueAPF().convertToDouble();
+
+}
+
+string internal_representation_int(int in){
+
+	char b[10];
+	if(cmd_option_str("solver") == "bitvector")
+		sprintf(b, "#x%02x", in);
+	else
+		sprintf(b, "%d", in);
+
+	return string(b);
+}
+
+string internal_representation_float(float in){
+	char b[10];
+
+	if(cmd_option_str("solver") == "bitvector")
+		sprintf(b, "#x%02x", in);
+	else
+		sprintf(b, "%d", in);
+
+	return string(b);
+}
+
 string casted_value( Value* operand ){
 
 	if( ConstantInt::classof(operand) ){
 		ConstantInt* CI = dyn_cast<ConstantInt>(operand);
 		int64_t val = CI->getSExtValue();
 
-		if(cmd_option_str("solver") == "bitvector"){
-			string type = get_type_str(operand->getType());
-			if(type == "IntegerTyID32"){
-				char a[20];
-				sprintf(a, "#x%08x",val);
-				//cerr << "casted_value " << string(a) << enel;
-				return string(a);
 
-			} else {
-				//cerr << type << endl;
-				assert(0 && "Unknown type");
-			}
-		} else {
-			stringstream nameop1_ss; nameop1_ss << val;
-			return nameop1_ss.str();
-		}
+		return string(internal_representation_int(val));
+
+		//if(cmd_option_str("solver") == "bitvector"){
+			//string type = get_type_str(operand->getType());
+			//if(type == "IntegerTyID32"){
+				//char a[20];
+				//sprintf(a, "#x%08x",val);
+				//return string(a);
+
+			//} else {
+				//assert(0 && "Unknown type");
+			//}
+		//} else {
+			//stringstream nameop1_ss; nameop1_ss << val;
+			//return nameop1_ss.str();
+		//}
 	} else if( ConstantFP::classof(operand) ){
 		ConstantFP* CF = dyn_cast<ConstantFP>(operand);
 
@@ -3141,31 +3173,31 @@ struct GlobalInit: public ModulePass {
 
 		if( type == "IntegerTyID"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID32"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID16"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID64"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID8"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val);
 			return nameop1_ss.str();
 		} else if( type == "FloatTyID"){
-			string val = floatvalue(constant_float);
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			float val = floatvalue_fl(constant_float);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_float(val);
 			return nameop1_ss.str();
 		} else if( type == "DoubleTyID"){
-			string val = floatvalue(constant_float);
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << val;
+			float val = floatvalue_fl(constant_float);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_float(val);
 			return nameop1_ss.str();
 		} else if( type == "StructTyID"){
 
@@ -3251,12 +3283,12 @@ struct GlobalInit: public ModulePass {
 
 			//cerr << "constant";
 			if(constant_pointer_null){
-				return "constant_0";
+				return "constant_" + internal_representation_int(0);
 			} else if (constant_global) {
 				//constant_global->dump();
 				//cerr << "address of : " << "global_" + constant_global->getName().str() << endl;
 				//cerr << "is: " << given_addr["global_" + constant_global->getName().str()];
-				return "constant_" + itos(given_addr["global_" + constant_global->getName().str()]);
+				return "constant_" + internal_representation_int(given_addr["global_" + constant_global->getName().str()]);
 			} else if(gepop){
 				//cerr << "gepop " << endl;
 				//gepop->dump();
@@ -3285,13 +3317,13 @@ struct GlobalInit: public ModulePass {
 
 				//cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
 
-				return "constant_" + itos(addr);
+				return "constant_" + internal_representation_int(addr);
 			} else if(castop){
 				string name_base = "global_" + castop->getOperand(0)->getName().str();
 
 				int base = given_addr[name_base];
 
-				return "constant_" + itos(base);
+				return "constant_" + internal_representation_int(base);
 
 
 
