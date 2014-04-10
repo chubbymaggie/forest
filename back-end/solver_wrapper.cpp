@@ -639,13 +639,13 @@ string SolverWrapper::realvalue(string varname){
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for realvalue");
 
 	if(is_number(varname)){
-		return varname;
+		return canonical_representation(varname);
 	} else if( varname.find("constant") != string::npos ){
 		//printf("constant\n");
-		return varname.substr(9);
+		return canonical_representation(varname.substr(9));
 	} else if( variables[varname].real_value == "" ){
 		//printf("empty\n");
-		return internal_representation(0);
+		return "0";
 	}else{
 		//printf("else\n");
 		if( variables.find(varname) == variables.end() ){

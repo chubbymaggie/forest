@@ -460,7 +460,7 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 
 	timer->start_timer();
-	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	stringstream rvalue; rvalue << "constant" UNDERSCORE << solver->internal_representation(alloca_pointer); 
 	solver->assign_instruction(name(rvalue.str()), name(varname));
 	solver->settype( name(varname), "Pointer");
 	timer->end_timer("global_assign");
@@ -549,7 +549,7 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
 
 
-	stringstream rvalue; rvalue << "constant" UNDERSCORE << alloca_pointer; 
+	stringstream rvalue; rvalue << "constant" UNDERSCORE << solver->internal_representation(alloca_pointer); 
 	solver->settype( name(reg), "Pointer");
 	solver->assign_instruction(name(rvalue.str()), name(reg) );
 

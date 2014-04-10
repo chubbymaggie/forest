@@ -505,7 +505,7 @@ void Z3Solver::rem_operator(string op1, string op2, string dst, stringstream& co
 
 		content_ss << "(" << name_operation("%") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
 
-		stringstream result; result << internal_representation(stoi(canonical_representation(realvalue(op1))) % stoi(canonical_representation(realvalue(op2))));
+		stringstream result; result << internal_representation(stoi(realvalue(op1)) % stoi(realvalue(op2)));
 		set_real_value(dst, result.str());
 
 }
@@ -557,7 +557,7 @@ void Z3Solver::eq_operation(string op1, string op2, string dst, stringstream& co
 
 
 		content_ss << "(= " << content(op1 ) << " " <<  content(op2 ) << ")";
-		set_real_value(dst, (stoi(canonical_representation(realvalue(op1))) == stoi(canonical_representation(realvalue(op2))))?"true":"false" );
+		set_real_value(dst, (stoi(realvalue(op1)) == stoi(realvalue(op2)))?"true":"false" );
 }
 
 void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& content_ss){
@@ -569,7 +569,7 @@ void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& c
 		if( get_type(dst) == "Real" ){
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else if (get_type(dst) == "Int") {
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) + stoi(canonical_representation(realvalue(op2))));
+			result << internal_representation(stoi(realvalue(op1)) + stoi(realvalue(op2)));
 		} else if( get_type(dst) == "Pointer" ) {
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else {
@@ -589,7 +589,7 @@ void Z3Solver::sub_operation(string op1, string op2, string dst, stringstream& c
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) - stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) - stoi(canonical_representation(realvalue(op2))));
+			result << internal_representation(stoi(realvalue(op1)) - stoi(realvalue(op2)));
 		else
 			assert(0 && "Unknown type");
 
@@ -607,7 +607,7 @@ void Z3Solver::mul_operation(string op1, string op2, string dst, stringstream& c
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) * stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) * stoi(canonical_representation(realvalue(op2))));
+			result << internal_representation(stoi(realvalue(op1)) * stoi(realvalue(op2)));
 		else
 			assert(0 && "Unknown type");
 
@@ -625,7 +625,7 @@ void Z3Solver::div_operation(string op1, string op2, string dst, stringstream& c
 		if( get_type(dst) == "Real" )
 			result << stof(realvalue(op1)) / stof(realvalue(op2));
 		else if (get_type(dst) == "Int")
-			result << internal_representation(stoi(canonical_representation(realvalue(op1))) / stoi(canonical_representation(realvalue(op2))));
+			result << internal_representation(stoi(realvalue(op1)) / stoi(realvalue(op2)));
 		else
 			assert(0 && "Unknown type");
 

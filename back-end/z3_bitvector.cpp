@@ -129,6 +129,9 @@ void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream&
 string Z3BitVector::canonical_representation(string in){
 
 	// printf("canonical_representation in %s\n", in.c_str() ); fflush(stdout);
+	if(in[0] != '#' && in != "true" && in != "false")
+		assert(0 && "Canonical_Representation of a non-internal");
+
 
 	if(in == "false") return "false";
 	if(in == "true") return "true";
