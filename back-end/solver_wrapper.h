@@ -81,7 +81,7 @@ public:
 	virtual void assign_instruction(string src, string dst, string fn_name = "") = 0;
 	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
 	virtual void solve_problem() = 0;
-	virtual string internal_representation(int in) = 0;
+	virtual string internal_representation(int in, string type) = 0;
 
 	virtual ~SolverWrapper ();
 	float get_solve_time();

@@ -48,7 +48,7 @@ private:
 	void dump_int_constraints(FILE* file);
 	int minval(string type);
 	int maxval(string type);
-	string internal_representation(int in);
+	string internal_representation(int in, string type);
 	
 };
 

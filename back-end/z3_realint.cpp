@@ -361,7 +361,7 @@ void Z3RealInt::left_shift(string op1, string op2, string dst, stringstream& con
 
 }
 
-string Z3RealInt::internal_representation(int in){
+string Z3RealInt::internal_representation(int in, string type){
 	char b[10];
 	sprintf(b, "%d", in);
 

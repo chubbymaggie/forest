@@ -37,7 +37,7 @@ public:
 	virtual string canonical_representation(string in) = 0;
 
 protected:
-	virtual string internal_representation(int in) = 0;
+	virtual string internal_representation(int in, string type) = 0;
 	virtual void xor_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void or_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void and_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;

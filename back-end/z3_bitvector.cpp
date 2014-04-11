@@ -85,7 +85,7 @@ void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& 
 
 		int result_i = stoi(realvalue(op1)) >> places;
 
-		stringstream result; result << internal_representation(result_i);
+		stringstream result; result << internal_representation(result_i, gettype(op1));
 		set_real_value(dst, result.str());
 
 }
@@ -100,7 +100,7 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 
 		int result_i = stoi(realvalue(op1)) << places;
 
-		stringstream result; result << internal_representation(result_i);
+		stringstream result; result << internal_representation(result_i, gettype(op1));
 		set_real_value(dst, result.str());
 
 
@@ -113,7 +113,7 @@ void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream
 
 		int result_i = stoi(realvalue(op1)) & stoi(realvalue(op2));
 
-		stringstream result; result << internal_representation(result_i);
+		stringstream result; result << internal_representation(result_i, gettype(op1));
 		set_real_value(dst, result.str());
 
 }
@@ -150,9 +150,20 @@ string Z3BitVector::canonical_representation(string in){
 	return string(ret_str);
 }
 
-string Z3BitVector::internal_representation(int in){
+string Z3BitVector::internal_representation(int in, string type){
 	char b[10];
-	sprintf(b, "%02x", in);
+	printf("internal_representation_type %s\n", type.c_str());
+
+	if(type == "IntegerTyID32")
+		sprintf(b, "%08x", in);
+	else if(type == "IntegerTyID16")
+		sprintf(b, "%04x", in);
+	else if(type == "IntegerTyID8")
+		sprintf(b, "%02x", in);
+	else if(type == "PointerTyID")
+		sprintf(b, "%08x", in);
+	else
+		assert(0 && "Unknown type");
 
 	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
 	return "#x" + string(b);
@@ -175,7 +186,7 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
-		stringstream result; result << internal_representation(result_i);
+		stringstream result; result << internal_representation(result_i, gettype(op1));
 		set_real_value(dst, result.str());
 
 }
