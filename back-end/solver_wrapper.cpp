@@ -301,6 +301,8 @@ void SolverWrapper::set_real_value(string varname, string value){
 
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
+	if(value.substr(0,2) == "#x") assert(0 && "internal real value");
+
 	//printf("set_real_value %s %s\n", varname.c_str(), value.c_str());
 	variables[varname].real_value = value;
 }

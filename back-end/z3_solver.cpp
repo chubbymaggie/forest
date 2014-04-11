@@ -569,7 +569,7 @@ void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& c
 		if( get_type(dst) == "Real" ){
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else if (get_type(dst) == "Int") {
-			result << internal_representation(stoi(realvalue(op1)) + stoi(realvalue(op2)), gettype(op1));
+			result << stoi(realvalue(op1)) + stoi(realvalue(op2)), gettype(op1);
 		} else if( get_type(dst) == "Pointer" ) {
 			result << stof(realvalue(op1)) + stof(realvalue(op2));
 		} else {

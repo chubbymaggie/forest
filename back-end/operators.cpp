@@ -630,10 +630,12 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		//offset_constant_s = "constant_" + offset_constant_s;
 		offset_constant_s = "constant_" + solver->internal_representation(offset, "IntegerTyID32");
 
-		printf("offset_constant_s %s\n", offset_constant_s.c_str());
+		//printf("offset_constant_s %s\n", offset_constant_s.c_str());
 
 		solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
 		//exit(0);
+		
+		//printf("realvalue_dst %s\n", realvalue(dst).c_str());
 		
 		//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
 		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) ) {

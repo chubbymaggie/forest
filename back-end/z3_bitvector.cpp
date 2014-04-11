@@ -57,7 +57,7 @@ void Z3BitVector::dump_variables(FILE* file){
 		string type = gettype(it->name);
 		int bits;
 
-		printf("dump_variables_type %s\n", type.c_str());
+		//printf("dump_variables_type %s\n", type.c_str());
 
 		if(type == "IntegerTyID32")
 			bits = 32;
@@ -151,10 +151,12 @@ string Z3BitVector::canonical_representation(string in){
 }
 
 string Z3BitVector::internal_representation(int in, string type){
-	char b[10];
-	printf("internal_representation_type %s\n", type.c_str());
+	char b[20];
+	//printf("internal_representation_type %s\n", type.c_str());
 
 	if(type == "IntegerTyID32")
+		sprintf(b, "%08x", in);
+	else if(type == "Int")
 		sprintf(b, "%08x", in);
 	else if(type == "IntegerTyID16")
 		sprintf(b, "%04x", in);
