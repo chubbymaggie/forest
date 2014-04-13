@@ -136,9 +136,11 @@ vector<string> cmd_option_vector_str(string key){
 	return tokens;
 }
 
-
-string cmd_option_str(string key){
-	return options[key];
+string cmd_option_str(string option){
+	if(options[option] == "" ) return "";
+	vector<string> tokens = tokenize(options[option].c_str(),"@" );
+	string ret = tokens[tokens.size()-1];
+	return ret;
 }
 
 int cmd_option_int(string key){
