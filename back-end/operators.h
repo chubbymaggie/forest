@@ -45,8 +45,6 @@ class Operators {
 public:
 	void memcpy(char* a, char* b, char* c, char* d, char* e);
 	void pointer_ranges();
-	void pivot_hint(char* _hint);
-	void pivot_variable(char* a);
 	string get_actual_bb();
 	Operators ();
 	virtual ~Operators ();

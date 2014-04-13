@@ -142,9 +142,6 @@ void Database::insert_problem(){
 			//string value = variables[name].real_value;
 			//string hint = solver->get_name_hint(name);
 
-			//myReplace(hint, "_pivot_b", "");
-			//printf("forced_initial_value %s %s\n",name.c_str(), solver->get_first_content_value(name).c_str() );
-
 			if(solver->get_first_content_value(name) != "")
 				value = solver->get_first_content_value(name);
 

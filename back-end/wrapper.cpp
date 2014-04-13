@@ -218,16 +218,6 @@ char vector_char(char* _name){
 	return measurement->vector_char(_name);
 }
 
-void pivot_variable(char* a){
-
-	operators->pivot_variable(a);
-
-}
-
-void pivot_hint(char* a){
-	operators->pivot_hint(a);
-}
-
 void pointer_ranges(){
 	operators->pointer_ranges();
 }

@@ -64,12 +64,6 @@ typedef struct NameAndPosition {
 } NameAndPosition;
 
 
-typedef struct Pivot {
-	string variable;
-	string function;
-} Pivot;
-
-
 inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 {
   //return (lhs.name + lhs.position) > (rhs.name + rhs.position);
@@ -101,7 +95,6 @@ public:
 	void variable_store(string src,string idx_content, int first_address, int last_address );
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
 	void dump_model();
-	void clean_pivots();
 	void push_condition(string cond, bool invert = false );
 	bool get_comes_from_non_annotated(string name);
 	void set_comes_from_non_annotated(string name);
@@ -110,9 +103,7 @@ public:
 	int get_first_address(string name);
 	void set_first_address(string name, int first_address);
 	string get_first_content_value(string var);
-	void pivot_hint(string hint, string name);
 	void dump_variable(string name, string type, FILE* file);
-	void pivot_variable(string variable, string name);
 	SolverWrapper ();
 	string content( string name );
 	void clean_conditions_stack(string name);
@@ -182,8 +173,6 @@ protected:
 	void set_first_content_value(string var, string value);
 	string get_first_content(string src);
 	void set_first_content(string src, string content);
-	bool is_pivot(string src);
-	void substitute_pivots(string& src);
 	set<string> already_forced_free;
 
 	map<string, string> stacks;
@@ -194,7 +183,6 @@ protected:
 	vector<Condition> conditions;
 	vector<string> conditions_static;
 	set<string> forced_free_vars;
-	map<string, vector<Pivot> > pivot_variables;
 	map<string, string> first_content;
 	map<string, string> first_content_value;
 
@@ -207,7 +195,6 @@ protected:
 	void show_tail();
 	void show_int_constraints();
 	void show_assigns();
-	void show_pivots();
 	string extract_condition(string content);
 	string get_last_condition(string name);
 	string actual(string name);

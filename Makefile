@@ -52,10 +52,6 @@ test:
 	@forest ./test/simple/force_free_local/config.xml          # Force a local variable to be free
 	@forest ./test/simple/force_free_fn/config.xml             # Force a variable to be free with a function
 	@forest ./test/simple/random_init/config.xml               # Random initialization of array
-	@forest ./test/simple/forcepivot/config.xml                # Force variable pivot
-	@forest ./test/simple/forcepivot_2/config.xml              # Force variable pivot 2
-	@forest ./test/simple/forcepivot_global/config.xml         # Force global variable pivot
-	@forest ./test/simple/forcepivot_hint/config.xml           # Force variable pivot hint
 	@forest ./test/simple/force_free_and_modify/config.xml     # Force a variable to be free and modify it
 	@forest ./test/simple/cmdargs/config.xml                   # command line arguments test
 	@forest ./test/simple/pointernull/config.xml               # Pointer to null

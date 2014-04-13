@@ -142,53 +142,6 @@ int SolverWrapper::get_first_address(string name){
 
 }
 
-void SolverWrapper::show_pivots(){
-
-	//printf("dump pivots\n");
-
-	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-
-		vector<Pivot> pivots = it->second;
-
-		for( vector<Pivot>::iterator it2 = pivots.begin(); it2 != pivots.end(); it2++ ){
-		
-			string variable = it2->variable;
-
-
-			string hintpivot = variable;
-			string hint = hintpivot.substr(0, hintpivot.find("_pivot_"));
-			string name = find_by_name_hint(hint);
-			
-			//printf("gettype %s %s\n", name.c_str(), get_type(name).c_str() );
-			string type = get_type(name);
-			//printf("gettype\n");
-			printf("(declare-fun %s () %s)\n", name.c_str(), type.c_str() );
-		}
-		
-
-	}
-	
-}
-
-void SolverWrapper::clean_pivots(){
-
-	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-
-		vector<Pivot> pivots = it->second;
-
-		for( vector<Pivot>::iterator it2 = pivots.begin(); it2 != pivots.end(); it2++ ){
-
-			string function = it2->function;
-			if( operators->get_actual_function() != function ){
-				pivots.erase( it2 ); it2--;
-			}
-		}
-
-		it->second = pivots;
-	}
-
-}
-
 void SolverWrapper::show_conditions(){
 
 
@@ -895,8 +848,7 @@ int SolverWrapper::show_problem(){
 	options->read_options();
 	
 	if(!options->cmd_option_bool("show_only_constraints")){
-	show_header();
-	show_pivots();}
+	show_header();}
 	show_int_constraints();
 	show_conditions();
 	if(!options->cmd_option_bool("show_only_constraints")){
@@ -920,8 +872,6 @@ bool SolverWrapper::check_mangled_name(string name){
 
 	//printf("check_mangled_name %s\n", name.c_str());
 
-	if(name.find("pivot") != string::npos) return true;
-
 	int number_of_underscore = count(name, UNDERSCORE);
 	if(
 			number_of_underscore != 1 && // main_registerunderscoreval mem_9
@@ -944,11 +894,6 @@ bool SolverWrapper::check_mangled_name(string name){
 			return false;
 	}
 
-	if( number_of_underscore  == 6 ){
-		if(name.find("pivot") == string::npos)
-			return false;
-	}
-
 	return true;
 
 }
@@ -965,9 +910,6 @@ string SolverWrapper::gettype(string name){
 	//printf("gettype %s\n", name.c_str());
 
 	if( variables.find(name) == variables.end() ) assert(0 && "Not such variable");
-
-	if(name.find("_pivot_") != string::npos)
-		name = name.substr(0, name.find("_pivot_"));
 
 	return variables[name].type;
 }
@@ -1031,9 +973,6 @@ void SolverWrapper::settype(string name, string type){
 string SolverWrapper::get_type(string name){
 
 	//printf("get_type %s\n", name.c_str());
-
-	if(name.find("pivot") != string::npos)
-		name = name.substr(0,name.find("_pivot_"));
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for type");
 
@@ -1198,42 +1137,6 @@ string SolverWrapper::get_position(string name){
 
 	return variables[name].name_hint;
 
-}
-
-void SolverWrapper::pivot_variable(string variable, string name){
-
-
-	myReplace(variable, "underscore", "_");
-	string suffix = variable.substr(variable.find("_") + 1);
-	string prefix = variable.substr(0,variable.find("_"));
-	myReplace(suffix, "_", "underscore");
-
-	variable = prefix + "_" + suffix;
-
-	printf("pivot %s %s %s\n", prefix.c_str(), suffix.c_str(), variable.c_str());
-	
-
-	debug && printf("\e[33m pivot_variable %s %s\e[0m\n", variable.c_str(), name.c_str());
-
-	string origname = variable;
-	string orig_content = content(origname);
-
-	string hint = get_name_hint(variable);
-
-	string pivot_name = hint + "_pivot_" + name;
-	setcontent(pivot_name, origname);
-	setcontent(origname,orig_content);
-	
-	vector<string> empty;
-	stringstream condition; condition << "(= " << variable << " " << orig_content << ")";
-	push_condition(condition.str(), operators->get_actual_function(), empty);
-
-	Pivot pivot = { variable, operators->get_actual_function() };
-
-	pivot_variables[variable].push_back(pivot);
-
-
-	debug && printf("\e[31m pivot_variable %s %s\e[0m %s %s %s\n", variable.c_str(), name.c_str(), origname.c_str(), orig_content.c_str(), variables[origname].content.c_str() );
 }
 
 vector<int> SolverWrapper::jump_offsets(string offset_tree){

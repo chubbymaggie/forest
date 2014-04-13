@@ -65,7 +65,6 @@ protected:
 	void dump_get(FILE* file);
 	void dump_check_sat(FILE* file);
 	void dump_conditions(FILE* file);
-	void dump_pivots(FILE* file);
 	
 };
 

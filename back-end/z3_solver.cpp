@@ -63,7 +63,6 @@ void Z3Solver::solve_problem(){
 	FILE* file = fopen(filename.str().c_str(), "w");
 	dump_header(file);
 	dump_variables(file);
-	dump_pivots(file);
 	dump_extra(file);
 	dump_conditions(file);
 	dump_check_sat(file);
@@ -194,35 +193,6 @@ spent_time /= 1e6;
 	timer->end_timer("solver");
 }
 
-void Z3Solver::dump_pivots(FILE* file){
-
-	//printf("dump pivots\n");
-
-	for( map<string,vector<Pivot> >::iterator it = pivot_variables.begin(); it != pivot_variables.end(); it++ ){
-
-		vector<Pivot> pivots = it->second;
-
-		for( vector<Pivot>::iterator it2 = pivots.begin(); it2 != pivots.end(); it2++ ){
-		
-			string variable = it2->variable;
-
-
-			string hintpivot = variable;
-			string hint = hintpivot.substr(0, hintpivot.find("_pivot_"));
-			string name = find_by_name_hint(hint);
-			
-			//printf("gettype %s %s\n", name.c_str(), get_type(name).c_str() );
-			string type = get_type(name);
-			//printf("gettype\n");
-			fprintf(file, "(declare-fun %s () %s)\n", name.c_str(), type.c_str() );
-		}
-		
-
-	}
-	
-}
-
-
 void Z3Solver::dump_conditions(FILE* file){
 
 
@@ -278,9 +248,6 @@ void Z3Solver::dump_tail(FILE* file){
 }
 
 void Z3Solver::binary_instruction(string dst, string op1, string op2, string operation){
-
-	//substitute_pivots(op1);
-	//substitute_pivots(op2);
 
 	if(!check_mangled_name(dst)) assert(0 && "Wrong dst for binary_instruction");
 	if(!check_mangled_name(op1)) assert(0 && "Wrong op1 for binary_instruction");
@@ -387,8 +354,6 @@ void Z3Solver::binary_instruction(string dst, string op1, string op2, string ope
 
 void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 
-	//substitute_pivots(src);
-	
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
 
 	if(!check_mangled_name(src)) assert(0 && "Wrong src for assign");
@@ -396,9 +361,6 @@ void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 
 
 
-	//if( !is_pivot(src) ){
-		//printf("not pivot\n");
-		
 		bool forcedfree = is_forced_free(src);
 		if(forcedfree){
 
@@ -414,10 +376,6 @@ void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 
 		}
 
-	//} else {
-		//printf("pivot\n");
-		//variables[dst].content = variables[src].content;
-	//}
 
 	propagate_unary(src, dst, forcedfree);
 
@@ -462,7 +420,6 @@ string Z3Solver::z3_type(string type){
 
 bool Z3Solver::need_for_dump(string name, string content){
 		if( content == "" ) return false;
-		if( name.find("_pivot_") != string::npos ) return false;
 		if( gettype(name) == "Function") return false;
 		if( get_is_propagated_constant(name) ) return false;
 		return true;

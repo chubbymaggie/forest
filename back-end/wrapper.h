@@ -165,11 +165,7 @@ extern "C" int vector_int(char* _name);
 extern "C" char vector_char(char* _name);
 extern "C" void begin_sim_measurement(char* functions, char* bbs);
 extern "C" void br_instr_cond_measurement(bool value);
-extern "C" void pivot_variable(char* a);
-extern "C" void pivot_hint(char* a);
 extern "C" void pointer_ranges();
 extern "C" void Memcpy(char* a, char* b, char* c, char* d, char* e);
-//void pivot_variable(char* a);
-//void pivot_var(int* a);
 
 #endif /* end of include guard: _WRAPPER_H_ */

@@ -182,7 +182,6 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	actual_function = last_fn_callstack;
 
 	solver->clean_conditions_stack("");
-	solver->clean_pivots();
 
 	debug && printf("\e[36m Continuing function %s \e[0m.\n", actual_function.c_str() );
 
@@ -1038,42 +1037,6 @@ string Operators::get_actual_bb(){
 
 string Operators::get_actual_function(){
 	return actual_function;
-}
-
-void Operators::pivot_variable(char* _varname){
-
-	//string varname = string(_varname).substr(0, strlen(_varname)-1);
-	string varname = string(_varname);
-	
-	varname = name(varname);
-	//myReplace(varname, "underscore", "_");
-
-	string hint = solver->get_name_hint(varname);
-	string position = solver->get_position(varname);
-
-	//printf("varname %s hint %s position %s\n",varname.c_str(), hint.c_str(), position.c_str() );
-
-	solver->pivot_variable(varname, "hola");
-
-	printf("\e[31m \n pivot_variable %s\e[0m\n", varname.c_str() );
-
-	//string content = solver->content(varname);
-	//printf("varname %s\n", varname.c_str() );
-	//printf("content %s\n", content.c_str());
-	
-
-
-}
-
-void Operators::pivot_hint(char* _hint){
-	string hint = string(_hint);
-
-	string varname = solver->find_by_name_hint(hint);
-
-	solver->pivot_variable(varname, "hola");
-
-	printf("\e[31m \n pivot_hint %s %s\e[0m\n", hint.c_str(), varname.c_str() );
-
 }
 
 void Operators::memcpy(char* _addr_dst, char* _addr_src, char* _size_bytes, char* _align, char* _is_volatile){
