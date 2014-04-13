@@ -36,6 +36,7 @@ public:
 	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
 	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
+	void cast_instruction(string src, string dst, string type_src, string type_dst);
 
 private:
 	string name_operation(string operation);

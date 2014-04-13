@@ -425,12 +425,15 @@ void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 	string prev_type = variables[dst].type;
 	string new_type = get_type(src);
 
-	settype(dst, get_type(src));
+	settype(dst, gettype(src));
 
 	if(is_constant(src) && prev_type != new_type && prev_type != "Pointer" && prev_type != ""){
 		printf("Types %s %s\n", prev_type.c_str(), new_type.c_str());
 		settype(dst, prev_type);
 	}
+
+	if(variables[dst].type == "")
+		settype(dst, prev_type);
 
 	//printf("set_real_value inside assign %s %s %s\n", dst.c_str(), src.c_str(), realvalue(src).c_str() );
 	set_real_value( dst, realvalue(src) );

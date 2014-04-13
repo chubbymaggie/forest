@@ -368,3 +368,7 @@ string Z3RealInt::internal_representation(int in, string type){
 	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
 	return string(b);
 }
+
+void Z3RealInt::cast_instruction(string src, string dst, string type_src, string type_dst){
+	assign_instruction(src,dst);
+}

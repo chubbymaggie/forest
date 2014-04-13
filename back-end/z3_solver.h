@@ -35,6 +35,7 @@ public:
 	virtual void dump_variables(FILE* file) = 0;
 	string z3_type(string type);
 	virtual string canonical_representation(string in) = 0;
+	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
 
 protected:
 	virtual string internal_representation(int in, string type) = 0;

@@ -82,6 +82,7 @@ public:
 	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
 	virtual void solve_problem() = 0;
 	virtual string internal_representation(int in, string type) = 0;
+	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
 
 	virtual ~SolverWrapper ();
 	float get_solve_time();
@@ -100,7 +101,6 @@ public:
 	void variable_store(string src,string idx_content, int first_address, int last_address );
 	void pointer_instruction(string dst, string offset_tree, vector<string> indexes, string base);
 	void dump_model();
-	void set_content(string name, string content);
 	void clean_pivots();
 	void push_condition(string cond, bool invert = false );
 	bool get_comes_from_non_annotated(string name);

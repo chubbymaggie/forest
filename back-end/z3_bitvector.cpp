@@ -197,3 +197,41 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 void Z3BitVector::dump_extra(FILE* file){
 }
+
+int bits(string type){
+	if(type == "IntegerTyID32") return 32;
+	else if(type == "IntegerTyID16") return 16;
+	else if(type == "IntegerTyID8" ) return 8;
+	else if(type == "Int" ) return 32;
+	else assert(0 && "Unknown type");
+
+}
+
+string concat_begin(int size_bits, int num){
+	printf("bits %d\n", size_bits);
+	char ret[30];
+	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
+	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
+	else assert(0 && "Unknown number of bits");
+	return string(ret);
+}
+
+void Z3BitVector::cast_instruction(string src, string dst, string type_src, string type_dst){
+
+	debug && printf("\e[32m cast_instruction %s %s %s %s\e[0m\n", src.c_str(), dst.c_str(), type_src.c_str(), type_dst.c_str() );
+
+	int bits_src = bits(type_src);
+	int bits_dst = bits(type_dst);
+	int diff = bits_dst - bits_src;
+
+	assign_instruction(src,dst);
+
+	if( diff > 0 ){
+		string concat_start = concat_begin(bits_dst - bits_src, 0);
+		string content_dst = "(concat " + concat_start + " " + content(src) + ")";
+		setcontent(dst, content_dst);
+		printf("dst_content %s\n", content(dst).c_str());
+	}
+
+}
+

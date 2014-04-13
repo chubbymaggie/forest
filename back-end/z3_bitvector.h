@@ -30,6 +30,7 @@ public:
 	virtual ~Z3BitVector ();
 
 	string canonical_representation(string in);
+	void cast_instruction(string src, string dst, string type_src, string type_dst);
 
 private:
 	string name_operation(string operation);
