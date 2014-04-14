@@ -208,7 +208,6 @@ protected:
 	void set_real_value(string varname, string value, string fn_name );
 	void set_real_value(string varname, string value );
 	string get_offset_tree( string varname );
-	bool check_mangled_name(string name);
 	set<string> unlock_points(string mutex);
 	string or_unlocking(string condition, string mutex);
 	string or_paths(string dest);

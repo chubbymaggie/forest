@@ -247,13 +247,13 @@ string casted_value( Value* operand ){
 string operandname( Value* operand ){
 
 	if( ConstantInt::classof(operand) ){
-		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << casted_value(operand);
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << get_type_str(operand->getType()) << UNDERSCORE << casted_value(operand);
 		return nameop1_ss.str();
 	} else if( ConstantFP::classof(operand) ){
-		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << casted_value(operand);
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << get_type_str(operand->getType()) << UNDERSCORE << casted_value(operand);
 		return nameop1_ss.str();
 	} else if ( ConstantPointerNull::classof(operand) ){
-		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE "0";
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << get_type_str(operand->getType()) << UNDERSCORE << "0";
 		return nameop1_ss.str();
 	} else if(GlobalVariable::classof(operand)){
 		return "global" UNDERSCORE + operand->getName().str();
@@ -429,7 +429,7 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
 		if(CI){
 			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, "PointerTyID");
+			stringstream nameop1_ss; nameop1_ss << "constant_IntegerTyID32_" << internal_representation_int(val, "IntegerTyID32");
 			ret.push_back( nameop1_ss.str() );
 		} else {
 			Value* value = it->get();
@@ -618,7 +618,7 @@ vector<string> get_nested_sizes( const ArrayType* t ){
 	for( vector<int>::iterator it = ret.begin(); it != ret.end(); it++ ){
 		stringstream ss;
 		ss << "constant" UNDERSCORE;
-		ss << *it;
+		ss << "_IntegerTyID32_" << *it;
 		ret2.push_back(ss.str());
 	}
 	
@@ -640,7 +640,7 @@ vector<string> get_struct_offsets( const StructType* t ){
 	for ( unsigned int i = 0; i < numelems; i++) {
 		stringstream ss;
 		ss << "constant" UNDERSCORE;
-		ss << offset;
+		ss << "_IntegerTyID32_" << offset;
 		ret.push_back(ss.str());
 
 		offset += get_size( t->getElementType(i) );
@@ -3191,31 +3191,31 @@ struct GlobalInit: public ModulePass {
 
 		if( type == "IntegerTyID"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(val, type);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID32"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(val, type);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID16"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(val, type);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID64"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(val, type);
 			return nameop1_ss.str();
 		} else if( type == "IntegerTyID8"){
 			int64_t val = constant_int->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_int(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(val, type);
 			return nameop1_ss.str();
 		} else if( type == "FloatTyID"){
 			float val = floatvalue_fl(constant_float);
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_float(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_float(val, type);
 			return nameop1_ss.str();
 		} else if( type == "DoubleTyID"){
 			float val = floatvalue_fl(constant_float);
-			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << internal_representation_float(val, type);
+			stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_float(val, type);
 			return nameop1_ss.str();
 		} else if( type == "StructTyID"){
 
@@ -3299,14 +3299,13 @@ struct GlobalInit: public ModulePass {
 			
 		} else if( type == "PointerTyID" ){
 
-			//cerr << "constant";
 			if(constant_pointer_null){
-				return "constant_" + internal_representation_int(0, type);
+				return "constant_" + type + "_" + internal_representation_int(0, type);
 			} else if (constant_global) {
 				//constant_global->dump();
 				//cerr << "address of : " << "global_" + constant_global->getName().str() << endl;
 				//cerr << "is: " << given_addr["global_" + constant_global->getName().str()];
-				return "constant_" + internal_representation_int(given_addr["global_" + constant_global->getName().str()], type);
+				return "constant_" + type + "_" + internal_representation_int(given_addr["global_" + constant_global->getName().str()], type);
 			} else if(gepop){
 				//cerr << "gepop " << endl;
 				//gepop->dump();
@@ -3335,13 +3334,13 @@ struct GlobalInit: public ModulePass {
 
 				//cerr << "tree " << offset_tree << " indexes " << indexes_str << " offset " << offset << " addr " << addr << endl;
 
-				return "constant_" + internal_representation_int(addr, type);
+				return "constant_" + type + "_" + internal_representation_int(addr, type);
 			} else if(castop){
 				string name_base = "global_" + castop->getOperand(0)->getName().str();
 
 				int base = given_addr[name_base];
 
-				return "constant_" + internal_representation_int(base, type);
+				return "constant_" + type + "_" + internal_representation_int(base, type);
 
 
 

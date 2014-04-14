@@ -75,6 +75,7 @@ public:
 	string get_actual_function();
 	string name( string input, string fn_name = "" );
 	vector<string> name( vector<string> input, string fn_name = "" );
+	bool check_mangled_name(string name);
 
 private:
 
@@ -105,7 +106,6 @@ private:
 	int get_offset(vector<string> indexes, string offset_tree, string* remaining_tree);
 
 	
-	bool check_mangled_name(string name);
 	string get_type(string name);
 	void set_name_hint(string name, string hint);
 	void set_offset_tree( string varname, string tree );

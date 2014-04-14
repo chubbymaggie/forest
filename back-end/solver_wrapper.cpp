@@ -29,6 +29,7 @@
 #define UNDERSCORE "_"
 #define PAUSE_ON_INSERT false
 #define EXIT_ON_INSERT false
+#define check_mangled_name(A) operators->check_mangled_name(A)
 
 extern Options* options;
 extern Operators* operators;
@@ -58,7 +59,7 @@ string SolverWrapper::content( string name ){
 	if(!check_mangled_name(name)) assert(0 && "Wrong name for content");
 
 	if(name.find("constant_") != string::npos )
-		return name.substr(9);
+		return tokenize(name, "_")[2];
 
 	if( variables[name].content == "" || is_forced_free(name) ){
 		string position;
@@ -255,6 +256,7 @@ void SolverWrapper::set_real_value(string varname, string value){
 	if(!check_mangled_name(varname)) assert(0 && "Wrong name for set_real_value");
 
 	if(value.substr(0,2) == "#x") assert(0 && "internal real value");
+	if(!is_number(value)) assert(0 && "Not a Number");
 
 	//printf("set_real_value %s %s\n", varname.c_str(), value.c_str());
 	variables[varname].real_value = value;
@@ -597,7 +599,7 @@ string SolverWrapper::realvalue(string varname){
 		return canonical_representation(varname);
 	} else if( varname.find("constant") != string::npos ){
 		//printf("constant\n");
-		return canonical_representation(varname.substr(9));
+		return canonical_representation(tokenize(varname,"_")[2]);
 	} else if( variables[varname].real_value == "" ){
 		//printf("empty\n");
 		return "0";
@@ -866,36 +868,6 @@ string SolverWrapper::get_offset_tree( string varname ){
 	//assert(check_mangled_name(varname) && "Incorrect name for get_offset_tree");
 	//printf("get_offset_tree %s %s\n", varname.c_str(), variables[varname].tree.c_str() );
 	return variables[varname].tree;
-}
-
-bool SolverWrapper::check_mangled_name(string name){
-
-	//printf("check_mangled_name %s\n", name.c_str());
-
-	int number_of_underscore = count(name, UNDERSCORE);
-	if(
-			number_of_underscore != 1 && // main_registerunderscoreval mem_9
-			number_of_underscore != 0    // 0
-	)
-		return false;
-
-	if( number_of_underscore == 1 ){
-		vector<string> tokens = tokenize(name, UNDERSCORE);
-		if(tokens[1].substr(0,8) != "register" &&
-		   tokens[0].substr(0,3) != "mem"      &&
-		   tokens[0].substr(0,6) != "global"   && 
-		   tokens[0].substr(0,8) != "constant"   && 
-		   tokens[0].substr(0,8) != "function"
-		  ) return false;
-	}
-
-	if( number_of_underscore  == 0 ){
-		if( !is_number(name) )
-			return false;
-	}
-
-	return true;
-
 }
 
 bool SolverWrapper::get_is_propagated_constant(string varname){

@@ -25,6 +25,8 @@
 #include "timer.h"
 #include "utils.h"
 
+#define check_mangled_name(A) operators->check_mangled_name(A)
+
 extern Options* options;
 extern Operators* operators;
 extern Database* database;

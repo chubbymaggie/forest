@@ -459,7 +459,7 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 
 	timer->start_timer();
-	stringstream rvalue; rvalue << "constant" UNDERSCORE << solver->internal_representation(alloca_pointer, "PointerTyID"); 
+	stringstream rvalue; rvalue << "constant_PointerTyID_" << solver->internal_representation(alloca_pointer, "PointerTyID"); 
 	solver->assign_instruction(name(rvalue.str()), name(varname));
 	solver->settype( name(varname), "Pointer");
 	timer->end_timer("global_assign");
@@ -479,7 +479,7 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
 		} else {
-			stringstream constant_name; constant_name << "constant_" << solver->internal_representation(0, types[i]);
+			stringstream constant_name; constant_name << "constant_" << types[i] << "_" << solver->internal_representation(0, types[i]);
 
 			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
 
@@ -548,7 +548,7 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
 
 
-	stringstream rvalue; rvalue << "constant" UNDERSCORE << solver->internal_representation(alloca_pointer, "PointerTyID"); 
+	stringstream rvalue; rvalue << "constant_PointerTyID_" << solver->internal_representation(alloca_pointer, "PointerTyID"); 
 	solver->settype( name(reg), "Pointer");
 	solver->assign_instruction(name(rvalue.str()), name(reg) );
 
@@ -627,7 +627,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		stringstream offset_ss; offset_ss << offset;
 		string offset_constant_s = offset_ss.str();
 		//offset_constant_s = "constant_" + offset_constant_s;
-		offset_constant_s = "constant_" + solver->internal_representation(offset, "IntegerTyID32");
+		offset_constant_s = "constant_IntegerTyID32_" + solver->internal_representation(offset, "IntegerTyID32");
 
 		//printf("offset_constant_s %s\n", offset_constant_s.c_str());
 
@@ -957,6 +957,7 @@ bool Operators::check_mangled_name(string name){
 	//printf("check mangled name %s\n", name.c_str());
 	int number_of_underscore = count(name, UNDERSCORE);
 	if(
+			number_of_underscore != 2 && // constant_IntegerTyID32_3
 			number_of_underscore != 1 && // main_registerunderscoreval mem_9
 			number_of_underscore != 0    // 0
 	)
@@ -967,9 +968,15 @@ bool Operators::check_mangled_name(string name){
 		if(tokens[1].substr(0,8) != "register" &&
 		   tokens[0].substr(0,3) != "mem"      &&
 		   tokens[0].substr(0,6) != "global"   &&
-		   tokens[0].substr(0,8) != "constant" &&
 		   tokens[0].substr(0,8) != "function"
 		  ) return false;
+	}
+
+	if( number_of_underscore == 2 ){
+		vector<string> tokens = tokenize(name, UNDERSCORE);
+		if( tokens[0] != "constant" ){
+			return false;
+		}
 	}
 
 	if( number_of_underscore  == 0 ){
