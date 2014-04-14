@@ -881,6 +881,8 @@ string SolverWrapper::gettype(string name){
 
 	//printf("gettype %s\n", name.c_str());
 
+	if( name.substr(0,9) == "constant_" ) return tokenize(name, "_")[1];
+
 	if( variables.find(name) == variables.end() ) assert(0 && "Not such variable");
 
 	return variables[name].type;

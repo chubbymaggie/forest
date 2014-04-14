@@ -253,7 +253,8 @@ string operandname( Value* operand ){
 		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << get_type_str(operand->getType()) << UNDERSCORE << casted_value(operand);
 		return nameop1_ss.str();
 	} else if ( ConstantPointerNull::classof(operand) ){
-		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << get_type_str(operand->getType()) << UNDERSCORE << "0";
+		string type = get_type_str(operand->getType());
+		stringstream nameop1_ss; nameop1_ss << "constant" UNDERSCORE << type << UNDERSCORE << internal_representation_int(0, type);
 		return nameop1_ss.str();
 	} else if(GlobalVariable::classof(operand)){
 		return "global" UNDERSCORE + operand->getName().str();

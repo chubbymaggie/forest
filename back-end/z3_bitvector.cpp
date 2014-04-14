@@ -85,7 +85,7 @@ void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& 
 
 		int result_i = stoi(realvalue(op1)) >> places;
 
-		stringstream result; result << internal_representation(result_i, gettype(op1));
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
 }
@@ -100,7 +100,7 @@ void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& c
 
 		int result_i = stoi(realvalue(op1)) << places;
 
-		stringstream result; result << internal_representation(result_i, gettype(op1));
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
 
@@ -113,7 +113,7 @@ void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream
 
 		int result_i = stoi(realvalue(op1)) & stoi(realvalue(op2));
 
-		stringstream result; result << internal_representation(result_i, gettype(op1));
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
 }
@@ -207,6 +207,7 @@ int bits(string type){
 	//printf("bits %s\n", type.c_str());
 	if(type == "IntegerTyID32") return 32;
 	else if(type == "IntegerTyID16") return 16;
+	else if(type == "DoubleTyID") return 64;
 	else if(type == "IntegerTyID8" ) return 8;
 	else if(type == "Int" ) return 32;
 	else if(type == "bool" ) return 8;
@@ -220,6 +221,7 @@ string concat_begin(int size_bits, int num){
 	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
 	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
 	else if(size_bits == 24) sprintf(ret, "#x%06x", num);
+	else if(size_bits == 32) sprintf(ret, "#x%08x", num);
 	else assert(0 && "Unknown number of bits");
 	return string(ret);
 }
