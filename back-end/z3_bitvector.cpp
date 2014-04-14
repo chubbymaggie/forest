@@ -158,11 +158,15 @@ string Z3BitVector::internal_representation(int in, string type){
 		sprintf(b, "%08x", in);
 	else if(type == "Int")
 		sprintf(b, "%08x", in);
+	else if(type == "bool")
+		sprintf(b, "%08x", in);
 	else if(type == "IntegerTyID16")
 		sprintf(b, "%04x", in);
 	else if(type == "IntegerTyID8")
 		sprintf(b, "%02x", in);
 	else if(type == "PointerTyID")
+		sprintf(b, "%08x", in);
+	else if(type == "Pointer")
 		sprintf(b, "%08x", in);
 	else
 		assert(0 && "Unknown type");
@@ -176,6 +180,7 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "+") return "bvadd";
 	if(operation == "-") return "bvsub";
 	if(operation == "/") return "bvdiv";
+	if(operation == "<=") return "bvsle";
 
 	assert(0 && "Unknown operation");
 }
@@ -210,10 +215,11 @@ int bits(string type){
 }
 
 string concat_begin(int size_bits, int num){
-	//printf("bits %d\n", size_bits);
+	printf("bits %d\n", size_bits);
 	char ret[30];
 	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
 	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
+	else if(size_bits == 24) sprintf(ret, "#x%06x", num);
 	else assert(0 && "Unknown number of bits");
 	return string(ret);
 }
