@@ -184,6 +184,8 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "/") return "bvdiv";
 	if(operation == "%") return "bvmod";
 	if(operation == "<=") return "bvsle";
+	if(operation == ">") return "bvsge";
+	if(operation == "<") return "bvslt";
 
 	assert(0 && "Unknown operation");
 }
@@ -214,6 +216,8 @@ int bits(string type){
 	else if(type == "IntegerTyID64") return 64;
 	else if(type == "IntegerTyID8" ) return 8;
 	else if(type == "Int" ) return 32;
+	else if(type == "PointerTyID" ) return 32;
+	else if(type == "Pointer" ) return 32;
 	else if(type == "bool" ) return 8;
 	else assert(0 && "Unknown type");
 

@@ -178,6 +178,10 @@ string internal_representation_int(int in, string type){
 	if(cmd_option_str("solver") == "bitvector"){
 		if(type == "IntegerTyID32")
 			sprintf(b, "#x%08x", in);
+		else if (type == "IntegerTyID64")
+			sprintf(b, "#x%08x", in);
+		else if (type == "IntegerTyID1")
+			sprintf(b, "#x%02x", in);
 		else if (type == "IntegerTyID16")
 			sprintf(b, "#x%04x", in);
 		else if (type == "IntegerTyID8")
