@@ -199,16 +199,18 @@ void Z3BitVector::dump_extra(FILE* file){
 }
 
 int bits(string type){
+	//printf("bits %s\n", type.c_str());
 	if(type == "IntegerTyID32") return 32;
 	else if(type == "IntegerTyID16") return 16;
 	else if(type == "IntegerTyID8" ) return 8;
 	else if(type == "Int" ) return 32;
+	else if(type == "bool" ) return 8;
 	else assert(0 && "Unknown type");
 
 }
 
 string concat_begin(int size_bits, int num){
-	printf("bits %d\n", size_bits);
+	//printf("bits %d\n", size_bits);
 	char ret[30];
 	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
 	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
@@ -225,6 +227,7 @@ void Z3BitVector::cast_instruction(string src, string dst, string type_src, stri
 	int diff = bits_dst - bits_src;
 
 	assign_instruction(src,dst);
+	settype(dst, type_dst);
 
 	if( diff > 0 ){
 		string concat_start = concat_begin(bits_dst - bits_src, 0);
@@ -233,5 +236,11 @@ void Z3BitVector::cast_instruction(string src, string dst, string type_src, stri
 		printf("dst_content %s\n", content(dst).c_str());
 	}
 
+	if( diff < 0 ){
+		string content_dst = "((_ extract " + itos(bits(type_dst)-1) + " 0) " + content(src) + ")";
+		setcontent(dst, content_dst);
+		printf("dst_content %s\n", content(dst).c_str());
+	}
+	
 }
 

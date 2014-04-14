@@ -75,7 +75,7 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 	}
 
 	debug && printf("\e[31m Cast_instruction %s %s %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
-									src_type.c_str(), type.c_str(), solver->get_type(name(dst)).c_str(),
+									src_type.c_str(), type.c_str(), solver->gettype(name(dst)).c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
 		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
 
