@@ -162,6 +162,8 @@ string Z3BitVector::internal_representation(int in, string type){
 		sprintf(b, "%08x", in);
 	else if(type == "IntegerTyID16")
 		sprintf(b, "%04x", in);
+	else if(type == "IntegerTyID64")
+		sprintf(b, "%08x", in);
 	else if(type == "IntegerTyID8")
 		sprintf(b, "%02x", in);
 	else if(type == "PointerTyID")
@@ -180,6 +182,7 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "+") return "bvadd";
 	if(operation == "-") return "bvsub";
 	if(operation == "/") return "bvdiv";
+	if(operation == "%") return "bvmod";
 	if(operation == "<=") return "bvsle";
 
 	assert(0 && "Unknown operation");
@@ -193,7 +196,7 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 
 		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
 
-		stringstream result; result << internal_representation(result_i, gettype(op1));
+		stringstream result; result << result_i;
 		set_real_value(dst, result.str());
 
 }
@@ -208,6 +211,7 @@ int bits(string type){
 	if(type == "IntegerTyID32") return 32;
 	else if(type == "IntegerTyID16") return 16;
 	else if(type == "DoubleTyID") return 64;
+	else if(type == "IntegerTyID64") return 64;
 	else if(type == "IntegerTyID8" ) return 8;
 	else if(type == "Int" ) return 32;
 	else if(type == "bool" ) return 8;
