@@ -330,7 +330,7 @@ void Z3RealInt::right_shift(string op1, string op2, string dst, stringstream& co
 
 		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
 		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
+		int exponent = stoi( realvalue(op2) );
 		int factor = 1 << exponent;
 
 		content_ss << "(/ " << content(op1) << " " << factor << ")";
@@ -354,7 +354,7 @@ void Z3RealInt::left_shift(string op1, string op2, string dst, stringstream& con
 
 		//if(op2.substr(0,9) != "constant" UNDERSCORE) assert(0 && "Rotate non-constant");
 		if(!is_constant(op2)) assert(0 && "Rotate non-constant");
-		int exponent = stoi( op2.substr(9) );
+		int exponent = stoi( realvalue(op2) );
 		int factor = 1 << exponent;
 
 		content_ss << "(* " << content(op1) << " " << factor << ")";
