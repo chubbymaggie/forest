@@ -31,6 +31,7 @@ public:
 
 	string canonical_representation(string in);
 	void cast_instruction(string src, string dst, string type_src, string type_dst);
+	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
 private:
 	string name_operation(string operation);

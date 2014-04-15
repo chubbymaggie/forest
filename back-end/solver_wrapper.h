@@ -77,6 +77,8 @@ public:
 	virtual void solve_problem() = 0;
 	virtual string internal_representation(int in, string type) = 0;
 	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
+	virtual string name_operation(string operation) = 0;
+	virtual map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address) = 0;
 
 	virtual ~SolverWrapper ();
 	float get_solve_time();
@@ -162,7 +164,6 @@ protected:
 	string get_idx_type(string idx_content );
 	void load_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
 	void add_range_index(string dst, map<set<pair<string, int> > , int > map_idx_val );
-	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 	string negateop(string predicate);
 	bool need_for_dump(string name, string content);
 	string get_anded_stack_conditions();

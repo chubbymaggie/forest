@@ -260,3 +260,164 @@ void Z3BitVector::cast_instruction(string src, string dst, string type_src, stri
 	
 }
 
+
+map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address){
+
+	debug && printf("\e[32m get_idx_val %s %d %d %d\e[0m\n", base.c_str(), first_address, last_address, indexes.size());
+	
+
+
+	set<string> index_vars = variables[base].indexes;
+	for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
+		debug && printf("\e[32m index \e[0m %s\n", it->c_str());
+
+		set<string> indexes_index = variables[*it].indexes;
+		for( set<string>::iterator it2 = indexes_index.begin(); it2 != indexes_index.end(); it2++ ){
+			debug && printf("\e[32m index2 \e[0m %s\n", variables[*it2].name_hint.c_str() );
+			index_vars.insert( variables[*it2].name_hint );
+		}
+	}
+	
+	map<set<pair<string, int> > , int > ret;
+
+	bool is_sat;
+
+	string idx_show;
+	for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+		idx_show += *it + ",";
+	}
+	
+
+	
+	printf("\e[32m base \e[0m %s \e[32m idx_content \e[0m %s \e[32m indexes \e[0m %s \e[32m first_address \e[0m %d \e[32m last_address \e[0m %d\n", base.c_str(), idx_content.c_str(), idx_show.c_str(), first_address, last_address);
+
+	int iters = 0;
+	while(true){
+
+
+		FILE* ftmp = fopen("/tmp/forest/idx_problem.smt2", "w");
+		fprintf(ftmp, "(set-option :produce-models true)\n");
+
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			fprintf(ftmp, "(declare-const %s (_ BitVec 32))\n", it->c_str());
+		}
+
+		stringstream excl_expr;
+		stringstream range_expr;
+
+		range_expr << "(and " << "(bvsle " << internal_representation(first_address, "IntegerTyID64") << " " << idx_content << ") " << "(bvsle " << idx_content << " " << internal_representation(last_address, "IntegerTyID64") << "))";
+
+
+		set<set<pair<string, int> > > exclusions = get_exclusions(ret);
+
+		//printf("exclusions.size() %d\n", exclusions.size() );
+
+		excl_expr << "(not ";
+		if(exclusions.size() > 1)
+			excl_expr << "(or ";
+		for( set<set<pair<string, int> > >::iterator it = exclusions.begin(); it != exclusions.end(); it++ ){
+			set<pair<string, int> > fsol = (*it);
+			if(fsol.size() > 1)
+				excl_expr << "(and ";
+			for( set<pair<string, int> >::iterator it2 = fsol.begin(); it2 != fsol.end(); it2++ ){
+				excl_expr << "(= " << it2->first << " " << it2->second << ") ";
+			}
+			if(fsol.size() > 1)
+				excl_expr << ")";
+		}
+		if(exclusions.size() > 1)
+			excl_expr << ")";
+		excl_expr << ")";
+
+
+
+		fprintf(ftmp, "(assert %s)\n", range_expr.str().c_str());
+
+		if(exclusions.size() > 0)
+			fprintf(ftmp, "(assert %s)\n", excl_expr.str().c_str());
+
+
+
+
+
+
+		fprintf(ftmp, "(check-sat)\n");
+
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			fprintf(ftmp, "(get-value (%s))\n", it->c_str());
+		}
+
+		fprintf(ftmp, "(get-value (%s))\n", idx_content.c_str() );
+
+		fclose(ftmp);
+
+		system("z3 /tmp/forest/idx_problem.smt2 > /tmp/forest/idx_out");
+
+
+		ifstream input("/tmp/forest/idx_out");
+		string line;
+		vector<string> result;
+
+		while( getline( input, line ) ) {
+			result.push_back(line);
+		}
+
+
+		if(result[0].find("error") != string::npos ){
+			printf("Error in z3 execution\n");
+			solve_problem();
+			assert(0 && "Error in z3 execution");
+		}
+
+
+		is_sat = (result[0] == "sat");
+
+		if(!is_sat){
+			//printf("no sat\n");
+			break;
+		}
+
+		if(iters++ == options->cmd_option_int("max_pointer_deref_combs")){
+			//printf("number of iterations exceeded\n");
+			break;
+		}
+
+		set<pair<string, int> > sub_sol;
+
+		int i = 0;
+		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
+			i++;
+			string line = result[i];
+			if(line.find("error") != string::npos )
+				assert(0 && "Error in z3 execution");
+
+			string varname = *it;
+			string value = result_get(line);
+
+			sub_sol.insert(pair<string, int>(varname, stoi(value)));
+
+		}
+		
+		i++;
+		line = result[i];
+		int idx_res = stoi(result_get(line));
+
+		//printf("idx_res %d\n", idx_res);
+
+		ret[sub_sol] = idx_res;
+
+		//static int p;
+		//if(p++ == 3) break;
+
+	}
+
+	//for( set<pair<string, int> >::iterator it = sub_sol.begin(); it != sub_sol.end(); it++ ){
+		//printf("sub_sol %s %d\n", it->first.c_str(), it->second);
+	//}
+	
+	
+	return ret;
+	//exit(0);
+
+}
+
