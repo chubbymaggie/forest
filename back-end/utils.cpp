@@ -51,49 +51,6 @@ vector<string> tokenize(const string& str,const string& delimiters) {
 	return tokens;
 }
 
-int get_size(string type){
-
-	if( type == "IntegerTyID32" )
-		return 4;
-
-	if( type == "DoubleTyID" )
-		return 8;
-
-	if( type == "FloatTyID" )
-		return 8;
-
-	if( type == "IntegerTyID8" )
-		return 1;
-
-	if( type == "IntegerTyID16" )
-		return 2;
-
-	if( type == "IntegerTyID64" )
-		return 8;
-
-	if( type == "int" )
-		return 4;
-
-	if( type == "PointerTyID")
-		return 4;
-
-
-	if( type.find(',') != string::npos ){
-		int sum = 0;
-		vector<string> tokens = tokenize(type,",");
-		for( vector<string>::iterator it = tokens.begin(); it != tokens.end(); it++ ){
-			sum += get_size(*it);
-		}
-		return sum;
-	}
-
-
-	printf("get_size type %s\n", type.c_str());
-
-	assert(0 && "Unknown type");
-
-}
-
 int get_ini_elem(int nelem_target, string offset_tree){
 
 	int depth = -1;

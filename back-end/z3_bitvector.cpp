@@ -25,6 +25,7 @@
 #include "database.h"
 #include "timer.h"
 #include "utils.h"
+#include "architecture.cpp"
 
 extern Options* options;
 extern Operators* operators;
@@ -151,30 +152,7 @@ string Z3BitVector::canonical_representation(string in){
 }
 
 string Z3BitVector::internal_representation(int in, string type){
-	char b[20];
-	//printf("internal_representation_type %s\n", type.c_str());
-
-	if(type == "IntegerTyID32")
-		sprintf(b, "%08x", in);
-	else if(type == "Int")
-		sprintf(b, "%08x", in);
-	else if(type == "bool")
-		sprintf(b, "%08x", in);
-	else if(type == "IntegerTyID16")
-		sprintf(b, "%04x", in);
-	else if(type == "IntegerTyID64")
-		sprintf(b, "%08x", in);
-	else if(type == "IntegerTyID8")
-		sprintf(b, "%02x", in);
-	else if(type == "PointerTyID")
-		sprintf(b, "%08x", in);
-	else if(type == "Pointer")
-		sprintf(b, "%08x", in);
-	else
-		assert(0 && "Unknown type");
-
-	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
-	return "#x" + string(b);
+	return hex_representation(in, type);
 }
 
 string Z3BitVector::name_operation(string operation){
@@ -208,20 +186,6 @@ void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream
 void Z3BitVector::dump_extra(FILE* file){
 }
 
-int bits(string type){
-	//printf("bits %s\n", type.c_str());
-	if(type == "IntegerTyID32") return 32;
-	else if(type == "IntegerTyID16") return 16;
-	else if(type == "DoubleTyID") return 64;
-	else if(type == "IntegerTyID64") return 64;
-	else if(type == "IntegerTyID8" ) return 8;
-	else if(type == "Int" ) return 32;
-	else if(type == "PointerTyID" ) return 32;
-	else if(type == "Pointer" ) return 32;
-	else if(type == "bool" ) return 8;
-	else assert(0 && "Unknown type");
-
-}
 
 string concat_begin(int size_bits, int num){
 	printf("bits %d\n", size_bits);
