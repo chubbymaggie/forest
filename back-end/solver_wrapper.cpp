@@ -1186,7 +1186,7 @@ void SolverWrapper::pointer_instruction(string dst, string offset_tree, vector<s
 	string expr = "(" + name_operation("+") + " " + content(base) + " ";
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
 		stringstream subexpr;
-		subexpr << "(" + name_operation("*") + " " << content(indexes[i]) << " " << internal_representation(jmp_offsets[i], "IntegerTyID32") << ") ";
+		subexpr << "(" + name_operation("*") + " " << content(indexes[i]) << " " << internal_representation(jmp_offsets[i], "PointerTyID") << ") ";
 		expr += subexpr.str();
 	}
 	expr += ")";
@@ -1288,6 +1288,7 @@ void SolverWrapper::sym_load(string dst, string addr){
 	vector<string> mem_names;
 
 	int m = 0;
+	string mem_type;
 	for( map<set<pair<string, int> > , int >::iterator it = map_idx_val.begin(); it != map_idx_val.end(); it++ ){
 		set<pair<string, int> > elem_idx_val = it->first;
 		int val = it->second;
@@ -1300,15 +1301,17 @@ void SolverWrapper::sym_load(string dst, string addr){
 		for( set<pair<string, int> >::iterator it2 = elem_idx_val.begin(); it2 != elem_idx_val.end(); it2++ ){
 			pair<string, int> elem = (*it2);
 			string idx = elem.first;
+			string type_idx = gettype("mem_" + realvalue(find_by_name_hint(idx)));
 			int idx_val = elem.second;
 			
-			and_expr << "(= " << idx << " " << idx_val << ")";
+			and_expr << "(= " << idx << " " << internal_representation(idx_val, type_idx) << ")";
 		}
 		if(elem_idx_val.size() > 1){
 			and_expr << ")";
 		}
 
 		string mem_val = content("mem_" + itos(val));
+		mem_type = gettype("mem_" + itos(val));
 
 
 		mem_names.push_back("mem_" + itos(val));
@@ -1316,7 +1319,7 @@ void SolverWrapper::sym_load(string dst, string addr){
 		result_expr << "(ite " << and_expr.str() << " " << mem_val << " ";
 		m++;
 	}
-	result_expr << "0";
+	result_expr << internal_representation(0, mem_type);
 	for ( unsigned int i = 0; i < m; i++) {
 		result_expr << ")";
 	}
@@ -1389,9 +1392,10 @@ void SolverWrapper::sym_store(string src, string addr){
 		for( set<pair<string, int> >::iterator it2 = elem_idx_val.begin(); it2 != elem_idx_val.end(); it2++ ){
 			pair<string, int> elem = (*it2);
 			string idx = elem.first;
+			string type_idx = gettype("mem_" + realvalue(find_by_name_hint(idx)));
 			int idx_val = elem.second;
 			
-			and_expr << "(= " << idx << " " << idx_val << ")";
+			and_expr << "(= " << idx << " " << internal_representation(idx_val, type_idx) << ")";
 		}
 		if(elem_idx_val.size() > 1){
 			and_expr << ")";

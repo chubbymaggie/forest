@@ -627,7 +627,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 		stringstream offset_ss; offset_ss << offset;
 		string offset_constant_s = offset_ss.str();
 		//offset_constant_s = "constant_" + offset_constant_s;
-		offset_constant_s = "constant_IntegerTyID32_" + solver->internal_representation(offset, "IntegerTyID32");
+		offset_constant_s = "constant_PointerTyID_" + solver->internal_representation(offset, "PointerTyID");
 
 		//printf("offset_constant_s %s\n", offset_constant_s.c_str());
 

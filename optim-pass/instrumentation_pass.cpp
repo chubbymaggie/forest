@@ -394,7 +394,7 @@ vector<string> get_indexes(GetElementPtrInst* instr){
 		ConstantInt* CI = dyn_cast<ConstantInt>(it->get());
 		if(CI){
 			int64_t val = CI->getSExtValue();
-			stringstream nameop1_ss; nameop1_ss << "constant_IntegerTyID32_" << internal_representation_int(val, "IntegerTyID32", cmd_option_str("solver"));
+			stringstream nameop1_ss; nameop1_ss << "constant_PointerTyID_" << internal_representation_int(val, "PointerTyID", cmd_option_str("solver"));
 			ret.push_back( nameop1_ss.str() );
 		} else {
 			Value* value = it->get();

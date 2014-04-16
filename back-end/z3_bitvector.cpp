@@ -263,13 +263,14 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 		fprintf(ftmp, "(set-option :produce-models true)\n");
 
 		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
-			fprintf(ftmp, "(declare-const %s (_ BitVec 32))\n", it->c_str());
+			string type = gettype("mem_" + realvalue(find_by_name_hint(*it)));
+			fprintf(ftmp, "(declare-const %s (_ BitVec %d))\n", it->c_str(), bits(type)  );
 		}
 
 		stringstream excl_expr;
 		stringstream range_expr;
 
-		range_expr << "(and " << "(bvsle " << internal_representation(first_address, "IntegerTyID64") << " " << idx_content << ") " << "(bvsle " << idx_content << " " << internal_representation(last_address, "IntegerTyID64") << "))";
+		range_expr << "(and " << "(bvsle " << internal_representation(first_address, "PointerTyID") << " " << idx_content << ") " << "(bvsle " << idx_content << " " << internal_representation(last_address, "PointerTyID") << "))";
 
 
 		set<set<pair<string, int> > > exclusions = get_exclusions(ret);
@@ -284,7 +285,7 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 			if(fsol.size() > 1)
 				excl_expr << "(and ";
 			for( set<pair<string, int> >::iterator it2 = fsol.begin(); it2 != fsol.end(); it2++ ){
-				excl_expr << "(= " << it2->first << " " << it2->second << ") ";
+				excl_expr << "(= " << it2->first << " " << internal_representation(it2->second, gettype("mem_" + realvalue(find_by_name_hint(it2->first))) ) << ") ";
 			}
 			if(fsol.size() > 1)
 				excl_expr << ")";
@@ -342,7 +343,7 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 		}
 
 		if(iters++ == options->cmd_option_int("max_pointer_deref_combs")){
-			//printf("number of iterations exceeded\n");
+			printf("number of iterations exceeded\n");
 			break;
 		}
 
@@ -356,7 +357,8 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 				assert(0 && "Error in z3 execution");
 
 			string varname = *it;
-			string value = result_get(line);
+			string value = canonical_representation(result_get(line));
+			printf("value_canonical_rep %s\n", value.c_str());
 
 			sub_sol.insert(pair<string, int>(varname, stoi(value)));
 
@@ -364,7 +366,7 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 		
 		i++;
 		line = result[i];
-		int idx_res = stoi(result_get(line));
+		int idx_res = stoi(canonical_representation(result_get(line)));
 
 		//printf("idx_res %d\n", idx_res);
 
