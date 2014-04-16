@@ -1091,7 +1091,7 @@ void test(){
 
 	cmd.str("");
 	cmd << "cd " << cmd_option_str("tmp_dir") << ";";
-	cmd << "diff results " << prj_file("gold_result") << " > /dev/null";
+	cmd << "diff results " << prj_file("gold_result_" + cmd_option_str("solver")) << " > /dev/null";
 	int result = system(cmd.str().c_str());
 
 	if( result )
@@ -2802,7 +2802,7 @@ void get_result(){
 	start_pass("get_result");
 
 	stringstream cmd;
-	cmd << "cp " << tmp_file("results") << " " << prj_file("gold_result");
+	cmd << "cp " << tmp_file("results") << " " << prj_file("gold_result_" + cmd_option_str("solver"));
 	systm(cmd.str());
 
 	end_pass("get_result");
