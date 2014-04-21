@@ -193,30 +193,9 @@ void SolverWrapper::show_header(){
 
 }
 
-void SolverWrapper::add_int_constraint(string src){
-	if(!check_mangled_name(src)) assert(0 && "Wrong name for add_int_constraint");
-
-	int_constraints.insert(content(src));
-}
-
 void SolverWrapper::show_tail(){
 
 	printf("(exit)\n");
-}
-
-void SolverWrapper::show_int_constraints(){
-
-
-	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
-		printf( "(declare-fun int_constraint_%d () Int)\n", i);
-	}
-
-	unsigned int i = 0;
-	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
-		printf( "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
-		i++;
-	}
-
 }
 
 int SolverWrapper::get_num_fvars(){
@@ -851,7 +830,6 @@ int SolverWrapper::show_problem(){
 	
 	if(!options->cmd_option_bool("show_only_constraints")){
 	show_header();}
-	show_int_constraints();
 	show_conditions();
 	if(!options->cmd_option_bool("show_only_constraints")){
 	show_check_sat();

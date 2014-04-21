@@ -60,6 +60,7 @@ int bits(string type){
 	else if(type == "IntegerTyID8" ) return 8;
 	else if(type == "Int" ) return 32;
 	else if(type == "PointerTyID" ) return 64;
+	else if(type == "FloatTyID" ) return 32;
 	else if(type == "Pointer" ) return 64;
 	else if(type == "bool" ) return 8;
 	else assert(0 && "Unknown type");

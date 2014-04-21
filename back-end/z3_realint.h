@@ -47,7 +47,6 @@ private:
 	string complement_op(string op1);
 	void dump_extra(FILE* file);
 	void dump_type_limits(FILE* file);
-	void dump_int_constraints(FILE* file);
 	int minval(string type);
 	int maxval(string type);
 	string internal_representation(int in, string type);

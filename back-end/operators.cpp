@@ -56,9 +56,6 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for cast_instruction");
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for cast_instruction");
 
-	if(src_type == "Real" && type == "IntegerTyID32")
-		solver->add_int_constraint(name(src));
-
 	solver->cast_instruction(name(src),name(dst), src_type, type);
 
 	if( solver->get_type(name(src)) != "bool" )

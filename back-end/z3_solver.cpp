@@ -415,6 +415,10 @@ void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 string Z3Solver::z3_type(string type){
 	if(type == "Pointer")
 		return "Int";
+	if(type == "FloatTyID")
+		return "Real";
+	if(type == "IntegerTyID32")
+		return "Int";
 
 	return type;
 }

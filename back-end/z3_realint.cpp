@@ -257,7 +257,6 @@ string Z3RealInt::complement_op(string op1){
 
 void Z3RealInt::dump_extra(FILE* file){
 	dump_type_limits(file);
-	dump_int_constraints(file);
 }
 
 void Z3RealInt::dump_type_limits(FILE* file){
@@ -279,22 +278,6 @@ void Z3RealInt::dump_type_limits(FILE* file){
 		
 	}
 }
-
-void Z3RealInt::dump_int_constraints(FILE* file){
-
-
-	for ( unsigned int i = 0; i < int_constraints.size(); i++) {
-		fprintf(file, "(declare-fun int_constraint_%d () Int)\n", i);
-	}
-
-	unsigned int i = 0;
-	for( set<string>::iterator it = int_constraints.begin(); it != int_constraints.end(); it++ ){
-		fprintf(file, "(assert (= %s int_constraint_%d))\n", it->c_str(), i);
-		i++;
-	}
-
-}
-
 
 int Z3RealInt::minval(string type){
 
@@ -370,7 +353,17 @@ string Z3RealInt::internal_representation(int in, string type){
 }
 
 void Z3RealInt::cast_instruction(string src, string dst, string type_src, string type_dst){
+
 	assign_instruction(src,dst);
+
+	printf("cast_instruction_types %s %s %s %s\n", type_src.c_str(), type_dst.c_str(), z3_type(type_src).c_str(), z3_type(type_dst).c_str() );
+
+	if( z3_type(type_src) == "Int" && z3_type(type_dst) == "Real" )
+		setcontent(dst, "(to_real " + content(src) + ")" );
+
+	if( z3_type(type_src) == "Real" && z3_type(type_dst) == "Int" )
+		setcontent(dst, "(to_int " + content(src) + ")" );
+	
 }
 
 

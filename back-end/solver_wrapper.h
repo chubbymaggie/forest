@@ -82,7 +82,6 @@ public:
 
 	virtual ~SolverWrapper ();
 	float get_solve_time();
-	void add_int_constraint(string src);
 	void set_outofbounds(string varname, bool outofbounds = true);
 	bool get_outofbounds(string varname);
 	void store_idx_vals(string dst, map<set<pair<string, int> > , int > map_idx_val);
@@ -156,7 +155,6 @@ protected:
 	float spent_time;
 	void check_name_and_pos(string name, string position);
 	string z3_type(string type);
-	set<string> int_constraints;
 	bool is_free_var(string name);
 	void init_indexes(string dst, string op1, string op2 = "");
 	bool is_free_var_by_position(string position);
@@ -194,7 +192,6 @@ protected:
 	void show_check_sat();
 	void show_header();
 	void show_tail();
-	void show_int_constraints();
 	void show_assigns();
 	string extract_condition(string content);
 	string get_last_condition(string name);
