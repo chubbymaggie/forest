@@ -166,9 +166,9 @@ bool is_number(const std::string& s) {
 		is_number(s.substr(s.find(".")+1));
 
 
-	if( s.find("e") != string::npos ) return 
-		is_number(s.substr(0,s.find("e"))) &&
-		is_number(s.substr(s.find("e")+1));
+	//if( s.find("e") != string::npos ) return 
+		//is_number(s.substr(0,s.find("e"))) &&
+		//is_number(s.substr(s.find("e")+1));
 
 	std::string::const_iterator it = s.begin();
 	while (it != s.end() && is_hex_digit(*it)) ++it;

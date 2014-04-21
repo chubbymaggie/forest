@@ -71,21 +71,21 @@ string internal_representation_int(int in, string type, string solver){
 
 	char b[20];
 	if( solver == "bitvector"){
-		if(type == "IntegerTyID32")
-			sprintf(b, "#x%08x", in);
-		else if (type == "IntegerTyID64")
-			sprintf(b, "#x%08x", in);
-		else if (type == "IntegerTyID1")
-			sprintf(b, "#x%02x", in);
-		else if (type == "IntegerTyID16")
-			sprintf(b, "#x%04x", in);
-		else if (type == "IntegerTyID8")
-			sprintf(b, "#x%02x", in);
-		else if (type == "Int")
-			sprintf(b, "#x%02x", in);
-		else if(type == "PointerTyID")
-			sprintf(b, "#x%016x", in);
-		else {
+		if(type == "IntegerTyID32"){
+			sprintf(b, "#x%08x", (in < 0)?((1 << 32) + in):in);
+		} else if (type == "IntegerTyID64"){
+			sprintf(b, "#x%08x", (in < 0)?((1 << 64) + in):in);
+		} else if (type == "IntegerTyID1"){
+			sprintf(b, "#x%02x", (in < 0)?((1 << 8) + in):in);
+		} else if (type == "IntegerTyID16"){
+			sprintf(b, "#x%04x", (in < 0)?((1 << 16) + in):in);
+		} else if (type == "IntegerTyID8"){
+			sprintf(b, "#x%02x", (in < 0)?((1 << 8) + in):in);
+		} else if (type == "Int"){
+			sprintf(b, "#x%02x", (in < 0)?((1 << 32) + in):in);
+		} else if(type == "PointerTyID"){
+			sprintf(b, "#x%016x", (in < 0)?((1 << 64) + in):in);
+		} else {
 			cerr << "type " << type << endl;
 			assert(0 && "Unknown type");
 		}

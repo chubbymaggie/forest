@@ -160,7 +160,7 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "+") return "bvadd";
 	if(operation == "-") return "bvsub";
 	if(operation == "/") return "bvdiv";
-	if(operation == "%") return "bvmod";
+	if(operation == "%") return "bvsmod";
 	if(operation == "<=") return "bvsle";
 	if(operation == ">=") return "bvsge";
 	if(operation == ">") return "bvsgt";

@@ -1,5 +1,6 @@
 name_hint                  value  probl
 -------------------------  -----  -----
 main_register_c            97     1    
-main_register_c            97     2    
-main_register_c            0      3    
+main_register_c            226    2    
+main_register_c            97     3    
+main_register_c            0      4    
