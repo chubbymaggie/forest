@@ -49,7 +49,7 @@ void SolverWrapper::free_var(string var){
 
 	if(!check_mangled_name(var)) assert(0 && "Wrong name for content");
 
-	stringstream mem_name; mem_name << "mem_" << variables[var].content;
+	stringstream mem_name; mem_name << "mem_" << canonical_representation(variables[var].content);
 	forced_free_vars.insert( mem_name.str() );
 
 }
