@@ -162,7 +162,8 @@ string Z3BitVector::name_operation(string operation){
 	if(operation == "/") return "bvdiv";
 	if(operation == "%") return "bvmod";
 	if(operation == "<=") return "bvsle";
-	if(operation == ">") return "bvsge";
+	if(operation == ">=") return "bvsge";
+	if(operation == ">") return "bvsgt";
 	if(operation == "<") return "bvslt";
 
 	assert(0 && "Unknown operation");
