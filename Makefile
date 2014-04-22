@@ -85,6 +85,7 @@ test:
 	@forest ./test/simple/init_local_array/config.xml          # Initialize a local array
 	@forest ./test/simple/double_cast/config.xml               # Double casting
 	@forest ./test/simple/cast_i16_to_i32/config.xml           # Casting i16 to i32
+	@forest ./test/simple/force_free_hint/config.xml           # force_free_hint
 
 test_stdlib:
 	#@forest ./test/stdlibs/getopt/config.xml                   # getopt

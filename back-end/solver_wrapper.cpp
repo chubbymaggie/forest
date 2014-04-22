@@ -680,7 +680,7 @@ void SolverWrapper::load_forced_free_hints(){
 }
 
 bool SolverWrapper::is_forced_free_hint(string hint){
-	printf("is_forced_free_hint %s\n", hint.c_str());
+	//printf("is_forced_free_hint %s\n", hint.c_str());
 	return  forced_free_hints.find(hint) != forced_free_hints.end();
 }
 

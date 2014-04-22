@@ -8,8 +8,27 @@
 	<option key="cyclomatic" value="true"/> 
 	<option key="expected_fn_coverage" value="100"/> 
 	<option key="expected_bb_coverage" value="100"/> 
-	<option key="forced_free_var" value="mem_84"/> 
-	<option key="forced_free_var" value="mem_96"/> 
-	<option key="forced_free_var" value="mem_100"/> 
-	<option key="forced_free_var" value="mem_108"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_event"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_DeviceObject__DeviceExtension"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_Irp__Tail__Overlay__CurrentStackLocation"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_irpStack__MinorFunction"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_devExt__TopOfStack"/> 
+	<option key="forced_free_hint" value="KbFilter_PnP_register_Irp__CurrentLocation"/> 
+	<option key="forced_free_hint" value="main_register_irp"/> 
+	<option key="forced_free_hint" value="main_register_irp_choice"/> 
+	<option key="forced_free_hint" value="main_register_devob"/> 
+	<option key="forced_free_hint" value="main_register_tmp_ndt_1"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_lcontext"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_tmp_ndt_2"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_tmp_ndt_3"/> 
+	<option key="forced_free_hint" value="KeSetEvent_l"/> 
+	<option key="forced_free_hint" value="KeWaitForSingleObject_tmp_ndt_4"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
+	<option key="forced_free_hint" value="stubMoreProcessingRequired_"/> 
 </options>
