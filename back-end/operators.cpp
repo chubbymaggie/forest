@@ -566,6 +566,15 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 			mem_hint << actual_function << "_" << reg;
 		else 
 			mem_hint << actual_function << "_" << reg << "+" << alloca_pointer - initial_alloca_pointer;
+
+		
+		//if( forced_free_hints.find(mem_hint.str()) != forced_free_hints.end() ){
+		if( solver->is_forced_free_hint(mem_hint.str()) ){
+			printf("forced free_hint %s %s\n", mem_hint.str().c_str(), mem_name.str().c_str());
+			solver->insert_forced_free_var(mem_name.str());
+		}
+
+
 		set_name_hint(mem_name.str(), mem_hint.str() );
 
 
@@ -688,6 +697,7 @@ void Operators::begin_sim(){
 
 
 	solver->load_forced_free_vars();
+	solver->load_forced_free_hints();
 
 	//debug = true;//options->cmd_option_bool("debug");
 

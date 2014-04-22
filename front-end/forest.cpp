@@ -276,8 +276,8 @@ void load_default_options(){
 	options["subst_names"] = "true";
 	options["propagate_constants"] = "true";
 	options["max_pointer_deref_combs"] = "500";
-	options["solver"] = "bitvector";
-	//options["solver"] = "real_integer";
+	//options["solver"] = "bitvector";
+	options["solver"] = "real_integer";
 	//options["compare_klee"] = "true";
 	//options["get_result"] = "true";
 }
@@ -687,6 +687,20 @@ void dump_forced_free_vars(){
 	
 }
 
+void dump_forced_free_hints(){
+	vector<string> forced_free_hints = cmd_option_string_vector("forced_free_hint");
+
+	stringstream filepath;
+
+	filepath << tmp_file("free_hints");
+
+	FILE* file = fopen(filepath.str().c_str(), "w");
+	for( vector<string>::iterator it = forced_free_hints.begin(); it != forced_free_hints.end(); it++ ){
+		fprintf(file, "%s\n", it->c_str());
+	}
+	fclose(file);
+	
+}
 
 void vim(){
 
@@ -698,6 +712,7 @@ void vim(){
 	string output_file = cmd_option_str("output_file");
 
 	dump_forced_free_vars();
+	dump_forced_free_hints();
 
 	stringstream cmd;
 
@@ -728,6 +743,7 @@ void valgrind(){
 	string output_file = cmd_option_str("output_file");
 
 	dump_forced_free_vars();
+	dump_forced_free_hints();
 
 	stringstream cmd;
 
@@ -976,6 +992,7 @@ void run(){
 	string output_file = cmd_option_str("output_file");
 
 	dump_forced_free_vars();
+	dump_forced_free_hints();
 
 	stringstream cmd;
 
@@ -2429,6 +2446,7 @@ void secuencialize(){
 
 
 	dump_forced_free_vars();
+	dump_forced_free_hints();
 
 	// Ejecuta el fichero resultante
 	cmd.str("");
@@ -2575,6 +2593,7 @@ void get_concurrent_info(){
 
 
 		dump_forced_free_vars();
+		dump_forced_free_hints();
 
 		stringstream cmd;
 		// Ejecuta el fichero resultante

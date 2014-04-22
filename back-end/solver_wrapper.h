@@ -72,6 +72,10 @@ inline bool operator<(const NameAndPosition& lhs, const NameAndPosition& rhs)
 
 class  SolverWrapper{
 public:
+	bool is_forced_free_hint(string hint);
+	void load_forced_free_hints();
+	set<string> forced_free_hints;
+	void insert_forced_free_var(string name);
 	virtual void assign_instruction(string src, string dst, string fn_name = "") = 0;
 	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
 	virtual void solve_problem() = 0;

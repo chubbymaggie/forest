@@ -627,9 +627,11 @@ void SolverWrapper::setcontent(string varname, string content){
 
 bool SolverWrapper::is_forced_free(string position, bool colateral_effect){
 
+
+	if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
+
 	if(colateral_effect){
 
-		if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
 
 		if( forced_free_vars.find(position) != forced_free_vars.end() ){
 			if( already_forced_free.find(position) != already_forced_free.end() ){
@@ -643,8 +645,6 @@ bool SolverWrapper::is_forced_free(string position, bool colateral_effect){
 		}
 
 	} else {
-
-		if(!check_mangled_name(position)) assert(0 && "Wrong src for is_forced_free");
 
 		if( forced_free_vars.find(position) != forced_free_vars.end() ){
 			return true;
@@ -665,6 +665,27 @@ void SolverWrapper::load_forced_free_vars(){
 		forced_free_vars.insert(line);
 	}
 	
+}
+
+void SolverWrapper::load_forced_free_hints(){
+
+
+	ifstream input("free_hints");
+	string line;
+	
+	while( getline( input, line ) ) {
+		forced_free_hints.insert(line);
+	}
+	
+}
+
+bool SolverWrapper::is_forced_free_hint(string hint){
+	printf("is_forced_free_hint %s\n", hint.c_str());
+	return  forced_free_hints.find(hint) != forced_free_hints.end();
+}
+
+void SolverWrapper::insert_forced_free_var(string name){
+	forced_free_vars.insert(name);
 }
 
 void SolverWrapper::set_first_content(string src, string content){
