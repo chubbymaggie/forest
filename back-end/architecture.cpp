@@ -75,7 +75,7 @@ string internal_representation_int(int in, string type, string solver){
 		if(type == "IntegerTyID32"){
 			sprintf(b, "#x%08x", (in < 0)?((1 << 32) + in):in);
 		} else if (type == "IntegerTyID64"){
-			sprintf(b, "#x%08x", (in < 0)?((1 << 64) + in):in);
+			sprintf(b, "#x%016x", (in < 0)?((1 << 64) + in):in);
 		} else if (type == "IntegerTyID1"){
 			sprintf(b, "#x%02x", (in < 0)?((1 << 8) + in):in);
 		} else if (type == "IntegerTyID16"){

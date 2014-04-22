@@ -180,6 +180,7 @@ string casted_value( Value* operand ){
 		int64_t val = CI->getSExtValue();
 		string type = get_type_str(CI->getType());
 
+		//cerr << "casted_value" << " type " << type << " value " << internal_representation_int(val, type, cmd_option_str("solver")) << endl;
 
 		return string(internal_representation_int(val, type, cmd_option_str("solver")));
 
