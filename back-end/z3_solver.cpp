@@ -53,8 +53,15 @@ void Z3Solver::solve_problem(){
 
 	sat = 0;
 
+	//printf("call to get_problem_num\n");
+
 	stringstream filename;
-	filename << "z3_" << rand() << ".smt2";
+	if(options->cmd_option_bool("sequential_problems")){
+		int n = database->get_problem_num();
+		filename << "z3_" << n << ".smt2";
+	} else {
+		filename << "z3_" << rand() << ".smt2";
+	}
 
 
 

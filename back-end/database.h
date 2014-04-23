@@ -40,6 +40,7 @@ typedef struct NameAndType {
 
 class Database {
 public:
+	int get_problem_num();
 	void save_times();
 	void insert_last_bb(string function_name, string bb_name);
 	void insert_frontend_interface();

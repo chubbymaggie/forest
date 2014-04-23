@@ -103,6 +103,15 @@ int Database::num_of_subs(){
 	return count_in_conds("-");
 }
 
+int Database::get_problem_num(){
+	stringstream action;
+	action << "select count() from problems;";
+	retsqlite.clear();
+	sqlite3_exec (db, action.str().c_str(), callback,0,NULL );
+	int ret = stoi(retsqlite[0].second);
+	return ret;
+}
+
 void Database::insert_problem(){
 
 	stringstream action;
