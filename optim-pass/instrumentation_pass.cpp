@@ -3399,28 +3399,27 @@ struct All: public ModulePass {
 
 	virtual bool runOnModule(Module &M) {
 
-		{RmXBool          pass;   pass.runOnModule(M);}
-		{MainArgs_2       pass;   pass.runOnModule(M);}
-		//{FunctionNames    pass;   pass.runOnModule(M);}
-		{Demangle         pass;   pass.runOnModule(M);}
-		{SwitchInstr      pass;   pass.runOnModule(M);}
-		{FillNames        pass;   pass.runOnModule(M);}
-		{SeparateGetElm   pass;   pass.runOnModule(M);}
-		{GlobalInit       pass;   pass.runOnModule(M);}
-		{CallInstr        pass;   pass.runOnModule(M);}
-		{SpecialCall      pass;   pass.runOnModule(M);}
-		{SelectInstr      pass;   pass.runOnModule(M);}
-		{BinaryOp         pass;   pass.runOnModule(M);}
-		{CastInstr        pass;   pass.runOnModule(M);}
-		{LoadStore        pass;   pass.runOnModule(M);}
-		{IcmpInstr        pass;   pass.runOnModule(M);}
-		{BrInstr          pass;   pass.runOnModule(M);}
-		{BbMarks          pass;   pass.runOnModule(M);}
-		{AllocaInstr      pass;   pass.runOnModule(M);}
-		{BeginEnd         pass;   pass.runOnModule(M);}
-		{GetelementPtr    pass;   pass.runOnModule(M);}
-		{FixInstr         pass;   pass.runOnModule(M);}
-		{Memcpy           pass;   pass.runOnModule(M);}
+		{RmXBool          pass;   pass.runOnModule(M);}     cerr << "RmXBool        " << endl;
+		{MainArgs_2       pass;   pass.runOnModule(M);}     cerr << "MainArgs_2     " << endl;
+		{Demangle         pass;   pass.runOnModule(M);}     cerr << "Demangle       " << endl;
+		{SwitchInstr      pass;   pass.runOnModule(M);}     cerr << "SwitchInstr    " << endl;
+		{FillNames        pass;   pass.runOnModule(M);}     cerr << "FillNames      " << endl;
+		{SeparateGetElm   pass;   pass.runOnModule(M);}     cerr << "SeparateGetElm " << endl;
+		{GlobalInit       pass;   pass.runOnModule(M);}     cerr << "GlobalInit     " << endl;
+		{CallInstr        pass;   pass.runOnModule(M);}     cerr << "CallInstr      " << endl;
+		{SpecialCall      pass;   pass.runOnModule(M);}     cerr << "SpecialCall    " << endl;
+		{SelectInstr      pass;   pass.runOnModule(M);}     cerr << "SelectInstr    " << endl;
+		{BinaryOp         pass;   pass.runOnModule(M);}     cerr << "BinaryOp       " << endl;
+		{CastInstr        pass;   pass.runOnModule(M);}     cerr << "CastInstr      " << endl;
+		{LoadStore        pass;   pass.runOnModule(M);}     cerr << "LoadStore      " << endl;
+		{IcmpInstr        pass;   pass.runOnModule(M);}     cerr << "IcmpInstr      " << endl;
+		{BrInstr          pass;   pass.runOnModule(M);}     cerr << "BrInstr        " << endl;
+		{BbMarks          pass;   pass.runOnModule(M);}     cerr << "BbMarks        " << endl;
+		{AllocaInstr      pass;   pass.runOnModule(M);}     cerr << "AllocaInstr    " << endl;
+		{BeginEnd         pass;   pass.runOnModule(M);}     cerr << "BeginEnd       " << endl;
+		{GetelementPtr    pass;   pass.runOnModule(M);}     cerr << "GetelementPtr  " << endl;
+		{FixInstr         pass;   pass.runOnModule(M);}     cerr << "FixInstr       " << endl;
+		{Memcpy           pass;   pass.runOnModule(M);}     cerr << "Memcpy         " << endl;
 
 		return false;
 	}

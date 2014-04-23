@@ -5,4 +5,56 @@
 	<option key="explanation" value="kbfiltr simple"/> 
 	<option key="file" value="kbfiltr_simpl2.c"/> 
 	<option key="test_vectors" value="false"/> 
+
+	<option key="forced_free_hint" value="KbFilterPnP_register_event"/>
+	<option key="forced_free_hint" value="KbFilterPnP_register_DeviceObject__DeviceExtension"/>
+	<option key="forced_free_hint" value="KbFilterPnP_register_Irp__Tail__Overlay__CurrentStackLocation"/>
+	<option key="forced_free_hint" value="KbFilterPnP_register_irpStack__MinorFunction"/>
+	<option key="forced_free_hint" value="KbFilterPnP_register_devExt__TopOfStack"/>
+	<option key="forced_free_hint" value="KbFilterPnP_register_Irp__CurrentLocation"/>
+	<option key="forced_free_hint" value="main_register_irp"/>
+	<option key="forced_free_hint" value="main_register_irp_choice"/>
+	<option key="forced_free_hint" value="main_register_devobj"/>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_1"/>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_2"/>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_3"/>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_4"/>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_5"/>
+	<option key="forced_free_hint" value="IofCallDriver_register_lcontext"/>
+	<option key="forced_free_hint" value="IofCallDriver_register_tmp_ndt_6"/>
+	<option key="forced_free_hint" value="IofCallDriver_register_tmp_ndt_7"/>
+	<option key="forced_free_hint" value="KeSetEvent_register_l"/>
+	<option key="forced_free_hint" value="KeWaitForSingleObject_register_tmp_ndt_8"/>
+	<option key="forced_free_hint" value="KbFilterCreateClose_register_irpStack__MajorFunction"/>
+	<option key="forced_free_hint" value="KbFilterDispatchPassThrough_register_devExt__UpperConnectData__ClassService"/>
+	<option key="forced_free_hint" value="KbFilterDispatchPassThrough_register_Irp__Tail__Overlay__CurrentStackLocation"/>
+	<option key="forced_free_hint" value="KbFilterDispatchPassThrough_register_Irp__CurrentLocation"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_DeviceObject__DeviceExtension__TopOfStack"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_irpStack__MinorFunction"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_powerState__DeviceState"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_Irp__CurrentLocation"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_Irp__Tail__Overlay__CurrentStackLocation"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_devExt__TopOfStack"/>
+	<option key="forced_free_hint" value="KbFilterPower_register_powerType"/>
+	<option key="forced_free_hint" value="PoCallDriver_register_lcontext"/>
+	<option key="forced_free_hint" value="PoCallDriver_register_tmp_ndt_9"/>
+	<option key="forced_free_hint" value="PoCallDriver_register_tmp_ndt_10"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_irpStack__Parameters__DeviceIoControl__IoControlCode"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_devExt__UpperConnectData__ClassService"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_irpStack__Parameters__DeviceIoControl__InputBufferLength"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_sizeof__CONNECT_DATA"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_irpStack__Parameters__DeviceIoControl__Type3InputBuffer"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_sizeof__INTERNAL_I8042_HOOK_KEYBOARD"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_hookKeyboard__InitializationRoutine"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register_hookKeyboard__IsrRoutine"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp20"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp24"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp28"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp29"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp32"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp35"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp38"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp41"/>
+	<option key="forced_free_hint" value="KbFilterInternIoCtl_register___cil_tmp44"/>
+
 </options>

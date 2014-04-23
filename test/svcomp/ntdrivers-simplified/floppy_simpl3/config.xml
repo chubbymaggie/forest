@@ -5,4 +5,65 @@
 	<option key="explanation" value="floppy simple"/> 
 	<option key="file" value="floppy_simpl3.c"/> 
 	<option key="test_vectors" value="false"/> 
+
+
+	<option key="forced_free_hint" value="FlQueueIrpToThread_register_threadHandle"\>
+	<option key="forced_free_hint" value="FlQueueIrpToThread_register_DisketteExtension__PoweringDown"\>
+	<option key="forced_free_hint" value="FlQueueIrpToThread_register_DisketteExtension__ThreadReferenceCount"\>
+	<option key="forced_free_hint" value="FlQueueIrpToThread_register_DisketteExtension__FloppyThread"\>
+	<option key="forced_free_hint" value="FlQueueIrpToThread_register_ObjAttributes"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_DeviceObject__DeviceExtension"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_Irp__Tail__Overlay__CurrentStackLocation"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_Irp__CurrentLocation"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__IsRemoved"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__IsStarted"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__TargetObject"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__FloppyThread"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__InterfaceString__Buffer"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__InterfaceString"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__ArcName__Length"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_disketteExtension__ArcName"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_irpSp__MinorFunction"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_IoGetConfigurationInformation__FloppyCount"\>
+	<option key="forced_free_hint" value="FloppyPnp_register_doneEvent"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_DeviceObject__DeviceExtension"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_Irp__Tail__Overlay__CurrentStackLocation"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_disketteExtension__TargetObject"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_disketteExtension__DriveType"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_disketteExtension__UnderlyingPDO"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_disketteExtension__InterfaceString"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_doneEvent"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__MaxTransferSize"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__AcpiBios"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__AcpiFdiSupported"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__PeripheralNumber"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__ControllerNumber"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__UnitNumber"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_fdcInfo__BusNumber"\>
+	<option key="forced_free_hint" value="FloppyStartDevice_register_KUSER_SHARED_DATA__AlternativeArchitecture_NEC98x86"\>
+	<option key="forced_free_hint" value="FloppyPnpComplete_register_doneEvent"\>
+	<option key="forced_free_hint" value="FloppyPnpComplete_register_ioStatus"\>
+	<option key="forced_free_hint" value="FloppyPnpComplete_register_irp__Tail__Overlay__CurrentStackLocation"\>
+	<option key="forced_free_hint" value="main_register_irp"\>
+	<option key="forced_free_hint" value="main_register_irp_choice"\>
+	<option key="forced_free_hint" value="main_register_devobj"\>
+	<option key="forced_free_hint" value="main_register_tmp_ndt_1"\>
+	<option key="forced_free_hint" value="IoBuildDeviceIoControlRequest_register_malloc"\>
+	<option key="forced_free_hint" value="IoBuildDeviceIoControlRequest_register_tmp_ndt_2"\>
+	<option key="forced_free_hint" value="IoDeleteSymbolicLink_register_tmp_ndt_3"\>
+	<option key="forced_free_hint" value="IoQueryDeviceDescription_register_tmp_ndt_4"\>
+	<option key="forced_free_hint" value="IoRegisterDeviceInterface_register_tmp_ndt_5"\>
+	<option key="forced_free_hint" value="IoSetDeviceInterfaceState_register_tmp_ndt_6"\>
+	<option key="forced_free_hint" value="IofCallDriver_register_lcontext"\>
+	<option key="forced_free_hint" value="IofCallDriver_register_tmp_ndt_12"\>
+	<option key="forced_free_hint" value="IofCallDriver_register_tmp_ndt_7"\>
+	<option key="forced_free_hint" value="IofCompleteRequest_register_l"\>
+	<option key="forced_free_hint" value="KeWaitForSingleObject_register_tmp_ndt_8"\>
+	<option key="forced_free_hint" value="ObReferenceObjectByHandle_register_tmp_ndt_9"\>
+	<option key="forced_free_hint" value="PsCreateSystemThread_register_tmp_ndt_10"\>
+	<option key="forced_free_hint" value="ZwClose_register_tmp_ndt_11"\>
+
+
+
 </options>
