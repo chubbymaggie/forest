@@ -30,7 +30,7 @@ int myStatus  ;
 int IofCallDriver(int DeviceObject , int Irp ) ;
 void stub_driver_init(void) ;
 void stubMoreProcessingRequired(void) ;
-int main(void) ;
+int main() ;
 void errorFn(void) ;
 void _BLAST_init(void) ;
 int PoCallDriver(int DeviceObject , int Irp ) ;
@@ -402,7 +402,7 @@ int KbFilter_PnP(int DeviceObject , int Irp )
 }
 }
 #line 323 "kbfiltr_simpl2.cil.c"
-int main(void) 
+int main() 
 { int status ;
   int irp;
   int pirp ;

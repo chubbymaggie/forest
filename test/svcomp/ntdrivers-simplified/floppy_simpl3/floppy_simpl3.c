@@ -35,7 +35,7 @@ int customIrp  ;
 
 void stub_driver_init(void) ;
 void stubMoreProcessingRequired(void) ;
-int main(void) ;
+int main() ;
 void errorFn(void) ;
 void _BLAST_init(void) ;
 int ZwClose(int Handle ) ;
@@ -976,7 +976,7 @@ void stub_driver_init(void)
 }
 }
 #line 694 "floppy_simpl3.cil.c"
-int main(void) 
+int main() 
 { int status ;
   int irp;
   int pirp ;

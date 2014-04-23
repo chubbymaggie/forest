@@ -31,7 +31,7 @@ int myStatus  ;
 int IofCallDriver(int DeviceObject , int Irp ) ;
 void stub_driver_init(void) ;
 void stubMoreProcessingRequired(void) ;
-int main(void) ;
+int main() ;
 void errorFn(void) ;
 void _BLAST_init(void) ;
 int KeWaitForSingleObject(int Object , int WaitReason , int WaitMode , int Alertable , int Timeout ) ;
@@ -397,7 +397,7 @@ int KbFilter_PnP(int DeviceObject , int Irp )
 }
 }
 #line 317 "kbfiltr_simpl1.cil.c"
-int main(void) 
+int main() 
 { int status ;
   int irp;
   int pirp ;

@@ -32,7 +32,7 @@ int KernelMode ;
 
 void stub_driver_init(void) ;
 void stubMoreProcessingRequired(void) ;
-int main(void) ;
+int main() ;
 void errorFn(void) ;
 void _BLAST_init(void) ;
 int PoCallDriver(int DeviceObject , int Irp ) ;
@@ -973,7 +973,7 @@ void stub_driver_init(void)
 }
 }
 #line 632 "diskperf_simpl1.cil.c"
-int main(void) 
+int main() 
 { int d;
   int status;
   int we_should_unload;
