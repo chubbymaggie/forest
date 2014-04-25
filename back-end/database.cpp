@@ -28,7 +28,7 @@
 
 #define debug true
 
-extern SolverWrapper* solver;
+extern SolverWrapper* solverwrapper;
 extern Options* options;
 extern Operators* operators;
 extern Timer* timer;
@@ -71,16 +71,16 @@ void Database::insert_model_entry(string name,string free_vars, string content, 
 }
 
 int Database::num_of_assertions() {
-	return solver->get_stack_conditions().size();
+	return solverwrapper->get_stack_conditions().size();
 }
 
 int Database::num_of_variables() {
-	return solver->get_free_variables().size();
+	return solverwrapper->get_free_variables().size();
 }
 
 int Database::count_in_conds(string op){
 	int ret = 0;
-	vector<Condition> conditions = solver->get_stack_conditions();
+	vector<Condition> conditions = solverwrapper->get_stack_conditions();
 	for( vector<Condition>::iterator it = conditions.begin(); it != conditions.end(); it++ ){
 		ret += count(it->cond, op);
 	}
@@ -118,41 +118,41 @@ void Database::insert_problem(){
 	string id = "(select count() from problems)";
 
 	string path;
-	vector<bool> path_stack = solver->get_path_stack();
+	vector<bool> path_stack = solverwrapper->get_path_stack();
 	for( vector<bool>::iterator it = path_stack.begin(); it != path_stack.end(); it++ ){
 		path += (*it)?"T":"F";
 	}
 	
-	action << "insert into problems (sat, path) values (" << (solver->solvable_problem()?1:0) << ",'" << path << "');";
+	action << "insert into problems (sat, path) values (" << (solverwrapper->solvable_problem()?1:0) << ",'" << path << "');";
 
-	set<NameAndPosition> free_variables = solver->get_free_variables();
+	set<NameAndPosition> free_variables = solverwrapper->get_free_variables();
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 		string name = it->name;
-		string type = solver->get_sized_type(name);
+		string type = solverwrapper->get_sized_type(name);
 		string position = it->position;
 		action << "insert into variables values ('" << name << "','" << type << "','" << position << "'," << id << ");";
 	}
 
-	action << "insert into times values (" << id << ",'" << solver->get_solve_time() << "');";
+	action << "insert into times values (" << id << ",'" << solverwrapper->get_solve_time() << "');";
 	
-	if( solver->solvable_problem() ){
+	if( solverwrapper->solvable_problem() ){
 
 
 		for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
 			string name = it->name;
 			string hint = it->position;
-			//string value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
+			//string value = (solverwrapper->realvalue(name) == "")?string("0"):solverwrapper->realvalue(name);
 			string value;// = (it->value=="")?string("0"):it->value;
 			if(hint.find("return_of_") != string::npos){
 				value = (it->value == "")?string("0"):it->value;
 			} else {
-				value = (solver->realvalue(name) == "")?string("0"):solver->realvalue(name);
+				value = (solverwrapper->realvalue(name) == "")?string("0"):solverwrapper->realvalue(name);
 			}
 			//string value = variables[name].real_value;
-			//string hint = solver->get_name_hint(name);
+			//string hint = solverwrapper->get_name_hint(name);
 
-			if(solver->get_first_content_value(name) != "")
-				value = solver->get_first_content_value(name);
+			if(solverwrapper->get_first_content_value(name) != "")
+				value = solverwrapper->get_first_content_value(name);
 
 			action << "insert into results values ('" << name << "','" << value << "','" << hint << "'," << 1 << "," << id << ");";
 			//debug && printf("\e[31m insert_result \e[0m name %s value %s\n", name.c_str(), value.c_str());
@@ -160,14 +160,14 @@ void Database::insert_problem(){
 
 		}
 
-		map<string, Variable> variables = solver->get_map_variables();
+		map<string, Variable> variables = solverwrapper->get_map_variables();
 
 		for( map<string,Variable>::iterator it = variables.begin(); it != variables.end(); it++ ){
 
 			if( it->second.content == "" ) continue;
 
 			string name = it->first;
-			string value = solver->realvalue_mangled(name);
+			string value = solverwrapper->realvalue_mangled(name);
 			string hint = variables[name].name_hint;
 
 
@@ -804,9 +804,9 @@ set<NameAndType> Database::get_shared_vars(){
 }
 
 void Database::insert_frontend_interface(){
-	string path = solver->get_path_stack_str();
-	//string conditions = solver->get_comma_stack_conditions();
-	string conditions2 = solver->get_comma_stack_conditions_static();
+	string path = solverwrapper->get_path_stack_str();
+	//string conditions = solverwrapper->get_comma_stack_conditions();
+	string conditions2 = solverwrapper->get_comma_stack_conditions_static();
 	//string function_and_bb = operators->get_actual_function() + "_" + operators->get_actual_bb();
 
 	//printf("function_and_bb %s\n", function_and_bb.c_str());
