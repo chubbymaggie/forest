@@ -49,6 +49,8 @@ void Z3BitVector::dump_header(FILE* file){
 
 void Z3BitVector::dump_variables(FILE* file){
 
+	assert(free_variables.size() && "Empty free_variables");
+
 	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
 
 

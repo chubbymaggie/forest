@@ -91,8 +91,10 @@ string internal_representation_int(int in, string type, string solver){
 			assert(0 && "Unknown type");
 		}
 
-	} else {
+	} else if(solver == "real_integer"){
 		sprintf(b, "%d", in);
+	} else {
+		assert(0 && "Unknown solver");
 	}
 
 	return string(b);
@@ -103,8 +105,11 @@ string internal_representation_float(float in, string type, string solver){
 
 	if( solver == "bitvector")
 		sprintf(b, "#x%02x", in);
-	else
+	else if( solver == "real_integer" )
 		sprintf(b, "%d", in);
+	else
+		assert(0 && "Unknown solver");
+
 
 	return string(b);
 }

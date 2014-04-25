@@ -50,6 +50,8 @@ void Z3RealInt::dump_header(FILE* file){
 
 void Z3RealInt::dump_variables(FILE* file){
 
+	assert(free_variables.size() && "Empty free_variables");
+
 	//printf("\e[31m Dump_variables free_variables.size() %lu\e[0m\n", free_variables.size() );
 
 
@@ -345,7 +347,7 @@ void Z3RealInt::left_shift(string op1, string op2, string dst, stringstream& con
 }
 
 string Z3RealInt::internal_representation(int in, string type){
-	char b[10];
+	char b[20];
 	sprintf(b, "%d", in);
 
 	//printf("internal representation in %s a %d b %s\n", in.c_str(), a, b);
