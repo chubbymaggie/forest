@@ -32,10 +32,11 @@
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solverwrapper = new Z3RealInt();
+SolverWrapper* solverwrapper;
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();
+Solver* solver;
 
 void cast_instruction(char* _dst, char* _src, char* _type){
 	timer->start_timer();
@@ -151,9 +152,9 @@ void begin_sim(){
 	
 	options->read_options();
 	if(options->cmd_option_str("solver") == "bitvector")
-		solverwrapper = new Z3BitVector();
+		solver = new Z3BitVector();
 	else if(options->cmd_option_str("solver") == "real_integer")
-		solverwrapper = new Z3RealInt();
+		solver = new Z3RealInt();
 	else
 		assert(0 && "Unknown solver");
 
