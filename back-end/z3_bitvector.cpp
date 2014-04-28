@@ -25,7 +25,7 @@
 #include "database.h"
 #include "timer.h"
 #include "utils.h"
-#include "architecture.cpp"
+#include "architecture.h"
 
 extern Options* options;
 extern Operators* operators;

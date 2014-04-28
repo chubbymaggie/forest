@@ -87,7 +87,7 @@ string internal_representation_int(int in, string type, string solver){
 		} else if(type == "PointerTyID"){
 			sprintf(b, "#x%016x", (in < 0)?((1 << 64) + in):in);
 		} else {
-			cerr << "type " << type << endl;
+			//cerr << "type " << type << endl;
 			assert(0 && "Unknown type");
 		}
 
@@ -125,7 +125,7 @@ int primary_size( string type_str ){
 	if( type_str == "FloatTyID" ) return 4;
 	if( type_str == "DoubleTyID" ) return 8;
 
-	cerr << type_str << endl;
+	//cerr << type_str << endl;
 	assert(0 && "Unknown type");
 
 }
