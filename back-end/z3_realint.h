@@ -23,7 +23,7 @@
 
 #include "z3_solver.h"
 
-class Z3RealInt : public Z3Solver{
+class Z3RealInt : virtual public Z3Solver{
 public:
 	Z3RealInt();
 	virtual ~Z3RealInt();
@@ -39,7 +39,7 @@ public:
 	void cast_instruction(string src, string dst, string type_src, string type_dst);
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
-private:
+protected:
 	string name_operation(string operation);
 	string canonical_representation(string in);
 	string and_constant(string op1, string op2);

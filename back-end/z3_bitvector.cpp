@@ -190,17 +190,6 @@ void Z3BitVector::dump_extra(FILE* file){
 }
 
 
-string concat_begin(int size_bits, int num){
-	printf("bits %d\n", size_bits);
-	char ret[30];
-	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
-	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
-	else if(size_bits == 24) sprintf(ret, "#x%06x", num);
-	else if(size_bits == 32) sprintf(ret, "#x%08x", num);
-	else assert(0 && "Unknown number of bits");
-	return string(ret);
-}
-
 void Z3BitVector::cast_instruction(string src, string dst, string type_src, string type_dst){
 
 	debug && printf("\e[32m cast_instruction %s %s %s %s\e[0m\n", src.c_str(), dst.c_str(), type_src.c_str(), type_dst.c_str() );

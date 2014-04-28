@@ -27,6 +27,7 @@
 #include "timer.h"
 #include "z3_solver.h"
 #include "z3_bitvector.h"
+#include "z3_double.h"
 #include "z3_realint.h"
 #include "database.h"
 
@@ -154,6 +155,8 @@ void begin_sim(){
 		solver = new Z3BitVector();
 	else if(options->cmd_option_str("solver") == "real_integer")
 		solver = new Z3RealInt();
+	else if(options->cmd_option_str("solver") == "double")
+		solver = new Z3Double();
 	else
 		assert(0 && "Unknown solver");
 

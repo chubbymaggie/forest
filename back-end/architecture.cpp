@@ -71,7 +71,7 @@ int bits(string type){
 string internal_representation_int(int in, string type, string solver){
 
 	char b[20];
-	if( solver == "bitvector"){
+	if( solver == "bitvector" || solver == "double" ){
 		if(type == "IntegerTyID32"){
 			sprintf(b, "#x%08x", (in < 0)?((1 << 32) + in):in);
 		} else if (type == "IntegerTyID64"){
@@ -174,6 +174,17 @@ int get_size(string type){
 
 }
 
+
+string concat_begin(int size_bits, int num){
+	printf("bits %d\n", size_bits);
+	char ret[30];
+	if(size_bits ==  8) sprintf(ret, "#x%02x", num);
+	else if(size_bits == 16) sprintf(ret, "#x%04x", num);
+	else if(size_bits == 24) sprintf(ret, "#x%06x", num);
+	else if(size_bits == 32) sprintf(ret, "#x%08x", num);
+	else assert(0 && "Unknown number of bits");
+	return string(ret);
+}
 
 
 
