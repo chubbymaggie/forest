@@ -32,7 +32,7 @@
 
 extern Options* options;
 extern Operators* operators;
-extern SolverWrapper* solverwrapper;
+extern SolverWrapper* solver;
 extern Database* database;
 extern Timer* timer;
 extern map<string, string> map_pos_to_last_store;
@@ -50,29 +50,29 @@ void Operators::cast_instruction(char* _dst, char* _src, char* _type){
 	string dst = string(_dst);
 	string src = string(_src);
 	string type = string(_type);
-	string src_type = solverwrapper->gettype(name(src)).c_str();
+	string src_type = solver->gettype(name(src)).c_str();
 
 
 	if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for cast_instruction");
 	if(!check_mangled_name(name(src))) assert(0 && "Wrong src for cast_instruction");
 
-	solverwrapper->cast_instruction(name(src),name(dst), src_type, type);
+	solver->cast_instruction(name(src),name(dst), src_type, type);
 
-	if( solverwrapper->get_type(name(src)) != "bool" )
-		solverwrapper->settype(name(dst), type);
+	if( solver->get_type(name(src)) != "bool" )
+		solver->settype(name(dst), type);
 	else
-		solverwrapper->settype(name(dst), "bool");
+		solver->settype(name(dst), "bool");
 
-	if(solverwrapper->get_type(name(src)) == "bool" && type == "IntegerTyID8"){
+	if(solver->get_type(name(src)) == "bool" && type == "IntegerTyID8"){
 
-		solverwrapper->setcontent(name(dst), "(ite " + solverwrapper->content(name(src)) + " " + solverwrapper->internal_representation(1, type) + " " + solverwrapper->internal_representation(0, type) + ")");
-		solverwrapper->settype(name(dst), "IntegerTyID8");
-		printf("casting bool to integertyid8 %s\n", solverwrapper->content(name(dst)).c_str());
+		solver->setcontent(name(dst), "(ite " + solver->content(name(src)) + " " + solver->internal_representation(1, type) + " " + solver->internal_representation(0, type) + ")");
+		solver->settype(name(dst), "IntegerTyID8");
+		printf("casting bool to integertyid8 %s\n", solver->content(name(dst)).c_str());
 
 	}
 
 	debug && printf("\e[31m Cast_instruction %s %s %s %s %s\e[0m. %s %s %s %s\n", name(dst).c_str(), name(src).c_str(),
-									src_type.c_str(), type.c_str(), solverwrapper->gettype(name(dst)).c_str(),
+									src_type.c_str(), type.c_str(), solver->gettype(name(dst)).c_str(),
 		                                                              name(src).c_str(), realvalue(src).c_str(),
 		                                                              name(dst).c_str(), realvalue(dst).c_str()  );
 
@@ -102,7 +102,7 @@ void Operators::BeginFn(char* _fn_name, char* _fn_oplist ){
 
 		printf("\e[34m actual %s formal %s\e[0m \n", name(oplist_gl[i]).c_str(), name(fn_oplist[i], fn_name).c_str() );
 
-		solverwrapper->assign_instruction(
+		solver->assign_instruction(
 				name(oplist_gl[i]),
 				name(fn_oplist[i], fn_name)
 				);
@@ -174,11 +174,11 @@ void Operators::CallInstr_post( char* _fn_name, char* _ret_type ){
 	callstack.erase( callstack.end() - 1 );
 	string last_fn_callstack = callstack[ callstack.size() - 1].second;
 
-	solverwrapper->assign_instruction( name(ret_gl), name(last_rg_callstack, last_fn_callstack) );
+	solver->assign_instruction( name(ret_gl), name(last_rg_callstack, last_fn_callstack) );
 
 	actual_function = last_fn_callstack;
 
-	solverwrapper->clean_conditions_stack("");
+	solver->clean_conditions_stack("");
 
 	debug && printf("\e[36m Continuing function %s \e[0m.\n", actual_function.c_str() );
 
@@ -205,20 +205,20 @@ void Operators::NonAnnotatedCallInstr( char* _fn_name, char* _ret_type ){
 		set_name_hint(name(ret_to), "return_of_" + fn_name );
 	else {
 		set_name_hint(name(ret_to), "return_of_" + fn_name + "_" + itos(nonannotated_call_count[fn_name]) );
-		//solverwrapper->insert_variable(name(ret_to), "return_of_" + fn_name );
+		//solver->insert_variable(name(ret_to), "return_of_" + fn_name );
 		for ( unsigned int i = 0; i < nonannotated_call_count[fn_name]; i++) {
 			if( i == 0 )
-				solverwrapper->insert_variable(name(ret_to), "return_of_" + fn_name );
+				solver->insert_variable(name(ret_to), "return_of_" + fn_name );
 			else
-				solverwrapper->insert_variable(name(ret_to), "return_of_" + fn_name + "_" + itos(i) );
+				solver->insert_variable(name(ret_to), "return_of_" + fn_name + "_" + itos(i) );
 		}
 	}
 
 	nonannotated_call_count[fn_name]++;
 
 
-	solverwrapper->settype(name(ret_to), ret_type );
-	solverwrapper->set_comes_from_non_annotated(name(ret_to));
+	solver->settype(name(ret_to), ret_type );
+	solver->set_comes_from_non_annotated(name(ret_to));
 
 	debug && printf("\e[31m NonAnnotatedCallInstr %s %s\e[0m\n", _fn_name, _ret_type );
 }
@@ -269,11 +269,11 @@ void Operators::select_op(char* _dest, char* _cond, char* _sel1, char* _sel2 ){
 
 	if( realvalue(cond) == "true" ){
 
-		solverwrapper->assign_instruction( name(sel1), name(dest)  );
+		solver->assign_instruction( name(sel1), name(dest)  );
 
 	} else if( realvalue(cond) == "false" ){
 
-		solverwrapper->assign_instruction( name(sel2), name(dest)  );
+		solver->assign_instruction( name(sel2), name(dest)  );
 
 	} else {
 		assert(0 && "Not binary condition");
@@ -296,7 +296,7 @@ void Operators::binary_op(char* _dst, char* _op1, char* _op2, char* _operation){
 	if(!check_mangled_name(name(op2))) assert(0 && "Wrong op2 for binary_op");
 
 
-	solverwrapper->binary_instruction(name(dst),name(op1),name(op2),operation);
+	solver->binary_instruction(name(dst),name(op1),name(op2),operation);
 
 	debug && printf("\e[31m binary_operation %s %s %s %s\e[0m. %s %s %s %s %s %s\n", _dst, _op1, _op2, _operation, 
 			                                                        op1.c_str(), realvalue(op1).c_str(),
@@ -312,19 +312,19 @@ void Operators::load_instr(char* _dst, char* _addr){
 	string addr = string(_addr);
 	string src = "mem" UNDERSCORE + realvalue(addr);
 
-	if(solverwrapper->get_outofbounds(name(addr))){
+	if(solver->get_outofbounds(name(addr))){
 		printf("Out of Bouds\n");
 		exit(0);
 	}
 
-	if(solverwrapper->get_is_propagated_constant(name(addr)) || solverwrapper->is_constant(name(addr))){
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for load");
 		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for load");
 
-		solverwrapper->assign_instruction(name(src),name(dst));
+		solver->assign_instruction(name(src),name(dst));
 	} else {
 
-		solverwrapper->sym_load(name(dst), name(addr));
+		solver->sym_load(name(dst), name(addr));
 
 	}
 
@@ -349,24 +349,24 @@ void Operators::store_instr(char* _src, char* _addr){
 	string addr = string(_addr);
 	string dst = "mem" UNDERSCORE + realvalue(string(_addr)) ;
 
-	if(solverwrapper->get_outofbounds(name(addr))){
+	if(solver->get_outofbounds(name(addr))){
 		printf("Out of Bouds\n");
 		exit(0);
 	}
 
 
-	if(solverwrapper->get_is_propagated_constant(name(addr)) || solverwrapper->is_constant(name(addr))){
+	if(solver->get_is_propagated_constant(name(addr)) || solver->is_constant(name(addr))){
 
 
 		if(!check_mangled_name(name(src))) assert(0 && "Wrong src for store");
 		if(!check_mangled_name(name(addr))) assert(0 && "Wrong addr for store");
 		if(!check_mangled_name(name(dst))) assert(0 && "Wrong dst for store");
 
-		solverwrapper->assign_instruction(name(src),name(dst));
+		solver->assign_instruction(name(src),name(dst));
 
 	} else {
 
-		solverwrapper->sym_store(name(src), name(addr));
+		solver->sym_store(name(src), name(addr));
 	}
 
 	debug && printf("\e[31m store instruction %s %s\e[0m %s %s %s %s %s %s\n",name(src).c_str(), name(addr).c_str(),
@@ -389,14 +389,14 @@ void Operators::cmp_instr(char* _dst, char* _cmp1, char* _cmp2, char* _type){
 	if(!check_mangled_name(name(cmp2))) assert(0 && "Wrong cmp2 for compare");
 
 
-	solverwrapper->binary_instruction(name(dst),name(cmp1),name(cmp2), type);
+	solver->binary_instruction(name(dst),name(cmp1),name(cmp2), type);
 
 	debug && printf("\e[31m cmp_instr %s %s %s %s\e[0m. %s %s %s %s %s %s\n", name(dst).c_str(), name(cmp1).c_str(), name(cmp2).c_str(), type.c_str(), 
 			                                                 name(cmp1).c_str(), realvalue(cmp1).c_str(),
 									 name(cmp2).c_str(), realvalue(cmp2).c_str(),
 									 name(dst).c_str(), realvalue(dst).c_str() );
 
-	solverwrapper->settype(name(dst), "bool");
+	solver->settype(name(dst), "bool");
 
 	assert( (realvalue(dst) == "true" || realvalue(dst) == "false") && "Invalid result for a comparison operation" );
 }
@@ -415,15 +415,15 @@ void Operators::begin_bb(char* name){
 
 	string function_and_bb = actual_function + "_" + actual_bb;
 	if(options->cmd_option_bool("single_step") && function_and_bb == options->cmd_option_str("target_node")){
-		//solverwrapper->show_problem();
-		solverwrapper->solve_problem();
+		//solver->show_problem();
+		solver->solve_problem();
 		database->insert_problem();
 		printf("Node Hitted\n");
 		exit(0);
 	}
 
 	if(!options->cmd_option_bool("cyclotonic"))
-		solverwrapper->clean_conditions_stack(actual_bb);
+		solver->clean_conditions_stack(actual_bb);
 
 	debug && printf("\e[36m begin_bb %s (fn %s)\e[0m\n", name, actual_function.c_str() );
 }
@@ -456,9 +456,9 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 
 	timer->start_timer();
-	stringstream rvalue; rvalue << "constant_PointerTyID_" << solverwrapper->internal_representation(alloca_pointer, "PointerTyID"); 
-	solverwrapper->assign_instruction(name(rvalue.str()), name(varname));
-	solverwrapper->settype( name(varname), "Pointer");
+	stringstream rvalue; rvalue << "constant_PointerTyID_" << solver->internal_representation(alloca_pointer, "PointerTyID"); 
+	solver->assign_instruction(name(rvalue.str()), name(varname));
+	solver->settype( name(varname), "Pointer");
 	timer->end_timer("global_assign");
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
@@ -469,16 +469,16 @@ void Operators::global_var_init(char* _varname, char* _type, char* _values){
 
 		stringstream mem_var; mem_var << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		solverwrapper->settype(mem_var.str(), types[i]);
+		solver->settype(mem_var.str(), types[i]);
 
 		if(values[i] != "X"){
 			stringstream constant_name; constant_name << values[i];
 
-			solverwrapper->assign_instruction( name(constant_name.str()), name(mem_var.str()));
+			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
 		} else {
-			stringstream constant_name; constant_name << "constant_" << types[i] << "_" << solverwrapper->internal_representation(0, types[i]);
+			stringstream constant_name; constant_name << "constant_" << types[i] << "_" << solver->internal_representation(0, types[i]);
 
-			solverwrapper->assign_instruction( name(constant_name.str()), name(mem_var.str()));
+			solver->assign_instruction( name(constant_name.str()), name(mem_var.str()));
 
 		}
 
@@ -508,7 +508,7 @@ void Operators::pointer_ranges(){
 
 	debug && printf("\e[31m pointer_ranges \e[0m\n");
 
-	map<string, Variable> variables = solverwrapper->get_map_variables();
+	map<string, Variable> variables = solver->get_map_variables();
 
 	debug && printf("\e[31m variables.size \e[0m %d\n", variables.size() );
 
@@ -521,13 +521,13 @@ void Operators::pointer_ranges(){
 		debug && printf("\e[31m name \e[0m %s \e[31m type \e[0m %s\n", varname.c_str(), type.c_str() );
 
 		if(type == "PointerTyID" || type == "Pointer" ){
-			int first_address = first_addresses["mem_" + solverwrapper->realvalue(varname) ];
-			int last_address =  last_addresses["mem_" + solverwrapper->realvalue(varname) ];
+			int first_address = first_addresses["mem_" + solver->realvalue(varname) ];
+			int last_address =  last_addresses["mem_" + solver->realvalue(varname) ];
 
-			solverwrapper->set_first_address(name(varname), first_address);
-			solverwrapper->set_last_address(name(varname), last_address);
+			solver->set_first_address(name(varname), first_address);
+			solver->set_last_address(name(varname), last_address);
 
-			debug && printf("\e[31m value \e[0m %s \e[31m first \e[0m %d \e[31m last \e[0m %d \n", solverwrapper->realvalue(varname).c_str(), first_address, last_address );
+			debug && printf("\e[31m value \e[0m %s \e[31m first \e[0m %d \e[31m last \e[0m %d \n", solver->realvalue(varname).c_str(), first_address, last_address );
 		}
 	}
 
@@ -545,9 +545,9 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 	if(!check_mangled_name(name(reg))) assert(0 && "Wrong name for alloca_instr");
 
 
-	stringstream rvalue; rvalue << "constant_PointerTyID_" << solverwrapper->internal_representation(alloca_pointer, "PointerTyID"); 
-	solverwrapper->settype( name(reg), "Pointer");
-	solverwrapper->assign_instruction(name(rvalue.str()), name(reg) );
+	stringstream rvalue; rvalue << "constant_PointerTyID_" << solver->internal_representation(alloca_pointer, "PointerTyID"); 
+	solver->settype( name(reg), "Pointer");
+	solver->assign_instruction(name(rvalue.str()), name(reg) );
 
 	stringstream mem_var_aux; mem_var_aux << "mem" UNDERSCORE << itos(alloca_pointer);
 	int initial_alloca_pointer = alloca_pointer;
@@ -560,7 +560,7 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 		stringstream mem_hint;
 		stringstream mem_name; mem_name << "mem" UNDERSCORE << itos(alloca_pointer);
 
-		solverwrapper->settype(mem_name.str(), subtype[i]);
+		solver->settype(mem_name.str(), subtype[i]);
 
 		if(subtype.size() == 1)
 			mem_hint << actual_function << "_" << reg;
@@ -569,9 +569,9 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 
 		
 		//if( forced_free_hints.find(mem_hint.str()) != forced_free_hints.end() ){
-		if( solverwrapper->is_forced_free_hint(mem_hint.str()) ){
+		if( solver->is_forced_free_hint(mem_hint.str()) ){
 			printf("forced free_hint %s %s\n", mem_hint.str().c_str(), mem_name.str().c_str());
-			solverwrapper->insert_forced_free_var(mem_name.str());
+			solver->insert_forced_free_var(mem_name.str());
 		}
 
 
@@ -581,17 +581,17 @@ void Operators::alloca_instr(char* _reg, char* _subtype){
 		alloca_pointer += get_size(subtype[i]);
 	}
 
-	solverwrapper->set_last_address(name(reg), last_address);
-	solverwrapper->set_first_address(name(reg), first_address);
+	solver->set_last_address(name(reg), last_address);
+	solver->set_first_address(name(reg), first_address);
 
 
-	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d last_address %d first_address %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer, solverwrapper->get_last_address(name(mem_var_aux.str())), solverwrapper->get_first_address(name(mem_var_aux.str())) );
+	debug && printf("\e[31m alloca_instr %s %s \e[0m. %s %s %s %s allocapointer %d last_address %d first_address %d\n", name(reg).c_str(), subtypes.c_str(), name(reg).c_str(), realvalue(reg).c_str(), mem_var_aux.str().c_str(), realvalue(mem_var_aux.str()).c_str(), alloca_pointer, solver->get_last_address(name(mem_var_aux.str())), solver->get_first_address(name(mem_var_aux.str())) );
 }
 
 bool Operators::all_constant(vector<string> names){
 
 	for( vector<string>::iterator it = names.begin(); it != names.end(); it++ ){
-		if(!(solverwrapper->is_constant(name(*it)) || solverwrapper->get_is_propagated_constant(name(*it)))) return false;
+		if(!(solver->is_constant(name(*it)) || solver->get_is_propagated_constant(name(*it)))) return false;
 	}
 
 	return true;
@@ -625,33 +625,33 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 	
 
 	if(all_constant(indexes)){
-		solverwrapper->set_is_propagated_constant(name(dst));
+		solver->set_is_propagated_constant(name(dst));
 		string remaining_tree;
 		int offset = get_offset(indexes, offset_tree, &remaining_tree);
-		solverwrapper->set_offset_tree(name(dst), remaining_tree);
+		solver->set_offset_tree(name(dst), remaining_tree);
 
 		stringstream offset_ss; offset_ss << offset;
 		string offset_constant_s = offset_ss.str();
 		//offset_constant_s = "constant_" + offset_constant_s;
-		offset_constant_s = "constant_PointerTyID_" + solverwrapper->internal_representation(offset, "PointerTyID");
+		offset_constant_s = "constant_PointerTyID_" + solver->internal_representation(offset, "PointerTyID");
 
 		//printf("offset_constant_s %s\n", offset_constant_s.c_str());
 
-		solverwrapper->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
+		solver->binary_instruction(name(dst),name(pointer), offset_constant_s, "+");
 		//exit(0);
 		
 		//printf("realvalue_dst %s\n", realvalue(dst).c_str());
 		
-		//assert( stoi(realvalue(dst)) <= solverwrapper->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
-		if( stoi(realvalue(dst)) > solverwrapper->get_last_address(name(pointer)) ) {
-			//solverwrapper->show_problem();
-			debug && printf("\e[33m Access out of bounds dst %d last_address %d\e[0m\n", stoi(realvalue(dst)), solverwrapper->get_last_address(name(pointer)));
-			solverwrapper->set_outofbounds(name(dst));
+		//assert( stoi(realvalue(dst)) <= solver->get_last_address(name(pointer)) && "Dereference to value out-of-bounds" );
+		if( stoi(realvalue(dst)) > solver->get_last_address(name(pointer)) ) {
+			//solver->show_problem();
+			debug && printf("\e[33m Access out of bounds dst %d last_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
+			solver->set_outofbounds(name(dst));
 		}
-		if( stoi(realvalue(dst)) < solverwrapper->get_first_address(name(pointer)) ){
-			//solverwrapper->show_problem();
-			debug && printf("\e[33m Access out of bounds dst %d first_address %d\e[0m\n", stoi(realvalue(dst)), solverwrapper->get_last_address(name(pointer)));
-			solverwrapper->set_outofbounds(name(dst));
+		if( stoi(realvalue(dst)) < solver->get_first_address(name(pointer)) ){
+			//solver->show_problem();
+			debug && printf("\e[33m Access out of bounds dst %d first_address %d\e[0m\n", stoi(realvalue(dst)), solver->get_last_address(name(pointer)));
+			solver->set_outofbounds(name(dst));
 		}
 
 
@@ -659,13 +659,13 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 		debug && printf("\e[31m non-constant getelementptr \e[0m\n");
 		for( vector<string>::iterator it = indexes.begin(); it != indexes.end(); it++ ){
-			debug && printf("%s %d %d\n", it->c_str(), solverwrapper->is_constant(name(*it)), solverwrapper->get_is_propagated_constant(name(*it)) );
+			debug && printf("%s %d %d\n", it->c_str(), solver->is_constant(name(*it)), solver->get_is_propagated_constant(name(*it)) );
 			//debug && printf("%s\n", it->c_str() );
 		}
 		
 
-		solverwrapper->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
-		solverwrapper->unset_is_propagated_constant(name(dst));
+		solver->pointer_instruction(name(dst), offset_tree, name(indexes), name(pointer) );
+		solver->unset_is_propagated_constant(name(dst));
 
 
 		//string base = pointer;
@@ -681,7 +681,7 @@ void Operators::getelementptr(char* _dst, char* _pointer, char* _indexes, char* 
 
 	debug && printf("\e[31m getelementptr %s %s %s %s\e[0m. %s realvalue %s, %s realvalue %s lastaddress %d firstaddress %d\n",
 			dst.c_str(), pointer.c_str(), _indexes,_offset_tree,
-			name(dst).c_str(), realvalue(dst).c_str(), name(pointer).c_str(), realvalue(pointer).c_str(), solverwrapper->get_last_address(name(pointer)), solverwrapper->get_first_address(name(pointer)) );
+			name(dst).c_str(), realvalue(dst).c_str(), name(pointer).c_str(), realvalue(pointer).c_str(), solver->get_last_address(name(pointer)), solver->get_first_address(name(pointer)) );
 
 
 }
@@ -696,8 +696,8 @@ void Operators::begin_sim(){
 	exit_on_insert = options->cmd_option_bool("exit_on_insert");
 
 
-	solverwrapper->load_forced_free_vars();
-	solverwrapper->load_forced_free_hints();
+	solver->load_forced_free_vars();
+	solver->load_forced_free_hints();
 
 	//debug = true;//options->cmd_option_bool("debug");
 
@@ -706,7 +706,7 @@ void Operators::begin_sim(){
 
 void Operators::end_sim(){
 
-	solverwrapper->dump_model();
+	solver->dump_model();
 	database->save_times();
 	database->end_database();
 	debug && printf("\e[31m End Simulation\e[0m\n---------------------------------------------\n" );
@@ -722,10 +722,10 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 	debug && printf("\e[31m conditional_branch_instr %s %s\e[0m. %s %s\n", name(cmp).c_str(),_joints, name(cmp).c_str(), realvalue(cmp).c_str() );
 
-	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d \e[32m comes_from_non_annotated\e[0m  %d\n", solverwrapper->content( name(cmp) ).c_str(), solverwrapper->get_is_propagated_constant(name(cmp)), solverwrapper->get_comes_from_non_annotated(name(cmp)) );
+	debug && printf("\e[32m content \e[0m %s \e[32m prop_constant \e[0m %d \e[32m comes_from_non_annotated\e[0m  %d\n", solver->content( name(cmp) ).c_str(), solver->get_is_propagated_constant(name(cmp)), solver->get_comes_from_non_annotated(name(cmp)) );
 
 
-	//solverwrapper->print_path_stack();
+	//solver->print_path_stack();
 	
 	
 	static int n;
@@ -741,37 +741,37 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		if(n < length){
 			bool step = path[n] == 'T';
 			printf("step %d\n", step);
-			solverwrapper->push_path_stack(step);
+			solver->push_path_stack(step);
 
-			if( !solverwrapper->get_is_propagated_constant(name(cmp)) ){
-				solverwrapper->push_condition(solverwrapper->content(name(cmp)));
+			if( !solver->get_is_propagated_constant(name(cmp)) ){
+				solver->push_condition(solver->content(name(cmp)));
 			}
-			solverwrapper->push_condition_static(solverwrapper->content(name(cmp)),!step);
+			solver->push_condition_static(solver->content(name(cmp)),!step);
 			n++;
 			return step;
 		}
 	}
 
-	if(options->cmd_option_bool("single_step") /*&& !solverwrapper->get_is_propagated_constant(name(cmp))*/){
+	if(options->cmd_option_bool("single_step") /*&& !solver->get_is_propagated_constant(name(cmp))*/){
 
 
 		printf("single_step\n");
 
 		string real_value_prev = realvalue(cmp);
 
-		solverwrapper->save_state();
+		solver->save_state();
 
 
 ////////////////////
 		
 
 		bool step = (real_value_prev == "true");
-		solverwrapper->push_path_stack(step);
-		solverwrapper->set_sat(true);
+		solver->push_path_stack(step);
+		solver->set_sat(true);
 
-		printf("condition_static_1 %s\n", solverwrapper->content(name(cmp)).c_str());
-		solverwrapper->push_condition(solverwrapper->content(name(cmp)), false);
-		solverwrapper->push_condition_static(solverwrapper->content(name(cmp)),!step);
+		printf("condition_static_1 %s\n", solver->content(name(cmp)).c_str());
+		solver->push_condition(solver->content(name(cmp)), false);
+		solver->push_condition_static(solver->content(name(cmp)),!step);
 
 
 		database->insert_problem();
@@ -781,26 +781,26 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 
 
 ////////////////////
-		solverwrapper->load_state();
+		solver->load_state();
 ////////////////////
 
 
 
 
-		if( solverwrapper->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
+		if( solver->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
 
-		//printf("push_condition_static %s\n", solverwrapper->content(name(cmp)).c_str());
-		printf("condition_static_2 %s\n", solverwrapper->content(name(cmp)).c_str());
-		solverwrapper->push_condition(solverwrapper->content(name(cmp)), true);
-		solverwrapper->push_condition_static(solverwrapper->content(name(cmp)), step);
+		//printf("push_condition_static %s\n", solver->content(name(cmp)).c_str());
+		printf("condition_static_2 %s\n", solver->content(name(cmp)).c_str());
+		solver->push_condition(solver->content(name(cmp)), true);
+		solver->push_condition_static(solver->content(name(cmp)), step);
 
-		//solverwrapper->show_problem();
-		solverwrapper->solve_problem();
+		//solver->show_problem();
+		solver->solve_problem();
 		database->insert_problem();
 
-		if( solverwrapper->solvable_problem() ){
+		if( solver->solvable_problem() ){
 
-			solverwrapper->push_path_stack( real_value_prev != "true");
+			solver->push_path_stack( real_value_prev != "true");
 
 			database->insert_frontend_interface();
 
@@ -830,27 +830,27 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		int status;
 		waitpid(pid, &status, 0);
 
-		solverwrapper->push_path_stack( real_value_prev == "true");
-		solverwrapper->print_path_stack();
+		solver->push_path_stack( real_value_prev == "true");
+		solver->print_path_stack();
 
 		//if(yet_covered()) exit(0);
 
 		//solve_problem();
-		solverwrapper->set_sat(true);
+		solver->set_sat(true);
 		database->insert_problem();
 
-		if( options->cmd_option_bool("propagate_constants") && solverwrapper->get_is_propagated_constant(name(cmp)) )
+		if( options->cmd_option_bool("propagate_constants") && solver->get_is_propagated_constant(name(cmp)) )
 			return real_value_prev == "true";
 
 
-		solverwrapper->push_condition(name(cmp), actual_function, joints, false);
+		solver->push_condition(name(cmp), actual_function, joints, false);
 
 		debug && printf("\e[31m proceso %d acaba de esperar \e[0m\n", getpid() ); fflush(stdout);
 
 		return real_value_prev == "true";
 	} else {
 
-		if( solverwrapper->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
+		if( solver->get_is_propagated_constant(name(cmp)) && propagate_constants ) exit(0);
 
 		if( exit_on_insert ){
 			system("killall final");
@@ -858,22 +858,22 @@ bool Operators::br_instr_cond(char* _cmp, char* _joints){
 		}
 
 
-		solverwrapper->push_condition(name(cmp), actual_function, joints, true);
+		solver->push_condition(name(cmp), actual_function, joints, true);
 
-		see_each_problem && solverwrapper->show_problem();
+		see_each_problem && solver->show_problem();
 
-		solverwrapper->solve_problem();
+		solver->solve_problem();
 		database->insert_problem();
 
-		if( solverwrapper->solvable_problem() ){
+		if( solver->solvable_problem() ){
 			debug && printf("\e[31m hijo sat \e[0m\n"); fflush(stdout);
 
-			solverwrapper->push_path_stack( real_value_prev != "true");
-			solverwrapper->print_path_stack();
+			solver->push_path_stack( real_value_prev != "true");
+			solver->print_path_stack();
 
 			//if(yet_covered()) exit(0);
 
-			//solverwrapper->solve_problem();
+			//solver->solve_problem();
 			debug && printf("\e[31m fin hijo sat \e[0m\n"); fflush(stdout);
 			return real_value_prev != "true";
 		} else {
@@ -894,7 +894,7 @@ void Operators::Free_fn( char* _oplist ){
 
 	string oplist = string(_oplist).substr(0, strlen(_oplist) - 1);
 
-	solverwrapper->free_var(name(oplist));
+	solver->free_var(name(oplist));
 	debug && printf("\e[31m FreeFn %s\e[0m\n", _oplist );
 
 }
@@ -955,7 +955,7 @@ string Operators::name( string input, string fn_name ){
 void Operators::set_name_hint(string name, string hint){
 
 	if( !check_mangled_name(name) ) assert(0 && "Wrong name for set_name_hint");
-	solverwrapper->set_name_hint(name, hint);
+	solver->set_name_hint(name, hint);
 
 }
 
@@ -997,7 +997,7 @@ bool Operators::check_mangled_name(string name){
 }
 
 string Operators::realvalue(string varname){
-	return solverwrapper->realvalue(name(varname));
+	return solver->realvalue(name(varname));
 }
 
 int Operators::get_offset(vector<string> indexes, string offset_tree, string* remaining_tree){
@@ -1061,16 +1061,16 @@ void Operators::memcpy(char* _addr_dst, char* _addr_src, char* _size_bytes, char
 	string align = string(_align);
 	string is_volatile = string(_is_volatile);
 
-	int addr_src_i = stoi(solverwrapper->realvalue(name(addr_src)));
-	int addr_dst_i = stoi(solverwrapper->realvalue(name(addr_dst)));
-	int n_elems = stoi(solverwrapper->realvalue(size_bytes))/stoi(solverwrapper->realvalue(align));
-	int align_i = stoi(solverwrapper->realvalue(align));
+	int addr_src_i = stoi(solver->realvalue(name(addr_src)));
+	int addr_dst_i = stoi(solver->realvalue(name(addr_dst)));
+	int n_elems = stoi(solver->realvalue(size_bytes))/stoi(solver->realvalue(align));
+	int align_i = stoi(solver->realvalue(align));
 
 
 	for ( unsigned int mem_src = addr_src_i, mem_dst = addr_dst_i; n_elems > 0; mem_src += align_i, mem_dst += align_i, n_elems--) {
 		string mem_name_src = "mem_" + itos(mem_src);
 		string mem_name_dst = "mem_" + itos(mem_dst);
-		solverwrapper->assign_instruction(mem_name_src,mem_name_dst);
+		solver->assign_instruction(mem_name_src,mem_name_dst);
 	}
 
 	//printf("addr_dst_i %d\n", addr_dst_i);

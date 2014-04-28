@@ -32,11 +32,10 @@
 
 Options* options = new Options();
 Operators* operators = new Operators();
-SolverWrapper* solverwrapper;
+SolverWrapper* solver = new Z3RealInt();
 Database* database = new Database();
 Measurement* measurement = new Measurement();
 Timer* timer = new Timer();
-Solver* solver;
 
 void cast_instruction(char* _dst, char* _src, char* _type){
 	timer->start_timer();

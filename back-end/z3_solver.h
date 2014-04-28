@@ -19,13 +19,13 @@
  */
 
 
-#ifndef _Z3SOLVER_H_
-#define _Z3SOLVER_H_
+#ifndef _SOLVER_H_
+#define _SOLVER_H_
 
-#include "solver.h"
+#include "solver_wrapper.h"
 
 
-class Z3Solver : public Solver {
+class Z3Solver : public SolverWrapper {
 public:
 	void assign_instruction(string src, string dst, string fn_name = "");
 	void binary_instruction(string dst, string op1, string op2, string operation);
@@ -68,4 +68,4 @@ protected:
 	
 };
 
-#endif /* end of include guard: _Z3SOLVER_H_ */
+#endif /* end of include guard: _SOLVER_H_ */
