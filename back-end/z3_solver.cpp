@@ -213,7 +213,7 @@ void Z3Solver::dump_get(FILE* file){
 
 
 	for( set<NameAndPosition>::iterator it = free_variables.begin(); it != free_variables.end(); it++ ){
-		fprintf(file,"(get-value (%s)); %s\n",it->position.c_str(), it->name.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n",internal_condition(it->position).c_str(), it->name.c_str() );
 	}
 	
 	fprintf(file,"; --- ↑free ↓non-free \n" );
@@ -224,17 +224,14 @@ void Z3Solver::dump_get(FILE* file){
 		
 		//printf("----- name %s type %s\n", it->first.c_str(), gettype(it->first).c_str() );
 
-		fprintf(file,"(get-value (%s)); %s\n",it->second.content.c_str(), it->first.c_str() );
+		fprintf(file,"(get-value (%s)); %s\n",internal_condition(it->second.content).c_str(), it->first.c_str() );
 	}
 
 	fprintf(file,"; --- ↑non-free ↓forced_free \n" );
 
-	//for( set<string>::iterator it = forced_free_vars.begin(); it != forced_free_vars.end(); it++ ){
-		//fprintf(file,"(get-value (%s));\n", get_first_content(*it).c_str() );
-	//}
 	
 	for( map<string,string>::iterator it = first_content.begin(); it != first_content.end(); it++ ){
-		fprintf(file, "(get-value (%s)); %s\n", it->second.c_str(), it->first.c_str());
+		fprintf(file, "(get-value (%s)); %s\n", internal_condition(it->second).c_str(), it->first.c_str());
 	}
 	
 	

@@ -270,10 +270,10 @@ map<set<pair<string, int> > , int > Z3RealInt::get_idx_val(string base,string id
 		fprintf(ftmp, "(check-sat)\n");
 
 		for( set<string>::iterator it = index_vars.begin(); it != index_vars.end(); it++ ){
-			fprintf(ftmp, "(get-value (%s))\n", it->c_str());
+			fprintf(ftmp, "(get-value (%s))\n", internal_condition(*it).c_str());
 		}
 
-		fprintf(ftmp, "(get-value (%s))\n", idx_content.c_str() );
+		fprintf(ftmp, "(get-value (%s))\n", internal_condition(idx_content).c_str() );
 
 		fclose(ftmp);
 
@@ -349,15 +349,7 @@ map<set<pair<string, int> > , int > Z3RealInt::get_idx_val(string base,string id
 
 string Z3RealInt::internal_condition(string condition){
 
-	//if(operation == "%") return "mod";
-	//return operation;
-	
-	
-	
-	
-	
-	
-	
+	myReplace(condition, "(% ", "(mod ");
 	
 	return condition;
 

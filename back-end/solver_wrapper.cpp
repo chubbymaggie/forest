@@ -431,7 +431,7 @@ void SolverWrapper::push_condition(string cond, string fn, vector<string> joints
 
 	set<string> joints_set = set<string>(joints.begin(), joints.end());
 
-	Condition condition = { cond, fn, joints_set };
+	Condition condition = { internal_condition(cond), fn, joints_set };
 	conditions.push_back( condition );
 }
 
