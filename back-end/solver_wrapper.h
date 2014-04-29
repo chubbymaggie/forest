@@ -77,11 +77,11 @@ public:
 	set<string> forced_free_hints;
 	void insert_forced_free_var(string name);
 	virtual void assign_instruction(string src, string dst, string fn_name = "") = 0;
+	virtual string internal_condition(string condition) = 0;
 	virtual void binary_instruction(string dst, string op1, string op2, string operation) = 0;
 	virtual void solve_problem() = 0;
 	virtual string internal_representation(int in, string type) = 0;
 	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
-	virtual string name_operation(string operation) = 0;
 	virtual map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address) = 0;
 
 	virtual ~SolverWrapper ();

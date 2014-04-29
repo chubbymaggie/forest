@@ -94,58 +94,6 @@ void Z3BitVector::dump_variables(FILE* file){
 
 }
 
-void Z3BitVector::right_shift(string op1, string op2, string dst, stringstream& content_ss){
-
-		content_ss << "(bvlshr " << content(op1) << " " << content(op2) << ")";
-
-		int places = stoi( realvalue(op2) );
-
-		int result_i = stoi(realvalue(op1)) >> places;
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-}
-
-void Z3BitVector::left_shift(string op1, string op2, string dst, stringstream& content_ss){
-
-
-
-		content_ss << "(bvshl " << content(op1) << " " << content(op2) << ")";
-
-		int places = stoi( realvalue(op2) );
-
-		int result_i = stoi(realvalue(op1)) << places;
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-
-}
-
-void Z3BitVector::and_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvand " << content(op1) << " " << content(op2) << ")";
-
-		int result_i = stoi(realvalue(op1)) & stoi(realvalue(op2));
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-}
-
-void Z3BitVector::or_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvor " << content(op1) << " " << content(op2) << ")";
-
-		int result_i = stoi(realvalue(op1)) | stoi(realvalue(op2));
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-}
 
 string Z3BitVector::canonical_representation(string in){
 
@@ -170,35 +118,6 @@ string Z3BitVector::canonical_representation(string in){
 string Z3BitVector::internal_representation(int in, string type){
 	return hex_representation(in, type);
 }
-
-string Z3BitVector::name_operation(string operation){
-	if(operation == "*") return "bvmul";
-	if(operation == "+") return "bvadd";
-	if(operation == "-") return "bvsub";
-	if(operation == "/") return "bvdiv";
-	if(operation == "%") return "bvsmod";
-	if(operation == "<=") return "bvsle";
-	if(operation == ">=") return "bvsge";
-	if(operation == ">") return "bvsgt";
-	if(operation == "<") return "bvslt";
-
-	assert(0 && "Unknown operation");
-}
-
-
-void Z3BitVector::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
-
-
-		content_ss << "(bvxor " << content(op1) << " " << content(op2) << ")";
-
-		int result_i = stoi(realvalue(op1)) && stoi(realvalue(op2));
-
-		stringstream result; result << result_i;
-		set_real_value(dst, result.str());
-
-}
-
-
 
 void Z3BitVector::dump_extra(FILE* file){
 }
@@ -393,3 +312,24 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 
 }
 
+
+
+string Z3BitVector::internal_condition(string condition){
+
+	myReplace(condition, "(* ",  "(bvmul ");
+	myReplace(condition, "(+ ",  "(bvadd ");
+	myReplace(condition, "(- ",  "(bvsub ");
+	myReplace(condition, "(/ ",  "(bvdiv ");
+	myReplace(condition, "(% ",  "(bvsmod ");
+	myReplace(condition, "(<= ", "(bvsle ");
+	myReplace(condition, "(>= ", "(bvsge ");
+	myReplace(condition, "(> ",  "(bvsgt ");
+	myReplace(condition, "(< ",  "(bvslt ");
+	myReplace(condition, "(X ",  "(bvxor ");
+	myReplace(condition, "(>> ", "(bvlshr ");
+	myReplace(condition, "(<< ", "(bvshl ");
+	myReplace(condition, "(Y ",  "(bvand ");
+	myReplace(condition, "(O ",  "(bvor ");
+	return condition;
+
+}

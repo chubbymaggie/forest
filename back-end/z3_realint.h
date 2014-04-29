@@ -31,17 +31,12 @@ public:
 	void dump_variables(FILE* file);
 	void dump_header(FILE* file);
 
-	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
-	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
+	string internal_condition(string condition);
 	void cast_instruction(string src, string dst, string type_src, string type_dst);
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
 protected:
 	void dump_problem(string& filename_base);
-	string name_operation(string operation);
 	string canonical_representation(string in);
 	string and_constant(string op1, string op2);
 	string or_constant(string op1, string op2);

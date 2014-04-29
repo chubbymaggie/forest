@@ -84,22 +84,6 @@ void Z3Double::dump_header(FILE* file){
 void Z3Double::dump_variables(FILE* file){
 }
 
-void Z3Double::right_shift(string op1, string op2, string dst, stringstream& content_ss){
-	Z3BitVector::right_shift(op1, op2, dst, content_ss);
-}
-
-void Z3Double::left_shift(string op1, string op2, string dst, stringstream& content_ss){
-	Z3BitVector::left_shift(op1, op2, dst, content_ss);
-}
-
-void Z3Double::and_operation(string op1, string op2, string dst, stringstream& content_ss){
-	Z3BitVector::and_operation(op1, op2, dst, content_ss);
-}
-
-void Z3Double::or_operation(string op1, string op2, string dst, stringstream& content_ss){
-	Z3BitVector::or_operation(op1, op2, dst, content_ss);
-}
-
 string Z3Double::canonical_representation(string in){
 	return Z3BitVector::canonical_representation(in);
 }
@@ -107,17 +91,6 @@ string Z3Double::canonical_representation(string in){
 string Z3Double::internal_representation(int in, string type){
 	return Z3BitVector::internal_representation(in, type);
 }
-
-string Z3Double::name_operation(string operation){
-	return Z3BitVector::name_operation(operation);
-}
-
-
-void Z3Double::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
-	return Z3BitVector::xor_operation(op1, op2, dst, content_ss);
-}
-
-
 
 void Z3Double::dump_extra(FILE* file){
 }
@@ -133,3 +106,10 @@ map<set<pair<string, int> > , int > Z3Double::get_idx_val(string base,string idx
 
 }
 
+
+
+string Z3Double::internal_condition(string condition){
+
+	return condition;
+
+}

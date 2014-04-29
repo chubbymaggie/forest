@@ -350,7 +350,7 @@ void SolverWrapper::push_condition(string cond, bool invert ){
 
 	set<string> joints_set;
 	string fn = "";
-	Condition condition = { invert?negation(cond):cond, fn, joints_set };
+	Condition condition = { internal_condition(invert?negation(cond):cond), fn, joints_set };
 
 	conditions.push_back( condition );
 
@@ -1182,10 +1182,10 @@ void SolverWrapper::pointer_instruction(string dst, string offset_tree, vector<s
 	int last_address = get_last_address(base);
 	
 
-	string expr = "(" + name_operation("+") + " " + content(base) + " ";
+	string expr = "(+ " + content(base) + " ";
 	for ( unsigned int i = 0; i < indexes.size(); i++) {
 		stringstream subexpr;
-		subexpr << "(" + name_operation("*") + " " << content(indexes[i]) << " " << internal_representation(jmp_offsets[i], "PointerTyID") << ") ";
+		subexpr << "(* " << content(indexes[i]) << " " << internal_representation(jmp_offsets[i], "PointerTyID") << ") ";
 		expr += subexpr.str();
 	}
 	expr += ")";

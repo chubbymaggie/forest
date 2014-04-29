@@ -30,17 +30,12 @@ public:
 	string canonical_representation(string in);
 	void cast_instruction(string src, string dst, string type_src, string type_dst);
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
+	string internal_condition(string condition);
 
 
 private:
 	void dump_problem(string& filename_base);
-	string name_operation(string operation);
 	string internal_representation(int in, string type);
-	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
-	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
-	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
 	void dump_header(FILE* file);
 	void dump_variables(FILE* file);
 	void dump_extra(FILE* file);

@@ -351,6 +351,62 @@ void Z3Solver::binary_instruction(string dst, string op1, string op2, string ope
 
 }
 
+
+
+
+void Z3Solver::right_shift(string op1, string op2, string dst, stringstream& content_ss){
+
+		content_ss << "(>> " << content(op1) << " " << content(op2) << ")";
+
+		int places = stoi( realvalue(op2) );
+
+		int result_i = stoi(realvalue(op1)) >> places;
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+}
+
+void Z3Solver::left_shift(string op1, string op2, string dst, stringstream& content_ss){
+
+
+
+		content_ss << "(<< " << content(op1) << " " << content(op2) << ")";
+
+		int places = stoi( realvalue(op2) );
+
+		int result_i = stoi(realvalue(op1)) << places;
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+
+}
+
+void Z3Solver::and_operation(string op1, string op2, string dst, stringstream& content_ss){
+
+
+		content_ss << "(Y " << content(op1) << " " << content(op2) << ")";
+
+		int result_i = stoi(realvalue(op1)) & stoi(realvalue(op2));
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+}
+
+void Z3Solver::or_operation(string op1, string op2, string dst, stringstream& content_ss){
+
+
+		content_ss << "(O " << content(op1) << " " << content(op2) << ")";
+
+		int result_i = stoi(realvalue(op1)) | stoi(realvalue(op2));
+
+		stringstream result; result << result_i;
+		set_real_value(dst, result.str());
+
+}
+
 void Z3Solver::assign_instruction(string src, string dst, string fn_name){
 
 	debug && printf("\n\e[32m Assign_instruction %s = %s \e[0m\n",dst.c_str(),src.c_str() );
@@ -466,7 +522,7 @@ void Z3Solver::neq_operation(string op1, string op2, string dst, stringstream& c
 
 void Z3Solver::rem_operator(string op1, string op2, string dst, stringstream& content_ss){
 
-		content_ss << "(" << name_operation("%") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(% " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result; result << stoi(realvalue(op1)) % stoi(realvalue(op2));
 		set_real_value(dst, result.str());
@@ -479,7 +535,7 @@ void Z3Solver::rem_operator(string op1, string op2, string dst, stringstream& co
 void Z3Solver::leq_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" + name_operation("<=") + " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(<= " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) <= stoi( realvalue(op2) ) )?"true":"false" );
 }
 
@@ -498,21 +554,21 @@ void Z3Solver::uleq_operation(string op1, string op2, string dst, stringstream& 
 void Z3Solver::geq_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" << name_operation(">=") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(>= " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) >= stoi( realvalue(op2) ) )?"true":"false" );
 }
 
 void Z3Solver::lt_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" + name_operation("<") + " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(< " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) < stoi( realvalue(op2) ) )?"true":"false" );
 }
 
 void Z3Solver::bt_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" + name_operation(">") + " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(> " << content(op1 ) << " " <<  content(op2 ) << ")";
 		set_real_value(dst, ( stoi(realvalue(op1) ) > stoi( realvalue(op2) ) )?"true":"false" );
 }
 
@@ -526,7 +582,7 @@ void Z3Solver::eq_operation(string op1, string op2, string dst, stringstream& co
 void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" << name_operation("+") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(+ " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" ){
@@ -542,10 +598,32 @@ void Z3Solver::add_operation(string op1, string op2, string dst, stringstream& c
 		set_real_value(dst, result.str());
 }
 
+
+void Z3Solver::xor_operation(string op1, string op2, string dst, stringstream& content_ss){
+
+
+		content_ss << "(X " << content(op1 ) << " " <<  content(op2 ) << ")";
+
+		stringstream result;
+		if( get_type(dst) == "Real" ){
+			result << stof(realvalue(op1)) + stof(realvalue(op2));
+		} else if (get_type(dst) == "Int") {
+			result << stoi(realvalue(op1)) + stoi(realvalue(op2)), gettype(op1);
+		} else if( get_type(dst) == "Pointer" ) {
+			result << stof(realvalue(op1)) + stof(realvalue(op2));
+		} else {
+			assert(0 && "Unknown type");
+		}
+
+		set_real_value(dst, result.str());
+}
+
+
+
 void Z3Solver::sub_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" << name_operation("-") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(- " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 
 		stringstream result;
@@ -564,7 +642,7 @@ void Z3Solver::sub_operation(string op1, string op2, string dst, stringstream& c
 void Z3Solver::mul_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" << name_operation("*") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(* " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 		stringstream result;
 		if( get_type(dst) == "Real" )
@@ -581,7 +659,7 @@ void Z3Solver::mul_operation(string op1, string op2, string dst, stringstream& c
 void Z3Solver::div_operation(string op1, string op2, string dst, stringstream& content_ss){
 
 
-		content_ss << "(" << name_operation("/") << " " << content(op1 ) << " " <<  content(op2 ) << ")";
+		content_ss << "(/ " << content(op1 ) << " " <<  content(op2 ) << ")";
 
 
 		stringstream result;

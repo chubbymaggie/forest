@@ -38,21 +38,19 @@ public:
 	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
 
 protected:
+	virtual string internal_condition(string condition) = 0;
 	virtual void dump_problem(string& filename) = 0;
 	virtual string internal_representation(int in, string type) = 0;
-	virtual void xor_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
-	virtual void or_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
-	virtual void and_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
-	virtual void left_shift(string op1, string op2, string dst, stringstream& content_ss) = 0;
-	virtual void right_shift(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void dump_extra(FILE* file) = 0;
 	virtual void dump_header(FILE* file) = 0;
-	virtual string name_operation(string operation) = 0;
 
 	void div_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void mul_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void sub_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void add_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void xor_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void or_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void and_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void eq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void bt_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void lt_operation(string op1, string op2, string dst, stringstream& content_ss);
@@ -61,6 +59,12 @@ protected:
 	void leq_operation(string op1, string op2, string dst, stringstream& content_ss);
 	void rem_operator(string op1, string op2, string dst, stringstream& content_ss);
 	void neq_operation(string op1, string op2, string dst, stringstream& content_ss);
+	void right_shift(string op1, string op2, string dst, stringstream& content_ss);
+	void left_shift(string op1, string op2, string dst, stringstream& content_ss);
+
+
+
+
 	bool need_for_dump(string name, string content);
 	void dump_tail(FILE* file);
 	void dump_get(FILE* file);
