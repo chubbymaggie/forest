@@ -177,6 +177,7 @@ map<set<pair<string, int> > , int > Z3BitVector::get_idx_val(string base,string 
 	}
 	
 
+	idx_content = internal_condition(idx_content);
 	
 	printf("\e[32m base \e[0m %s \e[32m idx_content \e[0m %s \e[32m indexes \e[0m %s \e[32m first_address \e[0m %d \e[32m last_address \e[0m %d\n", base.c_str(), idx_content.c_str(), idx_show.c_str(), first_address, last_address);
 
