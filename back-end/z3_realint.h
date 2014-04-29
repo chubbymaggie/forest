@@ -40,6 +40,7 @@ public:
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
 protected:
+	void dump_problem(string& filename_base);
 	string name_operation(string operation);
 	string canonical_representation(string in);
 	string and_constant(string op1, string op2);

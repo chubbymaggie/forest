@@ -40,6 +40,23 @@ Z3RealInt::~Z3RealInt(){
 	
 }
 
+void Z3RealInt::dump_problem(string& filename_base){
+
+
+	vector<string> tokens = tokenize(filename_base, ".");
+
+	FILE* file = fopen(filename_base.c_str(), "w");
+	dump_header(file);
+	dump_variables(file);
+	dump_extra(file);
+	dump_conditions(file);
+	dump_check_sat(file);
+	dump_get(file);
+	dump_tail(file);
+	fclose(file);
+
+}
+
 void Z3RealInt::dump_header(FILE* file){
 
 	fprintf(file,"(set-option :produce-models true)\n");

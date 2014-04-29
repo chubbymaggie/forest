@@ -38,6 +38,7 @@ public:
 	virtual void cast_instruction(string src, string dst, string type_src, string type_dst) = 0;
 
 protected:
+	virtual void dump_problem(string& filename) = 0;
 	virtual string internal_representation(int in, string type) = 0;
 	virtual void xor_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;
 	virtual void or_operation(string op1, string op2, string dst, stringstream& content_ss) = 0;

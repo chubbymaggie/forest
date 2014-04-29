@@ -43,18 +43,53 @@ Z3Double::~Z3Double(){
 	
 }
 
+void Z3Double::dump_problem(string& filename_base){
+
+	string filename_initial = filename_base;
+
+	{
+		vector<string> tokens = tokenize(filename_initial, ".");
+		filename_base = tokens[0] + "_realint_" + ".smt2";
+
+		FILE* file = fopen(filename_base.c_str(), "w");
+		Z3RealInt::dump_header(file);
+		Z3RealInt::dump_variables(file);
+		//dump_extra(file);
+		dump_conditions(file);
+		dump_check_sat(file);
+		dump_get(file);
+		dump_tail(file);
+		fclose(file);
+	}
+
+	{
+		vector<string> tokens = tokenize(filename_initial, ".");
+		filename_base = tokens[0] + "_bitvector_" + ".smt2";
+
+		FILE* file = fopen(filename_base.c_str(), "w");
+		Z3BitVector::dump_header(file);
+		Z3BitVector::dump_variables(file);
+		//dump_extra(file);
+		dump_conditions(file);
+		dump_check_sat(file);
+		dump_get(file);
+		dump_tail(file);
+		fclose(file);
+	}
+
+}
 
 void Z3Double::dump_header(FILE* file){
 
-	Z3RealInt::dump_header(file);
-	Z3BitVector::dump_header(file);
+	//Z3RealInt::dump_header(file);
+	//Z3BitVector::dump_header(file);
 
 }
 
 void Z3Double::dump_variables(FILE* file){
 
-	Z3RealInt::dump_variables(file);
-	Z3BitVector::dump_variables(file);
+	//Z3RealInt::dump_variables(file);
+	//Z3BitVector::dump_variables(file);
 	
 
 }

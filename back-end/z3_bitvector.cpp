@@ -40,6 +40,20 @@ Z3BitVector::~Z3BitVector(){
 	
 }
 
+void Z3BitVector::dump_problem(string& filename_base){
+
+
+	FILE* file = fopen(filename_base.c_str(), "w");
+	dump_header(file);
+	dump_variables(file);
+	dump_extra(file);
+	dump_conditions(file);
+	dump_check_sat(file);
+	dump_get(file);
+	dump_tail(file);
+	fclose(file);
+
+}
 
 void Z3BitVector::dump_header(FILE* file){
 

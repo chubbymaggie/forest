@@ -54,33 +54,23 @@ void Z3Solver::solve_problem(){
 	sat = 0;
 
 	//printf("call to get_problem_num\n");
+	string filename;
 
-	stringstream filename;
 	if(options->cmd_option_bool("sequential_problems")){
 		int n = database->get_problem_num();
-		filename << "z3_" << n << ".smt2";
+		filename = "z3_" + itos(n) + ".smt2";
 	} else {
-		filename << "z3_" << rand() << ".smt2";
+		filename = "z3_" + itos(rand()) + ".smt2";
 	}
-
-
-
 
 	options->read_options();
 
 	timer->start_timer();
-	FILE* file = fopen(filename.str().c_str(), "w");
-	dump_header(file);
-	dump_variables(file);
-	dump_extra(file);
-	dump_conditions(file);
-	dump_check_sat(file);
-	dump_get(file);
-	dump_tail(file);
-	fclose(file);
-	timer->end_timer("dump");
 
-	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.str().c_str() );
+	dump_problem(filename);
+
+	timer->end_timer("dump");
+	debug && printf("\e[31m filename solve problem \e[0m %s\n", filename.c_str() );
 
 	if(options->cmd_option_bool("see_each_problem"))
 		getchar();
@@ -90,7 +80,7 @@ void Z3Solver::solve_problem(){
 	FILE *fp;
 	stringstream command;
 
-	command << "z3 " << filename.str();
+	command << "z3 " << filename;
 	command << " > /tmp/z3_output";
 
 
