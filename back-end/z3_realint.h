@@ -36,11 +36,14 @@ public:
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
 protected:
+	void replace_or(string& condition);
+	void get_operands(string condition, string operation, string& substr, string& before, string& after, string& param1, string& param2);
+	void replace_and(string& condition);
+	string and_constant(string op1, string op2);
 	void replace_right_shift(string& condition);
 	void replace_left_shift(string& condition);
 	void dump_problem(string& filename_base);
 	string canonical_representation(string in);
-	string and_constant(string op1, string op2);
 	string or_constant(string op1, string op2);
 	string complement_op(string op1);
 	void dump_extra(FILE* file);

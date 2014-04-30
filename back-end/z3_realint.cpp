@@ -348,23 +348,32 @@ map<set<pair<string, int> > , int > Z3RealInt::get_idx_val(string base,string id
 }
 
 
+void Z3RealInt::get_operands(string condition, string operation, string& substr, string& before, string& after, string& param1, string& param2){
+
+		int ini = condition.find("(" + operation + " ");
+
+		substr = close_str(condition.substr(ini));
+
+		before = condition.substr(0, ini);
+		after = condition.substr(before.length() + substr.length() );
+
+		//param1 = parameter(substr.substr(4));
+		param1 = parameter(substr.substr(2+operation.length()));
+		//param2 = parameter(substr.substr(param1.length() + 5));
+		param2 = parameter(substr.substr(param1.length() + 3+operation.length()));
+
+
+		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
+		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
+}
+
 void Z3RealInt::replace_left_shift(string& condition){
 
 	if( condition.find("<<") == string::npos ){
 		return;
 	} else {
-		int ini = condition.find("<<")-1;
-		string substr = close_str(condition.substr(ini));
-
-		string before = condition.substr(0, ini);
-		string after = condition.substr(before.length() + substr.length() );
-
-		string param1 = parameter(substr.substr(4));
-		string param2 = parameter(substr.substr(param1.length() + 5));
-
-
-		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
-		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
+		string substr, before, after, param1, param2;
+		get_operands(condition, "<<", substr, before, after, param1, param2);
 
 		if(!is_number(param2)) assert(0 && "Unsupported operation");
 
@@ -385,18 +394,8 @@ void Z3RealInt::replace_right_shift(string& condition){
 	if( condition.find(">>") == string::npos ){
 		return;
 	} else {
-		int ini = condition.find(">>")-1;
-		string substr = close_str(condition.substr(ini));
-
-		string before = condition.substr(0, ini);
-		string after = condition.substr(before.length() + substr.length() );
-
-		string param1 = parameter(substr.substr(4));
-		string param2 = parameter(substr.substr(param1.length() + 5));
-
-
-		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
-		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
+		string substr, before, after, param1, param2;
+		get_operands(condition, ">>", substr, before, after, param1, param2);
 
 		if(!is_number(param2)) assert(0 && "Unsupported operation");
 
@@ -411,7 +410,142 @@ void Z3RealInt::replace_right_shift(string& condition){
 
 }
 
+void Z3RealInt::replace_and(string& condition){
 
+	if( condition.find("(Y ") == string::npos ){
+		return;
+	} else {
+		string substr, before, after, param1, param2;
+		get_operands(condition, "Y", substr, before, after, param1, param2);
+
+		if(!is_number(param2)) assert(0 && "Unsupported operation");
+
+
+		condition = before + and_constant(param1, param2) + after;
+
+
+	}
+}
+
+void Z3RealInt::replace_or(string& condition){
+
+	if( condition.find("(O ") == string::npos ){
+		return;
+	} else {
+		string substr, before, after, param1, param2;
+		get_operands(condition, "O", substr, before, after, param1, param2);
+
+		if(!is_number(param2)) assert(0 && "Unsupported operation");
+
+
+		condition = before + or_constant(param1, param2) + after;
+
+
+	}
+}
+
+
+string Z3RealInt::or_constant(string op1, string op2){
+
+	stringstream ret;
+	int op2_i = stoi(op2);
+	string op2_b = binary_rep(op2_i);
+	string content1 = op1;
+
+	printf("or_constant %s %s %s %s\n", op1.c_str(),content1.c_str(), op2.c_str(), op2_b.c_str());
+
+
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0,mult1=1,mult2=2; i < op2_b.length()-1; i++,mult1*=2, mult2*=2) {
+
+		char bit = op2_b[op2_b.length()-i-1];
+
+		printf("bit %c mult %d\n", bit, mult1);
+
+		stringstream x_bit_i_sh;
+		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
+		x_bit_i_sh << "(- (mod " << content1 << " " << mult2 << ") (mod " << content1 << " " << mult1 << "))";
+
+		if(bit == '1'){
+			z_bit_i_sh << "(- " << mult1 << " " << x_bit_i_sh.str() << ")";
+		} else {
+			z_bit_i_sh << "";
+		}
+
+
+		z_bits.push_back(z_bit_i_sh.str());
+	}
+
+	string res;
+
+	for ( unsigned int i = 0; i < z_bits.size(); i++) {
+		res += z_bits[i] + " ";
+	}
+
+	res = "(+ " + content1 + " " + res + ")";
+
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
+
+
+	return ret.str();
+
+}
+
+string Z3RealInt::and_constant(string op1, string op2){
+
+	stringstream ret;
+	int op2_i = stoi(op2);
+	string op2_b = binary_rep(op2_i);
+	string content1 = op1;
+
+	printf("and_constant %s %s %s %s\n", op1.c_str(),content1.c_str(), op2.c_str(), op2_b.c_str());
+
+
+	vector<string> z_bits;
+
+	for ( unsigned int i = 0,mult1=1,mult2=2; i < op2_b.length()-1; i++,mult1*=2, mult2*=2) {
+
+		char bit = op2_b[op2_b.length()-i-1];
+
+		printf("bit %c mult %d\n", bit, mult1);
+
+		stringstream x_bit_i_sh;
+		stringstream z_bit_i;
+		stringstream z_bit_i_sh;
+		x_bit_i_sh << "(- (mod " << content1 << " " << mult2 << ") (mod " << content1 << " " << mult1 << "))";
+
+		if(bit == '1'){
+			z_bit_i_sh << x_bit_i_sh.str();
+		} else {
+			z_bit_i_sh << "";
+		}
+
+
+		z_bits.push_back(z_bit_i_sh.str());
+	}
+
+	string res;
+
+	for ( unsigned int i = 0; i < z_bits.size(); i++) {
+		res += z_bits[i] + " ";
+	}
+
+	res = "(+ " + res + ")";
+
+	//printf("\e[33m op1 \e[0m %s \e[33m op2 \e[0m %s \e[33m res \e[0m %s\n", op1.c_str(), op2.c_str(), res.c_str() );
+
+	return res;
+
+
+
+	return ret.str();
+
+}
 
 
 string Z3RealInt::internal_condition(string condition){
@@ -419,6 +553,8 @@ string Z3RealInt::internal_condition(string condition){
 	myReplace(condition, "(% ", "(mod ");
 	replace_left_shift(condition);
 	replace_right_shift(condition);
+	replace_and(condition);
+	replace_or(condition);
 	
 	return condition;
 
