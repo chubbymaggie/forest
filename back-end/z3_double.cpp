@@ -36,7 +36,7 @@ extern Timer* timer;
 
 
 Z3Double::Z3Double(){
-	
+	mode = 0;
 }
 
 Z3Double::~Z3Double(){
@@ -70,6 +70,7 @@ void Z3Double::dump_problem(string& filename_base){
 
 	vector<Condition> conditions_aux = conditions;
 
+	mode = 1;
 	put_conditions_int(conditions_aux);
 	{
 		vector<string> tokens = tokenize(filename_initial, ".");
@@ -86,6 +87,7 @@ void Z3Double::dump_problem(string& filename_base){
 		fclose(file);
 	}
 
+	mode = 2;
 	put_conditions_bv(conditions_aux);
 	{
 		vector<string> tokens = tokenize(filename_initial, ".");
@@ -101,6 +103,8 @@ void Z3Double::dump_problem(string& filename_base){
 		fclose(file);
 	}
 
+
+	mode = 0;
 }
 
 void Z3Double::dump_header(FILE* file){
@@ -135,7 +139,14 @@ map<set<pair<string, int> > , int > Z3Double::get_idx_val(string base,string idx
 
 string Z3Double::internal_condition(string condition){
 
-	return condition;
-	//return Z3BitVector::internal_condition(condition);
+	printf("z3_double_internal_condition mode %d\n", mode);
+
+	if(mode == 0) return condition;
+	if(mode == 1) return Z3RealInt::internal_condition(condition);
+	if(mode == 2) return Z3BitVector::internal_condition(condition);
+
+
+	assert(0 && "mode");
+
 
 }

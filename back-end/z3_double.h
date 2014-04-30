@@ -44,7 +44,7 @@ private:
 
 
 
-
+	int mode;
 
 
 
