@@ -277,8 +277,8 @@ void load_default_options(){
 	options["propagate_constants"] = "true";
 	options["max_pointer_deref_combs"] = "500";
 	//options["solver"] = "bitvector";
-	options["solver"] = "real_integer";
-	//options["solver"] = "double";
+	//options["solver"] = "real_integer";
+	options["solver"] = "double";
 	//options["compare_klee"] = "true";
 	//options["get_result"] = "true";
 }

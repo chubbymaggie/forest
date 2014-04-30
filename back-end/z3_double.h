@@ -34,6 +34,8 @@ public:
 
 
 private:
+	void put_conditions_bv(vector<Condition> conditions_hl);
+	void put_conditions_int(vector<Condition> conditions_hl);
 	void dump_problem(string& filename_base);
 	string internal_representation(int in, string type);
 	void dump_header(FILE* file);

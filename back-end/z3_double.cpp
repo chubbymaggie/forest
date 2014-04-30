@@ -43,10 +43,34 @@ Z3Double::~Z3Double(){
 	
 }
 
+void Z3Double::put_conditions_int(vector<Condition> conditions_hl){
+
+	conditions.clear();
+	for( vector<Condition>::iterator it = conditions_hl.begin(); it != conditions_hl.end(); it++ ){
+		Condition cond = *it;
+		cond.cond = Z3RealInt::internal_condition(cond.cond);
+		conditions.push_back(cond);
+	}
+	
+}
+
+void Z3Double::put_conditions_bv(vector<Condition> conditions_hl){
+	conditions.clear();
+	for( vector<Condition>::iterator it = conditions_hl.begin(); it != conditions_hl.end(); it++ ){
+		Condition cond = *it;
+		cond.cond = Z3BitVector::internal_condition(cond.cond);
+		conditions.push_back(cond);
+	}
+
+}
+
 void Z3Double::dump_problem(string& filename_base){
 
 	string filename_initial = filename_base;
 
+	vector<Condition> conditions_aux = conditions;
+
+	put_conditions_int(conditions_aux);
 	{
 		vector<string> tokens = tokenize(filename_initial, ".");
 		filename_base = tokens[0] + "_realint_" + ".smt2";
@@ -55,13 +79,14 @@ void Z3Double::dump_problem(string& filename_base){
 		Z3RealInt::dump_header(file);
 		Z3RealInt::dump_variables(file);
 		Z3RealInt::dump_extra(file);
-		dump_conditions(file);
-		dump_check_sat(file);
-		dump_get(file);
-		dump_tail(file);
+		Z3RealInt::dump_conditions(file);
+		Z3RealInt::dump_check_sat(file);
+		Z3RealInt::dump_get(file);
+		Z3RealInt::dump_tail(file);
 		fclose(file);
 	}
 
+	put_conditions_bv(conditions_aux);
 	{
 		vector<string> tokens = tokenize(filename_initial, ".");
 		filename_base = tokens[0] + "_bitvector_" + ".smt2";
@@ -69,10 +94,10 @@ void Z3Double::dump_problem(string& filename_base){
 		FILE* file = fopen(filename_base.c_str(), "w");
 		Z3BitVector::dump_header(file);
 		Z3BitVector::dump_variables(file);
-		dump_conditions(file);
-		dump_check_sat(file);
-		dump_get(file);
-		dump_tail(file);
+		Z3BitVector::dump_conditions(file);
+		Z3BitVector::dump_check_sat(file);
+		Z3BitVector::dump_get(file);
+		Z3BitVector::dump_tail(file);
 		fclose(file);
 	}
 
@@ -111,5 +136,6 @@ map<set<pair<string, int> > , int > Z3Double::get_idx_val(string base,string idx
 string Z3Double::internal_condition(string condition){
 
 	return condition;
+	//return Z3BitVector::internal_condition(condition);
 
 }
