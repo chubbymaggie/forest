@@ -270,3 +270,15 @@ string binary_rep(int n){
 	return ret.str();
 }
 
+string hex2dec(string in){
+
+	int a;
+	char ret_str[10];
+	sscanf(in.c_str(), "%x", &a);
+	sprintf(ret_str, "%d", a);
+
+	return string(ret_str);
+}
+
+
+

@@ -351,6 +351,8 @@ void Z3RealInt::get_operands(string condition, string operation, string& substr,
 
 void Z3RealInt::replace_left_shift(string& condition){
 
+	while(true){
+
 	if( condition.find("<<") == string::npos ){
 		return;
 	} else {
@@ -368,10 +370,14 @@ void Z3RealInt::replace_left_shift(string& condition){
 
 	}
 
+	}
+
 }
 
 
 void Z3RealInt::replace_right_shift(string& condition){
+
+	while(true){
 
 	if( condition.find(">>") == string::npos ){
 		return;
@@ -390,9 +396,12 @@ void Z3RealInt::replace_right_shift(string& condition){
 
 	}
 
+	}
 }
 
 void Z3RealInt::replace_and(string& condition){
+
+	while(true){
 
 	if( condition.find("(Y ") == string::npos ){
 		return;
@@ -407,9 +416,12 @@ void Z3RealInt::replace_and(string& condition){
 
 
 	}
+	}
 }
 
 void Z3RealInt::replace_or(string& condition){
+
+	while(true){
 
 	if( condition.find("(O ") == string::npos ){
 		return;
@@ -424,10 +436,13 @@ void Z3RealInt::replace_or(string& condition){
 
 
 	}
+	}
 }
 
 
 void Z3RealInt::replace_xor(string& condition){
+
+	while(true){
 
 	if( condition.find("(X ") == string::npos ){
 		return;
@@ -443,6 +458,7 @@ void Z3RealInt::replace_xor(string& condition){
 			assert(0 && "Unsupported operation");
 
 
+	}
 	}
 }
 
@@ -567,6 +583,36 @@ string Z3RealInt::and_constant(string op1, string op2){
 
 }
 
+void Z3RealInt::replace_bv_ints(string& condition){
+
+	//printf("replace_bv_ints %s\n", condition.c_str());
+
+	while(true){
+
+	if( condition.find("#x") == string::npos ){
+		return;
+	} else {
+		string before, substr, after, param1, param2;
+
+		int ini = condition.find("#x");
+
+		substr = "#x" + tokenize(condition.substr(ini), "#x) ")[0];
+
+		before = condition.substr(0, ini);
+		after = condition.substr(before.length() + substr.length() );
+
+		substr = hex2dec(substr.substr(2));
+
+		debug && printf("\e[32m replace_bv_ints \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
+
+		condition = before + substr + after;
+
+
+	}
+
+	}
+}
+
 
 string Z3RealInt::internal_condition(string condition){
 
@@ -576,6 +622,7 @@ string Z3RealInt::internal_condition(string condition){
 	replace_and(condition);
 	replace_or(condition);
 	replace_xor(condition);
+	replace_bv_ints(condition);
 	
 	return condition;
 

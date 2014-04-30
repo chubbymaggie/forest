@@ -139,7 +139,7 @@ map<set<pair<string, int> > , int > Z3Double::get_idx_val(string base,string idx
 
 string Z3Double::internal_condition(string condition){
 
-	printf("z3_double_internal_condition mode %d\n", mode);
+	//printf("z3_double_internal_condition mode %d\n", mode);
 
 	if(mode == 0) return condition;
 	if(mode == 1) return Z3RealInt::internal_condition(condition);

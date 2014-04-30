@@ -58,5 +58,6 @@ short stoc(string str);
 float stof(string str);
 string locknames(string condition);
 string binary_rep(int n);
+string hex2dec(string in);
 
 #endif /* end of include guard: _UTILS_H_ */
