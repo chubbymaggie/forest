@@ -36,6 +36,7 @@ public:
 	map<set<pair<string, int> > , int > get_idx_val(string base,string idx_content, vector<string> indexes, int first_address, int last_address);
 
 protected:
+	void replace_xor(string& condition);
 	void replace_or(string& condition);
 	void get_operands(string condition, string operation, string& substr, string& before, string& after, string& param1, string& param2);
 	void replace_and(string& condition);

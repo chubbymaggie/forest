@@ -93,24 +93,6 @@ string Z3RealInt::canonical_representation(string in){
 	return in;
 }
 
-
-
-
-string Z3RealInt::complement_op(string op1){
-
-	stringstream ret;
-	string content1 = content(op1);
-
-	printf("complement_operation %s \n", op1.c_str());
-
-	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 1)))";
-	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 2)))";
-	ret << "(- (+ " << content1 << " 1))";
-
-	return ret.str();
-
-}
-
 void Z3RealInt::dump_extra(FILE* file){
 	dump_type_limits(file);
 }
@@ -363,7 +345,7 @@ void Z3RealInt::get_operands(string condition, string operation, string& substr,
 		param2 = parameter(substr.substr(param1.length() + 3+operation.length()));
 
 
-		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
+		debug && printf("\e[32m get_operands \e[0m \e[32m ini \e[0m %d \e[32m operation \e[0m %s \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, operation.c_str(), substr.c_str(), before.c_str(), after.c_str());
 		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
 }
 
@@ -443,6 +425,44 @@ void Z3RealInt::replace_or(string& condition){
 
 	}
 }
+
+
+void Z3RealInt::replace_xor(string& condition){
+
+	if( condition.find("(X ") == string::npos ){
+		return;
+	} else {
+		string substr, before, after, param1, param2;
+		get_operands(condition, "X", substr, before, after, param1, param2);
+
+		if(!is_number(param2)) assert(0 && "Unsupported operation");
+
+		if(param2 == "-1")
+			condition = before + complement_op(param1) + after;
+		else
+			assert(0 && "Unsupported operation");
+
+
+	}
+}
+
+
+string Z3RealInt::complement_op(string op1){
+
+	stringstream ret;
+	string content1 = op1;
+
+	printf("complement_operation %s \n", op1.c_str());
+
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 1)))";
+	//ret << "(ite (> " << content1 << " 0) (- (+ " << content1 << " 1)) (- -256 (+ " << content1 << " 2)))";
+	ret << "(- (+ " << content1 << " 1))";
+
+	return ret.str();
+
+}
+
+
 
 
 string Z3RealInt::or_constant(string op1, string op2){
@@ -555,6 +575,7 @@ string Z3RealInt::internal_condition(string condition){
 	replace_right_shift(condition);
 	replace_and(condition);
 	replace_or(condition);
+	replace_xor(condition);
 	
 	return condition;
 
