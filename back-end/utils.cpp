@@ -86,6 +86,18 @@ string close_str(string offset_tree){
 
 }
 
+
+string parameter(string input){
+
+	//printf("parameter %s\n", input.c_str());
+
+	if(input[0] == '(') return close_str(input);
+	else return tokenize(input, "() ")[0];
+
+}
+
+
+
 string trimpar(string str){
 
 	int n1 = str.find_first_not_of("()");

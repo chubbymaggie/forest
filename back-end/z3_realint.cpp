@@ -347,9 +347,78 @@ map<set<pair<string, int> > , int > Z3RealInt::get_idx_val(string base,string id
 
 }
 
+
+void Z3RealInt::replace_left_shift(string& condition){
+
+	if( condition.find("<<") == string::npos ){
+		return;
+	} else {
+		int ini = condition.find("<<")-1;
+		string substr = close_str(condition.substr(ini));
+
+		string before = condition.substr(0, ini);
+		string after = condition.substr(before.length() + substr.length() );
+
+		string param1 = parameter(substr.substr(4));
+		string param2 = parameter(substr.substr(param1.length() + 5));
+
+
+		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
+		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
+
+		if(!is_number(param2)) assert(0 && "Unsupported operation");
+
+		int exponent = stoi(param2);
+		int factor = 1 << exponent;
+
+		condition = before + "(* " + param1 + " " + itos(factor) + ")" + after;
+
+		//printf("condition %s\n", condition.c_str());
+
+	}
+
+}
+
+
+void Z3RealInt::replace_right_shift(string& condition){
+
+	if( condition.find(">>") == string::npos ){
+		return;
+	} else {
+		int ini = condition.find(">>")-1;
+		string substr = close_str(condition.substr(ini));
+
+		string before = condition.substr(0, ini);
+		string after = condition.substr(before.length() + substr.length() );
+
+		string param1 = parameter(substr.substr(4));
+		string param2 = parameter(substr.substr(param1.length() + 5));
+
+
+		debug && printf("\e[32m replace_shift_constant \e[0m \e[32m ini \e[0m %d \e[32m substr \e[0m .%s. \e[32m before \e[0m .%s. \e[32m after \e[0m .%s.\n", ini, substr.c_str(), before.c_str(), after.c_str());
+		debug && printf("\e[32m param1 \e[0m .%s. \e[32m param2 \e[0m .%s.\n", param1.c_str(), param2.c_str());
+
+		if(!is_number(param2)) assert(0 && "Unsupported operation");
+
+		int exponent = stoi(param2);
+		int factor = 1 << exponent;
+
+		condition = before + "(/ " + param1 + " " + itos(factor) + ")" + after;
+
+		//printf("condition %s\n", condition.c_str());
+
+	}
+
+}
+
+
+
+
 string Z3RealInt::internal_condition(string condition){
 
 	myReplace(condition, "(% ", "(mod ");
+	replace_left_shift(condition);
+	replace_right_shift(condition);
 	
 	return condition;
 

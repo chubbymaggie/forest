@@ -35,6 +35,7 @@ int get_size(string type);
 int get_ini_elem(int nelem_target, string offset_tree);
 
 string close_str(string offset_tree);
+string parameter(string input);
 
 string trimpar(string str);
 
